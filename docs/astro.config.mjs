@@ -4,7 +4,7 @@ import starlight from '@astrojs/starlight';
 // https://astro.build/config
 export default defineConfig({
 	site: process.env.ASTRO_SITE,
-	base: '/multi-agent-orchestrator',
+	base: '/',
 	markdown: {
 		gfm: true
   },
