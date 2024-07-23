@@ -1,5 +1,5 @@
-import { ConversationMessage, ParticipantRole } from "@aws/multi-agent-orchestrator";
-import { Logger } from "@aws/multi-agent-orchestrator";
+import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
+import { Logger } from "multi-agent-orchestrator";
 
 export const MATH_AGENT_PROMPT = `
 You are a mathematical assistant capable of performing various mathematical operations and statistical calculations.

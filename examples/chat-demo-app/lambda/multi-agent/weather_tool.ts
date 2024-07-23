@@ -1,4 +1,4 @@
-import { ConversationMessage, ParticipantRole } from "@aws/multi-agent-orchestrator";
+import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
 
 export const  weatherToolDescription = [
     {
@@ -63,7 +63,7 @@ export async function weatherToolHanlder(response:ConversationMessage, conversat
     if (!responseContentBlocks) {
       throw new Error("No content blocks in response");
     } 
-    for (const contentBlock of response.content) {
+    for (const contentBlock of responseContentBlocks) {
         if ("text" in contentBlock) {
         }
         if ("toolUse" in contentBlock) {

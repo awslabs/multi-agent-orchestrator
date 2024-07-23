@@ -5,8 +5,9 @@ import {
   DynamoDbChatStorage,
   LexBotAgent,
   AmazonBedrockAgent,
-  LambdaAgent
- } from "@aws/multi-agent-orchestrator";
+  LambdaAgent,
+  BedrockClassifier,
+} from "multi-agent-orchestrator";
 import { weatherToolDescription, WEATHER_PROMPT, weatherToolHanlder } from './weather_tool'
 import { mathToolHanlder, mathAgentToolDefinition, MATH_AGENT_PROMPT } from './math_tool';
 import { APIGatewayProxyEventV2, Handler, Context } from "aws-lambda";
@@ -68,6 +69,12 @@ const orchestrator = new MultiAgentOrchestrator({
   },
   logger: logger,
 });
+
+  orchestrator.setClassifier(new BedrockClassifier(
+  {
+      modelId: "anthropic.claude-3-5-sonnet-20240620-v1:0",
+  }
+  ));
 
 orchestrator.addAgent(
   new BedrockLLMAgent({
@@ -197,10 +204,7 @@ async function eventHandler(
       // Send metadata immediately
       logger.info(` > Agent ID: ${response.metadata.agentId}`);
       logger.info(` > Agent Name: ${response.metadata.agentName}`);
-      logger.info(`> Language: ${response.metadata.language}`);
-      logger.info(
-        `> Language Confidence: ${response.metadata.languageConfidence}`
-      );
+      
       logger.info(`> User Input: ${response.metadata.userInput}`);
       logger.info(`> User ID: ${response.metadata.userId}`);
       logger.info(`> Session ID: ${response.metadata.sessionId}`);
@@ -231,10 +235,6 @@ async function eventHandler(
       logger.info("\n** RESPONSE ** \n");
       logger.info(` > Agent ID: ${response.metadata.agentId}`);
       logger.info(` > Agent Name: ${response.metadata.agentName}`);
-      logger.info(`> Language: ${response.metadata.language}`);
-      logger.info(
-        `> Language Confidence: ${response.metadata.languageConfidence}`
-      );
       logger.info(`> User Input: ${response.metadata.userInput}`);
       logger.info(`> User ID: ${response.metadata.userId}`);
       logger.info(`> Session ID: ${response.metadata.sessionId}`);
