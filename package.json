@@ -7,14 +7,25 @@
   "files": [
     "dist"
   ],
+  "author": {
+    "name": "Amazon Web Services",
+    "url": "https://aws.amazon.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/awslabs/multi-agent-orchestrator"
+  },
+  "bugs": {
+    "url": "https://github.com/awslabs/multi-agent-orchestrator/issues"
+  },
+  "homepage": "https://awslabs.github.io/multi-agent-orchestrator/",
   "scripts": {
     "build": "tsc",
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "coverage": "jest --coverage"
   },
-  "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.3",
     "@aws-sdk/client-bedrock-agent-runtime": "^3.609.0",
