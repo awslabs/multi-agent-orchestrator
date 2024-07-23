@@ -25,9 +25,7 @@
     "axios": "^1.7.2",
     "natural": "^7.0.7",
     "openai": "^4.52.7",
-    "stopword": "^3.0.1",
-    "xml2js": "^0.6.2",
-    "xmldom": "^0.6.0"
+    "stopword": "^3.0.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
