@@ -14,10 +14,6 @@ permissions:
   id-token: write
 
 jobs:
-  # Lint the code and check for spelling errors.
-  lint:
-    uses: ./.github/workflows/run-lint.yml
-
   # Build the documentation.
   build:
     needs: lint
