@@ -9,5 +9,6 @@ new ChatDemoStack(app, 'ChatDemoStack', {
   env: {
     region: process.env.CDK_DEFAULT_REGION,
     account: process.env.CDK_DEFAULT_ACCOUNT
-  }
+  },
+  description: "Multi Agent Orchestrator Chat Demo Application (uksb-2mz8io1d9k)"
 });
