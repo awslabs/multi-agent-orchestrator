@@ -45,16 +45,16 @@ describe("Classifier", () => {
 
     test("Classify test output", async () => {
 
-        let response = await orchestrator.classifyIntent("What is aws lambda", "userId", "sessionId");    
+        let response = await orchestrator.classifier.classify("What is aws lambda", []);    
         expect(response.selectedAgent?.name).toBe('Tech Agent');
 
-        response = await orchestrator.classifyIntent("What is an aspirin", "userId", "sessionId");    
+        response = await orchestrator.classifier.classify("What is an aspirin", []);    
         expect(response.selectedAgent?.name).toBe('Health Agent');
 
-        response = await orchestrator.classifyIntent("book a flight", "userId", "sessionId");   
+        response = await orchestrator.classifier.classify("book a flight", []);   
         expect(response.selectedAgent?.name).toBe('AirlinesBot'); 
 
-        response = await orchestrator.classifyIntent("3+5", "userId", "sessionId");   
+        response = await orchestrator.classifier.classify("3+5", []);   
         expect(response.selectedAgent?.name).toBe('Math Agent'); 
       }, 15000);
 
