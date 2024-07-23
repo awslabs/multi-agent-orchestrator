@@ -15,7 +15,7 @@ This agent can handle a wide range of processing tasks, making it suitable for d
 - Streaming and non-streaming response options
 - Customizable inference configuration
 - Ability to set and update custom system prompts
-- Optional integration with [retrieval systems](/retrievers/overview) for enhanced context
+- Optional integration with [retrieval systems](/multi-agent-orchestrator/retrievers/overview) for enhanced context
 - Support for [Tool use](https://docs.aws.amazon.com/bedrock/latest/userguide/tool-use.html) within the conversation flow
 
 ## Creating a BedrockLLMAgent

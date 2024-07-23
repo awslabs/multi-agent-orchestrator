@@ -99,4 +99,4 @@ The BedrockClassifier includes error handling to manage potential issues during 
 - Requires an active AWS account with access to Amazon Bedrock.
 - Classification quality depends on the chosen model and the quality of your system prompt and agent descriptions.
 
-For more information on using and customizing the Multi-Agent Orchestrator, refer to the [Classifier Overview](/classifier/overview) and [Agents](/agents/overview) documentation.
+For more information on using and customizing the Multi-Agent Orchestrator, refer to the [Classifier Overview](/multi-agent-orchestrator/classifier/overview) and [Agents](/multi-agent-orchestrator/agents/overview) documentation.

@@ -107,17 +107,17 @@ The MultiAgentOrchestrator provides several functions to manage agents, process 
    Processes a user request, classifies the intent, selects an appropriate agent, and returns the agent's response.
 
 
-These functions allow you to configure the orchestrator, manage agents, and process user requests. For more detailed information on each function, please refer to the [API Reference](/api-reference) section.
+These functions allow you to configure the orchestrator, manage agents, and process user requests. For more detailed information on each function, please refer to the [API Reference](/multi-agent-orchestrator/api-reference) section.
 
 ### Additional notes
 
-- The `storage` option allows you to specify a custom storage mechanism. By default, it uses in-memory storage, but you can implement your own storage solution or use built-in options like DynamoDB storage. For more information, see the [Storage section](/storage/overview).
+- The `storage` option allows you to specify a custom storage mechanism. By default, it uses in-memory storage, but you can implement your own storage solution or use built-in options like DynamoDB storage. For more information, see the [Storage section](/multi-agent-orchestrator/storage/overview).
 
-- The `logger` option lets you provide a custom logger. If not specified, a default logger will be used. To learn how to implement a custom logger, check out [the logging section](/advanced-features/custom-logging).
+- The `logger` option lets you provide a custom logger. If not specified, a default logger will be used. To learn how to implement a custom logger, check out [the logging section](/multi-agent-orchestrator/advanced-features/custom-logging).
 
-- The `classifier` option allows you to use a custom classifier for intent classification. If not provided, a [Bedrock Classifier](/classifiers/built-in/bedrock-classifier) will be used by default. For details on implementing a custom classifier, see the [Custom Classifiers](/classifiers/custom-classifier) documentation.
+- The `classifier` option allows you to use a custom classifier for intent classification. If not provided, a [Bedrock Classifier](/multi-agent-orchestrator/classifiers/built-in/bedrock-classifier) will be used by default. For details on implementing a custom classifier, see the [Custom Classifiers](/multi-agent-orchestrator/classifiers/custom-classifier) documentation.
 
-- The default agent is a [Bedrock LLM Agent](/agents/built-in/bedrock-llm-agent) configured as a generalist, capable of handling a wide range of topics. Learn more about the default agent and how to customize 
+- The default agent is a [Bedrock LLM Agent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) configured as a generalist, capable of handling a wide range of topics. Learn more about the default agent and how to customize 
 it in the Default Agent Configuration section.
 
 By customizing these options, you can tailor the Orchestrator's behavior to suit your specific use case and requirements.
