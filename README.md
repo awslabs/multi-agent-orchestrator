@@ -27,9 +27,10 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 ## 🏗️ High-level architecture flow diagram
 
 <br /><br />
-<p align="center">
-  <img src="img/flow.jpg">
-</p>
+
+![High-level architecture flow diagram](img/flow.jpg)
+
+
 <br /><br />
 
 
@@ -56,9 +57,8 @@ Notice how the appropriate agent is selected for each query, maintaining coheren
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
-<p align="center">
-  <img src="img/demo-app.gif" alt="Chat Demo App Screen Recording">
-</p>
+![Demo](img/demo-app.gif "Demo App Screen Recording")
+
 
 To learn more about the demo app and how to set it up, please visit our [Demo app](https://awslabs.github.io/multi-agent-orchestrator/deployment/demo-web-app/) documentation.
 
