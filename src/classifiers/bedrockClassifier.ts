@@ -1,5 +1,5 @@
 import {
-  BEDROCK_MODEL_ID_CLAUDE_3_SONNET,
+  BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET,
   ClassifierResult,
   ConversationMessage,
   ParticipantRole,
@@ -79,7 +79,7 @@ export class BedrockClassifier extends Classifier{
     
     // Initialize default values or use provided options
     this.client = new BedrockRuntimeClient();
-    this.modelId = options.modelId || BEDROCK_MODEL_ID_CLAUDE_3_SONNET;
+    this.modelId = options.modelId || BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET;
     // Initialize inferenceConfig only if it's provided in options
     this.inferenceConfig = {
       maxTokens: options.inferenceConfig?.maxTokens,
