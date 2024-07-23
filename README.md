@@ -31,8 +31,6 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 ![High-level architecture flow diagram](img/flow.jpg)
 
 
-![High-level architecture flow diagram](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/flow.jpg)
-
 
 <br /><br />
 
