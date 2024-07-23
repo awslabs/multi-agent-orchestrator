@@ -1,0 +1,25 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --app-color-scheme: light;
+  color-scheme: var(--app-color-scheme);
+}
+
+html,
+body,
+#root,
+div[data-amplify-authenticator],
+div[data-amplify-theme] {
+  height: 100%;
+}
+
+body {
+  background-color: #ffffff;
+  overflow-y: scroll;
+}
+
+body.awsui-dark-mode {
+  background-color: #0e1b2a;
+}

@@ -1,0 +1,46 @@
+{
+  "name": "cloudscape-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "format": "npx prettier --ignore-path .gitignore --write \"**/*.+(tsx|js|ts|json)\""
+  },
+  "dependencies": {
+    "@aws-amplify/ui-react": "^6.1.3",
+    "@cloudscape-design/components": "^3.0.611",
+    "@cloudscape-design/design-tokens": "^3.0.35",
+    "@cloudscape-design/global-styles": "^1.0.27",
+    "aws-amplify": "^6.0.15",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.22.0",
+    "react-textarea-autosize": "^8.5.3",
+    "remark-gfm": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "postcss": "^8.4.35",
+    "sass": "^1.70.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.9"
+  },
+  "overrides": {
+    "react-virtual": {
+      "react": "^18.0.0"
+    }
+  }
+}

@@ -1,0 +1,368 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  Amazon Lex for travel hospitality offers pre-built solutions
+  so you can enable experiences at scale and drive
+  digital engagement. The purpose-built bots provide
+  ready to use conversation flows along with training
+  data and dialog prompts, for both voice and chat modalities.
+Metadata:
+    AWS::CloudFormation::Interface:
+        ParameterGroups:
+            - Label:
+                default: Amazon Lex bot parameters
+              Parameters:
+                  - BotName
+                  - BusinessLogicFunctionName
+            - Label:
+                default: Amazon DynamoDB parameters
+              Parameters:
+                  - DynamoDBTableName
+            - Label:
+                default: Amazon Connect parameters (Optional)
+              Parameters:
+                  - ConnectInstanceARN
+                  - ContactFlowName
+
+Mappings:
+  BucketName:
+    us-east-1:
+      Name: 'lex-usecases-us-east-1'
+    us-west-2:
+      Name: 'lex-usecases-us-west-2'
+    eu-west-2:
+      Name: 'lex-usecases-eu-west-2'
+    eu-west-1:
+      Name: 'lex-usecases-eu-west-1'
+    eu-central-1:
+      Name: 'lex-usecases-eu-central-1'
+    ca-central-1:
+      Name: 'lex-usecases-ca-central-1'
+    ap-southeast-2:
+      Name: 'lex-usecases-ap-southeast-2'
+    ap-southeast-1:
+      Name: 'lex-usecases-ap-southeast-1'
+    ap-northeast-2:
+      Name: 'lex-usecases-ap-northeast-2'
+    ap-northeast-1:
+      Name: 'lex-usecases-ap-northeast-1'
+    af-south-1:
+      Name: 'lex-usecases-af-south-1'
+  S3Path:
+    LexImportSource:
+      Name: 'travel/airlines/lex_import.zip'
+    DBImportSource:
+      Name: 'travel/airlines/db_import.zip'
+    BusinessLogicSource:
+      Name: 'travel/airlines/lambda_import.zip'
+    ConnectImportSource:
+      Name: 'travel/airlines/connect_import.zip'
+Parameters:
+  ConnectInstanceARN:
+    Type: String
+    Description: >
+      ARN of Connect Instance. To find your instance ARN:
+      'https://docs.aws.amazon.com/connect/latest/adminguide/find-instance-arn.html'
+    Default: ''
+    
+  ContactFlowName:
+    Type: String
+    Description: >
+      Name of the Connect contact flow. Please ensure contact flow
+      with the same name does not exist.
+    Default: AirlinesContactFlow
+  BusinessLogicFunctionName:
+    Type: String
+    Description: >
+      Name of the Lambda function for validation and fulfilment
+    Default: AirlinesBusinessLogic
+  BotName:
+    Type: String
+    Description: >
+      Name of the Lex bot
+    Default: AirlinesBot
+  DynamoDBTableName:
+    Type: String
+    Description: >
+      Name of the DynamoDB table that contains the sample policy data
+    Default: Airlines_db
+
+Resources:
+  LexRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - lex.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: !Join [ "_", [ !Ref AWS::StackName, 'LexPolicy' ] ]
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'polly:SynthesizeSpeech'
+                Resource:
+                  - '*'
+  LexImportFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: !FindInMap [BucketName, !Ref "AWS::Region", 'Name']
+        S3Key: !FindInMap [S3Path, 'LexImportSource', 'Name']
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt
+        - LexImportRole
+        - Arn
+      Runtime: python3.9
+      FunctionName: !Join [ "_", [ !Ref AWS::StackName, 'LexImportFunction' ] ]
+      MemorySize: 128
+      Timeout: 300
+      Environment:
+        Variables:
+          TopicArn: !Ref LexRole
+  LambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: !Join [ "_", [ !Ref AWS::StackName, 'LambdaRolePolicy' ] ]
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:BatchGetItem'
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:Scan'
+                  - 'dynamodb:BatchWriteItem'
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:UpdateItem'
+                  - 'dynamodb:DescribeTable'
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                  - 'logs:DescribeLogStreams'
+                Resource:
+                  - !GetAtt DynamoDBTable.Arn
+                  - 'arn:aws:logs:*:*:*'
+  LexImportRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonLexFullAccess
+      Policies:
+        - PolicyName: !Join [ "_", [ !Ref AWS::StackName, 'LexImportPolicy' ] ]
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'lambda:PublishVersion'
+                  - 'lambda:AddPermission'
+                  - 'lambda:GetFunction'
+                  - 'sts:GetCallerIdentity'
+                  - 'iam:GetRole'
+                  - 'iam:PassRole'
+                Resource:
+                  - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:*
+                  - !Sub arn:aws:iam::${AWS::AccountId}:role/*
+                  - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot/*
+                  - !Sub arn:aws:lex:${AWS::Region}:${AWS::AccountId}:bot-alias/*
+                  - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:*
+  InvokeLexImportFunction:
+    DependsOn: LambdaBusinessLogic
+    Type: Custom::InvokeLexImportFunction
+    Version: '1.0'
+    Properties:
+      ServiceToken: !GetAtt LexImportFunction.Arn
+      RoleARN: !GetAtt LexRole.Arn
+      LambdaFunctionName: !Ref BusinessLogicFunctionName
+      BotName: !Ref BotName
+  DynamoDBTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: record_type_id
+          AttributeType: S
+        - AttributeName: customer_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: customer_id
+          KeyType: HASH
+        - AttributeName: record_type_id
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
+      TableName: !Ref DynamoDBTableName
+  InvokeDynamoDBImportFunction:
+    DependsOn: DynamoDBTable
+    Type: 'Custom::InvokeDynamoDBImportFunction'
+    Properties:
+      ServiceToken: !GetAtt DynamoDBImportFunction.Arn
+      TableName: !Ref DynamoDBTable
+      key2:
+        - list
+      key3:
+        key4: map
+  DynamoDBImportFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: !FindInMap [BucketName, !Ref "AWS::Region", 'Name']
+        S3Key: !FindInMap [S3Path, 'DBImportSource', 'Name']
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt
+        - LambdaRole
+        - Arn
+      Runtime: python3.9
+      FunctionName: !Join [ "_", [ !Ref AWS::StackName, 'DynamoDBImportFunction' ] ]
+      MemorySize: 128
+      Timeout: 300
+  LambdaBusinessLogic:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: !FindInMap [BucketName, !Ref "AWS::Region", 'Name']
+        S3Key: !FindInMap [S3Path, 'BusinessLogicSource', 'Name']
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt
+        - LambdaRole
+        - Arn
+      Runtime: python3.9
+      FunctionName: !Ref BusinessLogicFunctionName
+      MemorySize: 128
+      Timeout: 300
+      Environment:
+          Variables:
+            dynamodb_tablename: !Ref DynamoDBTableName
+            databaseUser: admin
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt LambdaBusinessLogic.Arn
+      Action: lambda:InvokeFunction
+      Principal: lexv2.amazonaws.com
+      SourceArn: !GetAtt InvokeLexImportFunction.lex_arn
+  ConnectImportFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        S3Bucket: !FindInMap [BucketName, !Ref "AWS::Region", 'Name']
+        S3Key: !FindInMap [S3Path, 'ConnectImportSource', 'Name']
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt
+        - ConnectRole
+        - Arn
+      Runtime: python3.9
+      FunctionName: !Join [ "_", [ !Ref AWS::StackName, 'ConnectImportFunction' ] ]
+      MemorySize: 128
+      Timeout: 300
+  ConnectRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonLexFullAccess
+      Policies:
+        - PolicyName: !Join [ "_", [ !Ref AWS::StackName, 'ConnectRole' ] ]
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'connect:CreateContactFlow'
+                  - 'connect:AssociateBot'
+                  - 'connect:DescribeContactFlow'
+                  - 'connect:ListContactFlows'
+                  - 'iam:AddRoleToInstanceProfile'
+                  - 'iam:AddUserToGroup'
+                  - 'iam:AttachGroupPolicy'
+                  - 'iam:AttachRolePolicy'
+                  - 'iam:AttachUserPolicy'
+                  - 'iam:CreateInstanceProfile'
+                  - 'iam:CreatePolicy'
+                  - 'iam:CreateRole'
+                  - 'iam:CreateServiceLinkedRole'
+                  - 'iam:CreateUser'
+                  - 'iam:DetachGroupPolicy'
+                  - 'iam:DetachRolePolicy'
+                  - 'iam:DetachUserPolicy'
+                  - 'iam:GetGroup'
+                  - 'iam:GetGroupPolicy'
+                  - 'iam:GetInstanceProfile'
+                  - 'iam:GetLoginProfile'
+                  - 'iam:PutGroupPolicy'
+                  - 'iam:PutRolePolicy'
+                  - 'iam:PutUserPolicy'
+                  - 'iam:UpdateGroup'
+                  - 'iam:UpdateRole'
+                  - 'iam:UpdateUser'
+                  - 'iam:GetPolicy'
+                  - 'iam:GetPolicyVersion'
+                  - 'iam:GetRole'
+                  - 'iam:GetRolePolicy'
+                  - 'iam:GetUser'
+                  - 'iam:GetUserPolicy'
+                  - 'iam:CreatePolicyVersion'
+                  - 'iam:SetDefaultPolicyVersion'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                  - 'logs:DescribeLogStreams'
+                Resource: '*'
+  InvokeConnectImportFunction:
+    Type: Custom::InvokeConnectImportFunction
+    Version: '1.0'
+    Properties:
+      ServiceToken: !GetAtt ConnectImportFunction.Arn
+      BotAliasArn: !GetAtt InvokeLexImportFunction.lex_arn
+      ContactName: !Ref ContactFlowName
+      ConnectInstanceARN: !Ref ConnectInstanceARN
+      BotName: !Ref BotName
+
+Outputs:
+  AmazonConnect:
+    Description: 'Connect Status'
+    Value: !GetAtt InvokeConnectImportFunction.ContactFlowDescription
+  CustomerData:
+    Description: 'Sample customer data'
+    Value: 'https://lex-usecases-templates.s3.amazonaws.com/AirlinesBot_customer_data.html'

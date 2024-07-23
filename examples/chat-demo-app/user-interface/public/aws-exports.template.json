@@ -1,0 +1,15 @@
+{
+  "region": "eu-west-1",
+  "Auth": {
+    "Cognito": {
+      "userPoolClientId": "0000000000000000000000000",
+      "userPoolId": "eu-west-0_AAAAAAAAA",
+      "identityPoolId": "eu-west-1:aaaaaaaa-aaaaaaaaa-aaaa-aaaaaaaaaaaa"
+    }
+  },
+  "API": {
+    "REST": {
+      "RestApi": { "endpoint": "https://aaaaaaaaaaaaaa.cloudfront.net/api/v1" }
+    }
+  }
+}

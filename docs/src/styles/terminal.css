@@ -1,0 +1,51 @@
+/* Solarized color palette */
+:root {
+  --sol-red: #dc322f;
+  --sol-bright-red: #cb4b16;
+  --sol-green: #859900;
+  --sol-yellow: #b58900;
+  --sol-blue: #268bd2;
+  --sol-magenta: #d33682;
+  --sol-bright-magenta: #6c71c4;
+  --sol-cyan: #2aa198;
+
+  --sol-base03: #002b36;
+  --sol-base02: #073642;
+  --sol-base00: #657b83;
+  --sol-base0: #839496;
+  --sol-base2: #eee8d5;
+  --sol-base3: #fdf6e3;
+}
+
+pre.terminal {
+  --black: var(--sol-base02);
+  --red: var(--sol-red);
+  --bright-red: var(--sol-bright-red);
+  --green: var(--sol-green);
+  --yellow: var(--sol-yellow);
+  --blue: var(--sol-blue);
+  --magenta: var(--sol-magenta);
+  --bright-magenta: var(--sol-bright-magenta);
+  --cyan: var(--sol-cyan);
+  --white: var(--sol-base2);
+
+  background-color: var(--sol-base03);
+  color: var(--sol-base0);
+  font-family: var(--__sl-font-mono);
+}
+
+:root[data-theme="light"] pre.terminal {
+  background-color: var(--sol-base3);
+  color: var(--sol-base00);
+}
+
+pre.terminal p {
+  margin: -0.75rem -1rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+}
+
+pre.astro-code + pre.terminal {
+  margin-top: 0;
+  border-top-width: 0;
+}

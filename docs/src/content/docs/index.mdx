@@ -1,0 +1,60 @@
+---
+title: Multi-Agent Orchestrator System
+description: Manage multiple AI agents and handle complex, multi-intent conversations
+template: splash
+hero:
+  tagline: Flexible and powerful framework for managing multiple AI agents and handling complex conversations 🤖🚀
+  actions:
+    - text: How it works
+      link: /general/how-it-works
+      icon: right-arrow
+      variant: primary      
+    - text: GitHub Repository
+      link: https://github.com/your-username/multi-agent-orchestrator
+      icon: external
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Key Features
+
+- **Multi-Agent Orchestration**: Seamlessly coordinate and leverage multiple AI agents in a single system
+- **Intelligent intent classification**: Dynamically route queries to the most suitable agent based on context and content
+- **Flexible agent responses**: Support for both streaming and non-streaming responses from different agents
+- **Context management**: Maintain and utilize conversation context across multiple agents for coherent interactions
+- **Extensible architecture**: Easily integrate new agents or customize existing ones to fit your specific needs
+- **Universal deployment**: Run anywhere - from AWS Lambda to your local environment or any cloud platform
+
+<CardGrid>
+  <Card title="Quick Installation" icon="rocket">
+    Get up and running in minutes:
+    See our [Quick Start Guide](/general/quickstart) for more details.
+  </Card>
+
+  <Card title="How it works" icon="rocket">
+    See our [How it works](/general/how-it-works) for more details.
+  </Card>
+
+	<Card title="Deployable Demo WebApp" icon="rocket">
+	Deploy our [Chat WebApp](/examples/chat-webapp) to test the Multi-Agent Orchestrator:
+
+	- Set up your own interactive testing environment.
+	- Experience real-time agent selection and routing.
+	- Explore context management across multiple agents.
+	- Customize the demo to fit your specific use case.
+	</Card>
+
+  <Card title="Powerful Agents" icon="puzzle">
+    Discover our built-in agents:
+
+    - [Bedrock LLM Agent](/agents/pre-implemented/bedrock-llm-agent)
+    - [Amazon Bedrock Agent](/agents/pre-implemented/amazon-bedrock-agent)
+    - [Lex Bot Agent](/agents/pre-implemented/lex-bot-agent)
+    - [AWS Lambda Agent](/agents/built-in/lambda-agent)
+    - [Open AI Agent](/agents/pre-implemented/lex-bot-agent)
+
+    Learn how to [create your own custom agents](/agents/custom-agents).
+  </Card>
+
+</CardGrid>
+

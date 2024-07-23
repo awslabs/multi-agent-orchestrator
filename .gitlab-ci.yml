@@ -1,0 +1,19 @@
+image: node:lts
+
+pages:
+  stage: deploy
+  script:
+    - npm install
+    - cd docs
+    - npm install
+    - npx astro build
+    - mv dist ../public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - docs/**/*
+        - package.json
+        - package-lock.json

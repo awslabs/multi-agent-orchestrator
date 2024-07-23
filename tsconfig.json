@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+      "noUnusedParameters": false,
+      "target": "ES2018",
+      "module": "commonjs",
+      "lib": ["ES2018", "DOM"],
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "strict": false,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+      "declaration": true,
+      "sourceMap": true,
+      "noUnusedLocals": false,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true
+    },
+    "include": [
+      "src/**/*",
+    ],
+    "exclude": [
+      "tests/mock/mockAgent.ts",
+      "node_modules",
+      "**/*.spec.ts",
+      "examples"
+    ]
+}

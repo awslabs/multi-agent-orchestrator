@@ -1,0 +1,115 @@
+@use "@cloudscape-design/design-tokens/index" as awsui;
+
+.chat_container {
+  margin-bottom: -40px;
+  min-height: calc(100vh - 96px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+@media (min-width: 466px) {
+  .chat_container {
+    min-height: calc(100vh - 104px);
+  }
+}
+
+@media (min-width: 689px) {
+  .chat_container {
+    min-height: calc(100vh - 60px);
+  }
+}
+
+@media (min-width: 913px) {
+  .chat_container {
+    min-height: calc(100vh - 68px);
+  }
+}
+
+.welcome_text {
+  color: awsui.$color-text-body-default;
+  font-size: 3rem;
+  font-weight: bolder;
+  opacity: 0.4;
+}
+
+.input_container {
+  position: sticky;
+  bottom: 0;
+  padding-bottom: awsui.$space-scaled-l;
+  padding-top: awsui.$space-scaled-xxl;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    awsui.$color-background-container-content 20%
+  );
+  margin-left: -8px;
+  margin-right: -8px;
+  container-type: inline-size;
+  container-name: input_container;
+}
+
+.input_textarea_container {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px;
+}
+
+.input_textarea {
+  resize: none;
+  border: none;
+  padding: 12px 12px 12px 4px;
+  background-color: transparent;
+  outline: none;
+  width: 100%;
+  height: 100%;
+  font-size: 1rem;
+}
+
+.btn_chabot_message_copy {
+  float: right;
+}
+
+.markdown {
+  font-size: 1em;
+}
+
+.markdown p {
+  margin: 0px;
+}
+
+.wave {
+  position: relative;
+  width: 29px;
+  height: 29px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.wave .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 3px;
+  background: #fff;
+  animation: wave 1.3s linear infinite;
+}
+.wave .dot:nth-child(2) {
+  animation-delay: -1.1s;
+}
+.wave .dot:nth-child(3) {
+  animation-delay: -0.9s;
+}
+
+@keyframes wave {
+  0%,
+  60%,
+  100% {
+    transform: initial;
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}

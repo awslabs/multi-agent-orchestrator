@@ -1,0 +1,36 @@
+:root {
+	--sl-hue-accent: 255;
+	--sl-color-accent-low: hsl(var(--sl-hue-accent), 14%, 20%);
+	--sl-color-accent: hsl(var(--sl-hue-accent), 60%, 60%);
+	--sl-color-accent-high: hsl(var(--sl-hue-accent), 60%, 87%);
+  --overlay-blurple: hsla(var(--sl-hue-accent), 60%, 60%, 0.2);
+}
+
+:root[data-theme='light'] {
+  --sl-hue-accent: 45; /*Color of top bar text and icons and Getting Started button*/
+	--sl-color-accent-high: hsl(var(--sl-hue-accent), 90%, 20%);
+	--sl-color-accent: hsl(var(--sl-hue-accent), 100%, 50%);
+	--sl-color-accent-low: hsl(var(--sl-hue-accent), 98%, 80%);
+}
+
+[data-has-hero] .page {
+  background: linear-gradient(215deg, var(--overlay-blurple), transparent 40%),
+    radial-gradient(var(--overlay-blurple), transparent 40%) no-repeat -60vw -40vh / 105vw 200vh,
+    radial-gradient(var(--overlay-blurple), transparent 65%) no-repeat 50% calc(100% + 20rem) / 60rem 30rem;
+}
+
+[data-has-hero] header {
+  border-bottom: 1px solid transparent;
+  background-color: transparent;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+[data-has-hero] .hero > img {
+  filter: drop-shadow(0 0 3rem var(--overlay-blurple));
+}
+
+iframe[id='stackblitz-iframe'] {
+  width: 100%;
+  min-height: 600px;
+}

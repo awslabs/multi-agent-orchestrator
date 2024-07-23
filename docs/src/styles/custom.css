@@ -1,0 +1,138 @@
+/* Dark mode colors. */
+:root {
+  --sl-color-accent-low: #2c230a;
+  --sl-color-accent: #846500;
+  --sl-color-accent-high: #d4c8ab;
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #eceef2;
+  --sl-color-gray-2: #c0c2c7;
+  --sl-color-gray-3: #888b96;
+  --sl-color-gray-4: #545861;
+  --sl-color-gray-5: #353841;
+  --sl-color-gray-6: #24272f;
+  --sl-color-black: #17181c;
+  --sl-label-api-color: #dc8686;
+  --sl-label-api-background-color: #dc8686;
+  --sl-label-version-color: #7ed7c1;
+  --sl-label-version-background-color: #7ed7c1;
+  --sl-label-package-color: #ffdfd3;
+  --sl-label-package-background-color: #ffdfd3;
+}
+/* Light mode colors. */
+:root[data-theme='light'] {
+  --sl-color-accent-low: #dfd6c0;
+  --sl-color-accent: #a90202;
+  --sl-color-accent-high: #3f3003;
+  --sl-color-white: #17181c;
+  --sl-color-gray-1: #24272f;
+  --sl-color-gray-2: #353841;
+  --sl-color-gray-3: #545861;
+  --sl-color-gray-4: #888b96;
+  --sl-color-gray-5: #c0c2c7;
+  --sl-color-gray-6: #eceef2;
+  --sl-color-gray-7: #f5f6f8;
+  --sl-color-black: #ffffff;
+  --sl-label-api-color: #c74848;
+  --sl-label-api-background-color: #c74848;
+  --sl-label-version-color: #3cb99a;
+  --sl-label-version-background-color: #3cb99a;
+  --sl-label-package-color: #cf5123;
+  --sl-label-package-background-color: #cf5123;
+}
+
+:root {
+  --purple-hsl: 205, 60%, 60%;
+  --overlay-blurple: hsla(var(--purple-hsl), 0.4);
+}
+
+[data-has-hero] .page {
+  background: linear-gradient(215deg, var(--overlay-blurple), transparent 40%),
+    radial-gradient(var(--overlay-blurple), transparent 40%) no-repeat -60vw -40vh /
+      105vw 200vh,
+    radial-gradient(var(--overlay-blurple), transparent 65%) no-repeat 50%
+      calc(100% + 20rem) / 60rem 30rem;
+}
+
+[data-has-hero] header {
+  border-bottom: 1px solid transparent;
+  background-color: transparent;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+[data-has-hero] .hero > img {
+  filter: drop-shadow(0 0 3rem var(--overlay-blurple));
+}
+
+[data-page-title] {
+  font-size: 3rem;
+}
+
+/* date page title onl 2.5rem on mobile devices */
+@media (max-width: 768px) {
+  [data-page-title] {
+    font-size: 2.5rem;
+  }
+}
+
+.card-grid > .card {
+  border-radius: 10px;
+}
+
+.card > .title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.Label, .label {
+  border: 1px solid;
+  border-radius: 2em;
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 18px;
+  padding: 0 7px;
+  white-space: nowrap;
+}
+
+.Label > a, .label > a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.Label > a:hover, .label > a:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.Label.Label--api {
+  color: var(--sl-label-api-color);
+  border-color: var(--sl-label-api-background-color);
+}
+
+.Label.Label--version {
+  color: var(--sl-label-version-color);
+  border-color: var(--sl-label-version-background-color);
+}
+
+.Label.Label--package {
+  color: var(--sl-label-package-color);
+  border-color: var(--sl-label-package-background-color);
+}
+
+.text-uppercase {
+  text-transform: uppercase !important;
+}
+
+.language-icon {
+  margin-bottom: -8px;
+  float: right;
+}
+
+@media only screen and (max-width: 1023px) {
+  .language-icon {
+    display: none;
+    float: none;
+  }
+}

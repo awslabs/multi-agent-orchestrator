@@ -1,0 +1,30 @@
+name: Run security checks on the project
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout and setup.
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Install dependencies
+        run: npm install
+      
+      # NPM audit.
+      - name: Run audit
+        run: npm audit
+
+      # GitLeaks.
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@4df650038e2eb9f7329218df929c2780866e61a3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+

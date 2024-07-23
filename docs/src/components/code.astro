@@ -1,0 +1,45 @@
+---
+import { ExpressiveCode, ExpressiveCodeConfig } from 'expressive-code';
+import { toHtml } from 'hast-util-to-html';
+import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
+
+import fs from 'node:fs/promises';
+
+interface Props {
+  file: string;
+  language?: string;
+  meta?: string;
+}
+
+const { file, language, meta } = Astro.props;
+const fileNamePath = '../' + file;
+const fileEtension = file.split('.').pop() ?? 'js';
+const code = await fs.readFile(fileNamePath, 'utf-8');
+const ec = new ExpressiveCode({
+  plugins: [pluginCollapsibleSections()],
+});
+
+// Get base styles that should be included on the page
+// (they are independent of the rendered code blocks)
+const baseStyles = await ec.getBaseStyles();
+
+// Render some example code to AST
+const { renderedGroupAst, styles } = await ec.render({
+  code: code,
+  language: language ?? fileEtension,
+  meta: `title="${file}"` + (meta ? ` ${meta}` : ''),
+});
+
+// Convert the rendered AST to HTML
+let htmlContent = toHtml(renderedGroupAst);
+
+// Collect styles and add them before the HTML content
+const stylesToPrepend: string[] = [];
+stylesToPrepend.push(baseStyles);
+stylesToPrepend.push(...styles);
+if (stylesToPrepend.length) {
+  htmlContent = `<style>${[...stylesToPrepend].join('')}</style>${htmlContent}`;
+}
+---
+
+<div set:html={htmlContent} />
