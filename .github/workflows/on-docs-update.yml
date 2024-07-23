@@ -1,0 +1,48 @@
+name: Build and Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  # Lint the code and check for spelling errors.
+  lint:
+    uses: ./.github/workflows/run-lint.yml
+
+  # Build the documentation.
+  build:
+    needs: lint
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Install, build, and upload documentation
+        uses: withastro/action@9a7959a16949e620a22e74f81c10cb7ce3b76924
+        with:
+          path: ./docs
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@027b0ddc3de8dbe7e5a699814c4508ca8ecefc5f
+        with:
+          path: ./docs/dist
+
+  # Deploy the documentation to GitHub Pages.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@7a9bd943aa5e5175aeb8502edcc6c1c02d398e10
