@@ -9,7 +9,7 @@ The Multi-Agent Orchestrator framework is a powerful tool for implementing sophi
 <br>
 <br>
 <p align="center">
-  [](../../../assets/flow.jpg)
+  [](/multi-agent-orchestrator/flow.jpg)
 </p>
 <br>
 
