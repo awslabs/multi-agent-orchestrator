@@ -3,7 +3,7 @@
 <p align="center">Flexible and powerful framework for managing multiple AI agents and handling complex conversations.</p>
 
 <p align="center">
-<a href="https://github.com/your-username/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
+<a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
 </p>
 
 ## 🔖 Features
@@ -63,7 +63,7 @@ To learn more about the demo app and how to set it up, please visit our [Demo ap
 
 ## 🚀 Getting Started
 
-Check out our [documentation](https://agents-router-ccroito-3c2888b7fca70c9654f87b6d4d86b8d825407301d.pages.aws.dev/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
+Check out our documentation for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
 
 ### Quick Install
 
