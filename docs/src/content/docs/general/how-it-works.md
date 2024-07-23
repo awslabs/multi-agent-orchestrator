@@ -87,7 +87,7 @@ The main components that are composing the orchestrator:
    - Processes user input and orchestrates the generation of appropriate responses
    - Handles error scenarios and fallback mechanisms
 
-- [Classifier](/classifier/overview)
+- [Classifier](/classifiers/overview)
    - Examines user input, agent descriptions, and conversation history
    - Identifies the most appropriate agent for each request
    - Custom Classifiers: Create entirely new classifiers for specific tasks or domains
