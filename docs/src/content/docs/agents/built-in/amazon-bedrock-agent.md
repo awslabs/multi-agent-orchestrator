@@ -11,7 +11,7 @@ The `AmazonBedrockAgent` is a specialized agent class in the Multi-Agent Orchest
 To create a new `AmazonBedrockAgent` with only the required parameters, use the following code:
 
 ```typescript
-import { AmazonBedrockAgent } from '@aws/multi-agent-orchestrator';
+import { AmazonBedrockAgent } from 'multi-agent-orchestrator';
 
 
 const agent = new AmazonBedrockAgent({
@@ -38,7 +38,7 @@ To integrate the LexBotAgent into your Multi-Agent Orchestrator, follow these st
 1. First, ensure you have created an instance of the orchestrator:
 
 ```typescript
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 ```

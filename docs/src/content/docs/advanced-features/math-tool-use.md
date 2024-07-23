@@ -82,7 +82,7 @@ export const mathAgentToolDefinition = [
 B. Tool Handler
 
 ```typescript
-import { ConversationMessage, ParticipantRole } from "@aws/multi-agent-orchestrator";
+import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
 
 export async function mathToolHandler(response, conversation: ConversationMessage[]) {
     const responseContentBlocks = response.content as any[];
@@ -247,7 +247,7 @@ Now that we have our math tool defined and the code above in a file called `weat
 
 
 ```typescript
-import { BedrockLLMAgent } from '@aws/multi-agent-orchestrator';
+import { BedrockLLMAgent } from 'multi-agent-orchestrator';
 import { mathAgentToolDefinition, mathToolHandler } from './mathTools';
 
 const MATH_PROMPT = `
@@ -279,7 +279,7 @@ mathAgent.setSystemPrompt(MATH_PROMPT);
 Now we can add our math agent to the Multi-Agent Orchestrator:
 
 ```typescript
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 

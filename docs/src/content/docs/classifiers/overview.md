@@ -31,7 +31,7 @@ const orchestrator = new MultiAgentOrchestrator();
 To use the Anthropic Classifier, you can pass it as an option:
 
 ```typescript
-import { AnthropicClassifier } from "@aws/multi-agent-orchestrator";
+import { AnthropicClassifier } from "multi-agent-orchestrator";
 
 const anthropicClassifier = new AnthropicClassifier({
   apiKey: 'your-anthropic-api-key'

@@ -18,7 +18,7 @@ To help you kickstart  with the Multi-Agent Orchestrator framework, we'll walk y
 1. Install the Multi-Agent Orchestrator framework in your nodejs project.
 
 ```bash
-npm install @aws/multi-agent-orchestrator
+npm install multi-agent-orchestrator
 ```
 
 
@@ -30,7 +30,7 @@ npm install @aws/multi-agent-orchestrator
 3. Create an Orchestrator
 
 ```typescript
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 const orchestrator = new MultiAgentOrchestrator({
   config: {
     logAgentConversation: true,
@@ -44,7 +44,7 @@ const orchestrator = new MultiAgentOrchestrator({
 
 ```typescript
 
-import { BedrockLLMAgent } from "@aws/multi-agent-orchestrator";
+import { BedrockLLMAgent } from "multi-agent-orchestrator";
 
 
 orchestrator.addAgent(

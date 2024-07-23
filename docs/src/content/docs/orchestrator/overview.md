@@ -10,7 +10,7 @@ The Multi-Agent Orchestrator is the central component of the framework, responsi
 To create a new Orchestrator instance, you can use the `MultiAgentOrchestrator` class:
 
 ```typescript
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator(options);
 ```
@@ -40,8 +40,8 @@ The Orchestrator accepts an `OrchestratorOptions` object during initialization. 
 Here's an example that demonstrates how to initialize the Orchestrator with all available options:
 
 ```typescript
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
-import { DynamoDBChatStorage } from "@aws/multi-agent-orchestrator/storage";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+import { DynamoDBChatStorage } from "multi-agent-orchestrator/storage";
 import { CustomClassifier } from "./custom-classifier";
 import { CustomLogger } from "./custom-logger";
 

@@ -24,7 +24,7 @@ The BedrockClassifier extends the abstract `Classifier` class and uses Amazon Be
 By default, the Multi-Agent Orchestrator uses the BedrockClassifier. You don't need to do anything special to use it:
 
 ```typescript
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 ```
@@ -34,7 +34,7 @@ const orchestrator = new MultiAgentOrchestrator();
 You can customize the BedrockClassifier by creating an instance with specific options:
 
 ```typescript
-import { BedrockClassifier, MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { BedrockClassifier, MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const customBedrockClassifier = new BedrockClassifier({
   modelId: 'anthropic.claude-v2',

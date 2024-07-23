@@ -45,7 +45,7 @@ To integrate the LexBotAgent into your Multi-Agent Orchestrator, follow these st
 1. First, ensure you have created an instance of the orchestrator:
 
 ```typescript
-import { MultiAgentOrchestrator } from '@aws/multi-agent-orchestrator';
+import { MultiAgentOrchestrator } from 'multi-agent-orchestrator';
 
 const orchestrator = new MultiAgentOrchestrator();
 ```
