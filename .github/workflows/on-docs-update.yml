@@ -16,7 +16,6 @@ permissions:
 jobs:
   # Build the documentation.
   build:
-    needs: lint
     concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
