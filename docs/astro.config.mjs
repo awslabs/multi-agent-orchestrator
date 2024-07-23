@@ -116,7 +116,7 @@ export default defineConfig({
 				  {
 					  label: 'Use cases',
 					  items: [
-						{ label: 'use case examples', link: '/use-cases/use-cases' },
+						{ label: 'Use case examples', link: '/use-cases/use-cases' },
 					  ]
 				  },
 			  ]
