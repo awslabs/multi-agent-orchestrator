@@ -22,7 +22,7 @@ Deploying the Multi-Agent Orchestrator System to AWS Lambda allows you to run yo
 
    ```typescript
    import { Logger } from "@aws-lambda-powertools/logger";
-   import { OrchestratorConfig, MultiAgentOrchestrator, BedrockLLMAgent } from "@aws/multi-agent-orchestrator";
+   import { OrchestratorConfig, MultiAgentOrchestrator, BedrockLLMAgent } from "multi-agent-orchestrator";
    import { APIGatewayProxyEventV2, Context } from "aws-lambda";
 
    const logger = new Logger();

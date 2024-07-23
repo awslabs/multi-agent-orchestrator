@@ -15,7 +15,7 @@ This agent can handle a wide range of processing tasks, making it suitable for d
 - Streaming and non-streaming response options
 - Customizable inference configuration
 - Ability to set and update custom system prompts
-- Optional integration with [retrieval systems](/retrievers/overview) for enhanced context
+- Optional integration with [retrieval systems](/multi-agent-orchestrator/retrievers/overview) for enhanced context
 - Support for [Tool use](https://docs.aws.amazon.com/bedrock/latest/userguide/tool-use.html) within the conversation flow
 
 ## Creating a BedrockLLMAgent
@@ -27,7 +27,7 @@ This agent can handle a wide range of processing tasks, making it suitable for d
 To create a new `BedrockLLMAgent` with only the required parameters, use the following code:
 
 ```typescript
-import { BedrockLLMAgent } from '@aws/multi-agent-orchestrator';
+import { BedrockLLMAgent } from 'multi-agent-orchestrator';
 
 
 const agent = new BedrockLLMAgent({
@@ -46,7 +46,7 @@ For more complex use cases, you can create a BedrockLLMAgent with all available 
 To create a new `BedrockLLMAgent` with all optional parameters, use the following code:
 
 ```typescript
-import { BedrockLLMAgent, BedrockLLMAgentOptions } from '@aws/multi-agent-orchestrator';
+import { BedrockLLMAgent, BedrockLLMAgentOptions } from 'multi-agent-orchestrator';
 import { Retriever } from '../retrievers/retriever';
 
 const options: BedrockLLMAgentOptions = {
@@ -134,7 +134,7 @@ To integrate the LexBotAgent into your Multi-Agent Orchestrator, follow these st
 1. First, ensure you have created an instance of the orchestrator:
 
 ```typescript
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 ```

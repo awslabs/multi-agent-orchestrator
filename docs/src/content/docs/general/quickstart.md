@@ -18,7 +18,7 @@ To help you kickstart  with the Multi-Agent Orchestrator framework, we'll walk y
 1. Install the Multi-Agent Orchestrator framework in your nodejs project.
 
 ```bash
-npm install @aws/multi-agent-orchestrator
+npm install multi-agent-orchestrator
 ```
 
 
@@ -30,7 +30,7 @@ npm install @aws/multi-agent-orchestrator
 3. Create an Orchestrator
 
 ```typescript
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 const orchestrator = new MultiAgentOrchestrator({
   config: {
     logAgentConversation: true,
@@ -44,7 +44,7 @@ const orchestrator = new MultiAgentOrchestrator({
 
 ```typescript
 
-import { BedrockLLMAgent } from "@aws/multi-agent-orchestrator";
+import { BedrockLLMAgent } from "multi-agent-orchestrator";
 
 
 orchestrator.addAgent(
@@ -117,11 +117,11 @@ You've successfully set up and run your first multi-agent conversation using the
 
 Now that you've seen the basic functionality, here are some next steps to explore:
 
-1. Try adding other agents from those built-in in the framwork ([Bedrock LLM Agent](/agents/built-in/bedrock-llm-agent), [Amazon Lex Bot](/agents/built-in/lex-bot-agent), [Amazon Bedrock Agent](/agents/built-in/amazon-bedrock-agent), [Lambda Agent](/agents/built-in/lambda-agent), [OpenAI Agent](/agents/built-in/openai-agent)).
-2. Experiment with different storage options, such as [Amazon DynamoDB](/storage/dynamodb) for persistent storage.
-3. Explore the [Agent Overlap Analysis](/advanced-features/agent-overlap) feature to optimize your agent configurations.
-4. Integrate the system into a web application or deploy it as an [AWS Lambda function](/deployment/aws-lambda).
-5. Try adding your own [custom agents](/agents/custom-agents) by extending the `Agent` class.
+1. Try adding other agents from those built-in in the framwork ([Bedrock LLM Agent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent), [Amazon Lex Bot](/multi-agent-orchestrator/agents/built-in/lex-bot-agent), [Amazon Bedrock Agent](/multi-agent-orchestrator/agents/built-in/amazon-bedrock-agent), [Lambda Agent](/multi-agent-orchestrator/agents/built-in/lambda-agent), [OpenAI Agent](/multi-agent-orchestrator/agents/built-in/openai-agent)).
+2. Experiment with different storage options, such as [Amazon DynamoDB](/multi-agent-orchestrator/storage/dynamodb) for persistent storage.
+3. Explore the [Agent Overlap Analysis](/multi-agent-orchestrator/advanced-features/agent-overlap) feature to optimize your agent configurations.
+4. Integrate the system into a web application or deploy it as an [AWS Lambda function](/multi-agent-orchestrator/deployment/aws-lambda).
+5. Try adding your own [custom agents](/multi-agent-orchestrator/agents/custom-agents) by extending the `Agent` class.
 
 
 For more detailed information on these advanced features, check out our full documentation.

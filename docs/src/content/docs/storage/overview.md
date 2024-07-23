@@ -32,8 +32,8 @@ The Multi-Agent Orchestrator System offers flexible storage options for maintain
 
 ## Next Steps
 
-- Learn more about [In-Memory Storage](/storage/in-memory)
-- Explore [DynamoDB Storage](/storage/dynamodb) for persistent storage
-- Discover how to [implement custom storage solutions](/storage/custom)
+- Learn more about [In-Memory Storage](/multi-agent-orchestrator/storage/in-memory)
+- Explore [DynamoDB Storage](/multi-agent-orchestrator/storage/dynamodb) for persistent storage
+- Discover how to [implement custom storage solutions](/multi-agent-orchestrator/storage/custom)
 
 By leveraging these storage options, you can ensure that your Multi-Agent Orchestrator System maintains the necessary context for coherent and effective conversations across various use cases and deployment scenarios.

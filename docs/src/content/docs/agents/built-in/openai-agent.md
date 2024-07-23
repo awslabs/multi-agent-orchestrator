@@ -88,7 +88,7 @@ The `setSystemPrompt` method allows you to dynamically change the agent's behavi
 Once you've created an OpenAIAgent, you can add it to the Multi-Agent Orchestrator and use it to process requests:
 
 ```typescript
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 orchestrator.addAgent(agent);

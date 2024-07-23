@@ -17,7 +17,7 @@ The `LambdaAgent` is a versatile agent class in the Multi-Agent Orchestrator Sys
 
 
 ```typescript
-import { LambdaAgent } from '@aws/multi-agent-orchestrator';
+import { LambdaAgent } from 'multi-agent-orchestrator';
 
 const myCustomInputPayloadEncoder = (input, chatHistory, userId, sessionId, additionalParams) => {
   return JSON.stringify({
@@ -66,7 +66,7 @@ To integrate the LambdaAgent into your Multi-Agent Orchestrator System, follow t
 1. First, ensure you have created an instance of the orchestrator:
 
 ```typescript
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 ```

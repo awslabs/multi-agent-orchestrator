@@ -7,9 +7,9 @@ The Classifier is a crucial component of the Multi-Agent Orchestrator, responsib
 
 ## Available Classifiers
 
-- **[Bedrock Classifier](/classifiers/built-in/bedrock-classifier)** leverages Amazon Bedrock's AI models for intent classification. It is the default classifier used by the orchestrator.
+- **[Bedrock Classifier](/multi-agent-orchestrator/classifiers/built-in/bedrock-classifier)** leverages Amazon Bedrock's AI models for intent classification. It is the default classifier used by the orchestrator.
 
-- **[Anthropic Classifier](/classifiers/built-in/anthropic-classifier)** uses Anthropic's AI models, for intent classification. It provides an alternative option for users who prefer or have access to Anthropic's services.
+- **[Anthropic Classifier](/multi-agent-orchestrator/classifiers/built-in/anthropic-classifier)** uses Anthropic's AI models, for intent classification. It provides an alternative option for users who prefer or have access to Anthropic's services.
 
 ### Process Flow
 Regardless of the classifier used, the general process remains the same:
@@ -31,7 +31,7 @@ const orchestrator = new MultiAgentOrchestrator();
 To use the Anthropic Classifier, you can pass it as an option:
 
 ```typescript
-import { AnthropicClassifier } from "@aws/multi-agent-orchestrator";
+import { AnthropicClassifier } from "multi-agent-orchestrator";
 
 const anthropicClassifier = new AnthropicClassifier({
   apiKey: 'your-anthropic-api-key'
@@ -41,7 +41,7 @@ const orchestrator = new MultiAgentOrchestrator({ classifier: anthropicClassifie
 
 ## Custom Classifier Implementation
 
-You can provide your own custom implementation of the classifier by extending the abstract `Classifier` class. For details on how to do this, please refer to the [Custom Classifier](/classifiers/custom-classifier) section.
+You can provide your own custom implementation of the classifier by extending the abstract `Classifier` class. For details on how to do this, please refer to the [Custom Classifier](/multi-agent-orchestrator/classifiers/custom-classifier) section.
 
 ## Testing
 
@@ -78,5 +78,5 @@ By thoroughly testing and debugging your chosen Classifier, you can ensure accur
 
 ---
 
-For more detailed information on each classifier, refer to the [BedrockClassifier](/classifiers/built-in/bedrock-classifier) and [AnthropicClassifier](/classifiers/built-in/anthropic-classifier) documentation pages.
+For more detailed information on each classifier, refer to the [BedrockClassifier](/multi-agent-orchestrator/classifiers/built-in/bedrock-classifier) and [AnthropicClassifier](/classifiers/built-in/anthropic-classifier) documentation pages.
 

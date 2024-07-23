@@ -21,13 +21,13 @@ The Multi-Agent Orchestrator System is primarily designed to build advanced, sca
 ##### What types of agents are supported?
 
 The framework is designed to accommodate essentially any type of agent you can envision. It comes with several built-in agents, including:
-- [Bedrock LLM Agent](/agents/built-in/bedrock-llm-agent): Leverages Amazon Bedrock's API.
-- [Amazon Bedrock Agent](/agents/built-in/amazon-bedrock-agent): Leverages existing Amazon Bedrock Agents.
-- [Amazon Lex Bot](/agents/built-in/lex-bot-agent): Implements logic to call Amazon Lex chatbots.
-- [Lambda Agent](/agents/built-in/lambda-agent): Implements logic to invoke an AWS Lambda function.
-- [OpenAI Agent](/agents/built-in/openai-agent):  Leverages OpenAI's language models, such as GPT-3.5 and GPT-4
+- [Bedrock LLM Agent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent): Leverages Amazon Bedrock's API.
+- [Amazon Bedrock Agent](/multi-agent-orchestrator/agents/built-in/amazon-bedrock-agent): Leverages existing Amazon Bedrock Agents.
+- [Amazon Lex Bot](/multi-agent-orchestrator/agents/built-in/lex-bot-agent): Implements logic to call Amazon Lex chatbots.
+- [Lambda Agent](/multi-agent-orchestrator/agents/built-in/lambda-agent): Implements logic to invoke an AWS Lambda function.
+- [OpenAI Agent](/multi-agent-orchestrator/agents/built-in/openai-agent):  Leverages OpenAI's language models, such as GPT-3.5 and GPT-4
 
-Additionally, you have the flexibility to easily create your own [custom agents](/agents/custom-agents) or customize existing ones to suit your specific needs.
+Additionally, you have the flexibility to easily create your own [custom agents](/multi-agent-orchestrator/agents/custom-agents) or customize existing ones to suit your specific needs.
 
 
 <br />
@@ -46,7 +46,7 @@ Each conversation is associated with a unique combination of `userId`, `sessionI
 
 ##### Is DynamoDB supported for conversation storage?
 
-Yes, the framework includes a built-in DynamoDB storage option. For detailed instructions on how to implement and configure this storage solution, please refer to the [DynamoDB storage](/storage/dynamodb) section in the documentation.
+Yes, the framework includes a built-in DynamoDB storage option. For detailed instructions on how to implement and configure this storage solution, please refer to the [DynamoDB storage](/multi-agent-orchestrator/storage/dynamodb) section in the documentation.
 <br />
 
 ---
@@ -54,7 +54,7 @@ Yes, the framework includes a built-in DynamoDB storage option. For detailed ins
 
 ##### Can I deploy the Multi-Agent Orchestrator on AWS Lambda?
 
-Yes, the system is designed for seamless deployment as an AWS Lambda function. For step-by-step guidance on integrating the orchestrator with Lambda, processing incoming requests, and handling responses, please consult the [AWS Lambda Integration](/deployment/aws-lambda) section in our documentation.
+Yes, the system is designed for seamless deployment as an AWS Lambda function. For step-by-step guidance on integrating the orchestrator with Lambda, processing incoming requests, and handling responses, please consult the [AWS Lambda Integration](/multi-agent-orchestrator/deployment/aws-lambda) section in our documentation.
 
 <br />
 
@@ -63,9 +63,9 @@ Yes, the system is designed for seamless deployment as an AWS Lambda function. F
 ##### What storage options are available for conversation history?
 
 The Multi-Agent Orchestrator framwork supports multiple storage options:
-- [In-Memory storage](/storage/in-memory): Default option, great for development and testing.
-- [DynamoDB storage](/storage/dynamodb): For persistent storage in production environments.
-- [Custom storage](/storage/custom): Developers can implement their own storage solutions by extending the `ChatStorage` class.
+- [In-Memory storage](/multi-agent-orchestrator/storage/in-memory): Default option, great for development and testing.
+- [DynamoDB storage](/multi-agent-orchestrator/storage/dynamodb): For persistent storage in production environments.
+- [Custom storage](/multi-agent-orchestrator/storage/custom): Developers can implement their own storage solutions by extending the `ChatStorage` class.
 
 <br />
 
@@ -73,7 +73,7 @@ The Multi-Agent Orchestrator framwork supports multiple storage options:
 
 ##### Is there a way to check if the agents I've added to the orchestrator don't overlap?
 
-Agent overlapping can be an issue which may lead to incorrect routing. The framework provides a tool called [Agent Overlap Analysis](/advanced-features/agent-overlap) that allows you to gain insights about potential overlapping between agents.
+Agent overlapping can be an issue which may lead to incorrect routing. The framework provides a tool called [Agent Overlap Analysis](/multi-agent-orchestrator/advanced-features/agent-overlap) that allows you to gain insights about potential overlapping between agents.
 
 It's important to understand that routing to agents is done using a combination of user input, agent descriptions, and the conversation history of all agents. Therefore, crafting precise and distinct agent descriptions is crucial for optimal performance.
 
@@ -92,7 +92,7 @@ Yes, contributions are warmly welcomed! You can contribute by creating a Pull Re
 ---
 
 ##### I have an Agent written in Python in AWS Lambda. How can I integrate it with the multi-agent orchestrator?
-You can achieve this integration by using a [Lambda Agent](/agents/built-in/lambda-agent) within the orchestrator. This Lambda Agent is able to invoke AWS Lambda functions, including your Python-based Agent.
+You can achieve this integration by using a [Lambda Agent](/multi-agent-orchestrator/agents/built-in/lambda-agent) within the orchestrator. This Lambda Agent is able to invoke AWS Lambda functions, including your Python-based Agent.
 
 This approach allows you to incorporate your Python-based Lambda function into the multi-agent system without needing to rewrite it in TypeScript.
 <br />
@@ -101,9 +101,9 @@ This approach allows you to incorporate your Python-based Lambda function into t
 
 ##### I have a vector store in OpenSearch. How can I use it as a retriever?
 
-Today there is a [built-in retriever available](/retrievers/built-in/bedrock-kb-retriever) that is able to query an Amazon Knowledge Base. This retriever extends the generic `Retriever` class. 
+Today there is a [built-in retriever available](/multi-agent-orchestrator/retrievers/built-in/bedrock-kb-retriever) that is able to query an Amazon Knowledge Base. This retriever extends the generic `Retriever` class. 
 
-You can easily [build your own retriever](/retrievers/custom-retriever) to work with OpenSearch and pass it to the agent in the initialization phase.
+You can easily [build your own retriever](/multi-agent-orchestrator/retrievers/custom-retriever) to work with OpenSearch and pass it to the agent in the initialization phase.
 
 <br />
 
@@ -111,12 +111,12 @@ You can easily [build your own retriever](/retrievers/custom-retriever) to work 
 
 ##### Can I use Tools with agents?
 
-Yes, [Bedrock LLM Agent](/agents/built-in/bedrock-llm-agent) supports the use of custom tools, allowing you to extend your agents' capabilities. Tools enable agents to perform specific tasks or access external data sources, enhancing their functionality for specialized applications.
+Yes, [Bedrock LLM Agent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) supports the use of custom tools, allowing you to extend your agents' capabilities. Tools enable agents to perform specific tasks or access external data sources, enhancing their functionality for specialized applications.
 
 For practical examples of implementing tools with agents, refer to our documentation on:
 
-- [Creating a Weather Agent with Custom Tools](/advanced-features/weather-tool-use)
-- [Building a Math Agent using Tools](/advanced-features/math-tool-use)
+- [Creating a Weather Agent with Custom Tools](/multi-agent-orchestrator/advanced-features/weather-tool-use)
+- [Building a Math Agent using Tools](/multi-agent-orchestrator/advanced-features/math-tool-use)
 
 These guides demonstrate how to define tool specifications, implement handlers, and integrate tools into BedrockLLMAgent instances, helping you create powerful, domain-specific AI assistants.
 
@@ -139,7 +139,7 @@ This custom implementation was chosen because we wanted to have complete control
 
 Yes, logging can be fully customized. While the orchestrator uses `console.log` by default, you can provide your own logger when initializing the orchestrator. 
 
-For detailed instructions on customizing logging, see our [Logging documentation](/advanced-features/logging).
+For detailed instructions on customizing logging, see our [Logging documentation](/multi-agent-orchestrator/advanced-features/logging).
 
 
 ##### For a user intent, is there the possibility to execute multiple processing (so like multiple agents)?
@@ -148,7 +148,7 @@ The current built-in agents are designed to execute a single task. However, you 
 
 To do this:
 
-- [Create a custom agent](/agents/custom-agents) by following our guide on creating custom agents.
+- [Create a custom agent](/multi-agent-orchestrator/agents/custom-agents) by following our guide on creating custom agents.
 - In the `processRequest` method of your custom agent, implement your desired logic for multiple processing steps.
 - Add your new agent to the orchestrator.
 

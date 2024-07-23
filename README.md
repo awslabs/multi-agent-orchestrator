@@ -68,7 +68,7 @@ Check out our documentation for comprehensive guides on setting up and using the
 ### Quick Install
 
 ```bash
-npm install @aws/multi-agent-orchestrator
+npm install multi-agent-orchestrator
 ```
 
 ### Usage
@@ -76,7 +76,7 @@ npm install @aws/multi-agent-orchestrator
 The following example demonstrates how to use the Multi-Agent Orchestrator with two different types of agents: a Bedrock LLM Agent with Converse API support and a Lex Bot Agent. This showcases the flexibility of the system in integrating various AI services.
 
 ```typescript
-import { MultiAgentOrchestrator, BedrockLLMAgent, LexBotAgent } from "@aws/multi-agent-orchestrator";
+import { MultiAgentOrchestrator, BedrockLLMAgent, LexBotAgent } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 

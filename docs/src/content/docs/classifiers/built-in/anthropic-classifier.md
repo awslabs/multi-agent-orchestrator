@@ -19,8 +19,8 @@ The Anthropic Classifier extends the abstract `Classifier` class and uses the An
 To use the AnthropicClassifier, you need to create an instance with your Anthropic API key and pass it to the Multi-Agent Orchestrator:
 
 ```typescript
-import { AnthropicClassifier } from "@aws/multi-agent-orchestrator";
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { AnthropicClassifier } from "multi-agent-orchestrator";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const anthropicClassifier = new AnthropicClassifier({
   apiKey: 'your-anthropic-api-key'
@@ -102,4 +102,4 @@ The AnthropicClassifier includes error handling to manage potential issues durin
 - Classification quality depends on the chosen model and the quality of your system prompt and agent descriptions.
 - API usage is subject to Anthropic's pricing and rate limits.
 
-For more information on using and customizing the Multi-Agent Orchestrator, refer to the [Classifier Overview](/classifier/overview) and [Agents](/agents/overview) documentation.
+For more information on using and customizing the Multi-Agent Orchestrator, refer to the [Classifier Overview](/multi-agent-orchestrator/classifier/overview) and [Agents](/multi-agent-orchestrator/agents/overview) documentation.

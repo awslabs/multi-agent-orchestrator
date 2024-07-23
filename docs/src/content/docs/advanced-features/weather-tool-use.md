@@ -90,7 +90,7 @@ C. Tool Handler
 
 ```typescript
 
-import { ConversationMessage, ParticipantRole } from "@aws/multi-agent-orchestrator";
+import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
 
 
 export async function weatherToolHandler(response, conversation: ConversationMessage[]) {
@@ -184,7 +184,7 @@ Now that we have our weather tool defined and the code above in a file called `w
 ```typescript
 // weatherAgent.ts
 
-import { BedrockLLMAgent } from '@aws/multi-agent-orchestrator';
+import { BedrockLLMAgent } from 'multi-agent-orchestrator';
 import { weatherToolDescription, weatherToolHandler, WEATHER_PROMPT } from './weatherTool';
 
 const weatherAgent = new BedrockLLMAgent({
@@ -215,7 +215,7 @@ Now we can add our weather agent to the Multi-Agent Orchestrator:
 
 ```typescript
 
-import { MultiAgentOrchestrator } from "@aws/multi-agent-orchestrator";
+import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 
