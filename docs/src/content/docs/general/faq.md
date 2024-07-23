@@ -139,7 +139,7 @@ This custom implementation was chosen because we wanted to have complete control
 
 Yes, logging can be fully customized. While the orchestrator uses `console.log` by default, you can provide your own logger when initializing the orchestrator. 
 
-For detailed instructions on customizing logging, see our [Logging documentation](/advanced-features/custom-logging).
+For detailed instructions on customizing logging, see our [Logging documentation](/advanced-features/logging).
 
 
 ##### For a user intent, is there the possibility to execute multiple processing (so like multiple agents)?
