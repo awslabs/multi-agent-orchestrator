@@ -4,7 +4,9 @@
   "description": "Multi-Agent Orchestrator framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "jest",
@@ -23,6 +25,7 @@
     "@aws-sdk/lib-dynamodb": "^3.610.0",
     "@aws-sdk/util-dynamodb": "^3.609.0",
     "axios": "^1.7.2",
+    "eslint": "^9.7.0",
     "natural": "^7.0.7",
     "openai": "^4.52.7",
     "stopword": "^3.0.1"
