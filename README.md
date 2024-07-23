@@ -57,7 +57,8 @@ Notice how the appropriate agent is selected for each query, maintaining coheren
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
-![Demo](img/demo-app.gif "Demo App Screen Recording")
+![Demo](img/demo-app.gif)
+
 
 
 To learn more about the demo app and how to set it up, please visit our [Demo app](https://awslabs.github.io/multi-agent-orchestrator/deployment/demo-web-app/) documentation.
