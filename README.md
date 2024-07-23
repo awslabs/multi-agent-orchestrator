@@ -59,11 +59,11 @@ The demo highlights the system's ability to handle complex, multi-turn conversat
 <p align="center">
   <img src="img/demo-app.gif" alt="Chat Demo App Screen Recording">
 </p>
-To learn more about the demo app and how to set it up, please visit our [Demo app](/) documentation.
+To learn more about the demo app and how to set it up, please visit our [Demo app](https://awslabs.github.io/multi-agent-orchestrator/deployment/demo-web-app/) documentation.
 
 ## 🚀 Getting Started
 
-Check out our documentation for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
+Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
 
 ### Quick Install
 
