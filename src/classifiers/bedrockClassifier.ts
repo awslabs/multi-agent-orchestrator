@@ -39,6 +39,7 @@ export class BedrockClassifier extends Classifier{
     stopSequences?: string[];
   };
   protected client: BedrockRuntimeClient;
+  protected region: string;
   protected tools = [
     {
       toolSpec: {
@@ -78,7 +79,8 @@ export class BedrockClassifier extends Classifier{
     super();
     
     // Initialize default values or use provided options
-    this.client = new BedrockRuntimeClient();
+    this.region = options.region || process.env.REGION;
+    this.client = new BedrockRuntimeClient({region:this.region});
     this.modelId = options.modelId || BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET;
     // Initialize inferenceConfig only if it's provided in options
     this.inferenceConfig = {
