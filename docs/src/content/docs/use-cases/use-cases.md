@@ -3,7 +3,7 @@ title: Use cases
 description: An overview of the use cases that are possible to implement using this framework
 ---
 
-The Multi-Agent Orchestrator framework can enable a wide range of powerful use cases across various industries and domains. Here are some potential use cases that can benefit from this flexible and scalable framework:
+The Multi-Agent Orchestrator framework can enable a wide range of powerful use cases across various industries and domains. Here are some potential use cases that can benefit from this flexible and scalable framework.
 
 ## 1. Cost efficient routing:
 
@@ -28,6 +28,43 @@ Key aspects of this approach include:
 1. Language Detection: The classifier incorporates language detection capabilities to identify the language of incoming queries.
 2. Language-Specific Agents: The system includes a range of agents specialized in different languages, each trained to handle queries and generate responses in their respective languages.
 3. Dynamic Language Routing: Queries are automatically routed to the appropriate language-specific agent based on the detected language of the user's input.
+
+
+**Example of Multi-lingual text summarization agents:**
+
+```typescript
+
+orchestrator.addAgent(
+    new BedrockLLMAgent({
+        name: "Text Summarization Agent for French Language",
+        modelId: "anthropic.claude-3-haiku-20240307-v1:0",
+        description: 
+        "This is a very simple text summarization agent for french language.",
+        streaming: true,
+        inferenceConfig: {
+            temperature: 0.0,
+        },
+    })
+);
+
+// Add a text summarization agent
+orchestrator.addAgent(
+    new BedrockLLMAgent({
+        name: "Text Summarization Agent English Language",
+        modelId: "mistral.mistral-small-2402-v1:0",
+        description: 
+        "This is a very simple text summarization agent for english language.",
+        streaming: true,
+        inferenceConfig: {
+            temperature: 0.0,
+        }
+    })
+);
+
+```
+
+These specific models are used for illustration. Other suitable LLMs can be substituted. The principle of using language-specific agents remains consistent,
+regardless of the specific LLM chosen for each language.
 
 
 ### Note:
