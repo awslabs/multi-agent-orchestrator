@@ -12,7 +12,6 @@ import { Anthropic } from "@anthropic-ai/sdk";
 
 export interface AnthropicClassifierOptions {
   modelId?: string;
-  region?: string;
   inferenceConfig?: {
     maxTokens?: number;
     temperature?: number;
