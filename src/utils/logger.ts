@@ -18,7 +18,7 @@ export class Logger {
   }
 
   public warn(message: string, ...params: any[]): void {
-    this.warn(message, ...params);
+    Logger.logger.warn(message, ...params);
   }
 
   public error(message: string, ...params: any[]): void {
