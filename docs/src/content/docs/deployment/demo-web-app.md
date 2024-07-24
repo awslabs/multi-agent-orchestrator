@@ -7,6 +7,22 @@ description: How to deploy the demo chat web application for the Multi-Agent Orc
 
 The Multi-Agent Orchestrator System includes a demo chat web application that showcases the capabilities of the system. This application is built using AWS CDK (Cloud Development Kit) and can be easily deployed to your AWS account.
 
+In the screen recording below, we demonstrate an extended version of the demo app that uses 6 specialized agents:
+- **Travel Agent**: Powered by an Amazon Lex Bot
+- **Weather Agent**: Utilizes a Bedrock LLM Agent with a tool to query the open-meteo API
+- **Restaurant Agent**: Implemented as an Amazon Bedrock Agent
+- **Math Agent**: Utilizes a Bedrock LLM Agent with two tools for executing mathematical operations
+- **Tech Agent**: A Bedrock LLM Agent designed to answer questions on technical topics
+- **Health Agent**: A Bedrock LLM Agent focused on addressing health-related queries
+
+Watch as the system seamlessly switches context between diverse topics, from booking flights to checking weather, solving math problems, and providing health information.
+Notice how the appropriate agent is selected for each query, maintaining coherence even with brief follow-up inputs. 
+
+The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
+
+<img src="/multi-agent-orchestrator/demo-app.gif">
+
+
 ## 📋 Prerequisites
 
 Before deploying the demo web app, ensure you have the following:

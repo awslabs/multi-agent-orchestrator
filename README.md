@@ -43,9 +43,11 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 
 ## 💬 Demo App
 
-To quickly get a feel for the Multi-Agent Orchestrator, we've provided a Demo App. This interactive demo showcases the orchestrator's capabilities in a user-friendly interface.
+To quickly get a feel for the Multi-Agent Orchestrator, we've provided a Demo App with a few basic agents. This interactive demo showcases the orchestrator's capabilities in a user-friendly interface. To learn more about setting up and running the demo app, please refer to our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/deployment/demo-web-app/) section.
 
-This demo showcases a dynamic multi-agent system in action, featuring 6 specialized agents:
+<br>
+
+In the screen recording below, we demonstrate an extended version of the demo app that uses 6 specialized agents:
 - **Travel Agent**: Powered by an Amazon Lex Bot
 - **Weather Agent**: Utilizes a Bedrock LLM Agent with a tool to query the open-meteo API
 - **Restaurant Agent**: Implemented as an Amazon Bedrock Agent
@@ -60,9 +62,6 @@ The demo highlights the system's ability to handle complex, multi-turn conversat
 
 ![Demo](img/demo-app.gif)
 
-
-
-To learn more about the demo app and how to set it up, please visit our [Demo app](https://awslabs.github.io/multi-agent-orchestrator/deployment/demo-web-app/) documentation.
 
 ## 🚀 Getting Started
 
