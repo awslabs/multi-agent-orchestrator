@@ -11,7 +11,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'Multi-Agent Orchestrator',
-			description: 'Build scalable document processing pipelines on AWS.',
+			description: 'Flexible and powerful framework for managing multiple AI agents and handling complex conversations 🤖🚀',
 			defaultLocale: 'en',
 			favicon: '/src/assets/favicon.ico',
 			customCss: [
