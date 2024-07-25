@@ -22,7 +22,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint 'src/**/*.ts' 'tests/**/*.ts'",
     "coverage": "jest --coverage"
   },
   "license": "Apache-2.0",
@@ -36,12 +36,17 @@
     "@aws-sdk/lib-dynamodb": "^3.610.0",
     "@aws-sdk/util-dynamodb": "^3.609.0",
     "axios": "^1.7.2",
+    "eslint-config-prettier": "^9.1.0",
     "natural": "^7.0.7",
     "openai": "^4.52.7",
+    "prettier": "^3.3.3",
     "stopword": "^3.0.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
+    "@typescript-eslint/eslint-plugin": "^7.17.0",
+    "@typescript-eslint/parser": "^7.17.0",
+    "eslint": "^8.57.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.2",
     "ts-node": "^10.9.2",
