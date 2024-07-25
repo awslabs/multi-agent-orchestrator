@@ -31,7 +31,6 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 ![High-level architecture flow diagram](img/flow.jpg)
 
 
-
 <br /><br />
 
 
