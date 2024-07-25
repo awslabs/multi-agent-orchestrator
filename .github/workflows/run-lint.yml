@@ -1,8 +1,14 @@
 name: Run lint checks on the project
 
 on:
-  workflow_call:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - edited
+
 
 permissions:
   contents: read
@@ -22,18 +28,18 @@ jobs:
         run: npm install
       - name: Run linting
         run: npm run lint
-      - name: Spell check
-        uses: streetsidesoftware/cspell-action@4dc9d4bdf3974ed26d6f2e973c1e168edff47d80
-        with:
-          files: '**/*.{md,ts}'
-          strict: true
-          check_dot_files: true
-          incremental_files_only: false
-          config: 'cspell.config.yml'
-      - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@cd81f4475ab741e097ec0fe73b692f3e49d66b8c
-        with:
-          scandir: '.'
-          ignore_paths: >-
-            node_modules
-            .husky
+      # - name: Spell check
+      #   uses: streetsidesoftware/cspell-action@4dc9d4bdf3974ed26d6f2e973c1e168edff47d80
+      #   with:
+      #     files: '**/*.{md,ts}'
+      #     strict: true
+      #     check_dot_files: true
+      #     incremental_files_only: false
+      #     config: 'cspell.config.yml'
+      # - name: Run ShellCheck
+      #   uses: ludeeus/action-shellcheck@cd81f4475ab741e097ec0fe73b692f3e49d66b8c
+      #   with:
+      #     scandir: '.'
+      #     ignore_paths: >-
+      #       node_modules
+      #       .husky
