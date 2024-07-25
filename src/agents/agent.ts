@@ -1,9 +1,51 @@
 import { ConversationMessage } from "../types";
+import { AccumulatorTransform } from "../utils/helpers";
+
+export interface AgentProcessingResult {
+  // The original input provided by the user
+  userInput: string;
+
+  // Unique identifier for the agent that processed the request
+  agentId: string;
+
+  // Human-readable name of the agent
+  agentName: string;
+
+  // Unique identifier for the user who initiated the request
+  userId: string;
+
+  // Unique identifier for the current session
+  sessionId: string;
+
+  // Additional parameters or metadata related to the processing result
+  // Can store any key-value pairs of varying types
+  additionalParams: Record<string, any>;
+}
+
+/**
+ * Represents the response from an agent, including metadata and output.
+ * @property metadata - Contains all properties of AgentProcessingResult except 'response'.
+ * @property output - The actual content of the agent's response, either as a transform or a string.
+ * @property streaming - Indicates whether the response is being streamed or not.
+ */
+export type AgentResponse = {
+  metadata: Omit<AgentProcessingResult, 'response'>;
+  output: AccumulatorTransform | string;
+  streaming: boolean;
+};
 
 export interface AgentOptions {
+  // The name of the agent
   name: string;
+
+  // A description of the agent's purpose or capabilities
   description: string;
+
+  // Optional: The ID of the model used by this agent
+  // If not provided, a default model may be used
   modelId?: string;
+
+  // Optional: The geographic region where the agent should be deployed or run
   region?: string;
 }
 

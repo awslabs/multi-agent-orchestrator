@@ -1,15 +1,9 @@
 import { AgentOverlapAnalyzer } from "./agentOverlapAnalyzer";
 import {
-  OrchestratorConfig,
-  DEFAULT_CONFIG,
-  ClassifierResult,
-  DispatchToAgentsParams,
-  OrchestratorOptions,
-  AgentResponse,
   AgentTypes,
-  RequestMetadata,
 } from "./types/index";
-import { Agent } from "./agents/agent";
+import { Agent, AgentResponse } from "./agents/agent";
+import { ClassifierResult } from './classifiers/classifier';
 import { BedrockLLMAgent } from "./agents/bedrockLLMAgent";
 import { ChatStorage } from "./storage/chatStorage";
 import { InMemoryChatStorage } from "./storage/memoryChatStorage";
@@ -18,6 +12,176 @@ import { saveChat } from "./utils/chatUtils";
 import { Logger } from "./utils/logger";
 import { BedrockClassifier } from "./classifiers/bedrockClassifier";
 import { Classifier } from "./classifiers/classifier";
+
+export interface OrchestratorConfig {
+  /** If true, logs the chat interactions with the agent */
+  LOG_AGENT_CHAT?: boolean;
+
+  /** If true, logs the chat interactions with the classifier */
+  LOG_CLASSIFIER_CHAT?: boolean;
+
+  /** If true, logs the raw, unprocessed output from the classifier */
+  LOG_CLASSIFIER_RAW_OUTPUT?: boolean;
+
+  /** If true, logs the processed output from the classifier */
+  LOG_CLASSIFIER_OUTPUT?: boolean;
+
+  /** If true, logs the execution times of various operations */
+  LOG_EXECUTION_TIMES?: boolean;
+
+  /** The maximum number of retry attempts for the classifier if it receives a bad XML response */
+  MAX_RETRIES?: number;
+
+  /**
+   * If true, uses the default agent when no agent is identified during intent classification.
+   *
+   * When set to true:
+   * - If no agent is identified, the system will fall back to using a predefined default agent.
+   * - This ensures that user requests are still processed, even if a specific agent cannot be determined.
+   *
+   * When set to false:
+   * - If no agent is identified, the system will return an error message to the user.
+   * - This prompts the user to rephrase their request for better agent identification.
+   *
+   * Use this option to balance between always providing a response (potentially less accurate)
+   * and ensuring high confidence in agent selection before proceeding.
+   */
+  USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED?: boolean;
+
+  /**
+   * The error message to display when a classification error occurs.
+   *
+   * This message is shown to the user when there's an internal error during the intent classification process,
+   * separate from cases where no agent is identified.
+   */
+  CLASSIFICATION_ERROR_MESSAGE?: string;
+
+  /**
+   * The message to display when no agent is selected to handle the user's request.
+   * 
+   * This message is shown when the classifier couldn't determine an appropriate agent
+   * and USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED is set to false.
+   */
+  NO_SELECTED_AGENT_MESSAGE?: string;
+
+  /**
+   * The general error message to display when an error occurs during request routing.
+   * 
+   * This message is shown when an unexpected error occurs during the processing of a user's request,
+   * such as errors in agent dispatch or processing.
+   */
+  GENERAL_ROUTING_ERROR_MSG_MESSAGE?: string;
+
+  /**
+   * Maximum number of message pairs (user-assistant interactions) to retain per agent.
+   *
+   * This constant defines the upper limit for the conversation history stored for each agent.
+   * Each pair consists of a user message and its corresponding assistant response.
+   *
+   * Usage:
+   * - When saving messages: pass (MAX_MESSAGE_PAIRS_PER_AGENT * 2) as maxHistorySize
+   * - When fetching chats: pass (MAX_MESSAGE_PAIRS_PER_AGENT * 2) as maxHistorySize
+   *
+   * Note: The actual number of messages stored will be twice this value,
+   * as each pair consists of two messages (user and assistant).
+   *
+   * Example:
+   * If MAX_MESSAGE_PAIRS_PER_AGENT is 5, up to 10 messages (5 pairs) will be stored per agent.
+   */
+  MAX_MESSAGE_PAIRS_PER_AGENT?: number;
+}
+
+export const DEFAULT_CONFIG: OrchestratorConfig = {
+  /** Default: Do not log agent chat interactions */
+  LOG_AGENT_CHAT: false,
+
+  /** Default: Do not log classifier chat interactions */
+  LOG_CLASSIFIER_CHAT: false,
+
+  /** Default: Do not log raw classifier output */
+  LOG_CLASSIFIER_RAW_OUTPUT: false,
+
+  /** Default: Do not log processed classifier output */
+  LOG_CLASSIFIER_OUTPUT: false,
+
+  /** Default: Do not log execution times */
+  LOG_EXECUTION_TIMES: false,
+
+  /** Default: Retry classifier up to 3 times on bad XML response */
+  MAX_RETRIES: 3,
+
+  /** Default: Use the default agent when no agent is identified during intent classification */
+  USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: true,
+
+  /** Default error message for classification errors */
+  CLASSIFICATION_ERROR_MESSAGE: "I'm sorry, an error occurred while processing your request. Please try again later.",
+
+  /** Default message when no agent is selected to handle the request */
+  NO_SELECTED_AGENT_MESSAGE: "I'm sorry, I couldn't determine how to handle your request. Could you please rephrase it?",
+
+  /** Default general error message for routing errors */
+  GENERAL_ROUTING_ERROR_MSG_MESSAGE: "An error occurred while processing your request. Please try again later.",
+
+  /** Default: Maximum of 100 message pairs (200 individual messages) to retain per agent */
+  MAX_MESSAGE_PAIRS_PER_AGENT: 100,
+};
+
+export interface DispatchToAgentsParams {
+  // The original input provided by the user
+  userInput: string;
+
+  // Unique identifier for the user who initiated the request
+  userId: string;
+
+  // Unique identifier for the current session
+  sessionId: string;
+
+  // The result from a classifier, determining which agent to use
+  classifierResult: ClassifierResult;
+
+  // Optional: Additional parameters or metadata to be passed to the agents
+  // Can store any key-value pairs of varying types
+  additionalParams?: Record<string, any>;
+}
+
+/**
+ * Configuration options for the Orchestrator.
+ * @property storage - Optional ChatStorage instance for persisting conversations.
+ * @property config - Optional partial configuration for the Orchestrator.
+ * @property logger - Optional logging mechanism.
+ */
+export interface OrchestratorOptions {
+  storage?: ChatStorage;
+  config?: Partial<OrchestratorConfig>;
+  logger?: any;
+  classifier?: Classifier;
+}
+
+export interface RequestMetadata {
+  // The original input provided by the user
+  userInput: string;
+
+  // Unique identifier for the agent that processed the request
+  agentId: string;
+
+  // Human-readable name of the agent
+  agentName: string;
+
+  // Unique identifier for the user who initiated the request
+  userId: string;
+
+  // Unique identifier for the current session
+  sessionId: string;
+
+  // Additional parameters or metadata related to the request
+  // Stores string key-value pairs
+  additionalParams: Record<string, string>;
+
+  // Optional: Indicates if classification failed during processing
+  // Only present if an error occurred during classification
+  errorType?: 'classification_failed';
+}
+
 
 export class MultiAgentOrchestrator {
   private config: OrchestratorConfig;

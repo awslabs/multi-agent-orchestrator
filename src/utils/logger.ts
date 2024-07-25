@@ -1,4 +1,7 @@
-import { ClassifierResult, ConversationMessage, OrchestratorConfig } from "../types";
+import { ConversationMessage } from "../types";
+import { OrchestratorConfig } from "../orchestrator";
+import { ClassifierResult } from "../classifiers/classifier";
+
 
 export class Logger {
 
