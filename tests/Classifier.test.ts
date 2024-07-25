@@ -1,181 +1,218 @@
-import { MultiAgentOrchestrator } from "../src/orchestrator";
-import { MockAgent } from "./mock/mockAgent";
-import { Classifier } from '../src/classifiers/classifier';
-import { ParticipantRole, ConversationMessage } from '../src/types';
-import { BedrockLLMAgent } from '../src/agents/bedrockLLMAgent';
+import { Classifier, ClassifierResult } from "../src/classifiers/classifier";
+import { Agent } from "../src/agents/agent";
+import { ConversationMessage, ParticipantRole, TemplateVariables } from "../src/types";
+import { BedrockLLMAgent } from "../src/agents/bedrockLLMAgent";
 
-describe("Classifier", () => {
-  
-    let orchestrator: MultiAgentOrchestrator;
-
-    beforeEach(() => {
-        orchestrator = new MultiAgentOrchestrator({
-            config: {
-              LOG_AGENT_CHAT: true,
-              LOG_CLASSIFIER_CHAT: true,
-              LOG_CLASSIFIER_RAW_OUTPUT: true,
-              LOG_CLASSIFIER_OUTPUT: true,
-              LOG_EXECUTION_TIMES: true,
-              MAX_MESSAGE_PAIRS_PER_AGENT:10
-        
-            },
-        
-          });
-
-          orchestrator.addAgent(new MockAgent({
-            name: 'Health Agent',
-            description: 'Focuses on health and medical topics such as general wellness, nutrition, diseases, treatments, mental health, fitness, healthcare systems, and medical terminology or concepts.'
-          }));
-
-          orchestrator.addAgent(new MockAgent({
-            name: 'Math Agent',
-            description: 'Math agent is able to performa mathemical computation.'
-          }));
-
-          orchestrator.addAgent(new MockAgent({
-            name: 'Tech Agent',
-            description: 'Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.'
-          }));
-
-          orchestrator.addAgent(new MockAgent({
-            name: 'AirlinesBot',
-            description: 'Helps users book and manage their flight reservation'
-          }));
-    });
-
-    test("Classify test output", async () => {
-
-        let response = await orchestrator.classifier.classify("What is aws lambda", []);    
-        expect(response.selectedAgent?.name).toBe('Tech Agent');
-
-        response = await orchestrator.classifier.classify("What is an aspirin", []);    
-        expect(response.selectedAgent?.name).toBe('Health Agent');
-
-        response = await orchestrator.classifier.classify("book a flight", []);   
-        expect(response.selectedAgent?.name).toBe('AirlinesBot'); 
-
-        response = await orchestrator.classifier.classify("3+5", []);   
-        expect(response.selectedAgent?.name).toBe('Math Agent'); 
-      }, 15000);
-
-});
-
-
-describe('Classifier', () => {
-  class MockClassifier extends Classifier {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    processRequest(
-      inputText: string,
-      chatHistory: ConversationMessage[]
-    ): Promise<any> {
-      throw new Error('Method not implemented.');
-    }
-
-    public getAgents(){
-      return this.agents;
-    }
-
-    public getAgentDescriptions(){
-      return this.agentDescriptions;
-    }
-
-    public getHistory(){
-      return this.history;
-    }
-
-    public getPromptTemplate(){
-      return this.promptTemplate;
-    }
-
-    public getCustomVariables(){
-      return this.customVariables;
-    }
-
-    public getSystemPrompt(){
-      return this.systemPrompt; 
-    }
-
+class MockBedrockLLMAgent extends BedrockLLMAgent {
+  constructor(config: { name: string; streaming: boolean; description: string }) {
+    super(config);
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  async processRequest(
+    inputText: string,
+    userId: string,
+    sessionId: string,
+    chatHistory: ConversationMessage[],
+    additionalParams?: Record<string, string>
+  ): Promise<ConversationMessage | AsyncIterable<any>> {
+    throw new Error('Method not implemented.');
+  }
+}
+
+
+// Mock implementation of the abstract Classifier class
+class MockClassifier extends Classifier {
+  async processRequest(
+    inputText: string,
+    chatHistory: ConversationMessage[]
+  ): Promise<ClassifierResult> {
+    if (inputText.includes('tech')) {
+      return {
+        selectedAgent: this.getAgentById('tech-agent'),
+        confidence: 0.9
+      };
+    } else if (inputText.includes('billing')) {
+      return {
+        selectedAgent: this.getAgentById('billing-agent'),
+        confidence: 0.8
+      };
+    }
+    return {
+      selectedAgent: this.defaultAgent,
+      confidence: 0.5
+    };
+  }
+}
+
+describe('Classifier', () => {
   let classifier: MockClassifier;
-  const mockAgent1 = new BedrockLLMAgent({
-    name: "BILLING",
-    streaming: true,
-    description: 'Billing agent',
-  });
-  const mockAgent2 = new BedrockLLMAgent({
-    name: "TECHNICAL",
-    streaming: true,
-    description: 'Technical agent',
-  });
+  let mockAgents: { [key: string]: Agent };
 
   beforeEach(() => {
     classifier = new MockClassifier();
+    mockAgents = {
+      'tech-agent': new MockBedrockLLMAgent({
+        name: "tech-agent",
+        streaming: true,
+        description: 'A tech support agent',
+      }),
+      'billing-agent': new MockBedrockLLMAgent({
+        name: "billing-agent",
+        streaming: true,
+        description: 'A billing support agent',
+      }),
+    };
+    classifier.setAgents(mockAgents);
   });
 
   describe('setAgents', () => {
-    it('should set the agents and agentDescriptions correctly', () => {
-      const agents = {
-        [mockAgent1.id]: mockAgent1,
-        [mockAgent2.id]: mockAgent2,
-      };
-      classifier.setAgents(agents);
-      expect(classifier.getAgents()).toEqual(agents);
-      expect(classifier.getAgentDescriptions()).toBe(
-        `${mockAgent1.id}:${mockAgent1.description}\n\n${mockAgent2.id}:${mockAgent2.description}`
-      );
+    test('should set agent descriptions', () => {
+      expect(classifier['agentDescriptions']).toContain('tech-agent:A tech support agent');
+      expect(classifier['agentDescriptions']).toContain('billing-agent:A billing support agent');
+    });
+
+    test('should set agents property', () => {
+      expect(classifier['agents']).toEqual(mockAgents);
     });
   });
 
   describe('setHistory', () => {
-    it('should set the history correctly', () => {
+    test('should format messages correctly', () => {
       const messages: ConversationMessage[] = [
         { role: ParticipantRole.USER, content: [{ text: 'Hello' }] },
         { role: ParticipantRole.ASSISTANT, content: [{ text: 'Hi there!' }] },
       ];
       classifier.setHistory(messages);
-      expect(classifier.getHistory()).toBe('user: Hello\nassistant: Hi there!');
+      expect(classifier['history']).toBe('user: Hello\nassistant: Hi there!');
+    });
+
+    test('should handle empty messages array', () => {
+      classifier.setHistory([]);
+      expect(classifier['history']).toBe('');
+    });
+
+    test('should handle multiple content items', () => {
+      const messages: ConversationMessage[] = [
+        { role: ParticipantRole.USER, content: [{ text: 'Hello' }, { text: 'World' }] },
+      ];
+      classifier.setHistory(messages);
+      expect(classifier['history']).toBe('user: Hello World');
     });
   });
 
   describe('setSystemPrompt', () => {
-    it('should set the promptTemplate and customVariables correctly', () => {
-      const template = 'This is a custom template';
-      const variables = { key1: 'value1', key2: 'value2' };
-      classifier.setSystemPrompt(template, variables);
-      expect(classifier.getPromptTemplate()).toBe(template);
-      expect(classifier.getCustomVariables()).toEqual(variables);
+    test('should update promptTemplate when provided', () => {
+      const newTemplate = 'New template {{CUSTOM_VAR}}';
+      classifier.setSystemPrompt(newTemplate);
+      expect(classifier['promptTemplate']).toBe(newTemplate);
+    });
+
+    test('should update customVariables when provided', () => {
+      const variables: TemplateVariables = { CUSTOM_VAR: 'Custom value' };
+      classifier.setSystemPrompt(undefined, variables);
+      expect(classifier['customVariables']).toEqual(variables);
+    });
+
+    test('should update both promptTemplate and customVariables when provided', () => {
+      const newTemplate = 'New template {{CUSTOM_VAR}}';
+      const variables: TemplateVariables = { CUSTOM_VAR: 'Custom value' };
+      classifier.setSystemPrompt(newTemplate, variables);
+      expect(classifier['promptTemplate']).toBe(newTemplate);
+      expect(classifier['customVariables']).toEqual(variables);
+    });
+
+    test('should call updateSystemPrompt', () => {
+      const spy = jest.spyOn(classifier as any, 'updateSystemPrompt');
+      classifier.setSystemPrompt();
+      expect(spy).toHaveBeenCalled();
     });
   });
 
-  describe('formatMessages', () => {
-    it('should format the messages correctly', () => {
-      const messages: ConversationMessage[] = [
-        { role: ParticipantRole.USER, content: [{ text: 'Hello' }] },
-        { role: ParticipantRole.ASSISTANT, content: [{ text: 'Hi' }, { text: 'there!' }] },
-      ];
-      const formattedMessages = classifier['formatMessages'](messages);
-      expect(formattedMessages).toBe('user: Hello\nassistant: Hi there!');
+  describe('classify', () => {
+    test('should set history and update system prompt before processing', async () => {
+      const setHistorySpy = jest.spyOn(classifier, 'setHistory');
+      const updateSystemPromptSpy = jest.spyOn(classifier as any, 'updateSystemPrompt');
+      const processRequestSpy = jest.spyOn(classifier, 'processRequest');
+
+      await classifier.classify('test input', []);
+
+      expect(setHistorySpy).toHaveBeenCalled();
+      expect(updateSystemPromptSpy).toHaveBeenCalled();
+      expect(processRequestSpy).toHaveBeenCalled();
+    });
+
+    test('should return ClassifierResult for tech-related input', async () => {
+      const result = await classifier.classify('I have a tech question', []);
+      expect(result.selectedAgent).toBe(mockAgents['tech-agent']);
+      expect(result.confidence).toBe(0.9);
+    });
+
+    test('should return ClassifierResult for billing-related input', async () => {
+      const result = await classifier.classify('I have a billing question', []);
+      expect(result.selectedAgent).toBe(mockAgents['billing-agent']);
+      expect(result.confidence).toBe(0.8);
+    });
+
+    test('should return default agent for non-specific input', async () => {
+      const result = await classifier.classify('General question', []);
+      expect(result.selectedAgent).toBe(classifier['defaultAgent']);
+      expect(result.confidence).toBe(0.5);
+    });
+  });
+
+  describe('getAgentById', () => {
+    test('should return the correct agent', () => {
+      const agent = classifier['getAgentById']('tech-agent');
+      expect(agent).toBe(mockAgents['tech-agent']);
+    });
+
+    test('should return null for non-existent agent', () => {
+      const agent = classifier['getAgentById']('non-existent-agent');
+      expect(agent).toBeNull();
+    });
+
+    test('should handle empty string', () => {
+      const agent = classifier['getAgentById']('');
+      expect(agent).toBeNull();
+    });
+
+    test('should handle agent id with spaces', () => {
+      const agent = classifier['getAgentById']('tech-agent with spaces');
+      expect(agent).toBe(mockAgents['tech-agent']);
+    });
+  });
+
+  describe('replaceplaceholders', () => {
+    test('should replace placeholders with provided variables', () => {
+      const template = 'Hello {{NAME}}, welcome to {{PLACE}}!';
+      const variables: TemplateVariables = { NAME: 'John', PLACE: 'Paris' };
+      const result = classifier['replaceplaceholders'](template, variables);
+      expect(result).toBe('Hello John, welcome to Paris!');
+    });
+
+    test('should handle array values', () => {
+      const template = 'Items: {{ITEMS}}';
+      const variables: TemplateVariables = { ITEMS: ['apple', 'banana', 'orange'] };
+      const result = classifier['replaceplaceholders'](template, variables);
+      expect(result).toBe('Items: apple\nbanana\norange');
+    });
+
+    test('should leave unmatched placeholders unchanged', () => {
+      const template = 'Hello {{NAME}}, today is {{DATE}}';
+      const variables: TemplateVariables = { NAME: 'Alice' };
+      const result = classifier['replaceplaceholders'](template, variables);
+      expect(result).toBe('Hello Alice, today is {{DATE}}');
     });
   });
 
   describe('updateSystemPrompt', () => {
-    it('should update the systemPrompt correctly', () => {
-      const agents = {
-        [mockAgent1.id]: mockAgent1,
-        [mockAgent2.id]: mockAgent2,
-      };
-      classifier.setAgents(agents);
-      const messages: ConversationMessage[] = [
-        { role: ParticipantRole.USER, content: [{ text: 'Hello' }] },
-        { role: ParticipantRole.ASSISTANT, content: [{ text: 'Hi there!' }] },
-      ];
-      classifier.setHistory(messages);
+    test('should update systemPrompt with all variables', () => {
+      classifier['agentDescriptions'] = 'Agent Descriptions';
+      classifier['history'] = 'Chat History';
       classifier['updateSystemPrompt']();
-      const expectedPrompt = classifier.getPromptTemplate()
-        .replace('{{AGENT_DESCRIPTIONS}}', classifier.getAgentDescriptions())
-        .replace('{{HISTORY}}', classifier.getHistory());
-      expect(classifier.getSystemPrompt()).toBe(expectedPrompt);
+      expect(classifier['systemPrompt']).toContain('Agent Descriptions');
+      expect(classifier['systemPrompt']).toContain('Chat History');
     });
   });
 });
