@@ -1,9 +1,7 @@
-import { AnthropicClassifier, AnthropicClassifierOptions } from '../src/classifiers/anthropicClassifier';
+import { AnthropicClassifier, AnthropicClassifierOptions } from '../../src/classifiers/anthropicClassifier';
 import { Anthropic } from "@anthropic-ai/sdk";
-import { ConversationMessage, ParticipantRole, ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET } from "../src/types";
-import { ClassifierResult } from "../src/classifiers/classifier";
-import { MockAgent } from './mock/mockAgent';
-import { Agent } from 'langchain/agents';
+import { ConversationMessage, ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET } from "../../src/types";
+import { MockAgent } from '../mock/mockAgent';
 
 // Mock the entire Anthropic module
 jest.mock('@anthropic-ai/sdk');
