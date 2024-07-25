@@ -21,7 +21,7 @@ The BedrockClassifier extends the abstract `Classifier` class and uses Amazon Be
 
 ### Basic Usage
 
-By default, the Multi-Agent Orchestrator uses the BedrockClassifier. You don't need to do anything special to use it:
+By default, the Multi-Agent Orchestrator uses the Bedrock Classifier, which in turn utilizes the `anthropic.claude-3-5-sonnet-20240620-v1:0` (Claude 3.5 Sonnet) model for classification tasks.
 
 ```typescript
 import { MultiAgentOrchestrator } from "multi-agent-orchestrator";

@@ -22,7 +22,11 @@ This agent can handle a wide range of processing tasks, making it suitable for d
 
 <br>
 
+By default, the Bedrock LLM Agent uses the `anthropic.claude-3-haiku-20240307-v1:0` model.
+
+
 ### Basic Example
+
 
 To create a new `BedrockLLMAgent` with only the required parameters, use the following code:
 
