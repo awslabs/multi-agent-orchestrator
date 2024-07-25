@@ -1,6 +1,5 @@
 import {
   BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET,
-  ClassifierResult,
   ConversationMessage,
   ParticipantRole,
 } from "../types";
@@ -10,18 +9,33 @@ import {
   ConverseCommand,
 } from "@aws-sdk/client-bedrock-runtime";
 
-import { Classifier } from "./classifier";
+import { Classifier, ClassifierResult } from "./classifier";
 import { isToolInput } from "../utils/helpers";
 import { Logger } from "../utils/logger";
 
 
 export interface BedrockClassifierOptions {
+  // Optional: The ID of the Bedrock model to use for classification
+  // If not provided, a default model may be used
   modelId?: string;
+
+  // Optional: The AWS region where the Bedrock model is used
   region?: string;
+
+  // Optional: Configuration for the inference process
   inferenceConfig?: {
+    // Maximum number of tokens to generate in the response
     maxTokens?: number;
+
+    // Controls randomness in output generation
+    // Higher values (e.g., 0.8) make output more random, lower values (e.g., 0.2) make it more deterministic
     temperature?: number;
+
+    // Controls diversity of output via nucleus sampling
+    // 1.0 considers all tokens, lower values (e.g., 0.9) consider only the most probable tokens
     topP?: number;
+
+    // Array of sequences that will stop the model from generating further tokens when encountered
     stopSequences?: string[];
   };
 }

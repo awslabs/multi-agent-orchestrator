@@ -1,6 +1,5 @@
 import {
   AgentTypes,
-  ClassifierResult,
   ConversationMessage,
   TemplateVariables,
 } from "../types";
@@ -9,6 +8,15 @@ import {
 } from "../agents/bedrockLLMAgent";
 
 import { Agent } from "../agents/agent";
+
+export interface ClassifierResult {
+  // The agent selected by the classifier to handle the user's request
+  selectedAgent: Agent | null;
+
+  // A numeric value representing the classifier's confidence in its selection
+  // Typically a value between 0 and 1, where 1 represents 100% confidence
+  confidence: number;
+}
 
 /**
  * IntentClassifier class extends BedrockAgent to provide specialized functionality
