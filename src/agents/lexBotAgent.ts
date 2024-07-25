@@ -53,6 +53,7 @@ export class LexBotAgent extends Agent {
    * @param additionalParams - Any additional parameters to include
    * @returns A Promise resolving to a ConversationMessage containing the bot's response
    */
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   async processRequest(
     inputText: string,
     userId: string,

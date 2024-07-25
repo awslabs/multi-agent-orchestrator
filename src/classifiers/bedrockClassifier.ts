@@ -100,6 +100,7 @@ export class BedrockClassifier extends Classifier{
    * @param additionalParams - Optional additional parameters as key-value pairs.
    * @returns A Promise that resolves to a Message object containing the agent's response.
    */
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   async processRequest(
     inputText: string,
     chatHistory: ConversationMessage[]

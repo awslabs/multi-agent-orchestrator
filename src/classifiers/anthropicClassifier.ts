@@ -3,7 +3,6 @@ import {
   ClassifierResult,
   ConversationMessage,
   ParticipantRole,
-  ToolInput,
 } from "../types";
 import { isToolInput } from "../utils/helpers";
 import { Logger } from "../utils/logger";
@@ -75,6 +74,7 @@ export class AnthropicClassifier extends Classifier {
 
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 async processRequest(
     inputText: string,
     chatHistory: ConversationMessage[]

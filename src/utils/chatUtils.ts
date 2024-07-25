@@ -1,4 +1,3 @@
-import { ConversationRole } from '@aws-sdk/client-bedrock-runtime';
 import { ChatStorage } from '../storage/chatStorage';
 import { ConversationMessage, ParticipantRole } from '../types';
 

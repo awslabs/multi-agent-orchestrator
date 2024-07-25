@@ -41,6 +41,7 @@ export class OpenAIAgent extends Agent {
     };
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   async processRequest(
     inputText: string,
     userId: string,

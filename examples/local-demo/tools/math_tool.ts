@@ -189,7 +189,7 @@ export  async function mathToolHanlder(response, conversation: ConversationMessa
 
     const responseContentBlocks = response.content as any[];
   
-    let mathOperations: string[] = [];
+    const mathOperations: string[] = [];
     let lastResult: number | string | undefined;
     
     // Initialize an empty list of tool results

@@ -45,6 +45,7 @@ export class AmazonBedrockAgent extends Agent {
    * @param additionalParams - Optional additional parameters as key-value pairs.
    * @returns A Promise that resolves to a Message object containing the agent's response.
    */
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   async processRequest(
     inputText: string,
     userId: string,
@@ -70,7 +71,7 @@ export class AmazonBedrockAgent extends Agent {
       }
 
       // Aggregate chunks of response data
-      for await (let chunkEvent of response.completion) {
+      for await (const chunkEvent of response.completion) {
         if (chunkEvent.chunk) {
           const chunk = chunkEvent.chunk;
           const decodedResponse = new TextDecoder("utf-8").decode(chunk.bytes);

@@ -146,7 +146,7 @@ export class DynamoDbChatStorage extends ChatStorage {
 
   private removeTimestamps(messages: TimestampedMessage[] | ConversationMessage[]): ConversationMessage[] {
     return messages.map(msg => {
-      const { timestamp, ...rest } = msg as TimestampedMessage;
+      const { timestamp:_timestamp, ...rest } = msg as TimestampedMessage;
       return rest;
     });
   }

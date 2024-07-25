@@ -63,6 +63,7 @@ describe("Classifier", () => {
 
 describe('Classifier', () => {
   class MockClassifier extends Classifier {
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     processRequest(
       inputText: string,
       chatHistory: ConversationMessage[]

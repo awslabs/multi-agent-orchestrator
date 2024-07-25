@@ -74,6 +74,6 @@ export class InMemoryChatStorage extends ChatStorage {
   }
 
   private removeTimestamps(messages: TimestampedMessage[]): ConversationMessage[] {
-    return messages.map(({ timestamp, ...message }) => message);
+    return messages.map(({ timestamp: _timestamp, ...message }) => message);
   }
 }

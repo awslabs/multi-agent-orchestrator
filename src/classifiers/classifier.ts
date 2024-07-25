@@ -131,7 +131,7 @@ Skip any preamble and provide only the response in the specified format.
 
   setAgents(agents: { [key: string]: Agent }) {
     const agentDescriptions = Object.entries(agents)
-      .map(([key, agent]) => `${agent.id}:${agent.description}`)
+      .map(([_key, agent]) => `${agent.id}:${agent.description}`)
       .join("\n\n");
     this.agentDescriptions = agentDescriptions;
     this.agents = agents;

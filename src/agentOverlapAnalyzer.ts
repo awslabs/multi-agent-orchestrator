@@ -47,7 +47,7 @@ export class AgentOverlapAnalyzer {
     const tfidf = new TfIdf();
 
     // Preprocess descriptions and add to TF-IDF
-    const preprocessedDescriptions = agentDescriptions.map((description) => {
+    const _preprocessedDescriptions = agentDescriptions.map((description) => {
       const tokens = removeStopwords(description.toLowerCase().split(/\W+/));
       tfidf.addDocument(tokens);
       return tokens;
