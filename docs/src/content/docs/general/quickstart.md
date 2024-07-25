@@ -81,6 +81,7 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
        description: "Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.",
      })
    );
+   
    orchestrator.addAgent(
      new BedrockLLMAgent({
        name: "Health Agent",
