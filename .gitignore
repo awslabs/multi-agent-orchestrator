@@ -1,29 +1,26 @@
 
-!jest.config.js
-*.d.ts
-node_modules
-.package-lock.json
+!typescript/jest.config.js
+typescript/*.d.ts
+typescript/node_modules
+typescript/.package-lock.json
 
-# CDK asset staging directory
-.cdk.staging
-cdk.out
+examples/chat-demo-app/cdk.out
 
-lib/**/*.js
-bin/*.js
+examples/chat-demo-app/lib/**/*.js
+examples/chat-demo-app/bin/*.js
 
-!lambda/url_rewrite/*.js 
-resources/ui/public/aws-exports.json
-resources/ui/dist
+!examples/lambda/url_rewrite/*.js 
+examples/resources/ui/public/aws-exports.json
+examples/resources/ui/dist
 
 
 .DS_Store
 
-**/dist/**/*
+typescript/dist/**/*
 
-*.tgz
+typescript/*.tgz
 *aws-exports.json
 !download.js
 
 examples/local-demo/.env
-
-coverage/**/*
+typescript/coverage/**/*
