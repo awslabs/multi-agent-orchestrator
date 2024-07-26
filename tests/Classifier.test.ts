@@ -58,6 +58,25 @@ describe("Classifier", () => {
         expect(response.selectedAgent?.name).toBe('Math Agent'); 
       }, 15000);
 
+      it('should throw an error when adding an agent with an existing ID', () => {
+        const existingAgent = new BedrockLLMAgent({
+          name: "EXISTING",
+          streaming: true,
+          description: 'Existing agent',
+        });
+        orchestrator.addAgent(existingAgent);
+  
+        const duplicateAgent = new BedrockLLMAgent({
+          name: "EXISTING",
+          streaming: true,
+          description: 'Duplicate agent',
+        });
+  
+        expect(() => {
+          orchestrator.addAgent(duplicateAgent);
+        }).toThrow(`An agent with ID '${duplicateAgent.id}' already exists.`);
+      });
+
 });
 
 
