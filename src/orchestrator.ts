@@ -405,16 +405,15 @@ export class MultiAgentOrchestrator {
         };
       }
   
-      const { id, saveChat } = classifierResult?.selectedAgent;
       // Check if we should save the conversation
-      if (saveChat) {
+      if (classifierResult?.selectedAgent.saveChat) {
         await saveConversationExchange(
           userInput,
           agentResponse,
           this.storage,
           userId,
           sessionId,
-          id,
+          classifierResult?.selectedAgent.id,
           this.config.MAX_MESSAGE_PAIRS_PER_AGENT
         );
       }
@@ -466,16 +465,16 @@ export class MultiAgentOrchestrator {
       const fullResponse = accumulatorTransform.getAccumulatedData();
       if (fullResponse) {
 
-      const { id, saveChat } = agent;
-      
-      if (saveChat) {
+
+        
+      if (agent.saveChat) {
         await saveConversationExchange(
           userInput,
           fullResponse,
           this.storage,
           userId,
           sessionId,
-          id
+          agent.id
         );
       }
        
