@@ -1,5 +1,5 @@
-import { InMemoryChatStorage } from "../src/storage/memoryChatStorage";
-import { ConversationMessage, ParticipantRole } from "../src/types";
+import { InMemoryChatStorage } from "../../src/storage/memoryChatStorage";
+import { ConversationMessage, ParticipantRole } from "../../src/types";
 describe("InMemoryChatStorage", () => {
   let storage: InMemoryChatStorage;
 

@@ -1,165 +1,201 @@
-import { MultiAgentOrchestrator } from "../src/orchestrator";
-import { MockAgent } from "./mock/mockAgent";
+import { MultiAgentOrchestrator, OrchestratorOptions } from '../src/orchestrator';
+import { Agent, AgentOptions } from '../src/agents/agent';
+import { BedrockClassifier } from '../src/classifiers/bedrockClassifier';
+import { InMemoryChatStorage } from '../src/storage/memoryChatStorage';
+import { ParticipantRole } from '../src/types/index';
+import { ClassifierResult } from '../src/classifiers/classifier';
+import { ConversationMessage } from '../src/types/index';
+import { AccumulatorTransform } from '../src/utils/helpers';
 
+// Mock the dependencies
+jest.mock('../src/agents/agent');
+jest.mock('../src/classifiers/bedrockClassifier');
+jest.mock('../src/storage/memoryChatStorage');
+jest.mock('../src/utils/helpers');
 
-describe("Orchestrator", () => {
+// Create a mock Agent class
+class MockAgent extends Agent {
+    constructor(options: AgentOptions) {
+      super(options);
+    }
   
-    let orchestrator: MultiAgentOrchestrator;
-    let airlinesbotAgent:MockAgent;
-    let healthAgent:MockAgent;
-    let mathAgent:MockAgent;
-    let techAgent:MockAgent;
-    let menuRestaurantAgent:MockAgent;
+    async processRequest(
+      _inputText: string,
+      _userId: string,
+      _sessionId: string,
+      _chatHistory: ConversationMessage[],
+      _additionalParams?: Record<string, string>
+    ): Promise<ConversationMessage | AsyncIterable<any>> {
+      // This is a mock implementation
+      return {
+        role: ParticipantRole.ASSISTANT,
+        content: [{ text: 'Mock response' }],
+      };
+    }
+  }
 
-    beforeEach(() => {
-        orchestrator = new MultiAgentOrchestrator({
-            config: {
-              LOG_AGENT_CHAT: true,
-              LOG_CLASSIFIER_CHAT: true,
-              LOG_CLASSIFIER_RAW_OUTPUT: true,
-              LOG_CLASSIFIER_OUTPUT: true,
-              LOG_EXECUTION_TIMES: true,
-              MAX_MESSAGE_PAIRS_PER_AGENT:10
-        
-            },
-            logger: console,
-        
-        });
+describe('MultiAgentOrchestrator', () => {
+  let orchestrator: MultiAgentOrchestrator;
+  let mockAgent: jest.Mocked<MockAgent>;
+  let mockClassifier: jest.Mocked<BedrockClassifier>;
+  let mockStorage: jest.Mocked<InMemoryChatStorage>;
 
-        healthAgent = new MockAgent({
-            name: 'Health Agent',
-            description: 'Focuses on health and medical topics such as general wellness, nutrition, diseases, treatments, mental health, fitness, healthcare systems, and medical terminology or concepts.'
-        });
-        orchestrator.addAgent(healthAgent);
+  beforeEach(() => {
+    // Create mock instances
+    mockAgent = {
+      id: 'test-agent',
+      name: 'Test Agent',
+      description: 'A test agent',
+      processRequest: jest.fn(),
+    } as unknown as jest.Mocked<Agent>;
 
-        mathAgent = new MockAgent({
-            name: 'Math Agent',
-            description: 'Math agent is able to performa mathemical computation.'
-        });
-        orchestrator.addAgent(mathAgent);
+    mockClassifier = new BedrockClassifier() as jest.Mocked<BedrockClassifier>;
+    mockStorage = new InMemoryChatStorage() as jest.Mocked<InMemoryChatStorage>;
 
-        techAgent = new MockAgent({
-            name: 'Tech Agent',
-            description: 'Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.'
-        });
+    // Configure orchestrator options
+    const options: OrchestratorOptions = {
+      storage: mockStorage,
+      classifier: mockClassifier,
+      config: {
+        LOG_EXECUTION_TIMES: true,
+        USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: true,
+      },
+    };
 
-        orchestrator.addAgent(techAgent);
+    // Create orchestrator instance
+    orchestrator = new MultiAgentOrchestrator(options);
+    orchestrator.addAgent(mockAgent);
+  });
 
-        airlinesbotAgent = new MockAgent({
-            name: 'AirlinesBot',
-            description: 'Helps users book and manage their flight reservation'
-        });
-        orchestrator.addAgent(airlinesbotAgent);
+  test('addAgent adds an agent and updates classifier', () => {
+    const newAgent: Agent = {
+      id: 'new-agent',
+      name: 'New Agent',
+      description: 'A new test agent',
+      processRequest: jest.fn(),
+    } as unknown as jest.Mocked<Agent>;
 
-        menuRestaurantAgent = new MockAgent({
-            name: 'menu-restaurant-agent', 
-            description: "Agent in charge of providing response to restaurant's menu."
-        });
-        orchestrator.addAgent(menuRestaurantAgent);
+    orchestrator.addAgent(newAgent);
+    expect(mockClassifier.setAgents).toHaveBeenCalled();
+  });
 
-
+  test('getAllAgents returns all added agents', () => {
+    const agents = orchestrator.getAllAgents();
+    expect(agents).toHaveProperty('test-agent');
+    expect(agents['test-agent']).toEqual({
+      name: 'Test Agent',
+      description: 'A test agent',
     });
+  });
 
-    test(`Test orchestration`, async () => {
-        const userId = "userId";
-        const sessionId = "sessionId";
+  test('routeRequest with identified agent', async () => {
+    const userInput = 'Test input';
+    const userId = 'user1';
+    const sessionId = 'session1';
 
-        const testSuite = [
-            {   agent: airlinesbotAgent,
-                userInput:'I need to book a flight',
-                expectedAgent: airlinesbotAgent.name,
-                expectedResponse:'I see you have a frequent flyer account with us. Can you confirm your frequent flyer number?'
-            },
-            {   agent: airlinesbotAgent,
-                userInput:'34567',
-                expectedAgent: airlinesbotAgent.name,
-                expectedResponse:'Thank you. And for verification can I get the last four digits of the credit card on file?'
-            },
-            {   agent: airlinesbotAgent,
-                userInput:'3456',
-                expectedAgent: airlinesbotAgent.name,
-                expectedResponse:'Got it. Let me get some information about your trip. Is this reservation for a one way trip or a round trip?'
-            },
-            {   agent: techAgent,
-                userInput: 'what is aws lambda?',
-                expectedAgent: techAgent.name,
-                expectedResponse:'AWS Lambda is a serverless compute service that runs your code in response to events and automatically manages the underlying compute resources for you. These events may include changes in state or an update, such as a user placing an item in a shopping cart on an ecommerce website.'
-            },
-            {   agent: airlinesbotAgent,
-                userInput: 'one way',
-                expectedAgent: airlinesbotAgent.name,
-                expectedResponse: 'Got it. What city are you departing from?'
-            },
-            {   agent: airlinesbotAgent,
-                userInput: 'Paris',
-                expectedAgent: airlinesbotAgent.name,
-                expectedResponse: "Paris. OK. And, what's your destination?"
-            },
-            {   agent: mathAgent,
-                userInput: 'cosinus 90',
-                expectedAgent: mathAgent.name,
-                expectedResponse: "0"
-            },
-            {   agent: airlinesbotAgent,
-                userInput: 'London',
-                expectedAgent: airlinesbotAgent.name,
-                expectedResponse: "Got it. What date would you like to take the flight?"
-            },
-            {   agent: airlinesbotAgent,
-                userInput: 'book a flight tomorrow',
-                expectedAgent: airlinesbotAgent.name,
-                expectedResponse: "OK. What's the total number of travelers?"
-            },
-            {   agent: airlinesbotAgent,
-                userInput: '5',
-                expectedAgent: airlinesbotAgent.name,
-                expectedResponse: "Okay. What's your preferred time of departure? You can say something like 8 am"
-            },
-            {   agent: mathAgent,
-                userInput: '5+11',
-                expectedAgent: mathAgent.name,
-                expectedResponse: "16"
-            },
-            {   agent: airlinesbotAgent,
-                userInput: '5 pm',
-                expectedAgent: airlinesbotAgent.name,
-                expectedResponse: "Okay. I have flight number A123 departing at 5:30am. The cost of this flight is $100. If you want to proceed with this, just say yes. Otherwise, say, get more options"
-            },
-            {   agent: airlinesbotAgent,
-                userInput: 'yes',
-                expectedAgent: airlinesbotAgent.name,
-                expectedResponse: "<speak>Can I use the card on file ending in <say-as interpret-as='digits'>3456</say-as> to make the reservation?</speak>"
-            },
-            {   agent: airlinesbotAgent,
-                userInput: 'yes',
-                expectedAgent: airlinesbotAgent.name,
-                expectedResponse: "<speak>Great. I have you on the B123 to London departing from Paris on 2024-07-16 at 6:30am. Your confirmation code is <say-as interpret-as='digits'>61571</say-as></speak>"
-            },
-            {   agent: menuRestaurantAgent,
-                userInput: "what is the children's menu",
-                expectedAgent: menuRestaurantAgent.name,
-                expectedResponse: "The children's menu at The Regrettable Experience includes the following entrees: \
-1. Chicken nuggets served with ketchup or ranch dressing (contains gluten, possible soy) \
-2. Macaroni and cheese (contains dairy, gluten) \
-3. Mini cheese quesadillas with salsa (contains dairy, gluten) \
-4. Peanut butter and banana sandwich (contains nuts, gluten) \
-5. Veggie pita pockets with hummus, cucumber, and tomatoes (contains gluten, possible soy) The children's menu also includes mini cheeseburgers, fish sticks, grilled cheese sandwiches, and spaghetti with marinara sauce. For dessert, the children's menu offers mini ice cream sundaes, fruit kabobs, chocolate chip cookie bites, banana splits, and jello cups."
-            },
-            {   agent: menuRestaurantAgent,
-                userInput: "How much is this menu?",
-                expectedAgent: menuRestaurantAgent.name,
-                expectedResponse: "It is $10."
-            }
+    const mockClassifierResult: ClassifierResult = {
+      selectedAgent: mockAgent,
+      confidence: 0.8,
+    };
 
-            
-        ];
-        for (const testCase of testSuite) {
-            testCase.agent.setAgentResponse(testCase.expectedResponse);
-            const response = await orchestrator.routeRequest(testCase.userInput, userId, sessionId);
-            expect(response.metadata.agentName).toEqual(testCase.expectedAgent);
-            expect(response.output).toEqual(testCase.expectedResponse);
-        }
-    }, 60000);
-    
+    mockClassifier.classify.mockResolvedValue(mockClassifierResult);
 
+    (mockAgent.processRequest as jest.Mock).mockImplementation(async () => ({
+      role: 'assistant',
+      content: [{ text: 'Agent response' }],
+    }));
+
+    mockStorage.fetchAllChats.mockResolvedValue([]);
+
+    const response = await orchestrator.routeRequest(userInput, userId, sessionId);
+
+    expect(response.output).toBe('Agent response');
+    expect(response.metadata.agentId).toBe(mockAgent.id);
+    expect(mockStorage.fetchAllChats).toHaveBeenCalledWith(userId, sessionId);
+    expect(mockClassifier.classify).toHaveBeenCalledWith(userInput, []);
+    expect(mockAgent.processRequest).toHaveBeenCalled();
+  });
+
+//   test('routeRequest with no identified agent', async () => {
+//     const userInput = 'Unclassifiable input';
+//     const userId = 'user1';
+//     const sessionId = 'session1';
+
+//     const mockClassifierResult: ClassifierResult = {
+//       selectedAgent: null,
+//       confidence: 0,
+//     };
+
+//     mockClassifier.classify.mockResolvedValue(mockClassifierResult);
+
+//     const defaultAgent = orchestrator.getDefaultAgent();
+//     jest.spyOn(defaultAgent, 'processRequest').mockImplementation(async () => ({
+//       role: 'assistant',
+//       content: [{ text: 'Default agent response' }],
+//     }));
+
+//     const response = await orchestrator.routeRequest(userInput, userId, sessionId);
+
+//     expect(response.output).toBe('Default agent response');
+//     expect(response.metadata.agentId).toBe(AgentTypes.DEFAULT);
+//   });
+
+//   test('routeRequest with classification error', async () => {
+//     const userInput = 'Error-causing input';
+//     const userId = 'user1';
+//     const sessionId = 'session1';
+
+//     mockClassifier.classify.mockRejectedValue(new Error('Classification error'));
+
+//     const response = await orchestrator.routeRequest(userInput, userId, sessionId);
+
+//     expect(response.output).toBe(orchestrator['config'].CLASSIFICATION_ERROR_MESSAGE);
+//     expect(response.metadata.errorType).toBe('classification_failed');
+//   });
+
+  test('routeRequest with streaming response', async () => {
+    const userInput = 'Stream input';
+    const userId = 'user1';
+    const sessionId = 'session1';
+
+    const mockClassifierResult: ClassifierResult = {
+      selectedAgent: mockAgent,
+      confidence: 0.8,
+    };
+
+    mockClassifier.classify.mockResolvedValue(mockClassifierResult);
+
+    const mockStream = (async function* () {
+      yield 'Chunk 1';
+      yield 'Chunk 2';
+    })();
+
+    mockAgent.processRequest.mockResolvedValue(mockStream);
+
+    const mockAccumulatorTransform = new AccumulatorTransform();
+    (AccumulatorTransform as jest.MockedClass<typeof AccumulatorTransform>).mockImplementation(() => mockAccumulatorTransform);
+
+    const response = await orchestrator.routeRequest(userInput, userId, sessionId);
+
+    expect(response.streaming).toBe(true);
+    expect(response.output).toBe(mockAccumulatorTransform);
+  });
+
+  test('setDefaultAgent changes the default agent', () => {
+    const newDefaultAgent: Agent = {
+      id: 'new-default',
+      name: 'New Default Agent',
+      description: 'A new default agent',
+      processRequest: jest.fn(),
+    } as unknown as jest.Mocked<Agent>;
+
+    orchestrator.setDefaultAgent(newDefaultAgent);
+    expect(orchestrator.getDefaultAgent()).toBe(newDefaultAgent);
+  });
+
+  test('setClassifier changes the classifier', () => {
+    const newClassifier = new BedrockClassifier();
+    orchestrator.setClassifier(newClassifier);
+    expect(orchestrator['classifier']).toBe(newClassifier);
+  });
 });
