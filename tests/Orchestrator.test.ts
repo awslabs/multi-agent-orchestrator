@@ -173,6 +173,36 @@ describe('MultiAgentOrchestrator', () => {
     orchestrator.setClassifier(newClassifier);
     expect(orchestrator['classifier']).toBe(newClassifier);
   });
+
+  test('addAgent throws error when adding an agent with an existing ID', () => {
+    const existingAgent: Agent = {
+      id: 'existing-agent',
+      name: 'Existing Agent',
+      description: 'An existing test agent',
+      processRequest: jest.fn(),
+    } as unknown as jest.Mocked<Agent>;
+
+    // Add the existing agent
+    orchestrator.addAgent(existingAgent);
+
+    // Attempt to add an agent with the same ID
+    const duplicateAgent: Agent = {
+      id: 'existing-agent',
+      name: 'Duplicate Agent',
+      description: 'A duplicate test agent',
+      processRequest: jest.fn(),
+    } as unknown as jest.Mocked<Agent>;
+
+    // Expect an error to be thrown when adding the duplicate agent
+    expect(() => {
+      orchestrator.addAgent(duplicateAgent);
+    }).toThrow(`An agent with ID 'existing-agent' already exists.`);
+
+    // Verify that the classifier's setAgents method was only called once (for the first agent)
+    expect(mockClassifier.setAgents).toHaveBeenCalledTimes(2); // Once in beforeEach, once for existingAgent
+  });
+
+  
 });
 
 describe('MultiAgentOrchestrator saveConversationExchange', () => {
@@ -290,4 +320,7 @@ describe('MultiAgentOrchestrator saveConversationExchange', () => {
     expect(chatUtils.saveConversationExchange).not.toHaveBeenCalled();
   });
 
+
+  
+  
 });
