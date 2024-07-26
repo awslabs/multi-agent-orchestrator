@@ -1,6 +1,6 @@
-import { ConversationMessage, ParticipantRole } from '../src/types';
-import { MockAgent } from './mock/mockAgent'; // MockAgent extends Agent
-import { AgentOptions } from '../src/agents/agent';
+import { ConversationMessage, ParticipantRole } from '../../src/types';
+import { MockAgent } from '../mock/mockAgent'; // MockAgent extends Agent
+import { AgentOptions } from '../../src/agents/agent';
 
 describe('Agents', () => {
   describe('generateKeyFromName', () => {
