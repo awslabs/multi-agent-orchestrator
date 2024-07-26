@@ -251,6 +251,9 @@ export class MultiAgentOrchestrator {
   }
 
   addAgent(agent: Agent): void {
+    if (this.agents[agent.id]) {
+      throw new Error(`An agent with ID '${agent.id}' already exists.`);
+    }
     this.agents[agent.id] = agent;
     this.classifier.setAgents(this.agents);
   }
