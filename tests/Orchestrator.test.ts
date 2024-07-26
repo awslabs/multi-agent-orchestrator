@@ -1,8 +1,8 @@
 import { MultiAgentOrchestrator, OrchestratorOptions } from '../src/orchestrator';
-import { Agent, AgentResponse, AgentOptions } from '../src/agents/agent';
+import { Agent, AgentOptions } from '../src/agents/agent';
 import { BedrockClassifier } from '../src/classifiers/bedrockClassifier';
 import { InMemoryChatStorage } from '../src/storage/memoryChatStorage';
-import { AgentTypes, ParticipantRole } from '../src/types/index';
+import { ParticipantRole } from '../src/types/index';
 import { ClassifierResult } from '../src/classifiers/classifier';
 import { ConversationMessage } from '../src/types/index';
 import { AccumulatorTransform } from '../src/utils/helpers';
@@ -20,11 +20,11 @@ class MockAgent extends Agent {
     }
   
     async processRequest(
-      inputText: string,
-      userId: string,
-      sessionId: string,
-      chatHistory: ConversationMessage[],
-      additionalParams?: Record<string, string>
+      _inputText: string,
+      _userId: string,
+      _sessionId: string,
+      _chatHistory: ConversationMessage[],
+      _additionalParams?: Record<string, string>
     ): Promise<ConversationMessage | AsyncIterable<any>> {
       // This is a mock implementation
       return {
@@ -36,7 +36,7 @@ class MockAgent extends Agent {
 
 describe('MultiAgentOrchestrator', () => {
   let orchestrator: MultiAgentOrchestrator;
-  let mockAgent: jest.Mocked<Agent>;
+  let mockAgent: jest.Mocked<MockAgent>;
   let mockClassifier: jest.Mocked<BedrockClassifier>;
   let mockStorage: jest.Mocked<InMemoryChatStorage>;
 
