@@ -34,12 +34,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
       
-      # Output results
-      - name: Output npm audit results
-        run: npm audit --json > npm_audit_results.json
-      
-      - name: Upload npm audit results
-        uses: actions/upload-artifact@v3
-        with:
-          name: npm-audit-results
-          path: typescript/npm_audit_results.json
