@@ -1,4 +1,4 @@
-import { AmazonKnowledgeBasesRetriever, AmazonKnowledgeBasesRetrieverOptions } from '../src/retrievers/AmazonKBRetriever';
+import { AmazonKnowledgeBasesRetriever, AmazonKnowledgeBasesRetrieverOptions } from '../../src/retrievers/AmazonKBRetriever';
 import { BedrockAgentRuntimeClient, RetrieveCommand, RetrieveAndGenerateCommand } from "@aws-sdk/client-bedrock-agent-runtime";
 
 // Mock the BedrockAgentRuntimeClient
