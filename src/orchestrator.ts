@@ -8,7 +8,7 @@ import { BedrockLLMAgent } from "./agents/bedrockLLMAgent";
 import { ChatStorage } from "./storage/chatStorage";
 import { InMemoryChatStorage } from "./storage/memoryChatStorage";
 import { AccumulatorTransform } from "./utils/helpers";
-import { saveChat } from "./utils/chatUtils";
+import { saveConversationExchange } from "./utils/chatUtils";
 import { Logger } from "./utils/logger";
 import { BedrockClassifier } from "./classifiers/bedrockClassifier";
 import { Classifier } from "./classifiers/classifier";
@@ -283,7 +283,7 @@ export class MultiAgentOrchestrator {
     return obj != null && typeof obj[Symbol.asyncIterator] === "function";
   }
 
-  private async dispatchToAgent(
+  async dispatchToAgent(
     params: DispatchToAgentsParams
   ): Promise<string | AsyncIterable<any>> {
     const {
@@ -355,6 +355,7 @@ export class MultiAgentOrchestrator {
         "Classifying user intent",
         () => this.classifier.classify(userInput, chatHistory)
       );
+
       this.logger.printIntent(userInput, classifierResult);
     } catch (error) {
       this.logger.error("Error during intent classification:", error);
@@ -364,7 +365,7 @@ export class MultiAgentOrchestrator {
         streaming: false,
       };
     }
-  
+
     // Handle case where no agent was selected
     if (!classifierResult.selectedAgent) {
       if (this.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED) {
@@ -398,7 +399,7 @@ export class MultiAgentOrchestrator {
           userInput,
           userId,
           sessionId,
-          metadata
+          classifierResult.selectedAgent
         );
         return {
           metadata,
@@ -407,16 +408,20 @@ export class MultiAgentOrchestrator {
         };
       }
   
-      await saveChat(
-        userInput,
-        agentResponse,
-        this.storage,
-        userId,
-        sessionId,
-        classifierResult.selectedAgent.id,
-        this.config.MAX_MESSAGE_PAIRS_PER_AGENT
-      );
-  
+      // Check if we should save the conversation
+      if (classifierResult?.selectedAgent.saveChat) {
+        await saveConversationExchange(
+          userInput,
+          agentResponse,
+          this.storage,
+          userId,
+          sessionId,
+          classifierResult?.selectedAgent.id,
+          this.config.MAX_MESSAGE_PAIRS_PER_AGENT
+        );
+      }
+
+
       return {
         metadata,
         output: agentResponse,
@@ -440,7 +445,7 @@ export class MultiAgentOrchestrator {
     userInput: string,
     userId: string,
     sessionId: string,
-    metadata: any
+    agent: Agent
   ): Promise<void> {
     const streamStartTime = Date.now();
     let chunkCount = 0;
@@ -462,14 +467,20 @@ export class MultiAgentOrchestrator {
 
       const fullResponse = accumulatorTransform.getAccumulatedData();
       if (fullResponse) {
-        await saveChat(
+
+
+        
+      if (agent.saveChat) {
+        await saveConversationExchange(
           userInput,
           fullResponse,
           this.storage,
           userId,
           sessionId,
-          metadata.agentId
+          agent.id
         );
+      }
+       
       } else {
         this.logger.warn("No data accumulated, messages not saved");
       }
