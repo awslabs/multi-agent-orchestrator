@@ -2,7 +2,7 @@ import { ChatStorage } from '../storage/chatStorage';
 import { ConversationMessage, ParticipantRole } from '../types';
 
 
-export async function saveChat(
+export async function saveConversationExchange(
   userInput: string,
   agentResponse: string,
   storage: ChatStorage,

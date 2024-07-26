@@ -47,6 +47,9 @@ export interface AgentOptions {
 
   // Optional: The geographic region where the agent should be deployed or run
   region?: string;
+
+  // Optional: Determines whether to save the chat, defaults to true
+  saveChat?: boolean;
 }
 
 /**
@@ -63,6 +66,9 @@ export abstract class Agent {
   /** A description of the agent's capabilities and expertise. */
   description: string;
 
+  /** Whether to save the chat or not. */
+  saveChat: boolean;
+
   /**
    * Constructs a new Agent instance.
    * @param options - Configuration options for the agent.
@@ -71,6 +77,7 @@ export abstract class Agent {
     this.name = options.name;
     this.id = this.generateKeyFromName(options.name);
     this.description = options.description;
+    this.saveChat = options.saveChat ?? true;  // Default to true if not provided
   }
 
   /**
