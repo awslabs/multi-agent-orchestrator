@@ -1,5 +1,4 @@
-import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
-import { Logger } from "multi-agent-orchestrator";
+import { ConversationMessage, ParticipantRole, Logger } from "multi-agent-orchestrator";
 
 export const MATH_AGENT_PROMPT = `
 You are a mathematical assistant capable of performing various mathematical operations and statistical calculations.
@@ -128,7 +127,7 @@ function executeMathOperation(
           break;
         default:
           // For other operations, use the Math object if the function exists
-          if (typeof Math[operation] === 'function') {
+          if (typeof Math[operation as keyof typeof Math] === 'function') {
             result = safeEval(`Math.${operation}(${args.join(",")})`);
           } else {
             throw new Error(`Unsupported operation: ${operation}`);
@@ -185,11 +184,11 @@ try {
 }
 
 
-export  async function mathToolHanlder(response:ConversationMessage, conversation: ConversationMessage[]){
+export  async function mathToolHanlder(response:any, conversation: ConversationMessage[]){
 
     const responseContentBlocks = response.content as any[];
   
-    let mathOperations: string[] = [];
+    const mathOperations: string[] = [];
     let lastResult: number | string | undefined;
     
     // Initialize an empty list of tool results
@@ -198,7 +197,7 @@ export  async function mathToolHanlder(response:ConversationMessage, conversatio
     if (!responseContentBlocks) {
       throw new Error("No content blocks in response");
     } 
-    for (const contentBlock of responseContentBlocks) {
+    for (const contentBlock of response.content) {
         if ("text" in contentBlock) {
             Logger.logger.info(contentBlock.text);
         }
