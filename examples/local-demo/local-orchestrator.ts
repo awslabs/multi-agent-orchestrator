@@ -1,10 +1,13 @@
 import readline from "readline";
-import { MultiAgentOrchestrator } from "../../src/orchestrator";
-import { BedrockLLMAgent } from "../../src/agents/bedrockLLMAgent";
-import { AmazonBedrockAgent } from "../../src/agents/amazonBedrockAgent";
-import { LexBotAgent } from "../../src/agents/lexBotAgent";
-import { LambdaAgent } from "../../src/agents/lambdaAgent";
-import { Logger } from "../../src/utils/logger";
+import { 
+  MultiAgentOrchestrator,
+  BedrockLLMAgent,
+  AmazonBedrockAgent,
+  LexBotAgent,
+  LambdaAgent,
+  Logger,
+ } from "multi-agent-orchestrator"
+
 
 function createOrchestrator(): MultiAgentOrchestrator {
   const orchestrator = new MultiAgentOrchestrator({
