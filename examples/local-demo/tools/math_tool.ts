@@ -1,5 +1,4 @@
-import { ConversationMessage, ParticipantRole } from "../../../src/types";
-import { Logger } from "../../../src/utils/logger";
+import { ConversationMessage, ParticipantRole, Logger } from "multi-agent-orchestrator";
 
 export const MATH_AGENT_PROMPT = `
 You are a mathematical assistant capable of performing various mathematical operations and statistical calculations.
@@ -128,7 +127,7 @@ function executeMathOperation(
           break;
         default:
           // For other operations, use the Math object if the function exists
-          if (typeof Math[operation] === 'function') {
+          if (typeof Math[operation as keyof typeof Math] === 'function') {
             result = safeEval(`Math.${operation}(${args.join(",")})`);
           } else {
             throw new Error(`Unsupported operation: ${operation}`);
@@ -185,7 +184,7 @@ try {
 }
 
 
-export  async function mathToolHanlder(response, conversation: ConversationMessage[]){
+export  async function mathToolHanlder(response:any, conversation: ConversationMessage[]){
 
     const responseContentBlocks = response.content as any[];
   

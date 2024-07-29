@@ -1,3 +1,5 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
 
 export const  weatherToolDescription = [
@@ -99,7 +101,7 @@ async function fetchWeatherData(inputData: InputData): Promise<WeatherData> {
   
     try {
       const response = await fetch(`${endpoint}?${params}`);
-      const data = await response.json();  
+      const data = await response.json() as any;  
       if (!response.ok) {
         return { error: 'Request failed', message: data.message || 'An error occurred' };
       }
