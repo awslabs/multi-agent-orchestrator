@@ -1,7 +1,7 @@
 
 !typescript/jest.config.js
 typescript/*.d.ts
-typescript/node_modules
+node_modules
 typescript/.package-lock.json
 
 examples/chat-demo-app/cdk.out

@@ -103,9 +103,9 @@ orchestrator.addAgent(
 
 // Example usage
 const response = await orchestrator.routeRequest(
+  "I want to book a flight",
   'user123',
-  'session456',
-  "I want to book a flight"
+  'session456'
 );
 
 // Handle the response (streaming or non-streaming)
