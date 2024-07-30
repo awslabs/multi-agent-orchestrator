@@ -20,7 +20,8 @@ npm install ollama
 ```
 
 ## 🧬 2. Create the Ollama Agent class:
-Now, let's create our `OllamaAgent` class. This class extends the `Agent` abstract class from the Multi-Agent Orchestrator:
+Now, let's create our `OllamaAgent` class. This class extends the `Agent` abstract class from the Multi-Agent Orchestrator.
+The [processRequest](../overview#abstract-method-processrequest) method must be implemented by the `OllamaAgent`
 
 ```typescript
 import {
