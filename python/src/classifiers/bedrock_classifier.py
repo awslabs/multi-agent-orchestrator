@@ -8,17 +8,30 @@ from ..types import ConversationMessage, ParticipantRole, BEDROCK_MODEL_ID_CLAUD
 from ..classifiers.classifier import Classifier, ClassifierResult
 
 
+class BedrockClassifierOptions:
+    def __init__(
+        self,
+        model_id: Optional[str] = None,
+        region: Optional[str] = None,
+        inference_config: Optional[Dict] = None
+    ):
+        self.model_id = model_id
+        self.region = region
+        self.inference_config = inference_config if inference_config is not None else {}
+
+
 class BedrockClassifier(Classifier):
-    def __init__(self, options: Dict[str, Any] = {}):
-        self.region = options.get('region') or os.environ.get('REGION')
+    def __init__(self, options: BedrockClassifierOptions):
+        super().__init__()
+        self.region = options.region or os.environ.get('REGION')
         self.client = boto3.client('bedrock-runtime', region_name=self.region)
-        self.model_id = options.get('model_id') or BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
+        self.model_id = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
         self.system_prompt: str
         self.inference_config = {
-            'maxTokens': options.get('inference_config', {}).get('max_tokens', 1000),
-            'temperature':  options.get('inference_config', {}).get('temperature', 0.0),
-            'topP': options.get('inference_config', {}).get('top_p', 0.9),
-            'stopSequences': options.get('inference_config', {}).get('stop_sequences', []),
+            'maxTokens': options.inference_config.get('maxTokens', 1000),
+            'temperature':  options.inference_config.get('temperature', 0.0),
+            'topP': options.inference_config.get('top_p', 0.9),
+            'stopSequences': options.inference_config.get('stop_sequences', [])
         }
         self.tools = [
             {
@@ -95,7 +108,7 @@ class BedrockClassifier(Classifier):
                             raise ValueError("Tool input does not match expected structure")
 
                         intent_classifier_result: ClassifierResult = ClassifierResult(
-                            selected_agent=self.get_agent_by_id(tool_use['input']['selected_agent']),
+                            selectedAgent=self.get_agent_by_id(tool_use['input']['selected_agent']),
                             confidence=float(tool_use['input']['confidence'])
                         )
                         return intent_classifier_result

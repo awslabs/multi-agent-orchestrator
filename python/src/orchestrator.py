@@ -3,7 +3,7 @@ import time
 from .utils.logger import Logger
 from .types import ConversationMessage, ParticipantRole
 from .classifiers.classifier import Classifier, ClassifierResult
-from .classifiers.bedrock_classifier import BedrockClassifier
+from .classifiers.bedrock_classifier import BedrockClassifier, BedrockClassifierOptions
 from .agents.agent import Agent, AgentResponse, AgentProcessingResult
 from .agents.bedrock_llm_agent import BedrockLLMAgent, BedrockLLMAgentOptions
 from .storage.in_memory_chat_storage import InMemoryChatStorage
@@ -32,7 +32,7 @@ class MultiAgentOrchestrator:
     def __init__(self, 
                  options: OrchestratorConfig = DEFAULT_CONFIG, 
                  storage: ChatStorage = InMemoryChatStorage(), 
-                 classifer: Classifier = BedrockClassifier(),
+                 classifer: Classifier = BedrockClassifier(options=BedrockClassifierOptions()),
                  logger: Logger = None):
         
         if options is None:
