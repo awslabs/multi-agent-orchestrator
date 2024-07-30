@@ -66,7 +66,13 @@ export default defineConfig({
 						{ label: 'OpenAI Agent', link: '/agents/built-in/openai-agent' }
 					  ]
 					},
-					{ label: 'Custom Agents', link: '/agents/custom-agents' }
+					{ label: 'Custom Agents', link: '/agents/custom-agents' },
+					{
+						label: 'Examples',
+						items: [
+						  { label: 'Ollama Agent', link: '/agents/examples/ollama-agent'},
+						]
+					  },
 				  ]
 				},
 				{
