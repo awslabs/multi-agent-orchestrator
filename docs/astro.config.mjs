@@ -71,6 +71,7 @@ export default defineConfig({
 						label: 'Examples',
 						items: [
 						  { label: 'Ollama Agent', link: '/agents/examples/ollama-agent'},
+						  { label: 'Api Agent', link: '/agents/examples/api-agent'},
 						]
 					  },
 				  ]
