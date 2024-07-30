@@ -3,7 +3,7 @@ title: Ollama Agent
 description: A guide to creating a Ollama agent and integrate it into the Multi-Agent Orchestrator System.
 ---
 
-Welcome to the Ollama Agent guide! This example will walk you through creating an Ollama agent and integrating it into your Multi-Agent Orchestrator System. 
+This example will walk you through creating an Ollama agent and integrating it into your Multi-Agent Orchestrator System. 
 Let's dive in!
 
 ## 📚Prerequisites:
