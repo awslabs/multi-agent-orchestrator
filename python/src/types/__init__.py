@@ -1,3 +1,4 @@
+"""Module for importing types."""
 from .types import (
     ConversationMessage,
     ParticipantRole,

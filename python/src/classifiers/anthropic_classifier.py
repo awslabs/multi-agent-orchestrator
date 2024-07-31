@@ -1,5 +1,4 @@
 from typing import List, Optional, Dict, Any
-from enum import Enum
 from anthropic import Anthropic
 from src.utils.helpers import is_tool_input
 from src.utils.logger import Logger
@@ -10,7 +9,10 @@ from src.classifiers import Classifier, ClassifierResult
 ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20240620"
 
 class AnthropicClassifierOptions:
-    def __init__(self, api_key: str, model_id: Optional[str] = None, inference_config: Optional[Dict[str, Any]] = None):
+    def __init__(self,
+                 api_key: str,
+                 model_id: Optional[str] = None,
+                 inference_config: Optional[Dict[str, Any]] = None):
         self.api_key = api_key
         self.model_id = model_id
         self.inference_config = inference_config or {}
@@ -61,7 +63,9 @@ class AnthropicClassifier(Classifier):
         self.system_prompt = "You are an AI assistant."  # Add your system prompt here
 
 
-    async def process_request(self, input_text: str, chat_history: List[ConversationMessage]) -> ClassifierResult:
+    async def process_request(self,
+                              input_text: str,
+                              chat_history: List[ConversationMessage]) -> ClassifierResult:
         user_message = {"role": "user", "content": input_text}
 
         try:
@@ -75,7 +79,7 @@ class AnthropicClassifier(Classifier):
                 tools=self.tools
             )
 
-            tool_use = next((content for content in response.content if content.type == "tool_use"), None)
+            tool_use = next((c for c in response.content if c.type == "tool_use"), None)
 
             if not tool_use:
                 raise ValueError("No tool use found in the response")
@@ -84,7 +88,7 @@ class AnthropicClassifier(Classifier):
                 raise ValueError("Tool input does not match expected structure")
 
             intent_classifier_result = ClassifierResult(
-                selectedAgent=self.get_agent_by_id(tool_use.input['selected_agent']),
+                selected_agent=self.get_agent_by_id(tool_use.input['selected_agent']),
                 confidence=float(tool_use.input['confidence'])
             )
 

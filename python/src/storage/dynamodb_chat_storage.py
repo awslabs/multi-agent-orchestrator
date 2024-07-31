@@ -6,7 +6,11 @@ from src.types import ConversationMessage, ParticipantRole, TimestampedMessage
 from src.utils import Logger, conversation_to_dict
 
 class DynamoDbChatStorage(ChatStorage):
-    def __init__(self, table_name: str, region: str, ttl_key: Optional[str] = None, ttl_duration: int = 3600):
+    def __init__(self,
+                 table_name: str,
+                 region: str,
+                 ttl_key: Optional[str] = None,
+                 ttl_duration: int = 3600):
         super().__init__()
         self.table_name = table_name
         self.ttl_key = ttl_key
@@ -26,7 +30,8 @@ class DynamoDbChatStorage(ChatStorage):
         existing_conversation = await self.fetch_chat_with_timestamp(user_id, session_id, agent_id)
 
         if self._is_consecutive_message(existing_conversation, new_message):
-            Logger.logger.log(f"> Consecutive {new_message['role']} message detected for agent {agent_id}. Not saving.")
+            Logger.logger.log(f"> Consecutive {new_message['role']} \
+                              message detected for agent {agent_id}. Not saving.")
             return existing_conversation
 
         timestamped_message = TimestampedMessage(
@@ -35,7 +40,10 @@ class DynamoDbChatStorage(ChatStorage):
             timestamp=int(time.time() * 1000))
         existing_conversation.append(timestamped_message)
 
-        trimmed_conversation:List[TimestampedMessage] = self._trim_conversation(existing_conversation, max_history_size)
+        trimmed_conversation:List[TimestampedMessage] = self._trim_conversation(
+            existing_conversation,
+            max_history_size
+            )
 
         item: Dict[str, Union[str, List[TimestampedMessage], int]] = {
             'PK': user_id,
@@ -63,7 +71,9 @@ class DynamoDbChatStorage(ChatStorage):
         key = self._generate_key(user_id, session_id, agent_id)
         try:
             response = self.table.get_item(Key={'PK': user_id, 'SK': key})
-            stored_messages: List[TimestampedMessage] = self._dict_to_conversation(response.get('Item', {}).get('conversation', []))
+            stored_messages: List[TimestampedMessage] = self._dict_to_conversation(
+                response.get('Item', {}).get('conversation', [])
+            )
             return self._remove_timestamps(stored_messages)
         except Exception as error:
             Logger.logger.error("Error getting conversation from DynamoDB:", error)
@@ -78,7 +88,9 @@ class DynamoDbChatStorage(ChatStorage):
         key = self._generate_key(user_id, session_id, agent_id)
         try:
             response = self.table.get_item(Key={'PK': user_id, 'SK': key})
-            stored_messages: List[TimestampedMessage] = self._dict_to_conversation(response.get('Item', {}).get('conversation', []))
+            stored_messages: List[TimestampedMessage] = self._dict_to_conversation(
+                response.get('Item', {}).get('conversation', [])
+            )
             return stored_messages
         except Exception as error:
             Logger.logger.error("Error getting conversation from DynamoDB:", error)
@@ -107,7 +119,8 @@ class DynamoDbChatStorage(ChatStorage):
                 for msg in item['conversation']:
                     content = msg['content']
                     if msg['role'] == ParticipantRole.ASSISTANT:
-                        content = [{'text': f"[{agent_id}] {content[0]['text'] if isinstance(content, list) else content}"}]
+                        text = content[0]['text'] if isinstance(content, list) else content
+                        content = [{'text': f"[{agent_id}] {text}"}]
                     elif not isinstance(content, list):
                         content = [{'text': content}]
 

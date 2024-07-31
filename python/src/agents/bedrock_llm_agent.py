@@ -43,19 +43,23 @@ class BedrockLLMAgent(Agent):
         self.prompt_template: str = f"""You are a {self.name}.
         {self.description}
         Provide helpful and accurate information based on your expertise.
-        You will engage in an open-ended conversation, providing helpful and accurate information based on your expertise.
+        You will engage in an open-ended conversation,
+        providing helpful and accurate information based on your expertise.
         The conversation will proceed as follows:
         - The human may ask an initial question or provide a prompt on any topic.
         - You will provide a relevant and informative response.
-        - The human may then follow up with additional questions or prompts related to your previous response, allowing for a multi-turn dialogue on that topic.
+        - The human may then follow up with additional questions or prompts related to your previous
+        response, allowing for a multi-turn dialogue on that topic.
         - Or, the human may switch to a completely new and unrelated topic at any point.
-        - You will seamlessly shift your focus to the new topic, providing thoughtful and coherent responses based on your broad knowledge base.
+        - You will seamlessly shift your focus to the new topic, providing thoughtful and
+        coherent responses based on your broad knowledge base.
         Throughout the conversation, you should aim to:
         - Understand the context and intent behind each new question or prompt.
         - Provide substantive and well-reasoned responses that directly address the query.
         - Draw insights and connections from your extensive knowledge when appropriate.
         - Ask for clarification if any part of the question or prompt is ambiguous.
-        - Maintain a consistent, respectful, and engaging tone tailored to the human's communication style.
+        - Maintain a consistent, respectful, and engaging tone tailored
+        to the human's communication style.
         - Seamlessly transition between topics as the human introduces new subjects."""
 
         self.system_prompt: str = ""
@@ -162,7 +166,9 @@ class BedrockLLMAgent(Agent):
             Logger.error("Error getting stream from Bedrock model:", error)
             raise
 
-    def set_system_prompt(self, template: Optional[str] = None, variables: Optional[TemplateVariables] = None) -> None:
+    def set_system_prompt(self,
+                          template: Optional[str] = None,
+                          variables: Optional[TemplateVariables] = None) -> None:
         if template:
             self.prompt_template = template
         if variables:

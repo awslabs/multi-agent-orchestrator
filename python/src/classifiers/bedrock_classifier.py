@@ -63,7 +63,9 @@ class BedrockClassifier(Classifier):
         ]
 
 
-    async def process_request(self, input_text: str, chat_history: List[ConversationMessage]) -> ClassifierResult:
+    async def process_request(self,
+                              input_text: str,
+                              chat_history: List[ConversationMessage]) -> ClassifierResult:
         user_message = ConversationMessage(
             role=ParticipantRole.USER.value,
             content=[{"text": input_text}]
@@ -108,7 +110,7 @@ class BedrockClassifier(Classifier):
                             raise ValueError("Tool input does not match expected structure")
 
                         intent_classifier_result: ClassifierResult = ClassifierResult(
-                            selectedAgent=self.get_agent_by_id(tool_use['input']['selected_agent']),
+                            selected_agent=self.get_agent_by_id(tool_use['input']['selected_agent']),
                             confidence=float(tool_use['input']['confidence'])
                         )
                         return intent_classifier_result
