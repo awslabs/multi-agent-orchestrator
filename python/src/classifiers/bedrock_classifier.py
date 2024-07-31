@@ -2,10 +2,10 @@ import os
 from typing import List, Optional, Dict, Any
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-from ..utils.helpers import is_tool_input
-from ..utils.logger import Logger
-from ..types import ConversationMessage, ParticipantRole, BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
-from ..classifiers.classifier import Classifier, ClassifierResult
+from src.utils.helpers import is_tool_input
+from src.utils import Logger
+from src.types import ConversationMessage, ParticipantRole, BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
+from src.classifiers import Classifier, ClassifierResult
 
 
 class BedrockClassifierOptions:

@@ -1,7 +1,7 @@
 from typing import Dict, List, Union, AsyncIterable, Optional, Any
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from ..types import ConversationMessage
+from src.types import ConversationMessage
 
 @dataclass
 class AgentProcessingResult:

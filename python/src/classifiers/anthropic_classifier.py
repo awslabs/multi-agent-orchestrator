@@ -1,10 +1,10 @@
 from typing import List, Optional, Dict, Any
 from enum import Enum
 from anthropic import Anthropic
-from ..utils.helpers import is_tool_input
-from ..utils.logger import Logger
-from ..types import ConversationMessage
-from .classifier import Classifier, ClassifierResult
+from src.utils.helpers import is_tool_input
+from src.utils.logger import Logger
+from src.types import ConversationMessage
+from src.classifiers import Classifier, ClassifierResult
 
 
 ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20240620"

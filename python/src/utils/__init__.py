@@ -1,4 +1,7 @@
-from .helpers import is_tool_input
+from .helpers import is_tool_input, conversation_to_dict
 from .logger import Logger
 
-__all__ = ['is_tool_input', 'Logger']
+__all__ = [
+    'is_tool_input', 
+    'conversation_to_dict',
+    'Logger']

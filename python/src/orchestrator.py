@@ -112,7 +112,10 @@ class MultiAgentOrchestrator:
                 "Classifying user intent",
                 lambda: self.classifier.classify(user_input, chat_history)
             )
-            self.logger.print_intent(user_input, classifier_result)
+
+            if self.config.LOG_CLASSIFIER_OUTPUT:
+                self.print_intent(user_input, classifier_result)
+
         except Exception as error:
             self.logger.error("Error during intent classification:", error)
             return AgentResponse(
@@ -167,6 +170,15 @@ class MultiAgentOrchestrator:
 
         finally:
             self.logger.print_execution_times(self.execution_times)
+
+        
+    def print_intent(self, user_input: str, intent_classifier_result: ClassifierResult) -> None:
+        """Print the classified intent."""
+        Logger.log_header('Classified Intent')
+        Logger.logger.info(f"> Text: {user_input}")
+        Logger.logger.info(f"> Selected Agent: {intent_classifier_result.selectedAgent.name if intent_classifier_result.selectedAgent else 'No agent selected'}")
+        Logger.logger.info(f"> Confidence: {intent_classifier_result.confidence:.2f}")
+        Logger.logger.info('')
 
     # async def process_stream_in_background(self, agent_response: AsyncIterable[Any], accumulator_transform: AccumulatorTransform,
     #                                        user_input: str, user_id: str, session_id: str, agent: Agent):

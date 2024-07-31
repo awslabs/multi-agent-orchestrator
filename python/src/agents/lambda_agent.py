@@ -1,9 +1,9 @@
 import json
 from typing import List, Dict, Optional, Callable, Any
 import boto3
-from .agent import Agent, AgentOptions
-from ..types import ConversationMessage, ParticipantRole
-from ..utils.helpers import conversation_to_dict
+from src.agents.agent import Agent, AgentOptions
+from src.types import ConversationMessage, ParticipantRole
+from src.utils import conversation_to_dict
 
 class LambdaAgentOptions(AgentOptions):
     def __init__(

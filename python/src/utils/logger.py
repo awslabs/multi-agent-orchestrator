@@ -1,6 +1,5 @@
 from typing import List, Optional, Dict, Any
-from ..types import ConversationMessage
-from ..classifiers.classifier import ClassifierResult
+from src.types import ConversationMessage
 import json
 import logging
 
@@ -35,7 +34,7 @@ class Logger:
         """Log a debug message."""
         cls.logger.debug(message, *args)
 
-    def log_header(self, title: str) -> None:
+    def log_header(title: str) -> None:
         """Log a header with the given title."""
         Logger.logger.info(f"\n** {title.upper()} **")
         Logger.logger.info('=' * (len(title) + 6))
@@ -48,7 +47,7 @@ class Logger:
             return
 
         title = f"Agent {agent_id} Chat History" if is_agent_chat else 'Classifier Chat History'
-        self.log_header(title)
+        Logger.log_header(title)
 
         if not chat_history:
             Logger.logger.info('> - None -')
@@ -68,20 +67,8 @@ class Logger:
            (not is_raw and not self.config.LOG_CLASSIFIER_OUTPUT):
             return
 
-        self.log_header('Raw Classifier Output' if is_raw else 'Processed Classifier Output')
+        Logger.log_header('Raw Classifier Output' if is_raw else 'Processed Classifier Output')
         Logger.logger.info(output if is_raw else json.dumps(output, indent=2))
-        Logger.logger.info('')
-
-    def print_intent(self, user_input: str, intent_classifier_result: ClassifierResult) -> None:
-        """Print the classified intent."""
-        
-        if not self.config.LOG_CLASSIFIER_OUTPUT:
-            return
-
-        self.log_header('Classified Intent')
-        Logger.logger.info(f"> Text: {user_input}")
-        Logger.logger.info(f"> Selected Agent: {intent_classifier_result.selectedAgent.name if intent_classifier_result.selectedAgent else 'No agent selected'}")
-        Logger.logger.info(f"> Confidence: {intent_classifier_result.confidence:.2f}")
         Logger.logger.info('')
 
     def print_execution_times(self, execution_times: Dict[str, float]) -> None:
@@ -89,7 +76,7 @@ class Logger:
         if not self.config.LOG_EXECUTION_TIMES:
             return
 
-        self.log_header('Execution Times')
+        Logger.log_header('Execution Times')
         if not execution_times:
             Logger.logger.info('> - None -')
         else:
