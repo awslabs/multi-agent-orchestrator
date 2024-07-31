@@ -4,31 +4,32 @@ import boto3
 from src.agents.agent import Agent, AgentOptions
 from src.types import ConversationMessage, ParticipantRole
 from src.utils import conversation_to_dict
+from dataclasses import dataclass
 
+@dataclass
 class LambdaAgentOptions(AgentOptions):
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        function_name: str,
-        function_region: str,
-        input_payload_encoder: Optional[Callable[[str, List[ConversationMessage], str, str, Optional[Dict[str, str]]], str]] = None,
-        output_payload_decoder: Optional[Callable[[Dict[str, Any]], ConversationMessage]] = None
-    ):
-        super().__init__(name, description)
-        self.function_name = function_name
-        self.function_region = function_region
-        self.input_payload_encoder = input_payload_encoder
-        self.output_payload_decoder = output_payload_decoder
+    function_name: str = None
+    function_region: str = None
+    input_payload_encoder: Optional[Callable[[str, List[ConversationMessage], str, str, Optional[Dict[str, str]]], str]] = None
+    output_payload_decoder: Optional[Callable[[Dict[str, Any]], ConversationMessage]] = None
+    
 
 class LambdaAgent(Agent):
     def __init__(self, options: LambdaAgentOptions):
         super().__init__(options)
         self.options = options
         self.lambda_client = boto3.client('lambda', region_name=self.options.function_region)
+        if self.options.input_payload_encoder is None:
+            self.encoder = self.__default_input_payload_encoder
+        else:
+            self.encoder = self.options.input_payload_encoder
 
-    @staticmethod
-    def default_input_payload_encoder(
+        if self.options.output_payload_decoder is None:
+            self.decoder = self.__default_output_payload_decoder
+        else:
+            self.decoder = self.options.output_payload_decoder
+
+    def __default_input_payload_encoder(self,
         input_text: str,
         chat_history: List[ConversationMessage],
         user_id: str,
@@ -44,8 +45,8 @@ class LambdaAgent(Agent):
             'sessionId': session_id,
         })
 
-    @staticmethod
-    def default_output_payload_decoder(response: Dict[str, Any]) -> ConversationMessage:
+    
+    def __default_output_payload_decoder(self, response: Dict[str, Any]) -> ConversationMessage:
         """Decode Lambda response and create ConversationMessage."""
         decoded_response = json.loads(json.loads(response['Payload'].read().decode('utf-8'))['body'])['response']
         return ConversationMessage(
@@ -62,13 +63,10 @@ class LambdaAgent(Agent):
         additional_params: Optional[Dict[str, str]] = None
     ) -> ConversationMessage:
         """Process the request by invoking Lambda function and decoding the response."""
-        encoder = self.options.input_payload_encoder or self.default_input_payload_encoder
-        payload = encoder(input_text, chat_history, user_id, session_id, additional_params)
-
+        payload = self.encoder(input_text, chat_history, user_id, session_id, additional_params)
+  
         response = self.lambda_client.invoke(
             FunctionName=self.options.function_name,
             Payload=payload
         )
-
-        decoder = self.options.output_payload_decoder or self.default_output_payload_decoder
-        return decoder(response)
+        return self.decoder(response)
