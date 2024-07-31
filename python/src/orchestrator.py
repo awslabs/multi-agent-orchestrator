@@ -180,41 +180,6 @@ class MultiAgentOrchestrator:
         Logger.logger.info(f"> Confidence: {intent_classifier_result.confidence:.2f}")
         Logger.logger.info('')
 
-    # async def process_stream_in_background(self, agent_response: AsyncIterable[Any], accumulator_transform: AccumulatorTransform,
-    #                                        user_input: str, user_id: str, session_id: str, agent: Agent):
-    #     stream_start_time = time.time()
-    #     chunk_count = 0
-
-    #     try:
-    #         async for chunk in agent_response:
-    #             if chunk_count == 0:
-    #                 first_chunk_time = time.time()
-    #                 time_to_first_chunk = first_chunk_time - stream_start_time
-    #                 self.execution_times["Time to first chunk"] = time_to_first_chunk
-    #                 self.logger.print_execution_times(self.execution_times)
-
-    #             accumulator_transform.write(chunk)
-    #             chunk_count += 1
-
-    #         accumulator_transform.end()
-    #         self.logger.debug(f"Streaming completed: {chunk_count} chunks received")
-
-    #         full_response = accumulator_transform.get_accumulated_data()
-    #         if full_response and agent.save_chat:
-    #             await save_conversation_exchange(
-    #                 user_input,
-    #                 full_response,
-    #                 self.storage,
-    #                 user_id,
-    #                 session_id,
-    #                 agent.id
-    #             )
-    #         else:
-    #             self.logger.warn("No data accumulated, messages not saved")
-
-    #     except Exception as error:
-    #         self.logger.error("Error processing stream:", error)
-
     async def measure_execution_time(self, timer_name: str, fn):
         if not self.config.LOG_EXECUTION_TIMES:
             return await fn()
