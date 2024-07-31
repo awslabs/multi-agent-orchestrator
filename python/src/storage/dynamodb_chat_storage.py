@@ -29,7 +29,7 @@ class DynamoDbChatStorage(ChatStorage):
         key = self._generate_key(user_id, session_id, agent_id)
         existing_conversation = await self.fetch_chat_with_timestamp(user_id, session_id, agent_id)
 
-        if self._is_consecutive_message(existing_conversation, new_message):
+        if self.is_consecutive_message(existing_conversation, new_message):
             Logger.logger.log(f"> Consecutive {new_message['role']} \
                               message detected for agent {agent_id}. Not saving.")
             return existing_conversation
@@ -40,7 +40,7 @@ class DynamoDbChatStorage(ChatStorage):
             timestamp=int(time.time() * 1000))
         existing_conversation.append(timestamped_message)
 
-        trimmed_conversation:List[TimestampedMessage] = self._trim_conversation(
+        trimmed_conversation:List[TimestampedMessage] = self.trim_conversation(
             existing_conversation,
             max_history_size
             )

@@ -21,7 +21,7 @@ class InMemoryChatStorage(ChatStorage):
         key = self._generate_key(user_id, session_id, agent_id)
         conversation = self.conversations[key]
 
-        if super()._is_consecutive_message(conversation, new_message):
+        if self.is_consecutive_message(conversation, new_message):
             Logger.log(f"> Consecutive {new_message.role} \
                        message detected for agent {agent_id}. Not saving.")
             return self._remove_timestamps(conversation)
@@ -31,7 +31,7 @@ class InMemoryChatStorage(ChatStorage):
             content=new_message.content,
             timestamp=time.time() * 1000)
         conversation.append(timestamped_message)
-        conversation = super()._trim_conversation(conversation, max_history_size)
+        conversation = self.trim_conversation(conversation, max_history_size)
         self.conversations[key] = conversation
         return self._remove_timestamps(conversation)
 
@@ -45,7 +45,7 @@ class InMemoryChatStorage(ChatStorage):
         key = self._generate_key(user_id, session_id, agent_id)
         conversation = self.conversations[key]
         if max_history_size is not None:
-            conversation = super()._trim_conversation(conversation, max_history_size)
+            conversation = self.trim_conversation(conversation, max_history_size)
         return self._remove_timestamps(conversation)
 
     async def fetch_all_chats(
