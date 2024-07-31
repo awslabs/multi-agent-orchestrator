@@ -1,18 +1,18 @@
 from typing import Dict, Any, AsyncIterable, Optional, Union
 from dataclasses import dataclass, fields, asdict, replace
 import time
-from src.utils.logger import Logger
-from src.types import ConversationMessage, ParticipantRole
-from src.classifiers import (Classifier,
+from multi_agent_orchestrator.utils.logger import Logger
+from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+from multi_agent_orchestrator.classifiers import (Classifier,
                              ClassifierResult,
                              BedrockClassifier,
                              BedrockClassifierOptions)
-from src.agents import (Agent,
+from multi_agent_orchestrator.agents import (Agent,
                         AgentResponse,
                         AgentProcessingResult,
                         BedrockLLMAgent,
                         BedrockLLMAgentOptions)
-from src.storage import ChatStorage, InMemoryChatStorage
+from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
 
 
 @dataclass

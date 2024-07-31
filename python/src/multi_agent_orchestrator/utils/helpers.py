@@ -2,7 +2,7 @@
 Helpers method
 """
 from typing import Any, List, Dict, Union
-from src.types import ConversationMessage, TimestampedMessage
+from multi_agent_orchestrator.types import ConversationMessage, TimestampedMessage
 
 def is_tool_input(input_obj: Any) -> bool:
     """Check if the input object is a tool input."""

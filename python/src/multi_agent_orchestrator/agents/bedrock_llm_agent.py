@@ -2,12 +2,12 @@ from typing import List, Dict, Any, AsyncIterable, Optional, Union
 from dataclasses import dataclass
 import re
 import boto3
-from src.agents import Agent, AgentOptions
-from src.types import (ConversationMessage,
+from multi_agent_orchestrator.agents import Agent, AgentOptions
+from multi_agent_orchestrator.types import (ConversationMessage,
                        ParticipantRole,
                        BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
                        TemplateVariables)
-from src.utils import conversation_to_dict, Logger
+from multi_agent_orchestrator.utils import conversation_to_dict, Logger
 
 
 @dataclass

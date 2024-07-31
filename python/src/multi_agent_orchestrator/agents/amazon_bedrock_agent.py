@@ -5,9 +5,9 @@ from dataclasses import dataclass
 import os
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-from src.agents import Agent, AgentOptions
-from src.types import ConversationMessage, ParticipantRole
-from src.utils import Logger
+from multi_agent_orchestrator.agents import Agent, AgentOptions
+from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+from multi_agent_orchestrator.utils import Logger
 
 
 @dataclass

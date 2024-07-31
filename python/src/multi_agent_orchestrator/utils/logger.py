@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict, Any
 import json
 import logging
-from src.types import ConversationMessage
+from multi_agent_orchestrator.types import ConversationMessage
 
 logging.basicConfig(level=logging.INFO)
 

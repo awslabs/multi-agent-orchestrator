@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 import re
 from typing import Dict, List, Optional
-from src.types import ConversationMessage, AgentTypes, TemplateVariables
-from src.agents import Agent, BedrockLLMAgent, BedrockLLMAgentOptions
 from dataclasses import dataclass
+from multi_agent_orchestrator.types import ConversationMessage, AgentTypes, TemplateVariables
+from multi_agent_orchestrator.agents import Agent, BedrockLLMAgent, BedrockLLMAgentOptions
 
 
 @dataclass

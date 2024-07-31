@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from src.types import ConversationMessage
+from multi_agent_orchestrator.types import ConversationMessage
 
 class ChatStorage(ABC):
     """Abstract base class representing the interface for an agent.

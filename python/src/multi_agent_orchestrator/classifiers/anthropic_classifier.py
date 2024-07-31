@@ -1,9 +1,9 @@
 from typing import List, Optional, Dict, Any
 from anthropic import Anthropic
-from src.utils.helpers import is_tool_input
-from src.utils.logger import Logger
-from src.types import ConversationMessage
-from src.classifiers import Classifier, ClassifierResult
+from multi_agent_orchestrator.utils.helpers import is_tool_input
+from multi_agent_orchestrator.utils.logger import Logger
+from multi_agent_orchestrator.types import ConversationMessage
+from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult
 
 
 ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20240620"
