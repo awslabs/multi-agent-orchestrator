@@ -5,10 +5,11 @@ from .agent import Agent, AgentOptions, AgentCallbacks, AgentProcessingResult, A
 from .lambda_agent import LambdaAgent, LambdaAgentOptions
 from .bedrock_llm_agent import BedrockLLMAgent, BedrockLLMAgentOptions
 from .lex_bot_agent import LexBotAgent, LexBotAgentOptions
+from .amazon_bedrock_agent import AmazonBedrockAgent, AmazonBedrockAgentOptions
 
 
 __all__ = [
-    'Agent', 
+    'Agent',
     'AgentOptions',
     'AgentCallbacks',
     'AgentProcessingResult',
@@ -18,5 +19,7 @@ __all__ = [
     'BedrockLLMAgent',
     'BedrockLLMAgentOptions',
     'LexBotAgent',
-    'LexBotAgentOptions'
+    'LexBotAgentOptions',
+    'AmazonBedrockAgent',
+    'AmazonBedrockAgentOptions'
 ]
