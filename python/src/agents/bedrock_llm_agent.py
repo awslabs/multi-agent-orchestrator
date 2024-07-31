@@ -165,9 +165,6 @@ class BedrockLLMAgent(Agent):
         all_variables: TemplateVariables = {**self.custom_variables}
         self.system_prompt = self.replace_placeholders(self.prompt_template, all_variables)
 
-    def on_llm_new_token(self, token: str) -> None:
-        self.callbacks.on_llm_new_token(token)
-
     @staticmethod
     def replace_placeholders(template: str, variables: TemplateVariables) -> str:
         def replace(match):

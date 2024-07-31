@@ -18,6 +18,7 @@ class AgentResponse:
     output: Union[Any, str]
     streaming: bool
 
+
 class AgentCallbacks:
     def on_llm_new_token(self, token: str) -> None:
         # Default implementation
@@ -39,7 +40,7 @@ class Agent(ABC):
         self.id = self.generate_key_from_name(options.name)
         self.description = options.description
         self.save_chat = options.save_chat
-        self.callbacks = options.callbacks or AgentCallbacks()
+        self.callbacks = options.callbacks if options.callbacks is not None else AgentCallbacks()
 
     @staticmethod
     def generate_key_from_name(name: str) -> str:
@@ -48,10 +49,6 @@ class Agent(ABC):
         key = re.sub(r'[^a-zA-Z\s-]', '', name)
         key = re.sub(r'\s+', '-', key)
         return key.lower()
-    
-    @abstractmethod
-    def on_llm_new_token(self, token: str) -> None:
-        pass
 
     @abstractmethod
     async def process_request(
