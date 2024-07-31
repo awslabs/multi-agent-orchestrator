@@ -22,7 +22,7 @@ class InMemoryChatStorage(ChatStorage):
         conversation = self.conversations[key]
 
         if self.is_consecutive_message(conversation, new_message):
-            Logger.log(f"> Consecutive {new_message.role} \
+            Logger.debug(f"> Consecutive {new_message.role} \
                        message detected for agent {agent_id}. Not saving.")
             return self._remove_timestamps(conversation)
 
