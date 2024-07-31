@@ -17,20 +17,20 @@ from src.storage import ChatStorage, InMemoryChatStorage
 
 @dataclass
 class OrchestratorConfig:
-    LOG_AGENT_CHAT: bool = False
-    LOG_CLASSIFIER_CHAT: bool = False
-    LOG_CLASSIFIER_RAW_OUTPUT: bool = False
-    LOG_CLASSIFIER_OUTPUT: bool = False
-    LOG_EXECUTION_TIMES: bool = False
-    MAX_RETRIES: int = 3
-    USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: bool = True
-    CLASSIFICATION_ERROR_MESSAGE: str = "I'm sorry, an error occurred while processing your request.\
-    Please try again later."
+    LOG_AGENT_CHAT: bool = False    # pylint: disable=invalid-name
+    LOG_CLASSIFIER_CHAT: bool = False   # pylint: disable=invalid-name
+    LOG_CLASSIFIER_RAW_OUTPUT: bool = False # pylint: disable=invalid-name
+    LOG_CLASSIFIER_OUTPUT: bool = False # pylint: disable=invalid-name
+    LOG_EXECUTION_TIMES: bool = False   # pylint: disable=invalid-name
+    MAX_RETRIES: int = 3    # pylint: disable=invalid-name
+    USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: bool = True   # pylint: disable=invalid-name
+    CLASSIFICATION_ERROR_MESSAGE: str = "I'm sorry, an error occurred while processing \
+        your request.Please try again later."   # pylint: disable=invalid-name
     NO_SELECTED_AGENT_MESSAGE: str = "I'm sorry, I couldn't determine how to handle your request.\
-    Could you please rephrase it?"
+    Could you please rephrase it?"  # pylint: disable=invalid-name
     GENERAL_ROUTING_ERROR_MSG_MESSAGE: str = "An error occurred while processing your request. \
-    Please try again later."
-    MAX_MESSAGE_PAIRS_PER_AGENT: int = 100
+    Please try again later."    # pylint: disable=invalid-name
+    MAX_MESSAGE_PAIRS_PER_AGENT: int = 100  # pylint: disable=invalid-name
 
 DEFAULT_CONFIG = OrchestratorConfig()
 
@@ -268,8 +268,8 @@ class MultiAgentOrchestrator:
         if not intent_classifier_result or not intent_classifier_result.selected_agent:
             base_metadata.additional_params['error_type'] = 'classification_failed'
         else:
-           base_metadata.agent_id = intent_classifier_result.selected_agent.id
-           base_metadata.agent_name = intent_classifier_result.selected_agent.name
+            base_metadata.agent_id = intent_classifier_result.selected_agent.id
+            base_metadata.agent_name = intent_classifier_result.selected_agent.name
 
         return base_metadata
 
