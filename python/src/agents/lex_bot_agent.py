@@ -1,7 +1,7 @@
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from typing import List, Dict, Optional
-from src.agents.agent import Agent, AgentOptions
+from src.agents import Agent, AgentOptions
 from src.types import ConversationMessage, ParticipantRole
 from src.utils import Logger
 from dataclasses import dataclass

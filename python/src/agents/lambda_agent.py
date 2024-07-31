@@ -1,7 +1,7 @@
 import json
 from typing import List, Dict, Optional, Callable, Any
 import boto3
-from src.agents.agent import Agent, AgentOptions
+from src.agents import Agent, AgentOptions
 from src.types import ConversationMessage, ParticipantRole
 from src.utils import conversation_to_dict
 from dataclasses import dataclass

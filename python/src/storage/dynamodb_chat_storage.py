@@ -1,10 +1,9 @@
 import boto3
 import time
 from typing import List, Dict, Union, Optional
-from .chat_storage import ChatStorage
-from ..types import ConversationMessage, ParticipantRole, TimestampedMessage
-from ..utils.logger import Logger
-from ..utils.helpers import conversation_to_dict
+from src.storage import ChatStorage
+from src.types import ConversationMessage, ParticipantRole, TimestampedMessage
+from src.utils import Logger, conversation_to_dict
 
 class DynamoDbChatStorage(ChatStorage):
     def __init__(self, table_name: str, region: str, ttl_key: Optional[str] = None, ttl_duration: int = 3600):

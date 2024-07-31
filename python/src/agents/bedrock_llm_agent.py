@@ -1,6 +1,6 @@
 import boto3
 from typing import List, Dict, Any, AsyncIterable, Optional, Union
-from src.agents.agent import Agent, AgentOptions, AgentCallbacks
+from src.agents import Agent, AgentOptions, AgentCallbacks
 from src.types import ConversationMessage, ParticipantRole, BEDROCK_MODEL_ID_CLAUDE_3_HAIKU, TemplateVariables
 from src.utils import conversation_to_dict
 from dataclasses import dataclass

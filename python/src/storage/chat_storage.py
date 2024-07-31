@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from ..types import ConversationMessage
+from src.types import ConversationMessage
 
 class ChatStorage(ABC):
     def _is_consecutive_message(self, conversation: List[ConversationMessage], new_message: ConversationMessage) -> bool:
