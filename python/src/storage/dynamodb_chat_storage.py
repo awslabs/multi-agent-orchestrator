@@ -1,12 +1,10 @@
 import boto3
 import time
 from typing import List, Dict, Union, Optional
-from abc import ABC, abstractmethod
-
-# Assuming these are defined elsewhere in your project
 from .chat_storage import ChatStorage
 from ..types import ConversationMessage, ParticipantRole, TimestampedMessage
 from ..utils.logger import Logger
+from ..utils.helpers import conversation_to_dict
 
 class DynamoDbChatStorage(ChatStorage):
     def __init__(self, table_name: str, region: str, ttl_key: Optional[str] = None, ttl_duration: int = 3600):
@@ -43,7 +41,7 @@ class DynamoDbChatStorage(ChatStorage):
         item: Dict[str, Union[str, List[TimestampedMessage], int]] = {
             'PK': user_id,
             'SK': key,
-            'conversation': self._conversation_to_dict(trimmed_conversation),
+            'conversation': conversation_to_dict(trimmed_conversation),
         }
 
         if self.ttl_key:
@@ -132,9 +130,6 @@ class DynamoDbChatStorage(ChatStorage):
 
     def _remove_timestamps(self, messages: List[Union[TimestampedMessage]]) -> List[ConversationMessage]:
         return [ConversationMessage(role=message.role, content=message.content) for message in messages]
-    
-    def _conversation_to_dict(self, messages: List[TimestampedMessage]) -> List[Dict[str, Union[str, List[Dict[str, str]]]]]:
-        return [{'role': msg.role, 'content': msg.content, 'timestamp':msg.timestamp} for msg in messages]
     
     def _dict_to_conversation(self, messages: List[Dict]) -> List[TimestampedMessage]:
         return [TimestampedMessage(role=msg['role'], content=msg['content'], timestamp=msg['timestamp']) for msg in messages]

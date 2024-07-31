@@ -2,6 +2,7 @@ import boto3
 from typing import List, Dict, Any, AsyncIterable, Optional, Union
 from ..agents.agent import Agent, AgentOptions, AgentCallbacks
 from ..types import ConversationMessage, ParticipantRole, BEDROCK_MODEL_ID_CLAUDE_3_HAIKU, TemplateVariables
+from ..utils.helpers import conversation_to_dict
 from dataclasses import dataclass
 
 
@@ -86,7 +87,7 @@ class BedrockLLMAgent(Agent):
 
         converse_cmd = {
             'modelId': self.model_id,
-            'messages': self.conversation_to_dict(conversation),
+            'messages': conversation_to_dict(conversation),
             'system': [{'text': system_prompt}],
             'inferenceConfig': {
                 'maxTokens': self.inference_config.get('maxTokens'),
@@ -178,7 +179,3 @@ class BedrockLLMAgent(Agent):
         
         import re
         return re.sub(r'{{(\w+)}}', replace, template)
-    
-    @staticmethod
-    def conversation_to_dict(conversation: List[ConversationMessage]) -> List[Dict[str, any]]:
-        return [{'role': message.role, 'content': message.content} for message in conversation]
