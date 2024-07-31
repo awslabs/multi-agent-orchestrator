@@ -6,4 +6,5 @@ from .dynamodb_chat_storage import DynamoDbChatStorage
 __all__ = [
     'ChatStorage', 
     'InMemoryChatStorage',
-    'DynamoDbChatStorage']
+    'DynamoDbChatStorage'
+]

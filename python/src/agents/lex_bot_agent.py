@@ -1,10 +1,10 @@
+from typing import List, Dict, Optional
+from dataclasses import dataclass
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-from typing import List, Dict, Optional
 from src.agents import Agent, AgentOptions
 from src.types import ConversationMessage, ParticipantRole
 from src.utils import Logger
-from dataclasses import dataclass
 
 @dataclass
 class LexBotAgentOptions(AgentOptions):

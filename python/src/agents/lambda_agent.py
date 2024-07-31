@@ -1,18 +1,25 @@
 import json
 from typing import List, Dict, Optional, Callable, Any
+from dataclasses import dataclass
 import boto3
 from src.agents import Agent, AgentOptions
 from src.types import ConversationMessage, ParticipantRole
 from src.utils import conversation_to_dict
-from dataclasses import dataclass
 
 @dataclass
 class LambdaAgentOptions(AgentOptions):
-    function_name: str = None
-    function_region: str = None
-    input_payload_encoder: Optional[Callable[[str, List[ConversationMessage], str, str, Optional[Dict[str, str]]], str]] = None
-    output_payload_decoder: Optional[Callable[[Dict[str, Any]], ConversationMessage]] = None
-    
+    """Options for Lambda Agent."""
+    function_name: Optional[str] = None
+    function_region: Optional[str] = None
+    input_payload_encoder: Optional[Callable[
+        [str, List[ConversationMessage], str, str, Optional[Dict[str, str]]],
+        str
+    ]] = None
+    output_payload_decoder: Optional[Callable[
+        [Dict[str, Any]],
+        ConversationMessage
+    ]] = None
+
 
 class LambdaAgent(Agent):
     def __init__(self, options: LambdaAgentOptions):
@@ -45,10 +52,12 @@ class LambdaAgent(Agent):
             'sessionId': session_id,
         })
 
-    
+
     def __default_output_payload_decoder(self, response: Dict[str, Any]) -> ConversationMessage:
         """Decode Lambda response and create ConversationMessage."""
-        decoded_response = json.loads(json.loads(response['Payload'].read().decode('utf-8'))['body'])['response']
+        decoded_response = json.loads(
+            json.loads(response['Payload'].read().decode('utf-8'))['body']
+            )['response']
         return ConversationMessage(
             role=ParticipantRole.ASSISTANT.value,
             content=[{'text': decoded_response}]
@@ -64,7 +73,7 @@ class LambdaAgent(Agent):
     ) -> ConversationMessage:
         """Process the request by invoking Lambda function and decoding the response."""
         payload = self.encoder(input_text, chat_history, user_id, session_id, additional_params)
-  
+
         response = self.lambda_client.invoke(
             FunctionName=self.options.function_name,
             Payload=payload

@@ -8,7 +8,7 @@ BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET = "anthropic.claude-3-5-sonnet-20240620-v1:0"
 BEDROCK_MODEL_ID_LLAMA_3_70B = "meta.llama3-70b-instruct-v1:0"
 OPENAI_MODEL_ID_GPT_O_MINI = "gpt-4o-mini"
 ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20240620"
-    
+
 class AgentTypes(Enum):
     DEFAULT = "Common Knowledge"
     CLASSIFIER = "classifier"
@@ -32,6 +32,8 @@ class RequestMetadata(TypedDict):
     session_id: str
     additional_params :Optional[Dict[str, str]]
     error_type: Optional[str]
+
+
 class ParticipantRole(Enum):
     ASSISTANT = "assistant"
     USER = "user"
@@ -46,7 +48,10 @@ class ConversationMessage:
         self.content = content
 
 class TimestampedMessage(ConversationMessage):
-    def __init__(self, role: ParticipantRole, content: Optional[List[Any]] = None, timestamp: int = 0):
+    def __init__(self,
+                 role: ParticipantRole,
+                 content: Optional[List[Any]] = None,
+                 timestamp: int = 0):
         super().__init__(role, content)  # Call the parent constructor
         self.timestamp = timestamp       # Initialize the timestamp attribute
 

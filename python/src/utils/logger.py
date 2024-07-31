@@ -1,12 +1,14 @@
 from typing import List, Optional, Dict, Any
-from src.types import ConversationMessage
 import json
 import logging
+from src.types import ConversationMessage
 
 logging.basicConfig(level=logging.INFO)
 
 class Logger:
-    def __init__(self, config: Optional[Dict[str, bool]] = None, logger: Optional[logging.Logger] = logging.getLogger(__name__)):
+    def __init__(self,
+                 config: Optional[Dict[str, bool]] = None,
+                 logger: Optional[logging.Logger] = logging.getLogger(__name__)):
         self.config: Dict[str, bool] = config or {}
         self.set_logger(logger or logging.getLogger(__name__))
 
@@ -34,12 +36,15 @@ class Logger:
         """Log a debug message."""
         cls.logger.debug(message, *args)
 
-    def log_header(title: str) -> None:
+    @classmethod
+    def log_header(cls, title: str) -> None:
         """Log a header with the given title."""
-        Logger.logger.info(f"\n** {title.upper()} **")
-        Logger.logger.info('=' * (len(title) + 6))
+        cls.logger.info(f"\n** {title.upper()} **")
+        cls.logger.info('=' * (len(title) + 6))
 
-    def print_chat_history(self, chat_history: List[ConversationMessage], agent_id: Optional[str] = None) -> None:
+    def print_chat_history(self,
+                           chat_history: List[ConversationMessage],
+                           agent_id: Optional[str] = None) -> None:
         """Print the chat history for an agent or classifier."""
         is_agent_chat = agent_id is not None
         if (is_agent_chat and not self.config.LOG_AGENT_CHAT) or \

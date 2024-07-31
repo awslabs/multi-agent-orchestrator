@@ -18,13 +18,13 @@ class AnthropicClassifierOptions:
 class AnthropicClassifier(Classifier):
     def __init__(self, options: AnthropicClassifierOptions):
         super().__init__()
-        
+
         if not options.api_key:
             raise ValueError("Anthropic API key is required")
-        
+
         self.client = Anthropic(api_key=options.api_key)
         self.model_id = options.model_id or ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET
-        
+
         default_max_tokens = 1000
         self.inference_config = {
             'max_tokens': options.inference_config.get('max_tokens', default_max_tokens),
@@ -32,7 +32,7 @@ class AnthropicClassifier(Classifier):
             'top_p': options.inference_config.get('top_p', 0.9),
             'stop_sequences': options.inference_config.get('stop_sequences', []),
         }
-        
+
         self.tools: List[Dict] = [
             {
                 'name': 'analyzePrompt',
@@ -57,13 +57,13 @@ class AnthropicClassifier(Classifier):
                 },
             }
         ]
-        
+
         self.system_prompt = "You are an AI assistant."  # Add your system prompt here
 
 
     async def process_request(self, input_text: str, chat_history: List[ConversationMessage]) -> ClassifierResult:
         user_message = {"role": "user", "content": input_text}
-        
+
         try:
             response = self.client.messages.create(
                 model=self.model_id,
@@ -74,22 +74,22 @@ class AnthropicClassifier(Classifier):
                 top_p=self.inference_config['top_p'],
                 tools=self.tools
             )
-            
+
             tool_use = next((content for content in response.content if content.type == "tool_use"), None)
-            
+
             if not tool_use:
                 raise ValueError("No tool use found in the response")
-                        
+
             if not is_tool_input(tool_use.input):
                 raise ValueError("Tool input does not match expected structure")
-            
+
             intent_classifier_result = ClassifierResult(
                 selectedAgent=self.get_agent_by_id(tool_use.input['selected_agent']),
                 confidence=float(tool_use.input['confidence'])
             )
-            
+
             return intent_classifier_result
-        
+
         except Exception as error:
             Logger.error("Error processing request:", error)
             raise error

@@ -1,6 +1,6 @@
-import boto3
-import time
 from typing import List, Dict, Union, Optional
+import time
+import boto3
 from src.storage import ChatStorage
 from src.types import ConversationMessage, ParticipantRole, TimestampedMessage
 from src.utils import Logger, conversation_to_dict
@@ -30,7 +30,7 @@ class DynamoDbChatStorage(ChatStorage):
             return existing_conversation
 
         timestamped_message = TimestampedMessage(
-            role=new_message.role, 
+            role=new_message.role,
             content=new_message.content,
             timestamp=int(time.time() * 1000))
         existing_conversation.append(timestamped_message)
@@ -51,7 +51,7 @@ class DynamoDbChatStorage(ChatStorage):
         except Exception as error:
             Logger.logger.error("Error saving conversation to DynamoDB:", error)
             raise
-        
+
         return self._remove_timestamps(trimmed_conversation)
 
     async def fetch_chat(
@@ -127,8 +127,15 @@ class DynamoDbChatStorage(ChatStorage):
     def _generate_key(self, user_id: str, session_id: str, agent_id: str) -> str:
         return f"{session_id}#{agent_id}"
 
-    def _remove_timestamps(self, messages: List[Union[TimestampedMessage]]) -> List[ConversationMessage]:
-        return [ConversationMessage(role=message.role, content=message.content) for message in messages]
-    
-    def _dict_to_conversation(self, messages: List[Dict]) -> List[TimestampedMessage]:
-        return [TimestampedMessage(role=msg['role'], content=msg['content'], timestamp=msg['timestamp']) for msg in messages]
+    def _remove_timestamps(self,
+                           messages: List[Union[TimestampedMessage]]) -> List[ConversationMessage]:
+        return [ConversationMessage(role=message.role,
+                                    content=message.content
+                                    ) for message in messages]
+
+    def _dict_to_conversation(self,
+                              messages: List[Dict]) -> List[TimestampedMessage]:
+        return [TimestampedMessage(role=msg['role'],
+                                   content=msg['content'],
+                                   timestamp=msg['timestamp']
+                                   ) for msg in messages]

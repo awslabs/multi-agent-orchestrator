@@ -1,9 +1,9 @@
 from typing import List, Dict, Optional
+import time
 from collections import defaultdict
 from src.storage import ChatStorage
 from src.types import ConversationMessage, TimestampedMessage
 from src.utils import Logger
-import time
 
 class InMemoryChatStorage(ChatStorage):
     def __init__(self):
@@ -22,11 +22,12 @@ class InMemoryChatStorage(ChatStorage):
         conversation = self.conversations[key]
 
         if super()._is_consecutive_message(conversation, new_message):
-            Logger.log(f"> Consecutive {new_message.role} message detected for agent {agent_id}. Not saving.")
+            Logger.log(f"> Consecutive {new_message.role} \
+                       message detected for agent {agent_id}. Not saving.")
             return self._remove_timestamps(conversation)
 
         timestamped_message = TimestampedMessage(
-            role=new_message.role, 
+            role=new_message.role,
             content=new_message.content,
             timestamp=time.time() * 1000)
         conversation.append(timestamped_message)
@@ -63,7 +64,7 @@ class InMemoryChatStorage(ChatStorage):
                         content=new_content,
                         timestamp=message.timestamp
                     ))
-        
+
         # Sort messages by timestamp
         all_messages.sort(key=lambda x: x.timestamp)
         return self._remove_timestamps(all_messages)
@@ -74,4 +75,7 @@ class InMemoryChatStorage(ChatStorage):
 
     @staticmethod
     def _remove_timestamps(messages: List[Dict]) -> List[ConversationMessage]:
-        return [ConversationMessage(role=message.role, content=message.content) for message in messages]
+        return [ConversationMessage(
+            role=message.role,
+            content=message.content
+            ) for message in messages]

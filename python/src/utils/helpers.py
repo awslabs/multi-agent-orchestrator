@@ -10,11 +10,19 @@ def is_tool_input(input_obj: Any) -> bool:
     )
 
 
-def conversation_to_dict(conversation: Union[ConversationMessage, TimestampedMessage, List[Union[ConversationMessage, TimestampedMessage]]]) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+def conversation_to_dict(
+        conversation: Union[
+            ConversationMessage,
+            TimestampedMessage,
+            List[Union[
+                ConversationMessage,
+                TimestampedMessage]
+            ]
+        ]) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
     if isinstance(conversation, list):
         return [message_to_dict(msg) for msg in conversation]
-    else:
-        return message_to_dict(conversation)
+
+    return message_to_dict(conversation)
 
 @staticmethod
 def message_to_dict(message: Union[ConversationMessage, TimestampedMessage]) -> Dict[str, Any]:
@@ -22,8 +30,8 @@ def message_to_dict(message: Union[ConversationMessage, TimestampedMessage]) -> 
         "role": message.role.value if hasattr(message.role, 'value') else str(message.role),
         "content": message.content
     }
-    
+
     if isinstance(message, TimestampedMessage):
         result["timestamp"] = message.timestamp
-    
+
     return result
