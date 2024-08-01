@@ -2,7 +2,7 @@ from typing import Dict, Any, AsyncIterable, Optional, Union
 from dataclasses import dataclass, fields, asdict, replace
 import time
 from multi_agent_orchestrator.utils.logger import Logger
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, OrchestratorConfig
 from multi_agent_orchestrator.classifiers import (Classifier,
                              ClassifierResult,
                              BedrockClassifier,
@@ -14,25 +14,7 @@ from multi_agent_orchestrator.agents import (Agent,
                         BedrockLLMAgentOptions)
 from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
 
-
-@dataclass
-class OrchestratorConfig:
-    LOG_AGENT_CHAT: bool = False    # pylint: disable=invalid-name
-    LOG_CLASSIFIER_CHAT: bool = False   # pylint: disable=invalid-name
-    LOG_CLASSIFIER_RAW_OUTPUT: bool = False # pylint: disable=invalid-name
-    LOG_CLASSIFIER_OUTPUT: bool = False # pylint: disable=invalid-name
-    LOG_EXECUTION_TIMES: bool = False   # pylint: disable=invalid-name
-    MAX_RETRIES: int = 3    # pylint: disable=invalid-name
-    USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: bool = True   # pylint: disable=invalid-name
-    CLASSIFICATION_ERROR_MESSAGE: str = "I'm sorry, an error occurred while processing \
-        your request.Please try again later."   # pylint: disable=invalid-name
-    NO_SELECTED_AGENT_MESSAGE: str = "I'm sorry, I couldn't determine how to handle your request.\
-    Could you please rephrase it?"  # pylint: disable=invalid-name
-    GENERAL_ROUTING_ERROR_MSG_MESSAGE: str = "An error occurred while processing your request. \
-    Please try again later."    # pylint: disable=invalid-name
-    MAX_MESSAGE_PAIRS_PER_AGENT: int = 100  # pylint: disable=invalid-name
-
-DEFAULT_CONFIG = OrchestratorConfig()
+DEFAULT_CONFIG=OrchestratorConfig()
 
 @dataclass
 class MultiAgentOrchestrator:

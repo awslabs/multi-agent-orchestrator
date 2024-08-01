@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict, Any
 import json
 import logging
-from multi_agent_orchestrator.types import ConversationMessage
+from multi_agent_orchestrator.types import ConversationMessage, OrchestratorConfig
 
 logging.basicConfig(level=logging.INFO)
 
@@ -9,7 +9,7 @@ class Logger:
     def __init__(self,
                  config: Optional[Dict[str, bool]] = None,
                  logger: Optional[logging.Logger] = logging.getLogger(__name__)):
-        self.config: Dict[str, bool] = config or {}
+        self.config: OrchestratorConfig = config or OrchestratorConfig()
         self.set_logger(logger or logging.getLogger(__name__))
 
     @classmethod

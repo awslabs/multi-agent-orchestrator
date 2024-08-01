@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import List, Dict, Union, AsyncIterator, TypedDict, Optional, Any
+from dataclasses import dataclass
 
 # Constants
 BEDROCK_MODEL_ID_CLAUDE_3_HAIKU = "anthropic.claude-3-haiku-20240307-v1:0"
@@ -19,10 +20,6 @@ class ToolInput(TypedDict):
     userinput: str
     selected_agent: str
     confidence: str
-
-class StreamingResponse:
-    def __aiter__(self) -> AsyncIterator[str]:
-        ...
 
 class RequestMetadata(TypedDict):
     user_input: str
@@ -56,3 +53,20 @@ class TimestampedMessage(ConversationMessage):
         self.timestamp = timestamp       # Initialize the timestamp attribute
 
 TemplateVariables = Dict[str, Union[str, List[str]]]
+
+@dataclass
+class OrchestratorConfig:
+    LOG_AGENT_CHAT: bool = False    # pylint: disable=invalid-name
+    LOG_CLASSIFIER_CHAT: bool = False   # pylint: disable=invalid-name
+    LOG_CLASSIFIER_RAW_OUTPUT: bool = False # pylint: disable=invalid-name
+    LOG_CLASSIFIER_OUTPUT: bool = False # pylint: disable=invalid-name
+    LOG_EXECUTION_TIMES: bool = False   # pylint: disable=invalid-name
+    MAX_RETRIES: int = 3    # pylint: disable=invalid-name
+    USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: bool = True   # pylint: disable=invalid-name
+    CLASSIFICATION_ERROR_MESSAGE: str = "I'm sorry, an error occurred while processing \
+        your request.Please try again later."   # pylint: disable=invalid-name
+    NO_SELECTED_AGENT_MESSAGE: str = "I'm sorry, I couldn't determine how to handle your request.\
+    Could you please rephrase it?"  # pylint: disable=invalid-name
+    GENERAL_ROUTING_ERROR_MSG_MESSAGE: str = "An error occurred while processing your request. \
+    Please try again later."    # pylint: disable=invalid-name
+    MAX_MESSAGE_PAIRS_PER_AGENT: int = 100  # pylint: disable=invalid-name

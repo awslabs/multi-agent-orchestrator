@@ -4,7 +4,6 @@ from .types import (
     ParticipantRole,
     TimestampedMessage,
     RequestMetadata,
-    StreamingResponse,
     ToolInput,
     AgentTypes,
     BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
@@ -13,7 +12,8 @@ from .types import (
     BEDROCK_MODEL_ID_LLAMA_3_70B,
     OPENAI_MODEL_ID_GPT_O_MINI,
     ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET,
-    TemplateVariables
+    TemplateVariables,
+    OrchestratorConfig
 )
 
 __all__ = [
@@ -21,7 +21,6 @@ __all__ = [
     'ParticipantRole',
     'TimestampedMessage',
     'RequestMetadata',
-    'StreamingResponse',
     'ToolInput',
     'AgentTypes',
     'BEDROCK_MODEL_ID_CLAUDE_3_HAIKU',
@@ -30,5 +29,6 @@ __all__ = [
     'BEDROCK_MODEL_ID_LLAMA_3_70B',
     'OPENAI_MODEL_ID_GPT_O_MINI',
     'ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET',
-    'TemplateVariables'
+    'TemplateVariables',
+    'OrchestratorConfig'
 ]
