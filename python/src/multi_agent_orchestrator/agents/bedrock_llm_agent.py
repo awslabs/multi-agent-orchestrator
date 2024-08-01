@@ -124,7 +124,7 @@ class BedrockLLMAgent(Agent):
                 bedrock_response = await self.handle_single_response(converse_cmd)
                 conversation.append(bedrock_response)
 
-                if any('toolUse' in content for content in bedrock_response['content']):
+                if any('toolUse' in content for content in bedrock_response.content):
                     await self.tool_config['useToolHandler'](bedrock_response, conversation)
                 else:
                     continue_with_tools = False
@@ -140,17 +140,20 @@ class BedrockLLMAgent(Agent):
 
         return await self.handle_single_response(converse_cmd)
 
-    async def handle_single_response(self, converse_input: Dict[str, Any]) -> str:
+    async def handle_single_response(self, converse_input: Dict[str, Any]) -> ConversationMessage:
         try:
             response = self.client.converse(**converse_input)
             if 'output' not in response:
                 raise ValueError("No output received from Bedrock model")
-            return response['output']['message']
+            return ConversationMessage(
+                role=response['output']['message']['role'],
+                content=response['output']['message']['content']
+            )
         except Exception as error:
             Logger.error("Error invoking Bedrock model:", error)
             raise
 
-    async def handle_streaming_response(self, converse_input: Dict[str, Any]) -> str:
+    async def handle_streaming_response(self, converse_input: Dict[str, Any]) -> ConversationMessage:
         try:
             response = self.client.converse_stream(**converse_input)
             llm_response = ''
