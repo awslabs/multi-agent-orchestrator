@@ -1,7 +1,7 @@
 import pytest
 from typing import Any, List, Dict, Union
-from multi_agent_orchestrator.types import ConversationMessage, TimestampedMessage, ParticipantRole
 from datetime import datetime
+from multi_agent_orchestrator.types import ConversationMessage, TimestampedMessage, ParticipantRole
 
 # Import the functions to be tested
 from multi_agent_orchestrator.utils import is_tool_input, conversation_to_dict
