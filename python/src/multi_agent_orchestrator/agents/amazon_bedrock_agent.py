@@ -70,7 +70,7 @@ class AmazonBedrockAgent(Agent):
                     decoded_response = chunk['bytes'].decode('utf-8')
                     completion += decoded_response
                 else:
-                    Logger.logger().warning("Received a chunk event with no chunk data")
+                    Logger.warn("Received a chunk event with no chunk data")
 
             return ConversationMessage(
                 role=ParticipantRole.ASSISTANT,
@@ -78,7 +78,7 @@ class AmazonBedrockAgent(Agent):
             )
 
         except (BotoCoreError, ClientError) as error:
-            Logger.logger().error(f"Error processing request: {error}")
+            Logger.error(f"Error processing request: {error}")
             return ConversationMessage(
                 role=ParticipantRole.ASSISTANT,
                 content=[{"text": "Sorry, I encountered an error while processing your request."}]
