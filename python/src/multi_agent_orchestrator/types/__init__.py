@@ -30,5 +30,5 @@ __all__ = [
     'OPENAI_MODEL_ID_GPT_O_MINI',
     'ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET',
     'TemplateVariables',
-    'OrchestratorConfig'
+    'OrchestratorConfig',
 ]
