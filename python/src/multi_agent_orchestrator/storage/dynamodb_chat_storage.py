@@ -30,7 +30,7 @@ class DynamoDbChatStorage(ChatStorage):
         existing_conversation = await self.fetch_chat_with_timestamp(user_id, session_id, agent_id)
 
         if self.is_consecutive_message(existing_conversation, new_message):
-            Logger.debug(f"> Consecutive {new_message['role']} \
+            Logger.debug(f"> Consecutive {new_message.role} \
                               message detected for agent {agent_id}. Not saving.")
             return existing_conversation
 
@@ -118,7 +118,7 @@ class DynamoDbChatStorage(ChatStorage):
                 agent_id = item['SK'].split('#')[1]
                 for msg in item['conversation']:
                     content = msg['content']
-                    if msg['role'] == ParticipantRole.ASSISTANT:
+                    if msg['role'] == ParticipantRole.ASSISTANT.value:
                         text = content[0]['text'] if isinstance(content, list) else content
                         content = [{'text': f"[{agent_id}] {text}"}]
                     elif not isinstance(content, list):
