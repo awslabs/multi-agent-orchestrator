@@ -12,15 +12,38 @@ Let's dive in!
 - [Ollama installed](https://ollama.com/download) on your machine
 
 
-## 💾 1. Ollama js installation:
+## 💾 1. Ollama installation:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 First, let's install the Ollama JavaScript library:
 ```bash
 npm install ollama
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+First, let’s install the Ollama python package:
+```bash
+pip install ollama
+```
+
+  </TabItem>
+</Tabs>
+
+
+
+
 ## 🧬 2. Create the Ollama Agent class:
 Now, let's create our `OllamaAgent` class. This class extends the `Agent` abstract class from the Multi-Agent Orchestrator:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 import {
@@ -97,12 +120,27 @@ export class OllamaAgent extends Agent {
 }
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+pip install ollama
+```
+
+  </TabItem>
+</Tabs>
+
+
 Now that we have our `OllamaAgent`, let's add it to the Multi-Agent Orchestrator:
 
 
 ## 🔗 3. Add OllamaAgent to the orchestrator:
 
 If you have used the quickstarter sample program, you add the Ollama agent and run it:
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 import { OllamaAgent } from "./ollamaAgent";
@@ -120,6 +158,17 @@ orchestrator.addAgent(
   })
 );
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+pip install ollama
+```
+
+  </TabItem>
+</Tabs>
+
 
 And you are done!
 
@@ -139,6 +188,7 @@ Congratulations! You've successfully integrated an Ollama agent into your Multi-
 
 - [Ollama](https://ollama.com/)
 - [Ollama.js Documentation](https://github.com/ollama/ollama-js)
+- [Ollama python](https://github.com/ollama/ollama-python)
 - [Ollama GitHub Repository](https://github.com/ollama)
 
 ## 6.💡 **Next Steps:**
@@ -148,4 +198,3 @@ Congratulations! You've successfully integrated an Ollama agent into your Multi-
 - Create specialized agents for various tasks using Ollama
 
 Happy coding! 🚀
-

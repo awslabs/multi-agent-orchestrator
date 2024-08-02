@@ -12,9 +12,15 @@ By default, the orchestrator uses `console.log` for logging. This means that all
 
 ## Customizing the Logger
 
-The orchestrator allows you to override the default logger with a custom logging solution. 
+The orchestrator allows you to override the default logger with a custom logging solution.
 
 This is done through the `OrchestratorOptions` interface:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 export interface OrchestratorOptions {
@@ -24,6 +30,15 @@ export interface OrchestratorOptions {
 }
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+// TODO: Add python code here
+```
+  </TabItem>
+</Tabs>
+
+
 You can provide your own logger implementation to the `logger` property when initializing the `MultiAgentOrchestrator`.
 
 ## Example: Using AWS Lambda Powertools for Logging
@@ -32,11 +47,27 @@ Here's an example of how to use AWS Lambda Powertools for logging with the Multi
 
 1. First, install the AWS Lambda Powertools package:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```bash
 npm install @aws-lambda-powertools/logger
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+// TODO: Add python code here
+```
+  </TabItem>
+</Tabs>
+
+
+
 2. Import and initialize the Logger from AWS Lambda Powertools:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 import { Logger } from "@aws-lambda-powertools/logger";
@@ -47,7 +78,19 @@ const logger = new Logger({
 });
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+// TODO: Add python code here
+```
+  </TabItem>
+</Tabs>
+
+
 3. Create the orchestrator instance with the custom logger:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 const orchestrator = new MultiAgentOrchestrator({
@@ -62,6 +105,15 @@ const orchestrator = new MultiAgentOrchestrator({
   logger: logger,
 });
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+// TODO: Add python code here
+```
+  </TabItem>
+</Tabs>
+
 
 In this example, we're using the AWS Lambda Powertools Logger and configuring various logging options for the orchestrator.
 
