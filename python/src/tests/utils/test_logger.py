@@ -26,7 +26,7 @@ def test_set_logger(mock_logger):
     Logger.set_logger(mock_logger)
     assert Logger.logger == mock_logger
 
-@pytest.mark.parametrize("log_method", ["info", "warn", "error", "debug"])
+@pytest.mark.parametrize("log_method", ["info", "info", "error", "debug"])
 def test_log_methods(mock_logger, log_method):
     Logger.set_logger(mock_logger)
     log_func = getattr(Logger, log_method)

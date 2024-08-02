@@ -24,7 +24,7 @@ class Logger:
     @classmethod
     def warn(cls, message: str, *args: Any) -> None:
         """Log a warning message."""
-        cls.logger.warn(message, *args)
+        cls.logger.info(message, *args)
 
     @classmethod
     def error(cls, message: str, *args: Any) -> None:
