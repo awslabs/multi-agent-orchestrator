@@ -9,6 +9,12 @@ The Multi-Agent Orchestrator System provides flexibility in how conversation dat
 
 The `ChatStorage` class defines the interface for all storage solutions in the system. It includes three main methods:
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 1. `saveChatMessage`: Saves a new message to the storage.
 2. `fetchChat`: Retrieves messages for a specific conversation.
 3. `fetchAllChats`: Retrieves all messages for a user's session.
@@ -39,6 +45,15 @@ export abstract class ChatStorage {
 }
 ```
 
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
+
+
 ## Creating a Custom Storage Solution
 
 To create a custom storage solution, follow these steps:
@@ -52,6 +67,8 @@ To create a custom storage solution, follow these steps:
 
 To use your custom storage with the Multi-Agent Orchestrator:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 ```typescript
 
 const customStorage = new CustomStorage();
@@ -59,5 +76,12 @@ const orchestrator = new MultiAgentOrchestrator({
   storage: customStorage
 });
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 By extending the `ChatStorage` class, you can create custom storage solutions tailored to your specific needs, whether it's integrating with a particular database system, implementing caching mechanisms, or adapting to unique architectural requirements.

@@ -27,9 +27,14 @@ To use DynamoDB storage in your Multi-Agent Orchestrator:
 
 2. Use the DynamoDbStorage when creating your orchestrator:
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
-import { DynamoDbStorage } from './DynamoDbStorage';
-import { MultiAgentOrchestrator } from './MultiAgentOrchestrator';
+import { DynamoDbStorage, MultiAgentOrchestrator } from 'multi-agent-orchestrator';
 
 const tableName = 'YourDynamoDBTableName';
 const region = 'your-aws-region';
@@ -39,6 +44,14 @@ const orchestrator = new MultiAgentOrchestrator({
    storage: dynamoDbStorage
 });
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
+
 
 ## Configuration
 

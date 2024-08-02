@@ -21,13 +21,25 @@ In-memory storage is the default storage option for the Multi-Agent Orchestrator
 
 To use in-memory storage in your Multi-Agent Orchestrator:
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
-import { MemoryStorage } from './MemoryStorage';
-import { MultiAgentOrchestrator } from './MultiAgentOrchestrator';
+import { MemoryStorage, MultiAgentOrchestrator } from 'multi-agent-orchestrator';
 
 const memoryStorage = new MemoryStorage();
 const orchestrator = new MultiAgentOrchestrator(memoryStorage);
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 ## Considerations
 

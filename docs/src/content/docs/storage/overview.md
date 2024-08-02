@@ -13,15 +13,15 @@ The Multi-Agent Orchestrator System offers flexible storage options for maintain
 
 ## Available Storage Options
 
-1. **In-Memory Storage**: 
+1. **In-Memory Storage**:
    - Ideal for development, testing, or scenarios where persistence isn't required.
    - Quick and efficient for short-lived sessions.
 
-2. **DynamoDB Storage**: 
+2. **DynamoDB Storage**:
    - Provides persistent storage for production environments.
    - Allows for scalable and durable conversation history storage.
 
-3. **Custom Storage Solutions**: 
+3. **Custom Storage Solutions**:
    - The system allows for implementation of custom storage options to meet specific needs.
 
 ## Choosing the Right Storage Option
