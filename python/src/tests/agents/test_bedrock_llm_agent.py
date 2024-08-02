@@ -25,7 +25,12 @@ def bedrock_llm_agent(mock_boto3_client):
             'temperature': 0.5,
             'topP': 0.8,
             'stopSequences': []
-        }
+        },
+        guardrail_config={
+        'guardrailIdentifier': 'myGuardrailIdentifier',
+        'guardrailVersion': 'myGuardrailVersion',
+        'trace': 'enabled'
+    }
     )
     agent = BedrockLLMAgent(options)
     yield agent
@@ -92,6 +97,7 @@ async def test_process_request_single_response(bedrock_llm_agent, mock_boto3_cli
     assert isinstance(result, ConversationMessage)
     assert result.role == ParticipantRole.ASSISTANT.value
     assert result.content[0]['text'] == 'This is a test response'
+
 
 @pytest.mark.asyncio
 async def test_process_request_streaming(bedrock_llm_agent, mock_boto3_client):
