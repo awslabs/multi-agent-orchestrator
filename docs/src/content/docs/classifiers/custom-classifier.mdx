@@ -19,6 +19,11 @@ To create a custom classifier, you need to:
 
 Create a new class that extends the abstract `Classifier` class:
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 import { Classifier } from './path-to-classifier';
 import { ClassifierResult, ConversationMessage } from './path-to-types';
@@ -27,10 +32,19 @@ export class MyCustomClassifier extends Classifier {
   // Implementation will go here
 }
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 ### 2. Implement the processRequest Method
 
 The `processRequest` method is the core of your custom classifier. It should analyze the input and return a `ClassifierResult`:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 export class MyCustomClassifier extends Classifier {
@@ -39,7 +53,7 @@ export class MyCustomClassifier extends Classifier {
     chatHistory: ConversationMessage[]
   ): Promise<ClassifierResult> {
     // Your custom classification logic goes here
-    
+
     return {
       selectedAgent: firstAgent,
       confidence: 1.0
@@ -47,11 +61,19 @@ export class MyCustomClassifier extends Classifier {
   }
 }
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
 
 
 ## Using Your Custom Classifier
 
 To use your custom classifier with the Multi-Agent Orchestrator:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 import { MultiAgentOrchestrator } from './path-to-multi-agent-orchestrator';
@@ -60,6 +82,12 @@ import { MyCustomClassifier } from './path-to-my-custom-classifier';
 const customClassifier = new MyCustomClassifier('custom value');
 const orchestrator = new MultiAgentOrchestrator({ classifier: customClassifier });
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 ## Best Practices
 
@@ -71,6 +99,10 @@ const orchestrator = new MultiAgentOrchestrator({ classifier: customClassifier }
 ## Example: Keyword-Based Classifier
 
 Here's an example of a simple keyword-based classifier:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 
 ```typescript
 import { Classifier } from './path-to-classifier';
@@ -89,7 +121,7 @@ export class KeywordClassifier extends Classifier {
     chatHistory: ConversationMessage[]
   ): Promise<ClassifierResult> {
     const lowercaseInput = inputText.toLowerCase();
-    
+
     for (const [keyword, agentId] of Object.entries(this.keywordMap)) {
       if (lowercaseInput.includes(keyword)) {
         const selectedAgent = this.getAgentById(agentId);
@@ -118,6 +150,13 @@ const keywordMap = {
 const keywordClassifier = new KeywordClassifier(keywordMap);
 const orchestrator = new MultiAgentOrchestrator({ classifier: keywordClassifier });
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
+
 
 This example demonstrates a basic keyword-based classification strategy. You can expand on this concept to create more sophisticated custom classifiers based on your specific needs.
 

@@ -3,7 +3,7 @@ title: Bedrock Classifier
 description: How to configure the Bedrock classifier
 ---
 
-The Bedrock Classifier is the default classifier used in the Multi-Agent Orchestrator. 
+The Bedrock Classifier is the default classifier used in the Multi-Agent Orchestrator.
 
 It leverages Amazon Bedrock's  models through Converse API providing powerful and flexible classification capabilities.
 
@@ -13,7 +13,7 @@ The BedrockClassifier extends the abstract `Classifier` class and uses Amazon Be
 
 ## Features
 
-- Utilizes Amazon Bedrock's models through Converse API 
+- Utilizes Amazon Bedrock's models through Converse API
 - Configurable model selection and inference parameters
 - Supports custom system prompts and variables
 - Handles conversation history for context-aware classification
@@ -23,15 +23,29 @@ The BedrockClassifier extends the abstract `Classifier` class and uses Amazon Be
 
 By default, the Multi-Agent Orchestrator uses the Bedrock Classifier, which in turn utilizes the `anthropic.claude-3-5-sonnet-20240620-v1:0` (Claude 3.5 Sonnet) model for classification tasks.
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
 
 ### Custom Configuration
 
 You can customize the BedrockClassifier by creating an instance with specific options:
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 import { BedrockClassifier, MultiAgentOrchestrator } from "multi-agent-orchestrator";
@@ -47,6 +61,11 @@ const customBedrockClassifier = new BedrockClassifier({
 
 const orchestrator = new MultiAgentOrchestrator({ classifier: customBedrockClassifier });
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
 
 The BedrockClassifier accepts the following configuration options:
 
@@ -61,6 +80,9 @@ The BedrockClassifier accepts the following configuration options:
 
 You can customize the system prompt used by the BedrockClassifier:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 orchestrator.classifier.setSystemPrompt(
   `
@@ -74,6 +96,12 @@ orchestrator.classifier.setSystemPrompt(
   }
 );
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 ## Processing Requests
 

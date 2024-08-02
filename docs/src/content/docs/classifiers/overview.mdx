@@ -21,14 +21,28 @@ Regardless of the classifier used, the general process remains the same:
 
 ### Initialization
 
-When you create a new Orchestrator by initializing a `MultiAgentOrchestrator` the default Bedrock Classifier is initialized. 
+When you create a new Orchestrator by initializing a `MultiAgentOrchestrator` the default Bedrock Classifier is initialized.
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 const orchestrator = new MultiAgentOrchestrator();
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 
 To use the Anthropic Classifier, you can pass it as an option:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 import { AnthropicClassifier } from "multi-agent-orchestrator";
@@ -38,6 +52,12 @@ const anthropicClassifier = new AnthropicClassifier({
 });
 const orchestrator = new MultiAgentOrchestrator({ classifier: anthropicClassifier });
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 ## Custom Classifier Implementation
 
@@ -47,6 +67,9 @@ You can provide your own custom implementation of the classifier by extending th
 
 You can test any Classifier directly using the `classifyIntent` method:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 const response = await orchestrator.classifyIntent(userInput, userId, sessionId);
 console.log('\n** RESPONSE ** \n');
@@ -54,6 +77,12 @@ console.log(` > Agent ID: ${response.selectedAgent?.id}`);
 console.log(` > Agent Name: ${response.selectedAgent?.name}`);
 console.log(` > Confidence: ${response.confidence}\n`);
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 This allows you to:
 - Verify the Classifier's decision-making process

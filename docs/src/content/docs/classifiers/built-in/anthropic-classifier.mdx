@@ -18,6 +18,12 @@ The Anthropic Classifier extends the abstract `Classifier` class and uses the An
 
 To use the AnthropicClassifier, you need to create an instance with your Anthropic API key and pass it to the Multi-Agent Orchestrator:
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 import { AnthropicClassifier } from "multi-agent-orchestrator";
 import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
@@ -29,9 +35,21 @@ const anthropicClassifier = new AnthropicClassifier({
 const orchestrator = new MultiAgentOrchestrator({ classifier: anthropicClassifier });
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
+
+
 ### Custom Configuration
 
 You can customize the AnthropicClassifier by providing additional options:
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 const customAnthropicClassifier = new AnthropicClassifier({
@@ -48,6 +66,13 @@ const customAnthropicClassifier = new AnthropicClassifier({
 const orchestrator = new MultiAgentOrchestrator({ classifier: customAnthropicClassifier });
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
+
 The AnthropicClassifier accepts the following configuration options:
 
 - `apiKey` (required): Your Anthropic API key.
@@ -62,6 +87,10 @@ The AnthropicClassifier accepts the following configuration options:
 
 You can customize the system prompt used by the AnthropicClassifier:
 
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 orchestrator.classifier.setSystemPrompt(
   `
@@ -75,6 +104,13 @@ orchestrator.classifier.setSystemPrompt(
   }
 );
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 ## Processing Requests
 
