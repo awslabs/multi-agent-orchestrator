@@ -3,7 +3,7 @@ title: Ollama Agent
 description: A guide to creating a Ollama agent and integrate it into the Multi-Agent Orchestrator System.
 ---
 
-Welcome to the Ollama Agent guide! This example will walk you through creating an Ollama agent and integrating it into your Multi-Agent Orchestrator System. 
+Welcome to the Ollama Agent guide! This example will walk you through creating an Ollama agent and integrating it into your Multi-Agent Orchestrator System.
 Let's dive in!
 
 ## 📚Prerequisites:
@@ -31,15 +31,15 @@ import {
     Logger
 } from "multi-agent-orchestrator";
 import ollama from 'ollama'
-  
+
 export interface OllamaAgentOptions extends AgentOptions {
     streaming?: boolean;
     // Add other Ollama-specific options here (e.g., temperature, top_k, top_p)
 }
-  
+
 export class OllamaAgent extends Agent {
     private options: OllamaAgentOptions;
-  
+
     constructor(options: OllamaAgentOptions) {
       super(options);
       this.options = {
@@ -49,7 +49,7 @@ export class OllamaAgent extends Agent {
         streaming: options.streaming ?? false
       };
     }
-  
+
     private async *handleStreamingResponse(messages: any[]): AsyncIterable<string> {
       try {
         const response = await ollama.chat({
@@ -57,7 +57,7 @@ export class OllamaAgent extends Agent {
           messages: messages,
           stream: true,
         });
-  
+
         for await (const part of response) {
           yield part.message.content;
         }
@@ -66,7 +66,7 @@ export class OllamaAgent extends Agent {
         throw error;
       }
     }
-  
+
     async processRequest(
       inputText: string,
       userId: string,
@@ -79,7 +79,7 @@ export class OllamaAgent extends Agent {
         content: item.content![0].text
       }));
       messages.push({role: ParticipantRole.USER, content: inputText});
-  
+
       if (this.options.streaming) {
         return this.handleStreamingResponse(messages);
       } else {
@@ -88,7 +88,7 @@ export class OllamaAgent extends Agent {
           messages: messages,
         });
         const message: ConversationMessage = {
-          role: ParticipantRole.ASSISTANT, 
+          role: ParticipantRole.ASSISTANT,
           content: [{text: response.message.content}]
         };
         return message;

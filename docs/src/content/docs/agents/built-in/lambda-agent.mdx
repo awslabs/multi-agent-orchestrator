@@ -15,6 +15,12 @@ The `LambdaAgent` is a versatile agent class in the Multi-Agent Orchestrator Sys
 
 ## Creating a LambdaAgent
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 
 ```typescript
 import { LambdaAgent } from 'multi-agent-orchestrator';
@@ -49,6 +55,17 @@ const options: LambdaAgentOptions = {
 
 const agent = new LambdaAgent(options);
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
 
 ### Parameter Explanations
 
@@ -65,19 +82,50 @@ To integrate the LambdaAgent into your Multi-Agent Orchestrator System, follow t
 
 1. First, ensure you have created an instance of the orchestrator:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
+
 2. Then, add the LambdaAgent to the orchestrator:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 orchestrator.addAgent(agent);
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
 
 3. Now you can use the orchestrator to route requests to the appropriate agent, including your Lambda function:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 const response = await orchestrator.routeRequest(
@@ -86,6 +134,16 @@ const response = await orchestrator.routeRequest(
   "session456"
 );
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
 
 If you don't provide custom encoder/decoder functions, the LambdaAgent uses default methods:
 
@@ -108,8 +166,6 @@ Expected Default Output Payload
   "body": "{\"response\":\"this is the response\"}"
 }
 ```
-
-<br>
 
 ---
 

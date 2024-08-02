@@ -3,7 +3,7 @@ title: LexBotAgent
 description: Documentation for the LexBotAgent in the Multi-Agent Orchestrator System
 ---
 
-The `LexBotAgent` is a specialized agent class in the Multi-Agent Orchestrator System that integrates [Amazon Lex bots](https://aws.amazon.com/lex/). 
+The `LexBotAgent` is a specialized agent class in the Multi-Agent Orchestrator System that integrates [Amazon Lex bots](https://aws.amazon.com/lex/).
 
 ## Key Features
 
@@ -15,8 +15,14 @@ The `LexBotAgent` is a specialized agent class in the Multi-Agent Orchestrator S
 
 To create a new `LexBotAgent` with the required parameters, use the following code:
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
-import { LexBotAgent } from './path-to-lexBotAgent';
+import { LexBotAgent } from 'multi-agent-orchestrator';
 
 const agent = new LexBotAgent({
   name: 'My Basic Lex Bot Agent',
@@ -27,6 +33,16 @@ const agent = new LexBotAgent({
   region: 'us-east-1'
 });
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
 
 
 ### Parameter Explanations
@@ -44,20 +60,49 @@ To integrate the LexBotAgent into your Multi-Agent Orchestrator, follow these st
 
 1. First, ensure you have created an instance of the orchestrator:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 import { MultiAgentOrchestrator } from 'multi-agent-orchestrator';
 
 const orchestrator = new MultiAgentOrchestrator();
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
 
 2. Then, add the LexBotAgent to the orchestrator:
 
-```typescript
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
+```typescript
 orchestrator.addAgent(agent);
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
 
 3. Now you can use the orchestrator to route requests to the appropriate agent, including your Lex bot:
+
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 const response = await orchestrator.routeRequest(
@@ -66,6 +111,15 @@ const response = await orchestrator.routeRequest(
   "session456"
 );
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
 
 ---
 

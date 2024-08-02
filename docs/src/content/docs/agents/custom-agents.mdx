@@ -14,6 +14,11 @@ The `Agent` abstract class provides a flexible foundation for creating various t
 
 Example of a simple custom agent:
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 ```typescript
 class SimpleGreetingAgent extends Agent {
   async processRequest(
@@ -29,11 +34,22 @@ class SimpleGreetingAgent extends Agent {
   }
 }
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+// TODO: Add python code here
+```
+  </TabItem>
+</Tabs>
+
+
 
 ## Basic Structure of a Custom Agent
 
 To create a custom agent, you need to extend the base `Agent` class or one of its subclasses. Here's the basic structure:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 ```typescript
 import { Agent, AgentOptions, Message } from './path-to-agent-module';
 
@@ -54,6 +70,15 @@ class CustomAgent extends Agent {
   }
 }
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+// TODO: Add python code here
+```
+  </TabItem>
+</Tabs>
+
+
 
 ---
 

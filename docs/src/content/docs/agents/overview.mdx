@@ -9,7 +9,7 @@ In the Multi-Agent Orchestrator, an agent is a fundamental building block design
 
 The Multi-Agent Orchestrator uses a [Classifier](/multi-agent-orchestrator/classifiers/overview), typically an LLM, to select the most appropriate agent for each user request.
 
-At the heart of this process are the **agent descriptions**. 
+At the heart of this process are the **agent descriptions**.
 These descriptions are critical and should be as detailed and comprehensive as possible.
 
 A well-crafted agent description:
@@ -44,6 +44,13 @@ The `Agent` class is an abstract base class that defines the essential propertie
 
 The core functionality of any agent is encapsulated in the `processRequest` method. This method must be implemented by all concrete agent classes:
 
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 abstract processRequest(
   inputText: string,
@@ -53,6 +60,15 @@ abstract processRequest(
   additionalParams?: Record<string, any>
 ): Promise<Message | AsyncIterable<any>>;
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
+
+
 
 - `inputText`: The user's input or query.
 - `userId`: A unique identifier for the user.
@@ -69,6 +85,9 @@ The method returns either a `Promise<Message>` for single responses or `Promise<
 
 
 Example usage:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 // When calling routeRequest
@@ -95,3 +114,16 @@ class WeatherAgent extends Agent {
   }
 }
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
+

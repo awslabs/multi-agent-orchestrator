@@ -18,6 +18,12 @@ The `OpenAIAgent` is a powerful agent class in the Multi-Agent Orchestrator fram
 
 To create a new `OpenAIAgent`, you need to provide an `OpenAIAgentOptions` object. Here's an example of how to create an OpenAIAgent:
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 import { OpenAIAgent } from './path-to-openai-agent';
 
@@ -36,6 +42,16 @@ const agent = new OpenAIAgent({
   systemPrompt: 'You are a helpful AI assistant specialized in answering questions about technology.'
 });
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
 
 ### OpenAIAgentOptions
 
@@ -59,14 +75,31 @@ You can set or update the system prompt for the OpenAIAgent in two ways:
 
 1. During initialization:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 const agent = new OpenAIAgent({
   // ... other options ...
   systemPrompt: 'You are a helpful AI assistant specialized in answering questions about technology.'
 });
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
 
 2. Using the `setSystemPrompt` method after initialization:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 agent.setSystemPrompt(
@@ -80,12 +113,25 @@ agent.setSystemPrompt(
   }
 );
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
 
 The `setSystemPrompt` method allows you to dynamically change the agent's behavior and focus without creating a new instance. You can use placeholders in the prompt template and provide values for them in the second argument.
 
 ## Usage
 
 Once you've created an OpenAIAgent, you can add it to the Multi-Agent Orchestrator and use it to process requests:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
@@ -99,10 +145,23 @@ const response = await orchestrator.routeRequest(
   "session456"
 );
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
 
 ## Streaming Responses
 
 If you've enabled streaming (`streaming: true` in the options), the agent will return an AsyncIterable that you can use to process the response in chunks:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 const streamingResponse = await orchestrator.routeRequest(
@@ -117,6 +176,17 @@ if (Symbol.asyncIterator in streamingResponse) {
   }
 }
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
 
 ## Best Practices
 

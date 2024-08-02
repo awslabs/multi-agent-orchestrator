@@ -10,6 +10,13 @@ The `AmazonBedrockAgent` is a specialized agent class in the Multi-Agent Orchest
 
 To create a new `AmazonBedrockAgent` with only the required parameters, use the following code:
 
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 import { AmazonBedrockAgent } from 'multi-agent-orchestrator';
 
@@ -21,6 +28,19 @@ const agent = new AmazonBedrockAgent({
   agentAliasId: 'your-agent-alias-id'
 });
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
+
 
 In this basic example, we provide the four required parameters: `name`, `description`, `agentId`, and `agentAliasId`.
 
@@ -37,20 +57,56 @@ To integrate the LexBotAgent into your Multi-Agent Orchestrator, follow these st
 
 1. First, ensure you have created an instance of the orchestrator:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
+
 2. Then, add the agent to the orchestrator:
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 
 ```typescript
 
 orchestrator.addAgent(agent);
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
 3. Now you can use the orchestrator to route requests to the appropriate agent, including your Lex bot:
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 
 ```typescript
 const response = await orchestrator.routeRequest(
@@ -59,6 +115,17 @@ const response = await orchestrator.routeRequest(
   "session456"
 );
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
 
 ---
 

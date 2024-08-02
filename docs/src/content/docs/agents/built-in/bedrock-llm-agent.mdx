@@ -4,7 +4,7 @@ description: Documentation for the BedrockLLMAgent in the Multi-Agent Orchestrat
 ---
 ## Overview
 
-The `BedrockLLMAgent` is a powerful and flexible agent class in the Multi-Agent Orchestrator System. It leverages [Amazon Bedrock's Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html) to interact with various LLMs supported by Amazon Bedrock. 
+The `BedrockLLMAgent` is a powerful and flexible agent class in the Multi-Agent Orchestrator System. It leverages [Amazon Bedrock's Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html) to interact with various LLMs supported by Amazon Bedrock.
 
 This agent can handle a wide range of processing tasks, making it suitable for diverse applications such as conversational AI, question-answering systems, and more.
 
@@ -20,7 +20,6 @@ This agent can handle a wide range of processing tasks, making it suitable for d
 
 ## Creating a BedrockLLMAgent
 
-<br>
 
 By default, the Bedrock LLM Agent uses the `anthropic.claude-3-haiku-20240307-v1:0` model.
 
@@ -30,15 +29,32 @@ By default, the Bedrock LLM Agent uses the `anthropic.claude-3-haiku-20240307-v1
 
 To create a new `BedrockLLMAgent` with only the required parameters, use the following code:
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 import { BedrockLLMAgent } from 'multi-agent-orchestrator';
-
 
 const agent = new BedrockLLMAgent({
   name: 'Tech Agent',
   description: 'Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.'
 });
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
 
 In this basic example, only the `name` and `description` are provided, which are the only required parameters for creating a BedrockLLMAgent.
 
@@ -48,6 +64,11 @@ For more complex use cases, you can create a BedrockLLMAgent with all available 
 
 
 To create a new `BedrockLLMAgent` with all optional parameters, use the following code:
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 
 ```typescript
 import { BedrockLLMAgent, BedrockLLMAgentOptions } from 'multi-agent-orchestrator';
@@ -101,6 +122,17 @@ const options: BedrockLLMAgentOptions = {
 const agent = new BedrockLLMAgent(options);
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
 ### Option Explanations
 
 - `name` and `description`: Identify and describe the agent's purpose.
@@ -116,6 +148,9 @@ const agent = new BedrockLLMAgent(options);
 
 You can update the agent's system prompt at any time using the `setSystemPrompt` method:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 agent.setSystemPrompt(
   `You are an AI assistant specialized in {{DOMAIN}}.
@@ -128,6 +163,17 @@ agent.setSystemPrompt(
   }
 );
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
 
 This method allows you to dynamically change the agent's behavior and focus without creating a new instance.
 
@@ -137,20 +183,54 @@ To integrate the LexBotAgent into your Multi-Agent Orchestrator, follow these st
 
 1. First, ensure you have created an instance of the orchestrator:
 
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator();
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
 
 2. Then, add the agent to the orchestrator:
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 
 orchestrator.addAgent(agent);
 ```
 
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
+```
+
+  </TabItem>
+</Tabs>
+
+
+
 3. Now you can use the orchestrator to route requests to the appropriate agent, including your Lex bot:
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 const response = await orchestrator.routeRequest(
@@ -159,6 +239,17 @@ const response = await orchestrator.routeRequest(
   "session456"
 );
 ```
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+// TODO: Add python code here
 ```
+
+  </TabItem>
+</Tabs>
+
+
 
 By leveraging the `BedrockLLMAgent`, you can create sophisticated, context-aware AI agents capable of handling a wide range of tasks and interactions, all powered by the latest LLM models available through Amazon Bedrock.
