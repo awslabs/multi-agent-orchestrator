@@ -8,6 +8,7 @@ from multi_agent_orchestrator.types import (ConversationMessage,
                        BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
                        TemplateVariables)
 from multi_agent_orchestrator.utils import conversation_to_dict, Logger
+from multi_agent_orchestrator.retrievers import Retriever
 
 
 @dataclass
@@ -15,7 +16,7 @@ class BedrockLLMAgentOptions(AgentOptions):
     streaming: Optional[bool] = None
     inference_config: Optional[Dict[str, Any]] = None
     guardrail_config: Optional[Dict[str, str]] = None
-    # self.retriever: Optional[Retriever] = kwargs.get('retriever')
+    retriever: Optional[Retriever] = None
     tool_config: Optional[Dict[str, Any]] = None
     custom_system_prompt: Optional[Dict[str, Any]] = None
 
@@ -37,7 +38,7 @@ class BedrockLLMAgent(Agent):
             'stopSequences': []
         }
         self.guardrail_config: Optional[Dict[str, str]] = options.guardrail_config or {}
-        # self.retriever: Optional[Retriever] = options.retriever
+        self.retriever: Optional[Retriever] = options.retriever
         self.tool_config: Optional[Dict[str, Any]] = options.tool_config
 
         self.prompt_template: str = f"""You are a {self.name}.
@@ -91,11 +92,10 @@ class BedrockLLMAgent(Agent):
 
         system_prompt = self.system_prompt
 
-        #TODO: enable retriever code
-        # if self.retriever:
-        #     response = await self.retriever.retrieve_and_combine_results(input_text)
-        #     context_prompt = "\nHere is the context to use to answer the user's question:\n" + response
-        #     system_prompt += context_prompt
+        if self.retriever:
+            response = await self.retriever.retrieve_and_combine_results(input_text)
+            context_prompt = "\nHere is the context to use to answer the user's question:\n" + response
+            system_prompt += context_prompt
 
         converse_cmd = {
             'modelId': self.model_id,
