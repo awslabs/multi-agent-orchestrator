@@ -9,11 +9,22 @@ The Multi-Agent Orchestrator is the central component of the framework, responsi
 
 To create a new Orchestrator instance, you can use the `MultiAgentOrchestrator` class:
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
 ```typescript
 import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
 const orchestrator = new MultiAgentOrchestrator(options);
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 The `options` parameter is optional and allows you to customize various aspects of the Orchestrator's behavior.
 
@@ -38,6 +49,9 @@ The Orchestrator accepts an `OrchestratorOptions` object during initialization. 
 ### Example with all options
 
 Here's an example that demonstrates how to initialize the Orchestrator with all available options:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
@@ -64,12 +78,20 @@ const orchestrator = new MultiAgentOrchestrator({
   classifier: new CustomClassifier(),
 });
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
 
 Remember, all these options are optional. If you don't specify an option, the Orchestrator will use its default value.
 
 ### Default values
 
 Here are the default values for each configuration option:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 export const DEFAULT_CONFIG: OrchestratorConfig = {
@@ -86,6 +108,12 @@ export const DEFAULT_CONFIG: OrchestratorConfig = {
   MAX_MESSAGE_PAIRS_PER_AGENT: 100,
 };
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 ### Available Functions
 
@@ -103,7 +131,7 @@ The MultiAgentOrchestrator provides several functions to manage agents, process 
 
 6. `analyzeAgentOverlap()`: Analyzes and reports on any overlap in capabilities between agents.
 
-7. `routeRequest(userInput: string, userId: string, sessionId: string, additionalParams: Record<string, string> = {})`: 
+7. `routeRequest(userInput: string, userId: string, sessionId: string, additionalParams: Record<string, string> = {})`:
    Processes a user request, classifies the intent, selects an appropriate agent, and returns the agent's response.
 
 
@@ -117,7 +145,7 @@ These functions allow you to configure the orchestrator, manage agents, and proc
 
 - The `classifier` option allows you to use a custom classifier for intent classification. If not provided, a [Bedrock Classifier](/multi-agent-orchestrator/classifiers/built-in/bedrock-classifier) will be used by default. For details on implementing a custom classifier, see the [Custom Classifiers](/multi-agent-orchestrator/classifiers/custom-classifier) documentation.
 
-- The default agent is a [Bedrock LLM Agent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) configured as a generalist, capable of handling a wide range of topics. Learn more about the default agent and how to customize 
+- The default agent is a [Bedrock LLM Agent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) configured as a generalist, capable of handling a wide range of topics. Learn more about the default agent and how to customize
 it in the Default Agent Configuration section.
 
 By customizing these options, you can tailor the Orchestrator's behavior to suit your specific use case and requirements.

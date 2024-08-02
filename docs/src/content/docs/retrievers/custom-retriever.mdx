@@ -5,18 +5,32 @@ description: An overview of retrievers and supported type in the Multi-Agent Orc
 
 The Multi-Agent Orchestrator System allows you to create custom retrievers by extending the abstract Retriever class. This flexibility enables you to integrate various data sources and retrieval methods into your agent system. In this guide, we'll walk through the process of creating a custom retriever, provide an example using OpenSearch Serverless, and explain how to set the retriever for a BedrockLLMAgent.
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
 
 ## Steps to Create a Custom Retriever
-
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 1. Create a new class that extends the `Retriever` abstract class.
 2. Implement the required abstract methods: `retrieve`, `retrieveAndCombineResults`, and `retrieveAndGenerate`.
 3. Add any additional methods or properties specific to your retriever.
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 ## Example: OpenSearchServerless Retriever
 
 Here's an example of a custom retriever that uses OpenSearch Serverless:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+
+
 Install Opensearch npm package:
+
 ```
 npm install "@opensearch-project/opensearch"
 ```
@@ -194,12 +208,20 @@ export class OpenSearchServerlessRetriever extends Retriever {
   }
 }
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 
 ## Using the Custom Retriever with BedrockLLMAgent
 
 To use your custom OpenSearchServerlessRetriever:
 
+<Tabs syncKey="runtime">
+  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
 import { BedrockLLMAgent } from './path-to-bedrockLLMAgent';
@@ -222,6 +244,12 @@ const query = "What is the capital of France?";
 const response = await agent.processRequest(query, 'user123', 'session456', []);
 console.log(response);
 ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    // TODO: Add python code here
+  </TabItem>
+</Tabs>
+
 
 In this example, we create an instance of our custom `OpenSearchServerlessRetriever` and then pass it to the `BedrockLLMAgent` constructor using the `retriever` field. This allows the agent to use your custom retriever for enhanced knowledge retrieval during request processing.
 
