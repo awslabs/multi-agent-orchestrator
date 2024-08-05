@@ -5,6 +5,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils import Logger
+import os
 
 @dataclass
 class LexBotAgentOptions(AgentOptions):
@@ -15,7 +16,11 @@ class LexBotAgentOptions(AgentOptions):
 class LexBotAgent(Agent):
     def __init__(self, options: LexBotAgentOptions):
         super().__init__(options)
-        self.lex_client = boto3.client('lexv2-runtime', region_name=options.region)
+        if (options.region is None):
+            self.region = os.environ.get("AWS_REGION", 'us-east-1')
+        else:
+            self.region = options.region
+        self.lex_client = boto3.client('lexv2-runtime', region_name=self.region)
         self.bot_id = options.bot_id
         self.bot_alias_id = options.bot_alias_id
         self.locale_id = options.locale_id
