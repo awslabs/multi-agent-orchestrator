@@ -22,10 +22,9 @@ In-memory storage is the default storage option for the Multi-Agent Orchestrator
 To use in-memory storage in your Multi-Agent Orchestrator:
 
 ```typescript
-import { MemoryStorage } from './MemoryStorage';
-import { MultiAgentOrchestrator } from './MultiAgentOrchestrator';
+import { MultiAgentOrchestrator, InMemoryChatStorage} from 'multi-agent-orchestrator';
 
-const memoryStorage = new MemoryStorage();
+const memoryStorage = new InMemoryChatStorage();
 const orchestrator = new MultiAgentOrchestrator(memoryStorage);
 ```
 

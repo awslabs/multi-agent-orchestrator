@@ -24,16 +24,17 @@ To use DynamoDB storage in your Multi-Agent Orchestrator:
 1. Set up a DynamoDB table with the following schema:
    - Partition Key: `PK` (String)
    - Sort Key: `SK` (String)
+   - Additionally, you can also setup your DynamoDB table with a TTL Key to automatically delete older conversation items
 
-2. Use the DynamoDbStorage when creating your orchestrator:
+2. Use the DynamoDbChatStorage when creating your orchestrator:
 
 ```typescript
-import { DynamoDbStorage } from './DynamoDbStorage';
-import { MultiAgentOrchestrator } from './MultiAgentOrchestrator';
+import { MultiAgentOrchestrator, DynamoDbChatStorage } from 'multi-agent-orchestrator';
 
 const tableName = 'YourDynamoDBTableName';
 const region = 'your-aws-region';
-const dynamoDbStorage = new DynamoDbStorage(tableName, region);
+const TTL_DURATION = 3600; // in seconds
+const dynamoDbStorage = new DynamoDbChatStorage(tableName, region, 'your-ttl-key-name';TTL_DURATION);
 
 const orchestrator = new MultiAgentOrchestrator({
    storage: dynamoDbStorage
