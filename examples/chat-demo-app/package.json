@@ -27,7 +27,7 @@
     "@aws-lambda-powertools/logger": "^2.3.0",
     "@aws-sdk/client-bedrock-runtime": "^3.621.0",
     "@aws-sdk/core": "^3.621.0",
-    "@cdklabs/generative-ai-cdk-constructs": "^0.1.205",
+    "@cdklabs/generative-ai-cdk-constructs": "^0.1.234",
     "aws-cdk-lib": "^2.147.3",
     "aws-lambda": "^1.0.7",
     "constructs": "^10.0.0",
