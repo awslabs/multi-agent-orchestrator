@@ -4,7 +4,7 @@ export { LambdaAgent, LambdaAgentOptions } from './agents/lambdaAgent';
 export { LexBotAgent, LexBotAgentOptions } from './agents/lexBotAgent';
 export { OpenAIAgent, OpenAIAgentOptions } from './agents/openAIAgent';
 export { Agent, AgentOptions } from './agents/agent';
-export { Classifier } from './classifiers/classifier';
+export { Classifier, ClassifierResult } from './classifiers/classifier';
 
 export { BedrockClassifier, BedrockClassifierOptions } from './classifiers/bedrockClassifier';
 export { AnthropicClassifier, AnthropicClassifierOptions } from './classifiers/anthropicClassifier';
@@ -22,3 +22,5 @@ export { MultiAgentOrchestrator } from "./orchestrator";
 export { AgentOverlapAnalyzer, AnalysisResult } from "./agentOverlapAnalyzer";
 
 export { ConversationMessage, ParticipantRole } from "./types"
+
+export { isToolInput } from './utils/helpers'
