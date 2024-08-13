@@ -26,12 +26,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install --upgrade build twine
-
-    - name: Check README content
-      run: |
-        echo "README.md content:"
-        cat README.md
-            
+       
     - name: Build package
       run: python -m build
 
