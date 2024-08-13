@@ -29,7 +29,7 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 
 <br /><br />
 
-![High-level architecture flow diagram](img/flow.jpg)
+![High-level architecture flow diagram](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/flow.jpg)
 
 <br /><br />
 
@@ -59,7 +59,7 @@ Notice how the appropriate agent is selected for each query, maintaining coheren
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
-![Demo](img/demo-app.gif)
+![Demo](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/demo-app.gif)
 
 
 ## 🚀 Getting Started
