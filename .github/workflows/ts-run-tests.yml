@@ -10,6 +10,8 @@ on:
     types:
       - opened
       - edited
+  workflow_dispatch:
+
 permissions:
   contents: read
 jobs:
