@@ -13,7 +13,7 @@ jobs:
       run:
         working-directory: typescript
     steps:
-      - uses: actions/checkout@6ccd57f4c5d15bdc2fef309bd9fb6cc9db2ef1c6
+      - uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
       - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
           node-version: 20

@@ -10,7 +10,7 @@ jobs:
       run:
         working-directory: python
     steps:
-    - uses: actions/checkout@6ccd57f4c5d15bdc2fef309bd9fb6cc9db2ef1c6
+    - uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
 
     - name: Copy files
       run: |
