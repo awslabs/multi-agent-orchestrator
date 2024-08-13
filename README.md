@@ -65,13 +65,15 @@ The demo highlights the system's ability to handle complex, multi-turn conversat
 
 Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
 
-### Quick Install
+### TypeScript Version
+
+#### Installation
 
 ```bash
 npm install multi-agent-orchestrator
 ```
 
-### Usage
+#### Usage
 
 The following example demonstrates how to use the Multi-Agent Orchestrator with two different types of agents: a Bedrock LLM Agent with Converse API support and a Lex Bot Agent. This showcases the flexibility of the system in integrating various AI services.
 

@@ -14,5 +14,5 @@ permissions:
 
 jobs:
   security-checks:
-    uses: ./.github/workflows/run-security-checks.yml
+    uses: ./.github/workflows/ts-run-security-checks.yml
     secrets: inherit

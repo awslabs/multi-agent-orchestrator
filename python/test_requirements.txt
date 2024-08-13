@@ -1,0 +1,7 @@
+pytest
+coverage
+boto3
+anthropic
+moto
+pytest-mock
+pytest-asyncio

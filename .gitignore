@@ -9,7 +9,7 @@ examples/chat-demo-app/cdk.out
 examples/chat-demo-app/lib/**/*.js
 examples/chat-demo-app/bin/*.js
 
-!examples/lambda/url_rewrite/*.js 
+!examples/lambda/url_rewrite/*.js
 examples/resources/ui/public/aws-exports.json
 examples/resources/ui/dist
 
@@ -24,3 +24,5 @@ typescript/*.tgz
 
 examples/local-demo/.env
 typescript/coverage/**/*
+
+.venv
