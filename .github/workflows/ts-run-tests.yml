@@ -1,4 +1,4 @@
-name: Run Typescript tests on the project
+name: Run Typescript tests
 
 on:
   push:
