@@ -14,6 +14,7 @@
 - 🔧 **Extensible Architecture** — Easily integrate new agents or customize existing ones to fit your specific needs.
 - 🌐 **Universal Deployment** — Run anywhere - from AWS Lambda to your local environment or any cloud platform.
 - 📦 **Pre-built Agents and Classifiers** — A variety of ready-to-use agents and multiple classifier implementations available.
+- 🔤 **TypeScript Support** — Native TypeScript implementation available.
 
 ## What's the Multi-Agent Orchestrator ❓
 
