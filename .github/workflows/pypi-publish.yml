@@ -20,17 +20,24 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@2bd53f9a4d1dd1cd21eaffcc01a7b91a8e73ea4c
       with:
-        python-version: '3.x'
+        python-version: '3.12'
     
     - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install --upgrade build twine
 
-    
+    - name: Check README content
+      run: |
+        echo "README.md content:"
+        cat README.md
+            
     - name: Build package
       run: python -m build
-    
+
+    - name: Check distribution
+      run: twine check dist/*
+
     - name: Publish to PyPI
       env:
         TWINE_USERNAME: __token__
