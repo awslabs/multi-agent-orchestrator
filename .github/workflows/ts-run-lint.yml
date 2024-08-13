@@ -1,20 +1,26 @@
-name: Run tests on the project
+name: Run lint checks on the project
+
 on:
   push:
     branches:
       - main
+    paths:
+      - 'typescript/**'
   pull_request:
     types:
       - opened
       - edited
+
+
 permissions:
   contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: typescript
+        working-directory: typescript    
     steps:
       - name: Checkout repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
@@ -25,5 +31,5 @@ jobs:
           args: --scheme=https . --exclude-all-private
       - name: Install dependencies
         run: npm install
-      - name: Run tests
-        run: npm run coverage
+      - name: Run linting
+        run: npm run lint

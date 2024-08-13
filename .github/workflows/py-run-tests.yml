@@ -1,0 +1,45 @@
+name: Run Python tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'python/**'
+  pull_request:
+    types:
+      - opened
+      - edited
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: python
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Create and activate virtual environment
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r test_requirements.txt
+
+    - name: Run tests
+      run: |
+        python -m pytest src/tests/
