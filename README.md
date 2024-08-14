@@ -9,12 +9,12 @@
 ## 🔖 Features
 
 - 🧠 **Intelligent Intent Classification** — Dynamically route queries to the most suitable agent based on context and content.
+- 🔤 **Dual Language Support** — Fully implemented in both **Python** and **TypeScript**, allowing developers to choose their preferred language.
 - 🌊 **Flexible Agent Responses** — Support for both streaming and non-streaming responses from different agents.
 - 📚 **Context Management** — Maintain and utilize conversation context across multiple agents for coherent interactions.
 - 🔧 **Extensible Architecture** — Easily integrate new agents or customize existing ones to fit your specific needs.
 - 🌐 **Universal Deployment** — Run anywhere - from AWS Lambda to your local environment or any cloud platform.
 - 📦 **Pre-built Agents and Classifiers** — A variety of ready-to-use agents and multiple classifier implementations available.
-- 🔤 **TypeScript Support** — Native TypeScript implementation available.
 
 ## What's the Multi-Agent Orchestrator ❓
 
@@ -24,7 +24,6 @@ The system offers pre-built components for quick deployment, while also allowing
 
 This adaptability makes it suitable for a wide range of applications, from simple chatbots to sophisticated AI systems, accommodating diverse requirements and scaling efficiently.
 
-
 ## 🏗️ High-level architecture flow diagram
 
 <br /><br />
@@ -33,12 +32,10 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 
 <br /><br />
 
-
 1. The process begins with user input, which is analyzed by a Classifier. 
 2. The Classifier leverages both Agents' Characteristics and Agents' Conversation history to select the most appropriate agent for the task. 
 3. Once an agent is selected, it processes the user input.
 4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user. 
-
 
 ## 💬 Demo App
 
@@ -150,12 +147,94 @@ if (response.streaming == true) {
 }
 ```
 
-This example showcases:
+### Python Version
+
+#### Installation
+
+```bash
+pip install multi-agent-orchestrator
+```
+
+#### Usage
+
+Here's an equivalent Python example demonstrating the use of the Multi-Agent Orchestrator with a Bedrock LLM Agent and a Lex Bot Agent:
+
+```python
+import os
+import asyncio
+from multi_agent_orchestrator import MultiAgentOrchestrator
+from multi_agent_orchestrator.agents import BedrockLLMAgent, LexBotAgent
+from multi_agent_orchestrator.agents import BedrockLLMAgentOptions, LexBotAgentOptions
+
+orchestrator = MultiAgentOrchestrator()
+
+# Add a Bedrock LLM Agent with Converse API support
+orchestrator.add_agent(
+    BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Tech Agent",
+        description="Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.",
+        streaming=True
+    ))
+)
+
+# Add a Lex Bot Agent for handling travel-related queries
+orchestrator.add_agent(
+    LexBotAgent(LexBotAgentOptions(
+        name="Travel Agent",
+        description="Helps users book and manage their flight reservations",
+        bot_id=os.environ.get('LEX_BOT_ID'),
+        bot_alias_id=os.environ.get('LEX_BOT_ALIAS_ID'),
+        locale_id="en_US",
+    ))
+)
+
+async def main():
+    # Example usage
+    response = await orchestrator.route_request(
+        "I want to book a flight",
+        'user123',
+        'session456'
+    )
+
+    # Handle the response (streaming or non-streaming)
+    if response.streaming:
+        print("\n** RESPONSE STREAMING ** \n")
+        # Send metadata immediately
+        print(f"> Agent ID: {response.metadata.agent_id}")
+        print(f"> Agent Name: {response.metadata.agent_name}")
+        print(f"> User Input: {response.metadata.user_input}")
+        print(f"> User ID: {response.metadata.user_id}")
+        print(f"> Session ID: {response.metadata.session_id}")
+        print(f"> Additional Parameters: {response.metadata.additional_params}")
+        print("\n> Response: ")
+
+        # Stream the content
+        async for chunk in response.output:
+            if isinstance(chunk, str):
+                print(chunk, end='', flush=True)
+            else:
+                print(f"Received unexpected chunk type: {type(chunk)}", file=sys.stderr)
+
+    else:
+        # Handle non-streaming response (AgentProcessingResult)
+        print("\n** RESPONSE ** \n")
+        print(f"> Agent ID: {response.metadata.agent_id}")
+        print(f"> Agent Name: {response.metadata.agent_name}")
+        print(f"> User Input: {response.metadata.user_input}")
+        print(f"> User ID: {response.metadata.user_id}")
+        print(f"> Session ID: {response.metadata.session_id}")
+        print(f"> Additional Parameters: {response.metadata.additional_params}")
+        print(f"\n> Response: {response.output}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+These examples showcase:
 1. The use of a Bedrock LLM Agent with Converse API support, allowing for multi-turn conversations.
 2. Integration of a Lex Bot Agent for specialized tasks (in this case, travel-related queries).
 3. The orchestrator's ability to route requests to the most appropriate agent based on the input.
 4. Handling of both streaming and non-streaming responses from different types of agents.
-
 
 ## 🤝 Contributing
 

@@ -71,6 +71,7 @@ Click on the image below to see a screen recording of the demo app on the GitHub
 Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
 
 
+
 ### Installation
 
 ```bash
@@ -78,6 +79,79 @@ pip install multi-agent-orchestrator
 ```
 
 ### Usage
+
+Here's an equivalent Python example demonstrating the use of the Multi-Agent Orchestrator with a Bedrock LLM Agent and a Lex Bot Agent:
+
+```python
+import os
+import asyncio
+from multi_agent_orchestrator import MultiAgentOrchestrator
+from multi_agent_orchestrator.agents import BedrockLLMAgent, LexBotAgent
+from multi_agent_orchestrator.agents import BedrockLLMAgentOptions, LexBotAgentOptions
+
+orchestrator = MultiAgentOrchestrator()
+
+# Add a Bedrock LLM Agent with Converse API support
+orchestrator.add_agent(
+    BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Tech Agent",
+        description="Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.",
+        streaming=True
+    ))
+)
+
+# Add a Lex Bot Agent for handling travel-related queries
+orchestrator.add_agent(
+    LexBotAgent(LexBotAgentOptions(
+        name="Travel Agent",
+        description="Helps users book and manage their flight reservations",
+        bot_id=os.environ.get('LEX_BOT_ID'),
+        bot_alias_id=os.environ.get('LEX_BOT_ALIAS_ID'),
+        locale_id="en_US",
+    ))
+)
+
+async def main():
+    # Example usage
+    response = await orchestrator.route_request(
+        "I want to book a flight",
+        'user123',
+        'session456'
+    )
+
+    # Handle the response (streaming or non-streaming)
+    if response.streaming:
+        print("\n** RESPONSE STREAMING ** \n")
+        # Send metadata immediately
+        print(f"> Agent ID: {response.metadata.agent_id}")
+        print(f"> Agent Name: {response.metadata.agent_name}")
+        print(f"> User Input: {response.metadata.user_input}")
+        print(f"> User ID: {response.metadata.user_id}")
+        print(f"> Session ID: {response.metadata.session_id}")
+        print(f"> Additional Parameters: {response.metadata.additional_params}")
+        print("\n> Response: ")
+
+        # Stream the content
+        async for chunk in response.output:
+            if isinstance(chunk, str):
+                print(chunk, end='', flush=True)
+            else:
+                print(f"Received unexpected chunk type: {type(chunk)}", file=sys.stderr)
+
+    else:
+        # Handle non-streaming response (AgentProcessingResult)
+        print("\n** RESPONSE ** \n")
+        print(f"> Agent ID: {response.metadata.agent_id}")
+        print(f"> Agent Name: {response.metadata.agent_name}")
+        print(f"> User Input: {response.metadata.user_input}")
+        print(f"> User ID: {response.metadata.user_id}")
+        print(f"> Session ID: {response.metadata.session_id}")
+        print(f"> Additional Parameters: {response.metadata.additional_params}")
+        print(f"\n> Response: {response.output}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
 
 The following example demonstrates how to use the Multi-Agent Orchestrator with two different types of agents: a Bedrock LLM Agent with Converse API support and a Lex Bot Agent. This showcases the flexibility of the system in integrating various AI services.
 
