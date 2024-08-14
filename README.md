@@ -152,6 +152,9 @@ if (response.streaming == true) {
 #### Installation
 
 ```bash
+# Optional: Set up a virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 pip install multi-agent-orchestrator
 ```
 
@@ -162,20 +165,27 @@ Here's an equivalent Python example demonstrating the use of the Multi-Agent Orc
 ```python
 import os
 import asyncio
-from multi_agent_orchestrator import MultiAgentOrchestrator
-from multi_agent_orchestrator.agents import BedrockLLMAgent, LexBotAgent
-from multi_agent_orchestrator.agents import BedrockLLMAgentOptions, LexBotAgentOptions
+from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+from multi_agent_orchestrator.agents import BedrockLLMAgent, LexBotAgent, BedrockLLMAgentOptions, LexBotAgentOptions, AgentCallbacks
 
 orchestrator = MultiAgentOrchestrator()
 
-# Add a Bedrock LLM Agent with Converse API support
-orchestrator.add_agent(
-    BedrockLLMAgent(BedrockLLMAgentOptions(
-        name="Tech Agent",
-        description="Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.",
-        streaming=True
-    ))
-)
+class BedrockLLMAgentCallbacks(AgentCallbacks):
+    def on_llm_new_token(self, token: str) -> None:
+        # handle response streaming here
+        print(token, end='', flush=True)
+
+tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+  name="Tech Agent",
+  streaming=True,
+  description="Specializes in technology areas including software development, hardware, AI, \
+  cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs \
+  related to technology products and services.",
+  model_id="anthropic.claude-3-sonnet-20240229-v1:0",
+  callbacks=BedrockLLMAgentCallbacks()
+))
+orchestrator.add_agent(tech_agent)
+
 
 # Add a Lex Bot Agent for handling travel-related queries
 orchestrator.add_agent(
@@ -224,7 +234,7 @@ async def main():
         print(f"> User ID: {response.metadata.user_id}")
         print(f"> Session ID: {response.metadata.session_id}")
         print(f"> Additional Parameters: {response.metadata.additional_params}")
-        print(f"\n> Response: {response.output}")
+        print(f"\n> Response: {response.output.content}")
 
 if __name__ == "__main__":
     asyncio.run(main())
