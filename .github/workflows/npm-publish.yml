@@ -19,7 +19,6 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: cp ../LICENSE .
-      - run: cp ../README.md .
       - run: npm install
       - run: npm run build
       - run: npm pack

@@ -15,7 +15,6 @@ jobs:
     - name: Copy files
       run: |
         cp ../LICENSE .
-        cp ../README.md .
 
     - name: Set up Python
       uses: actions/setup-python@2bd53f9a4d1dd1cd21eaffcc01a7b91a8e73ea4c

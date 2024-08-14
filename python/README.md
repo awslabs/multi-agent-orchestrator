@@ -59,95 +59,30 @@ Notice how the appropriate agent is selected for each query, maintaining coheren
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
-![](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/demo-app.gif?raw=true)
+Click on the image below to see a screen recording of the demo app on the GitHub repository of the project:
+<a href="https://github.com/awslabs/multi-agent-orchestrator" target="_blank">
+  <img src="https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/demo-app.jpg" alt="Demo App Screen Recording" style="max-width: 100%; height: auto;">
+</a>
+
+
 
 ## 🚀 Getting Started
 
 Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
 
-### TypeScript Version
 
-#### Installation
+### Installation
 
 ```bash
-npm install multi-agent-orchestrator
+pip install multi-agent-orchestrator
 ```
 
-#### Usage
+### Usage
 
 The following example demonstrates how to use the Multi-Agent Orchestrator with two different types of agents: a Bedrock LLM Agent with Converse API support and a Lex Bot Agent. This showcases the flexibility of the system in integrating various AI services.
 
-```typescript
-import { MultiAgentOrchestrator, BedrockLLMAgent, LexBotAgent } from "multi-agent-orchestrator";
+```python
 
-const orchestrator = new MultiAgentOrchestrator();
-
-// Add a Bedrock LLM Agent with Converse API support
-orchestrator.addAgent(
-  new BedrockLLMAgent({
-      name: "Tech Agent",
-      description:
-        "Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.",
-      streaming: true
-  })
-);
-
-// Add a Lex Bot Agent for handling travel-related queries
-orchestrator.addAgent(
-  new LexBotAgent({
-    name: "Travel Agent",
-    description: "Helps users book and manage their flight reservations",
-    botId: process.env.LEX_BOT_ID,
-    botAliasId: process.env.LEX_BOT_ALIAS_ID,
-    localeId: "en_US",
-  })
-);
-
-// Example usage
-const response = await orchestrator.routeRequest(
-  "I want to book a flight",
-  'user123',
-  'session456'
-);
-
-// Handle the response (streaming or non-streaming)
-if (response.streaming == true) {
-    console.log("\n** RESPONSE STREAMING ** \n");
-    // Send metadata immediately
-    console.log(`> Agent ID: ${response.metadata.agentId}`);
-    console.log(`> Agent Name: ${response.metadata.agentName}`);
-    console.log(`> User Input: ${response.metadata.userInput}`);
-    console.log(`> User ID: ${response.metadata.userId}`);
-    console.log(`> Session ID: ${response.metadata.sessionId}`);
-    console.log(
-      `> Additional Parameters:`,
-      response.metadata.additionalParams
-    );
-    console.log(`\n> Response: `);
-
-    // Stream the content
-    for await (const chunk of response.output) {
-      if (typeof chunk === "string") {
-        process.stdout.write(chunk);
-      } else {
-        console.error("Received unexpected chunk type:", typeof chunk);
-      }
-    }
-
-} else {
-    // Handle non-streaming response (AgentProcessingResult)
-    console.log("\n** RESPONSE ** \n");
-    console.log(`> Agent ID: ${response.metadata.agentId}`);
-    console.log(`> Agent Name: ${response.metadata.agentName}`);
-    console.log(`> User Input: ${response.metadata.userInput}`);
-    console.log(`> User ID: ${response.metadata.userId}`);
-    console.log(`> Session ID: ${response.metadata.sessionId}`);
-    console.log(
-      `> Additional Parameters:`,
-      response.metadata.additionalParams
-    );
-    console.log(`\n> Response: ${response.output}`);
-}
 ```
 
 This example showcases:
