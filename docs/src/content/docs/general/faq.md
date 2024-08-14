@@ -10,7 +10,7 @@ The Multi-Agent Orchestrator System is a flexible and powerful framework designe
 
 ---
 
-##### Who is the Multi-Agent Orchestrator System for?
+##### Who is the Multi-Agent Orchestrator framework for?
 
 The Multi-Agent Orchestrator System is primarily designed to build advanced, scalable AI conversation systems. It's particularly useful for those working on projects that require handling complex, multi-domain conversations or integrating multiple specialized AI agents into a cohesive system.
 
@@ -34,9 +34,9 @@ Additionally, you have the flexibility to easily create your own [custom agents]
 
 ---
 
-##### How does the system handle conversation context?
+##### How does the framework handle conversation context?
 
-The Multi-Agent Orchestrator System uses a flexible storage mechanism to save and retrieve conversations. 
+The Multi-Agent Orchestrator framework uses a flexible storage mechanism to save and retrieve conversations. 
 
 Each conversation is associated with a unique combination of `userId`, `sessionId`, and `agentId`. This allows the system to maintain separate conversation threads for each agent within a user's session, ensuring coherent and contextually relevant interactions over time.
 
