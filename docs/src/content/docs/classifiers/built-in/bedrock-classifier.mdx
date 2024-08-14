@@ -5,7 +5,7 @@ description: How to configure the Bedrock classifier
 
 The Bedrock Classifier is the default classifier used in the Multi-Agent Orchestrator.
 
-It leverages Amazon Bedrock's  models through Converse API providing powerful and flexible classification capabilities.
+It leverages Amazon Bedrock's models through Converse API providing powerful and flexible classification capabilities.
 
 ## Overview
 
@@ -18,7 +18,6 @@ The BedrockClassifier extends the abstract `Classifier` class and uses Amazon Be
 - Supports custom system prompts and variables
 - Handles conversation history for context-aware classification
 
-
 ### Basic Usage
 
 By default, the Multi-Agent Orchestrator uses the Bedrock Classifier, which in turn utilizes the `anthropic.claude-3-5-sonnet-20240620-v1:0` (Claude 3.5 Sonnet) model for classification tasks.
@@ -26,16 +25,19 @@ By default, the Multi-Agent Orchestrator uses the Bedrock Classifier, which in t
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
-```typescript
-import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
-
-const orchestrator = new MultiAgentOrchestrator();
-```
+    const orchestrator = new MultiAgentOrchestrator();
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-    // TODO: Add python code here
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    orchestrator = MultiAgentOrchestrator()
+    ```
   </TabItem>
 </Tabs>
 
@@ -43,69 +45,92 @@ const orchestrator = new MultiAgentOrchestrator();
 
 You can customize the BedrockClassifier by creating an instance with specific options:
 
-
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { BedrockClassifier, MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
-```typescript
-import { BedrockClassifier, MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    const customBedrockClassifier = new BedrockClassifier({
+      modelId: 'anthropic.claude-v2',
+      inferenceConfig: {
+        maxTokens: 500,
+        temperature: 0.7,
+        topP: 0.9
+      }
+    });
 
-const customBedrockClassifier = new BedrockClassifier({
-  modelId: 'anthropic.claude-v2',
-  inferenceConfig: {
-    maxTokens: 500,
-    temperature: 0.7,
-    topP: 0.9
-  }
-});
-
-const orchestrator = new MultiAgentOrchestrator({ classifier: customBedrockClassifier });
-```
+    const orchestrator = new MultiAgentOrchestrator({ classifier: customBedrockClassifier });
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-    // TODO: Add python code here
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
+
+    custom_bedrock_classifier = BedrockClassifier(BedrockClassifierOptions(
+        model_id='anthropic.claude-v2',
+        inference_config={
+            'maxTokens': 500,
+            'temperature': 0.7,
+            'topP': 0.9
+        }
+    ))
+
+    orchestrator = MultiAgentOrchestrator(classifier=custom_bedrock_classifier)
+    ```
   </TabItem>
 </Tabs>
 
 The BedrockClassifier accepts the following configuration options:
 
-- `modelId` (optional): The ID of the Bedrock model to use. Defaults to Claude 3 Sonnet.
-- `inferenceConfig` (optional): An object containing inference configuration parameters:
+- `model_id` (optional): The ID of the Bedrock model to use. Defaults to Claude 3.5 Sonnet.
+- `region` (optional): The AWS region to use. If not provided, it will use the `REGION` environment variable.
+- `inference_config` (optional): A dictionary containing inference configuration parameters:
   - `maxTokens` (optional): The maximum number of tokens to generate.
   - `temperature` (optional): Controls randomness in output generation.
   - `topP` (optional): Controls diversity of output generation.
-  - `stopSequences` (optional): An array of sequences that, when generated, will stop the generation process.
+  - `stopSequences` (optional): A list of sequences that, when generated, will stop the generation process.
 
 ## Customizing the System Prompt
 
 You can customize the system prompt used by the BedrockClassifier:
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-
-```typescript
-orchestrator.classifier.setSystemPrompt(
-  `
-  Custom prompt template with placeholders:
-  {{AGENT_DESCRIPTIONS}}
-  {{HISTORY}}
-  {{CUSTOM_PLACEHOLDER}}
-  `,
-  {
-    CUSTOM_PLACEHOLDER: "Value for custom placeholder"
-  }
-);
-```
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    orchestrator.classifier.setSystemPrompt(
+      `
+      Custom prompt template with placeholders:
+      {{AGENT_DESCRIPTIONS}}
+      {{HISTORY}}
+      {{CUSTOM_PLACEHOLDER}}
+      `,
+      {
+        CUSTOM_PLACEHOLDER: "Value for custom placeholder"
+      }
+    );
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-    // TODO: Add python code here
+    ```python
+    orchestrator.classifier.set_system_prompt(
+        """
+        Custom prompt template with placeholders:
+        {{AGENT_DESCRIPTIONS}}
+        {{HISTORY}}
+        {{CUSTOM_PLACEHOLDER}}
+        """,
+        {
+            "CUSTOM_PLACEHOLDER": "Value for custom placeholder"
+        }
+    )
+    ```
   </TabItem>
 </Tabs>
 
-
 ## Processing Requests
 
-The BedrockClassifier processes requests using the `processRequest` method, which is called internally by the orchestrator. This method:
+The BedrockClassifier processes requests using the `process_request` method, which is called internally by the orchestrator. This method:
 
 1. Prepares the user's message and conversation history.
 2. Constructs a command for the Bedrock API, including the system prompt and tool configurations.
@@ -114,7 +139,7 @@ The BedrockClassifier processes requests using the `processRequest` method, whic
 
 ## Error Handling
 
-The BedrockClassifier includes error handling to manage potential issues during the classification process. If an error occurs, it will log the error and return a default `ClassifierResult` with a null selected agent and zero confidence.
+The BedrockClassifier includes error handling to manage potential issues during the classification process. If an error occurs, it will log the error and raise an exception, which can be caught and handled by the orchestrator.
 
 ## Best Practices
 

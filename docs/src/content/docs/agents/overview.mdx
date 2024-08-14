@@ -29,7 +29,6 @@ To optimize agent selection:
 
 By prioritizing detailed agent descriptions and fine-tuning the selection process, you can significantly enhance the efficiency and accuracy of your Multi-Agent Orchestrator implementation.
 
-
 ## The Agent Abstract Class
 
 The `Agent` class is an abstract base class that defines the essential properties and methods that all agents in the system must have. It's designed to be flexible, allowing for a wide range of implementations from simple API callers to complex LLM-powered conversational agents.
@@ -39,91 +38,146 @@ The `Agent` class is an abstract base class that defines the essential propertie
 - `name`: A string representing the name of the agent.
 - `id`: A unique identifier for the agent, automatically generated from the name.
 - `description`: A string describing the agent's capabilities and expertise.
+- `save_chat`: A boolean indicating whether to save the chat history for this agent.
+- `callbacks`: An optional `AgentCallbacks` object for handling events like new tokens in streaming responses.
 
-### Abstract Method: processRequest
+### Abstract Method: process_request
 
-The core functionality of any agent is encapsulated in the `processRequest` method. This method must be implemented by all concrete agent classes:
-
+The core functionality of any agent is encapsulated in the `process_request` method. This method must be implemented by all concrete agent classes:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-
-```typescript
-abstract processRequest(
-  inputText: string,
-  userId: string,
-  sessionId: string,
-  chatHistory: Message[],
-  additionalParams?: Record<string, any>
-): Promise<Message | AsyncIterable<any>>;
-```
-
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    abstract processRequest(
+      inputText: string,
+      userId: string,
+      sessionId: string,
+      chatHistory: Message[],
+      additionalParams?: Record<string, any>
+    ): Promise<Message | AsyncIterable<any>>;
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-    // TODO: Add python code here
+    ```python
+    from abc import abstractmethod
+    from typing import Union, AsyncIterable, Optional, Dict, List
+    from multi_agent_orchestrator.types import ConversationMessage
+
+    class Agent(ABC):
+        @abstractmethod
+        async def process_request(
+            self,
+            input_text: str,
+            user_id: str,
+            session_id: str,
+            chat_history: List[ConversationMessage],
+            additional_params: Optional[Dict[str, str]] = None
+        ) -> Union[ConversationMessage, AsyncIterable[any]]:
+            pass
+    ```
   </TabItem>
 </Tabs>
 
-
-
-
-- `inputText`: The user's input or query.
-- `userId`: A unique identifier for the user.
-- `sessionId`: An identifier for the current conversation session.
-- `chatHistory`: An array of previous messages in the conversation.
-- `additionalParams`: Optional parameters for additional context or configuration. This is a powerful feature that allows for dynamic customization of agent behavior
-  - It's an optional object of key-value pairs that can be passed when calling `routeRequest` on the orchestrator.
-  - These parameters are then forwarded to the appropriate agent's `processRequest` method.
+- `input_text`: The user's input or query.
+- `user_id`: A unique identifier for the user.
+- `session_id`: An identifier for the current conversation session.
+- `chat_history`: A list of previous messages in the conversation.
+- `additional_params`: Optional parameters for additional context or configuration. This is a powerful feature that allows for dynamic customization of agent behavior
+  - It's an optional dictionary of key-value pairs that can be passed when calling `route_request` on the orchestrator.
+  - These parameters are then forwarded to the appropriate agent's `process_request` method.
   - Custom agents can use these parameters to adjust their behavior or provide additional context for processing the request.
 
-
-The method returns either a `Promise<Message>` for single responses or `Promise<AsyncIterable<any>>` for streaming responses.
-
-
+The method returns either a `ConversationMessage` for single responses or an `AsyncIterable` for streaming responses.
 
 Example usage:
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // When calling routeRequest
+    const response = await orchestrator.routeRequest(
+      userInput,
+      userId,
+      sessionId,
+      { location: "New York", units: "metric" }
+    );
 
-```typescript
-// When calling routeRequest
-const response = await orchestrator.routeRequest(
-  userInput,
-  userId,
-  sessionId,
-  { location: "New York", units: "metric" }
-);
-
-// In a custom agent's processRequest method
-class WeatherAgent extends Agent {
-  async processRequest(
-    inputText: string,
-    userId: string,
-    sessionId: string,
-    chatHistory: Message[],
-    additionalParams?: Record<string, any>
-  ): Promise<Message> {
-    const location = additionalParams?.location || "default location";
-    const units = additionalParams?.units || "metric";
-    // Use location and units to fetch weather data
-    // ...
-  }
-}
-```
-
+    // In a custom agent's processRequest method
+    class WeatherAgent extends Agent {
+      async processRequest(
+        inputText: string,
+        userId: string,
+        sessionId: string,
+        chatHistory: Message[],
+        additionalParams?: Record<string, any>
+      ): Promise<Message> {
+        const location = additionalParams?.location || "default location";
+        const units = additionalParams?.units || "metric";
+        // Use location and units to fetch weather data
+        // ...
+      }
+    }
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
+    ```python
+    # When calling route_request
+    response = await orchestrator.route_request(
+        user_input,
+        user_id,
+        session_id,
+        additional_params={"location": "New York", "units": "metric"}
+    )
 
-```python
-// TODO: Add python code here
-```
-
+    # In a custom agent's process_request method
+    class WeatherAgent(Agent):
+        async def process_request(
+            self,
+            input_text: str,
+            user_id: str,
+            session_id: str,
+            chat_history: List[ConversationMessage],
+            additional_params: Optional[Dict[str, str]] = None
+        ) -> ConversationMessage:
+            location = additional_params.get('location', 'default location')
+            units = additional_params.get('units', 'metric')
+            # Use location and units to fetch weather data
+            # ...
+    ```
   </TabItem>
 </Tabs>
 
+### Agent Options
 
+When creating a new agent, you can specify various options using the `AgentOptions` class:
 
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    interface AgentOptions {
+      name: string;
+      description: string;
+      modelId?: string;
+      region?: string;
+      saveChat?: boolean;
+      callbacks?: AgentCallbacks;
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    @dataclass
+    class AgentOptions:
+        name: str
+        description: str
+        model_id: Optional[str] = None
+        region: Optional[str] = None
+        save_chat: bool = True
+        callbacks: Optional[AgentCallbacks] = None
+    ```
+  </TabItem>
+</Tabs>
+
+These options allow you to customize various aspects of the agent's behavior and configuration.

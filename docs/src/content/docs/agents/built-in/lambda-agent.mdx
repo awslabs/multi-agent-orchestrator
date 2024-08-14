@@ -3,7 +3,6 @@ title: LambdaAgent
 description: Documentation for the LambdaAgent in the Multi-Agent Orchestrator System
 ---
 
-
 The `LambdaAgent` is a versatile agent class in the Multi-Agent Orchestrator System that allows integration with existing AWS Lambda functions. This agent will invoke your existing Lambda function written in any language (e.g., Python, Node.js, Java), providing a seamless way to utilize your existing serverless logic within the orchestrator.
 
 ## Key Features
@@ -17,64 +16,92 @@ The `LambdaAgent` is a versatile agent class in the Multi-Agent Orchestrator Sys
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { LambdaAgent } from 'multi-agent-orchestrator';
 
+    const myCustomInputPayloadEncoder = (input, chatHistory, userId, sessionId, additionalParams) => {
+      return JSON.stringify({
+        userQuestion: input,
+        myCustomField: "Hello world!",
+        history: chatHistory,
+        user: userId,
+        session: sessionId,
+        ...additionalParams
+      });
+    };
 
-```typescript
-import { LambdaAgent } from 'multi-agent-orchestrator';
+    const myCustomOutputPayloadDecoder = (input) => {
+      const decodedResponse = JSON.parse(new TextDecoder("utf-8").decode(input.Payload)).body;
+      return {
+        role: "assistant",
+        content: [{ text: `Response: ${decodedResponse}` }]
+      };
+    };
 
-const myCustomInputPayloadEncoder = (input, chatHistory, userId, sessionId, additionalParams) => {
-  return JSON.stringify({
-    userQuestion: input,
-    myCustomField: "Hello world!",
-    history: chatHistory,
-    user: userId,
-    session: sessionId,
-    ...additionalParams
-  });
-};
+    const options: LambdaAgentOptions = {
+      name: 'My Advanced Lambda Agent',
+      description: 'A versatile agent that calls a custom Lambda function',
+      functionName: 'my-advanced-lambda-function',
+      functionRegion: 'us-west-2',
+      inputPayloadEncoder: myCustomInputPayloadEncoder,
+      outputPayloadDecoder: myCustomOutputPayloadDecoder
+    };
 
-const myCustomOutputPayloadDecoder = (input) => {
-  const decodedResponse = JSON.parse(new TextDecoder("utf-8").decode(input.Payload)).body;
-  return {
-    role: "assistant",
-    content: [{ text: `Response: ${decodedResponse}` }]
-  };
-};
-
-const options: LambdaAgentOptions = {
-  name: 'My Advanced Lambda Agent',
-  description: 'A versatile agent that calls a custom Lambda function',
-  functionName: 'my-advanced-lambda-function',
-  functionRegion: 'us-west-2',
-  inputPayloadEncoder: myCustomInputPayloadEncoder,
-  outputPayloadDecoder: myCustomOutputPayloadDecoder
-};
-
-const agent = new LambdaAgent(options);
-```
+    const agent = new LambdaAgent(options);
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
+    ```python
+    import json
+    from typing import List, Dict, Optional
+    from multi_agent_orchestrator.agents import LambdaAgent, LambdaAgentOptions
+    from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 
-```python
-// TODO: Add python code here
-```
+    def my_custom_input_payload_encoder(input_text: str,
+                                        chat_history: List[ConversationMessage],
+                                        user_id: str,
+                                        session_id: str,
+                                        additional_params: Optional[Dict[str, str]] = None) -> str:
+        return json.dumps({
+            "userQuestion": input_text,
+            "myCustomField": "Hello world!",
+            "history": [message.__dict__ for message in chat_history],
+            "user": user_id,
+            "session": session_id,
+            **(additional_params or {})
+        })
 
+    def my_custom_output_payload_decoder(response: Dict[str, Any]) -> ConversationMessage:
+        decoded_response = json.loads(response['Payload'].read().decode('utf-8'))['body']
+        return ConversationMessage(
+            role=ParticipantRole.ASSISTANT.value,
+            content=[{"text": f"Response: {decoded_response}"}]
+        )
+
+    options = LambdaAgentOptions(
+        name='My Advanced Lambda Agent',
+        description='A versatile agent that calls a custom Lambda function',
+        function_name='my-advanced-lambda-function',
+        function_region='us-west-2',
+        input_payload_encoder=my_custom_input_payload_encoder,
+        output_payload_decoder=my_custom_output_payload_decoder
+    )
+
+    agent = LambdaAgent(options)
+    ```
   </TabItem>
 </Tabs>
-
-
 
 ### Parameter Explanations
 
 - `name`: (Required) Identifies the agent within your system.
 - `description`: (Required) Describes the agent's purpose or capabilities.
-- `functionName`: (Required) The name or ARN of the Lambda function to invoke.
-- `functionRegion`: (Required) The AWS region where the Lambda function is deployed.
-- `inputPayloadEncoder`: (Optional) A custom function to encode the input payload.
-- `outputPayloadDecoder`: (Optional) A custom function to decode the Lambda function's response.
+- `function_name`: (Required) The name or ARN of the Lambda function to invoke.
+- `function_region`: (Required) The AWS region where the Lambda function is deployed.
+- `input_payload_encoder`: (Optional) A custom function to encode the input payload.
+- `output_payload_decoder`: (Optional) A custom function to decode the Lambda function's response.
 
 ## Adding the Agent to the Orchestrator
 
@@ -83,67 +110,59 @@ To integrate the LambdaAgent into your Multi-Agent Orchestrator System, follow t
 1. First, ensure you have created an instance of the orchestrator:
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
-```typescript
-import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
-
-const orchestrator = new MultiAgentOrchestrator();
-```
-
+    const orchestrator = new MultiAgentOrchestrator();
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
 
-```python
-// TODO: Add python code here
-```
-
+    orchestrator = MultiAgentOrchestrator()
+    ```
   </TabItem>
 </Tabs>
-
-
 
 2. Then, add the LambdaAgent to the orchestrator:
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-
-```typescript
-orchestrator.addAgent(agent);
-```
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    orchestrator.addAgent(agent);
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-
-```python
-// TODO: Add python code here
-```
-
+    ```python
+    orchestrator.add_agent(agent)
+    ```
   </TabItem>
 </Tabs>
-
 
 3. Now you can use the orchestrator to route requests to the appropriate agent, including your Lambda function:
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-
-```typescript
-const response = await orchestrator.routeRequest(
-  "I need help with my order",
-  "user123",
-  "session456"
-);
-```
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const response = await orchestrator.routeRequest(
+      "I need help with my order",
+      "user123",
+      "session456"
+    );
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-
-```python
-// TODO: Add python code here
-```
-
+    ```python
+    response = await orchestrator.route_request(
+        "I need help with my order",
+        "user123",
+        "session456"
+    )
+    ```
   </TabItem>
 </Tabs>
-
 
 If you don't provide custom encoder/decoder functions, the LambdaAgent uses default methods:
 

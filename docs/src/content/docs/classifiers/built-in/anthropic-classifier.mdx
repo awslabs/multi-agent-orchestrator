@@ -20,101 +20,125 @@ To use the AnthropicClassifier, you need to create an instance with your Anthrop
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { AnthropicClassifier } from "multi-agent-orchestrator";
+    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 
-```typescript
-import { AnthropicClassifier } from "multi-agent-orchestrator";
-import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    const anthropicClassifier = new AnthropicClassifier({
+      apiKey: 'your-anthropic-api-key'
+    });
 
-const anthropicClassifier = new AnthropicClassifier({
-  apiKey: 'your-anthropic-api-key'
-});
-
-const orchestrator = new MultiAgentOrchestrator({ classifier: anthropicClassifier });
-```
-
+    const orchestrator = new MultiAgentOrchestrator({ classifier: anthropicClassifier });
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-    // TODO: Add python code here
+    ```python
+    from multi_agent_orchestrator.classifiers import AnthropicClassifier, AnthropicClassifierOptions
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    anthropic_classifier = AnthropicClassifier(AnthropicClassifierOptions(
+        api_key='your-anthropic-api-key'
+    ))
+
+    orchestrator = MultiAgentOrchestrator(classifier=anthropic_classifier)
+    ```
   </TabItem>
 </Tabs>
-
-
 
 ### Custom Configuration
 
 You can customize the AnthropicClassifier by providing additional options:
 
-
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const customAnthropicClassifier = new AnthropicClassifier({
+      apiKey: 'your-anthropic-api-key',
+      modelId: 'claude-3-sonnet-20240229',
+      inferenceConfig: {
+        maxTokens: 500,
+        temperature: 0.7,
+        topP: 0.9,
+        stopSequences: ['']
+      }
+    });
 
-```typescript
-const customAnthropicClassifier = new AnthropicClassifier({
-  apiKey: 'your-anthropic-api-key',
-  modelId: 'claude-3-sonnet-20240229',
-  inferenceConfig: {
-    maxTokens: 500,
-    temperature: 0.7,
-    topP: 0.9,
-    stopSequences: ['']
-  }
-});
-
-const orchestrator = new MultiAgentOrchestrator({ classifier: customAnthropicClassifier });
-```
-
+    const orchestrator = new MultiAgentOrchestrator({ classifier: customAnthropicClassifier });
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-    // TODO: Add python code here
+    ```python
+    from multi_agent_orchestrator.classifiers import AnthropicClassifier, AnthropicClassifierOptions
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    custom_anthropic_classifier = AnthropicClassifier(AnthropicClassifierOptions(
+        api_key='your-anthropic-api-key',
+        model_id='claude-3-sonnet-20240229',
+        inference_config={
+            'max_tokens': 500,
+            'temperature': 0.7,
+            'top_p': 0.9,
+            'stop_sequences': ['']
+        }
+    ))
+
+    orchestrator = MultiAgentOrchestrator(classifier=custom_anthropic_classifier)
+    ```
   </TabItem>
 </Tabs>
 
-
 The AnthropicClassifier accepts the following configuration options:
 
-- `apiKey` (required): Your Anthropic API key.
-- `modelId` (optional): The ID of the Anthropic model to use. Defaults to Claude 3.5 Sonnet.
-- `inferenceConfig` (optional): An object containing inference configuration parameters:
-  - `maxTokens` (optional): The maximum number of tokens to generate. Defaults to 1000 if not specified.
+- `api_key` (required): Your Anthropic API key.
+- `model_id` (optional): The ID of the Anthropic model to use. Defaults to Claude 3.5 Sonnet.
+- `inference_config` (optional): A dictionary containing inference configuration parameters:
+  - `max_tokens` (optional): The maximum number of tokens to generate. Defaults to 1000 if not specified.
   - `temperature` (optional): Controls randomness in output generation.
-  - `topP` (optional): Controls diversity of output generation.
-  - `stopSequences` (optional): An array of sequences that, when generated, will stop the generation process.
+  - `top_p` (optional): Controls diversity of output generation.
+  - `stop_sequences` (optional): A list of sequences that, when generated, will stop the generation process.
 
 ## Customizing the System Prompt
 
 You can customize the system prompt used by the AnthropicClassifier:
 
-
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-
-```typescript
-orchestrator.classifier.setSystemPrompt(
-  `
-  Custom prompt template with placeholders:
-  {{AGENT_DESCRIPTIONS}}
-  {{HISTORY}}
-  {{CUSTOM_PLACEHOLDER}}
-  `,
-  {
-    CUSTOM_PLACEHOLDER: "Value for custom placeholder"
-  }
-);
-```
-
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    orchestrator.classifier.setSystemPrompt(
+      `
+      Custom prompt template with placeholders:
+      {{AGENT_DESCRIPTIONS}}
+      {{HISTORY}}
+      {{CUSTOM_PLACEHOLDER}}
+      `,
+      {
+        CUSTOM_PLACEHOLDER: "Value for custom placeholder"
+      }
+    );
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-    // TODO: Add python code here
+    ```python
+    orchestrator.classifier.set_system_prompt(
+        """
+        Custom prompt template with placeholders:
+        {{AGENT_DESCRIPTIONS}}
+        {{HISTORY}}
+        {{CUSTOM_PLACEHOLDER}}
+        """,
+        {
+            "CUSTOM_PLACEHOLDER": "Value for custom placeholder"
+        }
+    )
+    ```
   </TabItem>
 </Tabs>
 
-
 ## Processing Requests
 
-The AnthropicClassifier processes requests using the `processRequest` method, which is called internally by the orchestrator. This method:
+The AnthropicClassifier processes requests using the `process_request` method, which is called internally by the orchestrator. This method:
 
 1. Prepares the user's message.
 2. Constructs a request for the Anthropic API, including the system prompt and tool configurations.
@@ -123,7 +147,7 @@ The AnthropicClassifier processes requests using the `processRequest` method, wh
 
 ## Error Handling
 
-The AnthropicClassifier includes error handling to manage potential issues during the classification process. If an error occurs, it will log the error and return a default `ClassifierResult` with a null selected agent and zero confidence.
+The AnthropicClassifier includes error handling to manage potential issues during the classification process. If an error occurs, it will log the error and raise an exception, which can be caught and handled by the orchestrator.
 
 ## Best Practices
 

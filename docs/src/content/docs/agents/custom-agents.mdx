@@ -3,7 +3,6 @@ title: Custom Agents
 description: A guide to creating custom agents in the Multi-Agent Orchestrator System, including an OpenAI agent example
 ---
 
-
 The `Agent` abstract class provides a flexible foundation for creating various types of agents. When implementing a custom agent, you can:
 
 1. **Call Language Models**: Integrate with LLMs like GPT-3, BERT, or custom models.
@@ -16,69 +15,199 @@ Example of a simple custom agent:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-```typescript
-class SimpleGreetingAgent extends Agent {
-  async processRequest(
-    inputText: string,
-    userId: string,
-    sessionId: string,
-    chatHistory: Message[]
-  ): Promise<Message> {
-    return {
-      role: "assistant",
-      content: [{ text: `Hello! You said: ${inputText}` }]
-    };
-  }
-}
-```
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    class SimpleGreetingAgent extends Agent {
+      async processRequest(
+        inputText: string,
+        userId: string,
+        sessionId: string,
+        chatHistory: Message[]
+      ): Promise<Message> {
+        return {
+          role: "assistant",
+          content: [{ text: `Hello! You said: ${inputText}` }]
+        };
+      }
+    }
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-```python
-// TODO: Add python code here
-```
+    ```python
+    from multi_agent_orchestrator.agents import Agent
+    from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+
+    class SimpleGreetingAgent(Agent):
+        async def process_request(
+            self,
+            input_text: str,
+            user_id: str,
+            session_id: str,
+            chat_history: List[ConversationMessage]
+        ) -> ConversationMessage:
+            return ConversationMessage(
+                role=ParticipantRole.ASSISTANT.value,
+                content=[{"text": f"Hello! You said: {input_text}"}]
+            )
+    ```
   </TabItem>
 </Tabs>
-
-
 
 ## Basic Structure of a Custom Agent
 
 To create a custom agent, you need to extend the base `Agent` class or one of its subclasses. Here's the basic structure:
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-```typescript
-import { Agent, AgentOptions, Message } from './path-to-agent-module';
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { Agent, AgentOptions, Message } from './path-to-agent-module';
 
-class CustomAgent extends Agent {
-  constructor(options: AgentOptions) {
-    super(options);
-    // Additional initialization if needed
-  }
+    class CustomAgent extends Agent {
+      constructor(options: AgentOptions) {
+        super(options);
+        // Additional initialization if needed
+      }
 
-  async processRequest(
-    inputText: string,
-    userId: string,
-    sessionId: string,
-    chatHistory: Message[],
-    additionalParams?: Record<string, any>
-  ): Promise<Message> {
-    // Implement your custom logic here
-  }
-}
-```
+      async processRequest(
+        inputText: string,
+        userId: string,
+        sessionId: string,
+        chatHistory: Message[],
+        additionalParams?: Record<string, any>
+      ): Promise<Message> {
+        // Implement your custom logic here
+      }
+    }
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-```python
-// TODO: Add python code here
-```
+    ```python
+    from typing import List, Optional, Dict
+    from multi_agent_orchestrator.agents import Agent, AgentOptions
+    from multi_agent_orchestrator.types import ConversationMessage
+
+    class CustomAgent(Agent):
+        def __init__(self, options: AgentOptions):
+            super().__init__(options)
+            # Additional initialization if needed
+
+        async def process_request(
+            self,
+            input_text: str,
+            user_id: str,
+            session_id: str,
+            chat_history: List[ConversationMessage],
+            additional_params: Optional[Dict[str, str]] = None
+        ) -> ConversationMessage:
+            # Implement your custom logic here
+            pass
+    ```
   </TabItem>
 </Tabs>
 
+## Example: OpenAI Agent
 
+Here's an example of a custom agent that uses the OpenAI API:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { Agent, AgentOptions, Message } from './path-to-agent-module';
+    import { Configuration, OpenAIApi } from 'openai';
+
+    class OpenAIAgent extends Agent {
+      private openai: OpenAIApi;
+
+      constructor(options: AgentOptions & { apiKey: string }) {
+        super(options);
+        const configuration = new Configuration({ apiKey: options.apiKey });
+        this.openai = new OpenAIApi(configuration);
+      }
+
+      async processRequest(
+        inputText: string,
+        userId: string,
+        sessionId: string,
+        chatHistory: Message[]
+      ): Promise<Message> {
+        const response = await this.openai.createCompletion({
+          model: 'text-davinci-002',
+          prompt: inputText,
+          max_tokens: 150
+        });
+
+        return {
+          role: 'assistant',
+          content: [{ text: response.data.choices[0].text || 'No response' }]
+        };
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from typing import List, Optional, Dict
+    import openai
+    from multi_agent_orchestrator.agents import Agent, AgentOptions
+    from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+
+    class OpenAIAgentOptions(AgentOptions):
+        api_key: str
+
+    class OpenAIAgent(Agent):
+        def __init__(self, options: OpenAIAgentOptions):
+            super().__init__(options)
+            openai.api_key = options.api_key
+
+        async def process_request(
+            self,
+            input_text: str,
+            user_id: str,
+            session_id: str,
+            chat_history: List[ConversationMessage],
+            additional_params: Optional[Dict[str, str]] = None
+        ) -> ConversationMessage:
+            response = openai.Completion.create(
+                engine="text-davinci-002",
+                prompt=input_text,
+                max_tokens=150
+            )
+
+            return ConversationMessage(
+                role=ParticipantRole.ASSISTANT.value,
+                content=[{"text": response.choices[0].text.strip()}]
+            )
+    ```
+  </TabItem>
+</Tabs>
+
+To use this OpenAI agent:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const openAIAgent = new OpenAIAgent({
+      name: 'OpenAI Agent',
+      description: 'An agent that uses OpenAI API for responses',
+      apiKey: 'your-openai-api-key'
+    });
+
+    orchestrator.addAgent(openAIAgent);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    openai_agent = OpenAIAgent(OpenAIAgentOptions(
+        name='OpenAI Agent',
+        description='An agent that uses OpenAI API for responses',
+        api_key='your-openai-api-key'
+    ))
+
+    orchestrator.add_agent(openai_agent)
+    ```
+  </TabItem>
+</Tabs>
 
 ---
 

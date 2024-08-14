@@ -24,36 +24,39 @@ To use DynamoDB storage in your Multi-Agent Orchestrator:
 1. Set up a DynamoDB table with the following schema:
    - Partition Key: `PK` (String)
    - Sort Key: `SK` (String)
-   - Additionally, you can also setup your DynamoDB table with a TTL Key to automatically delete older conversation items
+   - Additionally, you can also set up your DynamoDB table with a TTL Key to automatically delete older conversation items
 
 2. Use the DynamoDbChatStorage when creating your orchestrator:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { DynamoDbStorage, MultiAgentOrchestrator } from 'multi-agent-orchestrator';
 
-```typescript
-import { DynamoDbStorage, MultiAgentOrchestrator } from 'multi-agent-orchestrator';
-
-const tableName = 'YourDynamoDBTableName';
-const region = 'your-aws-region';
-const TTL_DURATION = 3600; // in seconds
-const dynamoDbStorage = new DynamoDbChatStorage(tableName, region, 'your-ttl-key-name';TTL_DURATION);
-
-const orchestrator = new MultiAgentOrchestrator({
-   storage: dynamoDbStorage
-});
-```
-
+    const tableName = 'YourDynamoDBTableName';
+    const region = 'your-aws-region';
+    const TTL_DURATION = 3600; // in seconds
+    const dynamoDbStorage = new DynamoDbChatStorage(tableName, region, 'your-ttl-key-name', TTL_DURATION);
+    const orchestrator = new MultiAgentOrchestrator({
+      storage: dynamoDbStorage
+    });
+    ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-    // TODO: Add python code here
+    ```python
+    from multi_agent_orchestrator.storage import DynamoDbChatStorage
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    table_name = 'YourDynamoDBTableName'
+    region = 'your-aws-region'
+    TTL_DURATION = 3600  # in seconds
+    dynamodb_storage = DynamoDbChatStorage(table_name, region, ttl_key='your-ttl-key-name', ttl_duration=TTL_DURATION)
+    orchestrator = MultiAgentOrchestrator(storage=dynamodb_storage)
+    ```
   </TabItem>
 </Tabs>
-
-
 
 ## Configuration
 
