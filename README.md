@@ -8,13 +8,13 @@
 
 ## 🔖 Features
 
-- 🧠 **Intelligent Intent Classification** — Dynamically route queries to the most suitable agent based on context and content.
+- 🧠 **Intelligent intent classification** — Dynamically route queries to the most suitable agent based on context and content.
 - 🔤 **Dual language support** — Fully implemented in both **Python** and **TypeScript**.
-- 🌊 **Flexible Agent Responses** — Support for both streaming and non-streaming responses from different agents.
-- 📚 **Context Management** — Maintain and utilize conversation context across multiple agents for coherent interactions.
-- 🔧 **Extensible Architecture** — Easily integrate new agents or customize existing ones to fit your specific needs.
-- 🌐 **Universal Deployment** — Run anywhere - from AWS Lambda to your local environment or any cloud platform.
-- 📦 **Pre-built Agents and Classifiers** — A variety of ready-to-use agents and multiple classifier implementations available.
+- 🌊 **Flexible agent responses** — Support for both streaming and non-streaming responses from different agents.
+- 📚 **Context management** — Maintain and utilize conversation context across multiple agents for coherent interactions.
+- 🔧 **Extensible architecture** — Easily integrate new agents or customize existing ones to fit your specific needs.
+- 🌐 **Universal deployment** — Run anywhere - from AWS Lambda to your local environment or any cloud platform.
+- 📦 **Pre-built agents and classifiers** — A variety of ready-to-use agents and multiple classifier implementations available.
 
 ## What's the Multi-Agent Orchestrator ❓
 
