@@ -9,7 +9,7 @@
 ## 🔖 Features
 
 - 🧠 **Intelligent Intent Classification** — Dynamically route queries to the most suitable agent based on context and content.
-- 🔤 **Dual Language Support** — Fully implemented in both **Python** and **TypeScript**, allowing developers to choose their preferred language.
+- 🔤 **Dual language support** — Fully implemented in both **Python** and **TypeScript**.
 - 🌊 **Flexible Agent Responses** — Support for both streaming and non-streaming responses from different agents.
 - 📚 **Context Management** — Maintain and utilize conversation context across multiple agents for coherent interactions.
 - 🔧 **Extensible Architecture** — Easily integrate new agents or customize existing ones to fit your specific needs.
