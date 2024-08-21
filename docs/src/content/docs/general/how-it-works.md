@@ -19,27 +19,39 @@ The Multi-Agent Orchestrator follows a specific process for each user request:
 
 1. **Request Initiation**: The user sends a request to the orchestrator.
 
-2. **Context Gathering**: The orchestrator fetches all conversations from all agents and their descriptions.
+2. **Classification**: The [Classifier](/multi-agent-orchestrator/classifiers/overview) uses an LLM to analyze the user's request, agent descriptions, and conversation history from all agents for the current user ID and session ID. This comprehensive view allows the classifier to understand ongoing conversations and context across all agents. 
 
-3. **Classification**: Using an LLM, [the Classifier](/multi-agent-orchestrator/classifiers/overview) analyzes the user's request, agent descriptions, and conversation history to determine the most appropriate agent. This could be:
+   - The framework includes two [built-in classifier](/multi-agent-orchestrator/classifiers/overview) implementations, with one used by default.
+   - Users can customize many options for these built-in classifiers.
+   - There's also the option to create your own [custom classifier](/multi-agent-orchestrator/classifiers/custom-classifier), potentially using models different from those in the built-in implementations.
+
+   The classifier determines the most appropriate agent for:
    - A new query requiring a specific agent (e.g., "I want to book a flight" or "What is the base rate interest for a 20-year loan?")
    - A follow-up to a previous interaction, where the user might provide a short answer like "Tell me more", "Again", or "12". In this case, the LLM identifies the last agent that responded and is waiting for this answer.
 
-4. **Agent Selection**: The Classifier responds with the name of the selected agent.
+3. **Agent Selection**: The Classifier responds with the name of the selected agent.
 
-5. **Request Routing**: The user's input is sent to the chosen agent.
+4. **Request Routing**: The user's input is sent to the chosen agent.
 
-6. **Agent Processing**: The selected [agent](/multi-agent-orchestrator/agents/overview) processes the request using its entire history for that user's session ID (if the same user has already interacted with that agent in the current session).
+5. **Agent Processing**: The selected [agent](/multi-agent-orchestrator/agents/overview) processes the request. It automatically retrieves its own conversation history for the current user ID and session ID. This ensures that each agent maintains its context without access to other agents' conversations.
 
-7. **Response Generation**: The agent generates a response, which may be sent in a standard response mode or via streaming, depending on the agent's capabilities and initialization settings.
+   - The framework provides several built-in agents for common tasks.
+   - Users have the option to customize a wide range of properties for these built-in agents.
+   - There's also the flexibility to quickly create your own [custom agents](/multi-agent-orchestrator/agents/custom-agents) for specific needs.
 
-8. **Conversation Storage**: The user's input and the agent's response are saved into the [storage](/multi-agent-orchestrator/storage/overview) for that specific user ID and session ID. This step is crucial for maintaining context and enabling coherent multi-turn conversations.
+6. **Response Generation**: The agent generates a response, which may be sent in a standard response mode or via streaming, depending on the agent's capabilities and initialization settings.
 
-9. **Response Delivery**: The orchestrator delivers the agent's response back to the user.
+7. **Conversation Storage**: The orchestrator automatically handles saving the user's input and the agent's response into the [storage](/multi-agent-orchestrator/storage/overview) for that specific user ID and session ID. This step is crucial for maintaining context and enabling coherent multi-turn conversations. Key points about storage:
+   - The framework provides two built-in storage options: in-memory and DynamoDB.
+   - You have the flexibility to quickly create and implement your own custom storage solution and pass it to the orchestrator.
+   - Conversation saving can be disabled for individual agents that don't require follow-up interactions.
+   - The number of messages kept in the history can be configured for each agent.
 
-This process ensures that each request is handled by the most appropriate agent while maintaining context across the entire conversation and preserving the interaction history for future reference.
+8. **Response Delivery**: The orchestrator delivers the agent's response back to the user.
 
+This process ensures that each request is handled by the most appropriate agent while maintaining context across the entire conversation. The classifier has a global view of all agent conversations, while individual agents only have access to their own conversation history. This architecture allows for intelligent routing and context-aware responses while maintaining separation between agent functionalities.
 
+The orchestrator's automatic handling of conversation saving and fetching, combined with flexible storage options, provides a powerful and customizable system for managing conversation context in multi-agent scenarios. The ability to customize or replace classifiers and agents offers further flexibility to tailor the system to specific needs.
 
 ---
 
