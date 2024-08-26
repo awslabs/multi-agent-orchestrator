@@ -217,8 +217,16 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
           `> Additional Parameters:`,
           response.metadata.additionalParams
         );
-        console.log(`\n> Response: ${response.output}`);
-        // ... rest of the logging code ...
+        console.log(`\n> Response: `);
+        // Stream the content
+        for await (const chunk of response.output) {
+          if (typeof chunk === "string") {
+            process.stdout.write(chunk);
+          } else {
+            console.error("Received unexpected chunk type:", typeof chunk);
+          }
+        }
+        console.log(); 
       } catch (error) {
         console.error("An error occurred:", error);
         // Here you could also add more specific error handling if needed
