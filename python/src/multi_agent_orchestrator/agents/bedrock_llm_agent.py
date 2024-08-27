@@ -81,6 +81,7 @@ class BedrockLLMAgent(Agent):
         chat_history: List[ConversationMessage],
         additional_params: Optional[Dict[str, str]] = None
     ) -> Union[ConversationMessage, AsyncIterable[Any]]:
+        
         user_message =ConversationMessage(
             role=ParticipantRole.USER.value,
             content=[{'text': input_text}]
