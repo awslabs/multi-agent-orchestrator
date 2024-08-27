@@ -10,7 +10,7 @@ import {
 } from "@aws-sdk/client-bedrock-runtime";
 
 import { Classifier, ClassifierResult } from "./classifier";
-import { isToolInput } from "../utils/helpers";
+import { isClassifierToolInput } from "../utils/helpers";
 import { Logger } from "../utils/logger";
 
 
@@ -164,7 +164,7 @@ export class BedrockClassifier extends Classifier{
                 throw new Error("No tool use found in the response");
               }
         
-              if (!isToolInput(toolUse.input)) {
+              if (!isClassifierToolInput(toolUse.input)) {
                 throw new Error("Tool input does not match expected structure");
               }
 
