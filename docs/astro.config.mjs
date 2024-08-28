@@ -63,7 +63,10 @@ export default defineConfig({
 						{ label: 'Amazon Bedrock Agent', link: '/agents/built-in/amazon-bedrock-agent' },
 						{ label: 'Amazon Lex Bot Agent', link: '/agents/built-in/lex-bot-agent' },
 						{ label: 'AWS Lambda Agent', link: '/agents/built-in/lambda-agent' },
-						{ label: 'OpenAI Agent', link: '/agents/built-in/openai-agent' }
+						{ label: 'OpenAI Agent', link: '/agents/built-in/openai-agent' },
+						{ label: 'Chain Agent', link: '/agents/built-in/chain-agent' },
+						{ label: 'Comprehend Filter Agent', link: '/agents/built-in/comprehend-filter-agent' },
+						{ label: 'Amazon Bedrock Translator Agent', link: '/agents/built-in/bedrock-translator-agent' }
 					  ]
 					},
 					{ label: 'Custom Agents', link: '/agents/custom-agents' },
