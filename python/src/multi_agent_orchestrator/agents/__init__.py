@@ -6,6 +6,9 @@ from .lambda_agent import LambdaAgent, LambdaAgentOptions
 from .bedrock_llm_agent import BedrockLLMAgent, BedrockLLMAgentOptions
 from .lex_bot_agent import LexBotAgent, LexBotAgentOptions
 from .amazon_bedrock_agent import AmazonBedrockAgent, AmazonBedrockAgentOptions
+from .comprehend_filter_agent import ComprehendFilterAgent, ComprehendFilterAgentOptions
+from .chain_agent import ChainAgent, ChainAgentOptions
+from .bedrock_translator_agent import BedrockTranslatorAgent, BedrockTranslatorAgentOptions
 
 
 __all__ = [
@@ -22,4 +25,10 @@ __all__ = [
     'LexBotAgentOptions',
     'AmazonBedrockAgent',
     'AmazonBedrockAgentOptions'
+    'ComprehendFilterAgent',
+    'ComprehendFilterAgentOptions',
+    'BedrockTranslatorAgent',
+    'BedrockTranslatorAgentOptions',
+    'ChainAgent',
+    'ChainAgentOptions'
 ]

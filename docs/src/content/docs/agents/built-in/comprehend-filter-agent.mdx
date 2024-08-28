@@ -1,0 +1,421 @@
+---
+title: Comprehend Filter Agent
+description: Documentation for the Comprehend Filter Agent in the Multi-Agent Orchestrator System
+---
+The `ComprehendFilterAgent` is an agent class in the Multi-Agent Orchestrator System that uses [Amazon Comprehend](https://aws.amazon.com/comprehend/?nc1=h_ls) to analyze and filter content based on sentiment, Personally Identifiable Information (PII), and toxicity.
+
+It can be used as a standalone agent within the Multi-Agent Orchestrator or as part of a chain in the ChainAgent. 
+
+When used in a [ChainAgent](/multi-agent-orchestrator/agents/built-in/chain-agent) configuration, it's particularly effective as the first agent in the list. In this setup, it can check the user input against all configured filters, and if the content passes these checks, it will forward the original user input to the next agent in the chain. This allows for a robust content moderation system that can be seamlessly integrated into more complex processing pipelines, ensuring that only appropriate content is processed by subsequent agents.
+
+## Key Features
+
+- Content analysis using Amazon Comprehend
+- Configurable checks for sentiment, PII, and toxicity
+- Customizable thresholds for sentiment and toxicity
+- Support for multiple languages
+- Ability to add custom content checks
+
+## Creating a Comprehend Filter Agent
+
+### Basic Example
+
+To create a new `ComprehendFilterAgent` with default settings:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { ComprehendFilterAgent, ComprehendFilterAgentOptions } from 'multi-agent-orchestrator';
+
+    const agent = new ComprehendFilterAgent({
+      name: 'ContentModerator',
+      description: 'Analyzes and filters content using Amazon Comprehend'
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
+
+    agent = ComprehendFilterAgent(ComprehendFilterAgentOptions(
+        name='ContentModerator',
+        description='Analyzes and filters content using Amazon Comprehend'
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+### Advanced Example
+
+For more complex use cases, you can create a `ComprehendFilterAgent` with custom settings:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { ComprehendFilterAgent, ComprehendFilterAgentOptions } from 'multi-agent-orchestrator';
+
+    const options: ComprehendFilterAgentOptions = {
+      name: 'AdvancedContentModerator',
+      description: 'Advanced content moderation with custom settings',
+      region: 'us-west-2',
+      enableSentimentCheck: true,
+      enablePiiCheck: true,
+      enableToxicityCheck: true,
+      sentimentThreshold: 0.8,
+      toxicityThreshold: 0.6,
+      allowPii: false,
+      languageCode: 'en'
+    };
+
+    const agent = new ComprehendFilterAgent(options);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
+
+    options = ComprehendFilterAgentOptions(
+        name='AdvancedContentModerator',
+        description='Advanced content moderation with custom settings',
+        region='us-west-2',
+        enable_sentiment_check=True,
+        enable_pii_check=True,
+        enable_toxicity_check=True,
+        sentiment_threshold=0.8,
+        toxicity_threshold=0.6,
+        allow_pii=False,
+        language_code='en'
+    )
+
+    agent = ComprehendFilterAgent(options)
+    ```
+  </TabItem>
+</Tabs>
+
+## Integrating Comprehend Filter Agent
+
+To integrate the `ComprehendFilterAgent` into your orchestrator:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+
+    const orchestrator = new MultiAgentOrchestrator();
+    orchestrator.addAgent(agent);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    orchestrator = MultiAgentOrchestrator()
+    orchestrator.add_agent(agent)
+    ```
+  </TabItem>
+</Tabs>
+
+## Adding Custom Checks
+
+This example demonstrates how to add a **Custom Check** to the `ComprehendFilterAgent`:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { ComprehendFilterAgent, ComprehendFilterAgentOptions } from 'multi-agent-orchestrator';
+
+    const filterAgent = new ComprehendFilterAgent({
+      name: 'AdvancedContentFilter',
+      description: 'Advanced content filter with custom checks'
+    });
+
+    // Add a custom check for specific keywords
+    filterAgent.addCustomCheck(async (text: string) => {
+      const keywords = ['banned', 'inappropriate', 'offensive'];
+      for (const keyword of keywords) {
+        if (text.toLowerCase().includes(keyword)) {
+          return `Banned keyword detected: ${keyword}`;
+        }
+      }
+      return null;
+    });
+
+    const orchestrator = new MultiAgentOrchestrator();
+    orchestrator.addAgent(filterAgent);
+
+    const response = await orchestrator.routeRequest(
+      "This message contains a banned word.",
+      "user789",
+      "session101"
+    );
+
+    if (response) {
+      console.log("Content passed all checks");
+    } else {
+      console.log("Content was flagged by the filter");
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from multi_agent_orchestrator.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
+
+    filter_agent = ComprehendFilterAgent(ComprehendFilterAgentOptions(
+        name='AdvancedContentFilter',
+        description='Advanced content filter with custom checks'
+    ))
+
+    # Add a custom check for specific keywords
+    async def custom_keyword_check(text: str) -> Optional[str]:
+        keywords = ['banned', 'inappropriate', 'offensive']
+        for keyword in keywords:
+            if keyword in text.lower():
+                return f"Banned keyword detected: {keyword}"
+        return None
+
+    filter_agent.add_custom_check(custom_keyword_check)
+
+    orchestrator = MultiAgentOrchestrator()
+    orchestrator.add_agent(filter_agent)
+
+    response = await orchestrator.route_request(
+        "This message contains a banned word.",
+        "user789",
+        "session101"
+    )
+
+    if response:
+        print("Content passed all checks")
+    else:
+        print("Content was flagged by the filter")
+    ```
+  </TabItem>
+</Tabs>
+
+## Dynamic Language Detection and Handling
+
+The `ComprehendFilterAgent` offers flexible language handling capabilities. You can specify the language either at initialization or dynamically during invocation. Additionally, it supports automatic language detection, allowing it to adapt to content in various languages without manual specification. 
+
+This example demonstrates dynamic language detection and handling:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { MultiAgentOrchestrator, ComprehendFilterAgent } from 'multi-agent-orchestrator';
+    import { ComprehendClient, DetectDominantLanguageCommand } from "@aws-sdk/client-comprehend";
+
+    const filterAgent = new ComprehendFilterAgent({
+      name: 'MultilingualContentFilter',
+      description: 'Filters content in multiple languages'
+    });
+
+    const orchestrator = new MultiAgentOrchestrator();
+    orchestrator.addAgent(filterAgent);
+
+    async function detectLanguage(text: string): Promise<string> {
+      const comprehendClient = new ComprehendClient({ region: "us-east-1" });
+      const command = new DetectDominantLanguageCommand({ Text: text });
+      const response = await comprehendClient.send(command);
+      return response.Languages[0].LanguageCode;
+    }
+
+    let detectedLanguage: string | null = null;
+
+    async function processUserInput(userInput: string, userId: string, sessionId: string): Promise<void> {
+      if (!detectedLanguage) {
+        detectedLanguage = await detectLanguage(userInput);
+        console.log(`Detected language: ${detectedLanguage}`);
+      }
+
+      try {
+        const response = await orchestrator.routeRequest(
+          userInput, 
+          userId, 
+          sessionId,
+          { languageCode: detectedLanguage }
+        );
+
+        console.log("Processed response:", response);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+
+    // Example usage
+    processUserInput("Hello, world!", "user123", "session456");
+    // Subsequent calls will use the same detected language
+    processUserInput("How are you?", "user123", "session456");
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from multi_agent_orchestrator.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
+    import boto3
+    import asyncio
+
+    filter_agent = ComprehendFilterAgent(ComprehendFilterAgentOptions(
+        name='MultilingualContentFilter',
+        description='Filters content in multiple languages'
+    ))
+
+    orchestrator = MultiAgentOrchestrator()
+    orchestrator.add_agent(filter_agent)
+
+    def detect_language(text: str) -> str:
+        comprehend = boto3.client('comprehend', region_name='us-east-1')
+        response = comprehend.detect_dominant_language(Text=text)
+        return response['Languages'][0]['LanguageCode']
+
+    detected_language = None
+
+    async def process_user_input(user_input: str, user_id: str, session_id: str):
+        global detected_language
+        if not detected_language:
+            detected_language = detect_language(user_input)
+            print(f"Detected language: {detected_language}")
+
+        try:
+            response = await orchestrator.route_request(
+                user_input,
+                user_id,
+                session_id,
+                additional_params={"language_code": detected_language}
+            )
+
+            print("Processed response:", response)
+        except Exception as error:
+            print("Error:", error)
+
+    # Example usage
+    asyncio.run(process_user_input("Hello, world!", "user123", "session456"))
+    # Subsequent calls will use the same detected language
+    asyncio.run(process_user_input("How are you?", "user123", "session456"))
+    ```
+  </TabItem>
+</Tabs>
+
+## Usage with ChainAgent
+
+This example demonstrates how to use the `ComprehendFilterAgent` as part of a `ChainAgent` configuration:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { MultiAgentOrchestrator, ChainAgent, ComprehendFilterAgent, BedrockLLMAgent } from 'multi-agent-orchestrator';
+
+    // Create a ComprehendFilterAgent
+    const filterAgent = new ComprehendFilterAgent({
+      name: 'ContentFilter',
+      description: 'Filters inappropriate content',
+      enableSentimentCheck: true,
+      enablePiiCheck: true,
+      enableToxicityCheck: true,
+      sentimentThreshold: 0.7,
+      toxicityThreshold: 0.6
+    });
+
+    // Create a BedrockLLMAgent (or any other agent you want to use after filtering)
+    const llmAgent = new BedrockLLMAgent({
+      name: 'LLMProcessor',
+      description: 'Processes filtered content using a language model'
+    });
+
+    // Create a ChainAgent that combines the filter and LLM agents
+    const chainAgent = new ChainAgent({
+      name: 'FilteredLLMChain',
+      description: 'Chain that filters content before processing with LLM',
+      agents: [filterAgent, llmAgent]
+    });
+
+    // Add the chain agent to the orchestrator
+    const orchestrator = new MultiAgentOrchestrator();
+    orchestrator.addAgent(chainAgent);
+
+    // Use the chain
+    const response = await orchestrator.routeRequest(
+      "Process this message after ensuring it's appropriate.",
+      "user123",
+      "session456"
+    );
+
+    if (response) {
+      console.log("Message processed successfully:", response);
+    } else {
+      console.log("Message was filtered out due to inappropriate content");
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from multi_agent_orchestrator.agents import ChainAgent, ComprehendFilterAgent, BedrockLLMAgent
+    from multi_agent_orchestrator.agents import ChainAgentOptions, ComprehendFilterAgentOptions, BedrockLLMAgentOptions
+
+    # Create a ComprehendFilterAgent
+    filter_agent = ComprehendFilterAgent(ComprehendFilterAgentOptions(
+        name='ContentFilter',
+        description='Filters inappropriate content',
+        enable_sentiment_check=True,
+        enable_pii_check=True,
+        enable_toxicity_check=True,
+        sentiment_threshold=0.7,
+        toxicity_threshold=0.6
+    ))
+
+    # Create a BedrockLLMAgent (or any other agent you want to use after filtering)
+    llm_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name='LLMProcessor',
+        description='Processes filtered content using a language model'
+    ))
+
+    # Create a ChainAgent that combines the filter and LLM agents
+    chain_agent = ChainAgent(ChainAgentOptions(
+        name='FilteredLLMChain',
+        description='Chain that filters content before processing with LLM',
+        agents=[filter_agent, llm_agent]
+    ))
+
+    # Add the chain agent to the orchestrator
+    orchestrator = MultiAgentOrchestrator()
+    orchestrator.add_agent(chain_agent)
+
+    # Use the chain
+    response = await orchestrator.route_request(
+        "Process this message after ensuring it's appropriate.",
+        "user123",
+        "session456"
+    )
+
+    if response:
+        print("Message processed successfully:", response)
+    else:
+        print("Message was filtered out due to inappropriate content")
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration Options
+
+The `ComprehendFilterAgent` supports the following configuration options:
+
+- `enableSentimentCheck`: Enable sentiment analysis (default: true)
+- `enablePiiCheck`: Enable PII detection (default: true)
+- `enableToxicityCheck`: Enable toxicity detection (default: true)
+- `sentimentThreshold`: Threshold for negative sentiment (default: 0.7)
+- `toxicityThreshold`: Threshold for toxic content (default: 0.7)
+- `allowPii`: Allow PII in content (default: false)
+- `languageCode`: ISO 639-1 language code for analysis (default: 'en')
+
+## Supported Languages
+
+The `ComprehendFilterAgent` supports the following languages:
+
+'en' (English), 'es' (Spanish), 'fr' (French), 'de' (German), 'it' (Italian), 'pt' (Portuguese), 'ar' (Arabic), 'hi' (Hindi), 'ja' (Japanese), 'ko' (Korean), 'zh' (Chinese Simplified), 'zh-TW' (Chinese Traditional)
+
+---
+
+By leveraging the `ComprehendFilterAgent`, you can implement robust content moderation in your Multi-Agent Orchestrator system, ensuring safe and appropriate interactions while leveraging the power of Amazon Comprehend for advanced content analysis.

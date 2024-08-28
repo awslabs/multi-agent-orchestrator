@@ -4,7 +4,8 @@ from multi_agent_orchestrator.utils.helpers import is_tool_input
 from multi_agent_orchestrator.utils.logger import Logger
 from multi_agent_orchestrator.types import ConversationMessage
 from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult
-
+import logging
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20240620"
 

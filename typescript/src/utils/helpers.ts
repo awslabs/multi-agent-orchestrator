@@ -43,10 +43,11 @@ export class AccumulatorTransform extends Transform {
   }
 
 
-  export function isToolInput(input: unknown): input is ToolInput {
+  export function isClassifierToolInput(input: unknown): input is ToolInput {
     return (
       typeof input === 'object' &&
       input !== null &&
+      'userinput' in input &&
       'selected_agent' in input &&
       'confidence' in input
     );

@@ -3,7 +3,7 @@ import {
   ConversationMessage,
   ParticipantRole,
 } from "../types";
-import { isToolInput } from "../utils/helpers";
+import { isClassifierToolInput } from "../utils/helpers";
 import { Logger } from "../utils/logger";
 import { Classifier, ClassifierResult } from "./classifier";
 import { Anthropic } from "@anthropic-ai/sdk";
@@ -117,7 +117,7 @@ async processRequest(
         throw new Error("No tool use found in the response");
       }
 
-      if (!isToolInput(toolUse.input)) {
+      if (!isClassifierToolInput(toolUse.input)) {
         throw new Error("Tool input does not match expected structure");
       }
 
