@@ -86,15 +86,15 @@ export class ComprehendFilterAgent extends Agent {
   }
 
   /**
-   * Process a request through the content filter
-   * 
-   * @param inputText - The text to be analyzed
-   * @param userId - User identifier
-   * @param sessionId - Session identifier
-   * @param chatHistory - Array of previous conversation messages
-   * @param additionalParams - Optional additional parameters
-   * @returns A promise resolving to a ConversationMessage if content is safe, or null if flagged
+   * Processes a user request by sending it to the Amazon Bedrock agent for processing.
+   * @param inputText - The user input as a string.
+   * @param userId - The ID of the user sending the request.
+   * @param sessionId - The ID of the session associated with the conversation.
+   * @param chatHistory - An array of Message objects representing the conversation history.
+   * @param additionalParams - Optional additional parameters as key-value pairs.
+   * @returns A Promise that resolves to a Message object containing the agent's response.
    */
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   async processRequest(
     inputText: string,
     userId: string,
