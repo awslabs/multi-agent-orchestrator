@@ -1,9 +1,7 @@
 ---
-title: AWS Lambda Deployment
-description: How to deploy the Multi-Agent Orchestrator System to AWS Lambda with streaming support
+title: AWS Lambda Typescript 
+description: How to deploy the Multi-Agent Orchestrator System to AWS Lambda with streaming support using Typescript
 ---
-
-## Overview
 
 Deploying the Multi-Agent Orchestrator System to AWS Lambda allows you to run your multi-agent setup in a serverless environment. This guide will walk you through the process of setting up and deploying your orchestrator to Lambda, including support for streaming responses.
 
@@ -130,61 +128,6 @@ Deploying the Multi-Agent Orchestrator System to AWS Lambda allows you to run yo
    ```
 
    Check the `output.json` file for the streamed response.
-
-## Handling Streaming Responses
-
-To handle streaming responses in your client application:
-
-1. Make a request to the Lambda function URL.
-2. Parse the response as a stream of JSON objects.
-3. Handle different types of messages:
-   - `metadata`: Contains information about the selected agent and other metadata.
-   - `chunk`: Contains a part of the streaming response.
-   - `complete`: Contains the full response for non-streaming agents.
-   - `error`: Indicates an error occurred.
-
-Example client-side code (using fetch API):
-
-```javascript
-async function getStreamingResponse(query, userId, sessionId) {
-  const response = await fetch('https://your-lambda-function-url', {
-    method: 'POST',
-    body: JSON.stringify({ query, userId, sessionId }),
-    headers: {
-      'Content-Type': 'application/json',
-      // Include AWS IAM authentication headers here
-    },
-  });
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    
-    const chunk = decoder.decode(value);
-    const messages = chunk.split('\n').filter(Boolean).map(JSON.parse);
-    
-    for (const message of messages) {
-      switch (message.type) {
-        case 'metadata':
-          console.log('Metadata:', message.data);
-          break;
-        case 'chunk':
-          console.log('Chunk:', message.data);
-          break;
-        case 'complete':
-          console.log('Complete response:', message.data);
-          break;
-        case 'error':
-          console.error('Error:', message.data);
-          break;
-      }
-    }
-  }
-}
-```
 
 ## Considerations
 

@@ -119,7 +119,8 @@ export default defineConfig({
 					label: 'Deployment',
 					items: [
 					  { label: 'Local Development', link: '/deployment/local' },
-					  { label: 'AWS Lambda Integration', link: '/deployment/aws-lambda' },
+					  { label: 'AWS Lambda Typescript', link: '/deployment/aws-lambda-ts' },
+					  { label: 'AWS Lambda Python', link: '/deployment/aws-lambda-py' },
 					  { label: 'Demo Web App', link: '/deployment/demo-web-app' },
 					]
 				  },
