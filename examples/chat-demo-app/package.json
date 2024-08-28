@@ -15,7 +15,7 @@
     "@aws-lambda-powertools/parameters": "^2.3.0",
     "@types/jest": "^29.5.12",
     "@types/node": "20.14.2",
-    "aws-cdk": "2.147.3",
+    "aws-cdk": "2.148.1",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.4",
     "ts-node": "^10.9.2",
