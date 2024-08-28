@@ -1,0 +1,276 @@
+---
+title: Bedrock Translator Agent
+description: Documentation for the Bedrock Translator Agent in the Multi-Agent Orchestrator System
+---
+
+The `BedrockTranslatorAgent` uses Amazon Bedrock's language models to translate text between different languages.
+
+## Key Features
+
+- Utilizes Amazon Bedrock's language models
+- Supports translation between multiple languages
+- Allows dynamic setting of source and target languages
+- Can be used standalone or as part of a [ChainAgent](/multi-agent-orchestrator/agents/built-in/chain-agent)
+- Configurable inference parameters for fine-tuned control
+
+## Creating a Bedrock Translator Agent
+
+### Basic Example
+
+To create a new `BedrockTranslatorAgent` with minimal configuration:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { BedrockTranslatorAgent, BedrockTranslatorAgentOptions } from 'multi-agent-orchestrator';
+
+    const agent = new BedrockTranslatorAgent({
+      name: 'BasicTranslator',
+      description: 'Translates text to English',
+      targetLanguage: 'English'
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import BedrockTranslatorAgent, BedrockTranslatorAgentOptions
+
+    agent = BedrockTranslatorAgent(BedrockTranslatorAgentOptions(
+        name='BasicTranslator',
+        description='Translates text to English',
+        target_language='English'
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+### Advanced Example
+
+For more complex use cases, you can create a BedrockTranslatorAgent with custom settings:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { BedrockTranslatorAgent, BedrockTranslatorAgentOptions, BEDROCK_MODEL_ID_CLAUDE_3_SONNET } from 'multi-agent-orchestrator';
+
+    const options: BedrockTranslatorAgentOptions = {
+      name: 'AdvancedTranslator',
+      description: 'Advanced translator with custom settings',
+      sourceLanguage: 'French',
+      targetLanguage: 'German',
+      modelId: BEDROCK_MODEL_ID_CLAUDE_3_SONNET,
+      region: 'us-west-2',
+      inferenceConfig: {
+        maxTokens: 2000,
+        temperature: 0.1,
+        topP: 0.95,
+        stopSequences: ['###']
+      }
+    };
+
+    const agent = new BedrockTranslatorAgent(options);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import BedrockTranslatorAgent, BedrockTranslatorAgentOptions
+    from multi_agent_orchestrator.types import BEDROCK_MODEL_ID_CLAUDE_3_SONNET
+
+    options = BedrockTranslatorAgentOptions(
+        name='AdvancedTranslator',
+        description='Advanced translator with custom settings',
+        source_language='French',
+        target_language='German',
+        model_id=BEDROCK_MODEL_ID_CLAUDE_3_SONNET,
+        region='us-west-2',
+        inference_config={
+            'maxTokens': 2000,
+            'temperature': 0.1,
+            'topP': 0.95,
+            'stopSequences': ['###']
+        }
+    )
+
+    agent = BedrockTranslatorAgent(options)
+    ```
+  </TabItem>
+</Tabs>
+
+## Dynamic Language Setting
+
+To set the language during the invocation:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { MultiAgentOrchestrator, BedrockTranslatorAgent } from 'multi-agent-orchestrator';
+
+    const translator = new BedrockTranslatorAgent({
+      name: 'DynamicTranslator',
+      description: 'Translator with dynamically set languages'
+    });
+
+    const orchestrator = new MultiAgentOrchestrator();
+    orchestrator.addAgent(translator);
+
+    async function translateWithDynamicLanguages(text: string, fromLang: string, toLang: string) {
+      translator.setSourceLanguage(fromLang);
+      translator.setTargetLanguage(toLang);
+
+      const response = await orchestrator.routeRequest(
+        text,
+        'user123',
+        'session456'
+      );
+
+      console.log(`Translated from ${fromLang} to ${toLang}:`, response);
+    }
+
+    // Usage
+    translateWithDynamicLanguages("Hello, world!", "English", "French");
+    translateWithDynamicLanguages("Bonjour le monde!", "French", "Spanish");
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from multi_agent_orchestrator.agents import BedrockTranslatorAgent, BedrockTranslatorAgentOptions
+
+    translator = BedrockTranslatorAgent(BedrockTranslatorAgentOptions(
+        name='DynamicTranslator',
+        description='Translator with dynamically set languages'
+    ))
+
+    orchestrator = MultiAgentOrchestrator()
+    orchestrator.add_agent(translator)
+
+    async def translate_with_dynamic_languages(text: str, from_lang: str, to_lang: str):
+        translator.set_source_language(from_lang)
+        translator.set_target_language(to_lang)
+
+        response = await orchestrator.route_request(
+            text,
+            'user123',
+            'session456'
+        )
+
+        print(f"Translated from {from_lang} to {to_lang}:", response)
+
+    # Usage
+    import asyncio
+
+    asyncio.run(translate_with_dynamic_languages("Hello, world!", "English", "French"))
+    asyncio.run(translate_with_dynamic_languages("Bonjour le monde!", "French", "Spanish"))
+    ```
+  </TabItem>
+</Tabs>
+
+## Usage with ChainAgent
+
+The `BedrockTranslatorAgent` can be effectively used within a `ChainAgent` for complex multilingual processing workflows. Here's an example that demonstrates translating user input and processing it:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { MultiAgentOrchestrator, ChainAgent, BedrockTranslatorAgent, BedrockLLMAgent } from 'multi-agent-orchestrator';
+
+    // Create translator agents
+    const translatorToEnglish = new BedrockTranslatorAgent({
+      name: 'TranslatorToEnglish',
+      description: 'Translates input to English',
+      targetLanguage: 'English'
+    });
+
+    // Create a processing agent (e.g., a BedrockLLMAgent)
+    const processor = new BedrockLLMAgent({
+      name: 'EnglishProcessor',
+      description: 'Processes text in English'
+    });
+
+    // Create a ChainAgent
+    const chainAgent = new ChainAgent({
+      name: 'TranslateProcessTranslate',
+      description: 'Translates, processes, and translates back',
+      agents: [translatorToEnglish, processor]
+    });
+
+    const orchestrator = new MultiAgentOrchestrator();
+    orchestrator.addAgent(chainAgent);
+
+    // Function to handle user input
+    async function handleMultilingualInput(input: string, sourceLanguage: string) {
+      translatorToEnglish.setSourceLanguage(sourceLanguage);
+
+      const response = await orchestrator.routeRequest(
+        input,
+        'user123',
+        'session456'
+      );
+
+      console.log('Response:', response);
+    }
+
+    // Usage
+    handleMultilingualInput("Hola, ¿cómo estás?", "Spanish");
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from multi_agent_orchestrator.agents import ChainAgent, BedrockTranslatorAgent, BedrockLLMAgent
+    from multi_agent_orchestrator.agents import ChainAgentOptions, BedrockTranslatorAgentOptions, BedrockLLMAgentOptions
+
+    # Create translator agents
+    translator_to_english = BedrockTranslatorAgent(BedrockTranslatorAgentOptions(
+        name='TranslatorToEnglish',
+        description='Translates input to English',
+        target_language='English'
+    ))
+
+    # Create a processing agent (e.g., a BedrockLLMAgent)
+    processor = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name='EnglishProcessor',
+        description='Processes text in English'
+    ))
+
+    # Create a ChainAgent
+    chain_agent = ChainAgent(ChainAgentOptions(
+        name='TranslateProcessTranslate',
+        description='Translates, processes, and translates back',
+        agents=[translator_to_english, processor]
+    ))
+
+    orchestrator = MultiAgentOrchestrator()
+    orchestrator.add_agent(chain_agent)
+
+    # Function to handle user input
+    async def handle_multilingual_input(input_text: str, source_language: str):
+        translator_to_english.set_source_language(source_language)
+
+        response = await orchestrator.route_request(
+            input_text,
+            'user123',
+            'session456'
+        )
+
+        print('Response:', response)
+
+    # Usage
+    import asyncio
+
+    asyncio.run(handle_multilingual_input("Hola, ¿cómo estás?", "Spanish"))
+    ```
+  </TabItem>
+</Tabs>
+
+In this example:
+1. The first translator agent converts the input to English.
+2. The processor agent (e.g., a `BedrockLLMAgent`) processes the English text.
+
+This setup allows for seamless multilingual processing, where the core logic can be implemented in English while supporting input and output in various languages.
+
+---
+
+By leveraging the `BedrockTranslatorAgent`, you can create sophisticated multilingual applications and workflows, enabling seamless communication and processing across language barriers in your Multi-Agent Orchestrator system.

@@ -90,7 +90,7 @@ class MultiAgentOrchestrator:
         agent_chat_history = await self.storage.fetch_chat(user_id, session_id, selected_agent.id)
 
         self.logger.print_chat_history(agent_chat_history, selected_agent.id)
-        self.logger.info(f"Routing intent '{user_input}' to {selected_agent.id} ...")
+        #self.logger.info(f"Routing intent '{user_input}' to {selected_agent.id} ...")
 
         response = await self.measure_execution_time(
             f"Agent {selected_agent.name} | Processing request",

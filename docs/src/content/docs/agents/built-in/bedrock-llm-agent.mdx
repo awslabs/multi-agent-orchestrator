@@ -4,7 +4,7 @@ description: Documentation for the BedrockLLMAgent in the Multi-Agent Orchestrat
 ---
 ## Overview
 
-The `BedrockLLMAgent` is a powerful and flexible agent class in the Multi-Agent Orchestrator System. It leverages [Amazon Bedrock's Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html) to interact with various LLMs supported by Amazon Bedrock.
+The **Bedrock LLM Agent** is a powerful and flexible agent class in the Multi-Agent Orchestrator System. It leverages [Amazon Bedrock's Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html) to interact with various LLMs supported by Amazon Bedrock.
 
 This agent can handle a wide range of processing tasks, making it suitable for diverse applications such as conversational AI, question-answering systems, and more.
 
@@ -20,11 +20,11 @@ This agent can handle a wide range of processing tasks, making it suitable for d
 
 ## Creating a BedrockLLMAgent
 
-By default, the Bedrock LLM Agent uses the `anthropic.claude-3-haiku-20240307-v1:0` model.
+By default, the **Bedrock LLM Agent** uses the `anthropic.claude-3-haiku-20240307-v1:0` model.
 
 ### Basic Example
 
-To create a new `BedrockLLMAgent` with only the required parameters, use the following code:
+To create a new **Bedrock LLM Agent** with only the required parameters, use the following code:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
@@ -55,7 +55,7 @@ In this basic example, only the `name` and `description` are provided, which are
 
 ### Advanced Example
 
-For more complex use cases, you can create a BedrockLLMAgent with all available options. All parameters except `name` and `description` are optional:
+For more complex use cases, you can create a **Bedrock LLM Agent** with all available options. All parameters except `name` and `description` are optional:
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -177,7 +177,6 @@ For more complex use cases, you can create a BedrockLLMAgent with all available 
 
 ## Setting a New Prompt
 
-You can update the agent's system prompt at any time using the `set_system_prompt` method:
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -214,7 +213,7 @@ This method allows you to dynamically change the agent's behavior and focus with
 
 ## Adding the Agent to the Orchestrator
 
-To integrate the BedrockLLMAgent into your Multi-Agent Orchestrator, follow these steps:
+To integrate the **Bedrock LLM Agent** into your orchestrator, follow these steps:
 
 1. First, ensure you have created an instance of the orchestrator:
 
@@ -273,4 +272,6 @@ To integrate the BedrockLLMAgent into your Multi-Agent Orchestrator, follow thes
   </TabItem>
 </Tabs>
 
-By leveraging the `BedrockLLMAgent`, you can create sophisticated, context-aware AI agents capable of handling a wide range of tasks and interactions, all powered by the latest LLM models available through Amazon Bedrock.
+---
+
+By leveraging the **Bedrock LLM Agent**, you can create sophisticated, context-aware AI agents capable of handling a wide range of tasks and interactions, all powered by the latest LLM models available through Amazon Bedrock.

@@ -1,0 +1,208 @@
+---
+title: Chain Agent
+description: Documentation for the Chain Agent in the Multi-Agent Orchestrator System
+---
+The `ChainAgent` is an agent class in the Multi-Agent Orchestrator System that allows for the sequential execution of multiple agents. It processes a request by passing the output of one agent as input to the next, creating a chain of agent interactions.
+
+## Creating a ChainAgent
+
+### Basic Example
+
+Here's how to create a ChainAgent with only the required parameters:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { ChainAgent, ChainAgentOptions } from 'multi-agent-orchestrator';
+    import { BedrockLLMAgent } from 'multi-agent-orchestrator';
+
+    const agent1 = new BedrockLLMAgent({
+      name: 'Agent 1',
+      description: '..AGENT DESCRIPTION..'
+    });
+
+    const agent2 = new BedrockLLMAgent({
+      name: 'Agent 2',
+      description: '..AGENT DESCRIPTION..'
+    });
+
+    const chainAgent = new ChainAgent({
+      name: 'Chain Tech Agent',
+      description: 'Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.',
+      agents: [agent1, agent2]
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import ChainAgent, ChainAgentOptions
+    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+
+    agent1 = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name='Agent 1',
+        description='..AGENT DESCRIPTION..'
+    ))
+
+    agent2 = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name='Agent 2',
+        description='..AGENT DESCRIPTION..'
+    ))
+
+    chain_agent = ChainAgent(ChainAgentOptions(
+        name='BasicChainAgent',
+        description='A simple chain of multiple agents',
+        agents=[agent1, agent2]
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+### Intermediate Example
+
+This example shows how to create a ChainAgent with a custom default output:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { ChainAgent, ChainAgentOptions } from 'multi-agent-orchestrator';
+    import { BedrockLLMAgent } from 'multi-agent-orchestrator';
+
+    const agent1 = new BedrockLLMAgent({
+      name: 'Agent 1',
+      description: '..AGENT DESCRIPTION..'
+    });
+
+    const agent2 = new BedrockLLMAgent({
+      name: 'Agent 2',
+      description: '..AGENT DESCRIPTION..',
+      streaming: true
+    });
+
+    const chainAgent = new ChainAgent({
+      name: 'IntermediateChainAgent',
+      description: 'A chain of agents with custom default output',
+      agents: [agent1, agent2],
+      defaultOutput: 'The chain encountered an issue during processing.'
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import ChainAgent, ChainAgentOptions
+    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+
+    agent1 = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name='Agent 1',
+        description='..AGENT DESCRIPTION..'
+    ))
+
+    agent2 = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name='Agent 2',
+        description='..AGENT DESCRIPTION..'
+    ))
+
+    chain_agent = ChainAgent(ChainAgentOptions(
+        name='IntermediateChainAgent',
+        description='A chain of agents with custom default output',
+        agents=[agent1, agent2],
+        default_output='The chain encountered an issue during processing.'
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+### Advanced Example
+
+For more complex use cases, you can create a ChainAgent with all available options:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { ChainAgent, ChainAgentOptions } from 'multi-agent-orchestrator';
+    import { BedrockLLMAgent } from 'multi-agent-orchestrator';
+
+    const agent1 = new BedrockLLMAgent({
+      name: 'Agent 1',
+      description: '..AGENT DESCRIPTION..'
+    });
+
+    const agent2 = new BedrockLLMAgent({
+      name: 'Agent 2',
+      description: '..AGENT DESCRIPTION..',
+      streaming: true
+    });
+
+    const options: ChainAgentOptions = {
+      name: 'AdvancedChainAgent',
+      description: 'A sophisticated chain of agents with all options',
+      agents: [agent1, agent2],
+      defaultOutput: 'The chain processing encountered an issue.',
+      saveChat: true
+    };
+
+    const chainAgent = new ChainAgent(options);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import ChainAgent, ChainAgentOptions
+    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+
+    agent1 = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name='Agent 1',
+        description='..AGENT DESCRIPTION..'
+    ))
+
+    agent2 = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name='Agent 2',
+        description='..AGENT DESCRIPTION..',
+        streaming=True
+    ))
+
+    options = ChainAgentOptions(
+        name='AdvancedChainAgent',
+        description='A sophisticated chain of agents with all options',
+        agents=[agent1, agent2],
+        default_output='The chain processing encountered an issue.',
+        save_chat=True
+    )
+
+    chain_agent = ChainAgent(options)
+    ```
+  </TabItem>
+</Tabs>
+
+## Integrating ChainAgent into the Multi-Agent Orchestrator
+
+To integrate the ChainAgent into your Multi-Agent Orchestrator:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+
+    const orchestrator = new MultiAgentOrchestrator();
+    orchestrator.addAgent(chainAgent);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    orchestrator = MultiAgentOrchestrator()
+    orchestrator.add_agent(chain_agent)
+    ```
+  </TabItem>
+</Tabs>
+
+## Streaming Responses
+
+The ChainAgent supports streaming responses only for the last agent in the chain.
+
+This design ensures efficient processing through the chain while still enabling streaming capabilities for the end result.
+
+---
+
+By leveraging the ChainAgent, you can create sophisticated, multi-step processing pipelines within your Multi-Agent Orchestrator system, allowing for complex interactions and transformations of user inputs, with the added flexibility of streaming output from the final processing step.
