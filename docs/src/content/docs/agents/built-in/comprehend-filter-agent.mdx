@@ -321,7 +321,8 @@ This example demonstrates how to use the `ComprehendFilterAgent` as part of a `C
     // Create a BedrockLLMAgent (or any other agent you want to use after filtering)
     const llmAgent = new BedrockLLMAgent({
       name: 'LLMProcessor',
-      description: 'Processes filtered content using a language model'
+      description: 'Processes filtered content using a language model',
+      streaming: true
     });
 
     // Create a ChainAgent that combines the filter and LLM agents
@@ -369,7 +370,8 @@ This example demonstrates how to use the `ComprehendFilterAgent` as part of a `C
     # Create a BedrockLLMAgent (or any other agent you want to use after filtering)
     llm_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
         name='LLMProcessor',
-        description='Processes filtered content using a language model'
+        description='Processes filtered content using a language model',
+        streaming=True
     ))
 
     # Create a ChainAgent that combines the filter and LLM agents
