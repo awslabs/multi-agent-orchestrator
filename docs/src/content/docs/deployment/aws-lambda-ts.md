@@ -3,6 +3,12 @@ title: AWS Lambda Typescript
 description: How to deploy the Multi-Agent Orchestrator System to AWS Lambda with streaming support using Typescript
 ---
 
+> **Important**
+> 
+>   This guide provides sample code primarily demonstrating how to use the Multi-Agent Orchestrator framework within an AWS Lambda function. To ensure the code works correctly inside an AWS Lambda environment and for any OS-specific considerations, please refer to the official AWS Lambda function documentation.
+
+
+
 Deploying the Multi-Agent Orchestrator System to AWS Lambda allows you to run your multi-agent setup in a serverless environment. This guide will walk you through the process of setting up and deploying your orchestrator to Lambda, including support for streaming responses.
 
 ## Prerequisites

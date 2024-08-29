@@ -3,13 +3,20 @@ title: AWS Lambda Python
 description: How to deploy the Multi-Agent Orchestrator System to AWS Lambda using Python
 ---
 
+> **Important**
+> 
+>   The following code sample primarily demonstrates how to use the Multi-Agent Orchestrator framework within an AWS Lambda function. To ensure the code works correctly inside an AWS Lambda function and across different operating systems, please refer to the official AWS Lambda documentation. This sample is intended to illustrate the framework's usage rather than provide a complete, production-ready solution.
+
+
+
+
 This guide walks you through deploying the Multi-Agent Orchestrator System to AWS Lambda using Python. It includes support for both streaming and non-streaming responses, allowing you to run your multi-agent setup in a serverless environment.
 
 ## Prerequisites
 
 - AWS account with appropriate permissions
 - AWS CLI installed and configured
-- Python 3.8 or later installed
+- Python 3.12 or later installed
 - Basic familiarity with AWS Lambda, API Gateway, and Boto3
 
 ## Deployment Steps
@@ -148,7 +155,7 @@ This guide walks you through deploying the Multi-Agent Orchestrator System to AW
 
 6. **Configure Lambda Function**
 
-   - Set the runtime to Python 3.8 or later.
+   - Set the runtime to Python 3.12 or later.
    - Set the handler to `lambda_function.lambda_handler`.
 
 7. **Test Your Deployment**
