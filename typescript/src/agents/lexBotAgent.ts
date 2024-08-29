@@ -37,7 +37,6 @@ export class LexBotAgent extends Agent {
     this.botId = options.botId;
     this.botAliasId = options.botAliasId;
     this.localeId = options.localeId;
-
     // Validate required fields
     if (!this.botId || !this.botAliasId || !this.localeId) {
       throw new Error("botId, botAliasId, and localeId are required for LexBotAgent");
@@ -93,9 +92,9 @@ export class LexBotAgent extends Agent {
         content: [{ text: concatenatedContent || "No response from Lex bot." }],
       };
     } catch (error) {
-      // Log the error and re-throw it
-      Logger.logger.error("Error processing request:", error);
-      throw error;
+      // Log the error and return an error response
+      Logger.logger.error("Error processing request in LexBotAgent:", error);
+      return this.createErrorResponse("An error occurred while processing your request with the Lex bot.", error);
     }
   }
 }

@@ -38,13 +38,6 @@ export interface ComprehendFilterAgentOptions extends AgentOptions {
     languageCode?: LanguageCode;
 }
 
-/**
- * ComprehendContentFilterAgent class
- * 
- * This agent uses Amazon Comprehend to analyze and filter content based on
- * sentiment, PII, and toxicity. It can be configured to enable/disable specific
- * checks and allows for the addition of custom checks.
- */
 export class ComprehendFilterAgent extends Agent {
   private comprehendClient: ComprehendClient;
   private customChecks: CheckFunction[] = [];
@@ -57,10 +50,6 @@ export class ComprehendFilterAgent extends Agent {
   private allowPii: boolean;
   private languageCode: LanguageCode;
 
-  /**
-   * Constructor for ComprehendContentFilterAgent
-   * @param options - Configuration options for the agent
-   */
   constructor(options: ComprehendFilterAgentOptions) {
     super(options);
 
@@ -68,7 +57,6 @@ export class ComprehendFilterAgent extends Agent {
       ? new ComprehendClient({ region: options.region })
       : new ComprehendClient();
 
-    // Set default configuration using fields from options
     this.enableSentimentCheck = options.enableSentimentCheck ?? true;
     this.enablePiiCheck = options.enablePiiCheck ?? true;
     this.enableToxicityCheck = options.enableToxicityCheck ?? true;
@@ -77,7 +65,6 @@ export class ComprehendFilterAgent extends Agent {
     this.allowPii = options.allowPii ?? false;
     this.languageCode = this.validateLanguageCode(options.languageCode) ?? 'en';
 
-    // Ensure at least one check is enabled
     if (!this.enableSentimentCheck && 
         !this.enablePiiCheck && 
         !this.enableToxicityCheck) {
@@ -85,16 +72,6 @@ export class ComprehendFilterAgent extends Agent {
     }
   }
 
-  /**
-   * Processes a user request by sending it to the Amazon Bedrock agent for processing.
-   * @param inputText - The user input as a string.
-   * @param userId - The ID of the user sending the request.
-   * @param sessionId - The ID of the session associated with the conversation.
-   * @param chatHistory - An array of Message objects representing the conversation history.
-   * @param additionalParams - Optional additional parameters as key-value pairs.
-   * @returns A Promise that resolves to a Message object containing the agent's response.
-   */
-  /* eslint-disable @typescript-eslint/no-unused-vars */
   async processRequest(
     inputText: string,
     userId: string,
@@ -105,14 +82,12 @@ export class ComprehendFilterAgent extends Agent {
     try {
       const issues: string[] = [];
 
-      // Run all checks in parallel
       const [sentimentResult, piiResult, toxicityResult] = await Promise.all([
         this.enableSentimentCheck ? this.detectSentiment(inputText) : null,
         this.enablePiiCheck ? this.detectPiiEntities(inputText) : null,
         this.enableToxicityCheck ? this.detectToxicContent(inputText) : null
       ]);
 
-      // Process results
       if (this.enableSentimentCheck && sentimentResult) {
         const sentimentIssue = this.checkSentiment(sentimentResult);
         if (sentimentIssue) issues.push(sentimentIssue);
@@ -128,7 +103,6 @@ export class ComprehendFilterAgent extends Agent {
         if (toxicityIssue) issues.push(toxicityIssue);
       }
 
-      // Run custom checks
       for (const check of this.customChecks) {
         const customIssue = await check(inputText);
         if (customIssue) issues.push(customIssue);
@@ -136,10 +110,9 @@ export class ComprehendFilterAgent extends Agent {
 
       if (issues.length > 0) {
         Logger.logger.warn(`Content filter issues detected: ${issues.join('; ')}`);
-        return null;  // Return null to indicate content should not be processed further
+        return this.createErrorResponse("Content filter issues detected", new Error(issues.join('; ')));
       }
 
-      // If no issues, return the original input as a ConversationMessage
       return {
         role: ParticipantRole.ASSISTANT,
         content: [{ text: inputText }]
@@ -147,23 +120,14 @@ export class ComprehendFilterAgent extends Agent {
 
     } catch (error) {
       Logger.logger.error("Error in ComprehendContentFilterAgent:", error);
-      throw error;
+      return this.createErrorResponse("An error occurred while processing your request", error);
     }
   }
 
-  /**
-   * Add a custom check function to the agent
-   * @param check - A function that takes a string input and returns a Promise<string | null>
-   */
   addCustomCheck(check: CheckFunction) {
     this.customChecks.push(check);
   }
 
-  /**
-   * Check sentiment of the input text
-   * @param result - Result from Comprehend's sentiment detection
-   * @returns A string describing the issue if sentiment is negative, null otherwise
-   */
   private checkSentiment(result: DetectSentimentCommandOutput): string | null {
     if (result.Sentiment === 'NEGATIVE' && 
         result.SentimentScore?.Negative > this.sentimentThreshold) {
@@ -172,11 +136,6 @@ export class ComprehendFilterAgent extends Agent {
     return null;
   }
 
-  /**
-   * Check for PII in the input text
-   * @param result - Result from Comprehend's PII detection
-   * @returns A string describing the issue if PII is detected, null otherwise
-   */
   private checkPii(result: DetectPiiEntitiesCommandOutput): string | null {
     if (!this.allowPii && result.Entities && result.Entities.length > 0) {
       return `PII detected: ${result.Entities.map(e => e.Type).join(', ')}`;
@@ -184,11 +143,6 @@ export class ComprehendFilterAgent extends Agent {
     return null;
   }
 
-  /**
-   * Check for toxic content in the input text
-   * @param result - Result from Comprehend's toxic content detection
-   * @returns A string describing the issue if toxic content is detected, null otherwise
-   */
   private checkToxicity(result: DetectToxicContentCommandOutput): string | null {
     const toxicLabels = this.getToxicLabels(result);
     if (toxicLabels.length > 0) {
@@ -197,10 +151,6 @@ export class ComprehendFilterAgent extends Agent {
     return null;
   }
 
-  /**
-   * Detect sentiment using Amazon Comprehend
-   * @param text - Input text to analyze
-   */
   private async detectSentiment(text: string) {
     const command = new DetectSentimentCommand({
       Text: text,
@@ -209,10 +159,6 @@ export class ComprehendFilterAgent extends Agent {
     return this.comprehendClient.send(command);
   }
 
-  /**
-   * Detect PII entities using Amazon Comprehend
-   * @param text - Input text to analyze
-   */
   private async detectPiiEntities(text: string) {
     const command = new DetectPiiEntitiesCommand({
       Text: text,
@@ -221,10 +167,6 @@ export class ComprehendFilterAgent extends Agent {
     return this.comprehendClient.send(command);
   }
 
-  /**
-   * Detect toxic content using Amazon Comprehend
-   * @param text - Input text to analyze
-   */
   private async detectToxicContent(text: string) {
     const command = new DetectToxicContentCommand({
       TextSegments: [{ Text: text }],
@@ -233,11 +175,6 @@ export class ComprehendFilterAgent extends Agent {
     return this.comprehendClient.send(command);
   }
 
-  /**
-   * Extract toxic labels from the Comprehend response
-   * @param toxicityResult - Result from Comprehend's toxic content detection
-   * @returns Array of toxic label names that exceed the threshold
-   */
   private getToxicLabels(toxicityResult: DetectToxicContentCommandOutput): string[] {
     const toxicLabels: string[] = [];
 
@@ -256,10 +193,6 @@ export class ComprehendFilterAgent extends Agent {
     return toxicLabels;
   }
 
-  /**
-   * Set the language code for Comprehend operations
-   * @param languageCode - The ISO 639-1 language code
-   */
   setLanguageCode(languageCode: LanguageCode): void {
     const validatedLanguageCode = this.validateLanguageCode(languageCode);
     if (validatedLanguageCode) {
@@ -269,18 +202,13 @@ export class ComprehendFilterAgent extends Agent {
     }
   }
 
-  /**
-   * Validate the provided language code
-   * @param languageCode - The language code to validate
-   * @returns The validated LanguageCode or undefined if invalid
-   */
   private validateLanguageCode(languageCode: LanguageCode | undefined): LanguageCode | undefined {
     if (!languageCode) return undefined;
-    
+
     const validLanguageCodes: LanguageCode[] = [
       'en', 'es', 'fr', 'de', 'it', 'pt', 'ar', 'hi', 'ja', 'ko', 'zh', 'zh-TW'
     ];
-    
+
     return validLanguageCodes.includes(languageCode) ? languageCode : undefined;
   }
 }

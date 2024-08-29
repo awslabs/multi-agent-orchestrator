@@ -70,14 +70,14 @@ export class BedrockTranslatorAgent extends Agent {
   }
 
   /**
- * Processes a user request by sending it to the Amazon Bedrock agent for processing.
- * @param inputText - The user input as a string.
- * @param userId - The ID of the user sending the request.
- * @param sessionId - The ID of the session associated with the conversation.
- * @param chatHistory - An array of Message objects representing the conversation history.
- * @param additionalParams - Optional additional parameters as key-value pairs.
- * @returns A Promise that resolves to a Message object containing the agent's response.
- */
+   * Processes a user request by sending it to the Amazon Bedrock agent for processing.
+   * @param inputText - The user input as a string.
+   * @param userId - The ID of the user sending the request.
+   * @param sessionId - The ID of the session associated with the conversation.
+   * @param chatHistory - An array of Message objects representing the conversation history.
+   * @param additionalParams - Optional additional parameters as key-value pairs.
+   * @returns A Promise that resolves to a Message object containing the agent's response.
+   */
   /* eslint-disable @typescript-eslint/no-unused-vars */
   async processRequest(
     inputText: string,
@@ -86,48 +86,48 @@ export class BedrockTranslatorAgent extends Agent {
     chatHistory: ConversationMessage[],
     additionalParams?: Record<string, string>
   ): Promise<ConversationMessage> {
-    // Check if input is a number
-    if (!isNaN(Number(inputText))) {
-      return {
-        role: ParticipantRole.ASSISTANT,
-        content: [{ text: inputText }],
+    try {
+      // Check if input is a number
+      if (!isNaN(Number(inputText))) {
+        return {
+          role: ParticipantRole.ASSISTANT,
+          content: [{ text: inputText }],
+        };
+      }
+
+      const userMessage: ConversationMessage = {
+        role: ParticipantRole.USER,
+        content: [{ text: `<userinput>${inputText}</userinput>` }],
       };
-    }
 
-    const userMessage: ConversationMessage = {
-      role: ParticipantRole.USER,
-      content: [{ text: `<userinput>${inputText}</userinput>` }],
-    };
+      let systemPrompt = `You are a translator. Translate the text within the <userinput> tags`;
+      if (this.sourceLanguage) {
+        systemPrompt += ` from ${this.sourceLanguage} to ${this.targetLanguage}`;
+      } else {
+        systemPrompt += ` to ${this.targetLanguage}`;
+      }
+      systemPrompt += `. Only provide the translation using the Translate tool.`;
 
-    let systemPrompt = `You are a translator. Translate the text within the <userinput> tags`;
-    if (this.sourceLanguage) {
-      systemPrompt += ` from ${this.sourceLanguage} to ${this.targetLanguage}`;
-    } else {
-      systemPrompt += ` to ${this.targetLanguage}`;
-    }
-    systemPrompt += `. Only provide the translation using the Translate tool.`;
-
-    const converseCmd = {
-      modelId: this.modelId,
-      messages: [userMessage],
-      system: [{ text: systemPrompt }],
-      toolConfig: {
-        tools: this.tools,
-        toolChoice: {
-          tool: {
-            name: "Translate",
+      const converseCmd = {
+        modelId: this.modelId,
+        messages: [userMessage],
+        system: [{ text: systemPrompt }],
+        toolConfig: {
+          tools: this.tools,
+          toolChoice: {
+            tool: {
+              name: "Translate",
+            },
           },
         },
-      },
-      inferenceConfiguration: {
-        maximumTokens: this.inferenceConfig.maxTokens,
-        temperature: this.inferenceConfig.temperature,
-        topP: this.inferenceConfig.topP,
-        stopSequences: this.inferenceConfig.stopSequences,
-      },
-    };
+        inferenceConfiguration: {
+          maximumTokens: this.inferenceConfig.maxTokens,
+          temperature: this.inferenceConfig.temperature,
+          topP: this.inferenceConfig.topP,
+          stopSequences: this.inferenceConfig.stopSequences,
+        },
+      };
 
-    try {
       const command = new ConverseCommand(converseCmd);
       const response = await this.client.send(command);
 
@@ -164,7 +164,7 @@ export class BedrockTranslatorAgent extends Agent {
       throw new Error("No valid tool use found in the response");
     } catch (error) {
       Logger.logger.error("Error processing translation request:", error);
-      throw error;
+      return this.createErrorResponse("An error occurred while processing your translation request.", error);
     }
   }
 

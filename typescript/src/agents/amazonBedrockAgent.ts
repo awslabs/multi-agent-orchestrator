@@ -8,19 +8,18 @@ import { Logger } from "../utils/logger";
  * Extends base AgentOptions with specific parameters required for Amazon Bedrock.
  */
 export interface AmazonBedrockAgentOptions extends AgentOptions {
-  agentId: string;        // The ID of the Amazon Bedrock agent.
-  agentAliasId: string;   // The alias ID of the Amazon Bedrock agent.
+  agentId: string; // The ID of the Amazon Bedrock agent.
+  agentAliasId: string; // The alias ID of the Amazon Bedrock agent.
 }
-
 
 /**
  * Represents an Amazon Bedrock agent that interacts with a runtime client.
  * Extends base Agent class and implements specific methods for Amazon Bedrock.
  */
 export class AmazonBedrockAgent extends Agent {
-  private agentId: string;                    // The ID of the Amazon Bedrock agent.
-  private agentAliasId: string;               // The alias ID of the Amazon Bedrock agent.
-  private client: BedrockAgentRuntimeClient;  // Client for interacting with the Bedrock agent runtime.
+  private agentId: string; // The ID of the Amazon Bedrock agent.
+  private agentAliasId: string; // The alias ID of the Amazon Bedrock agent.
+  private client: BedrockAgentRuntimeClient; // Client for interacting with the Bedrock agent runtime.
 
   /**
    * Constructs an instance of AmazonBedrockAgent with the specified options.
@@ -32,8 +31,8 @@ export class AmazonBedrockAgent extends Agent {
     this.agentId = options.agentId;
     this.agentAliasId = options.agentAliasId;
     this.client = options.region
-    ? new BedrockAgentRuntimeClient({ region: options.region })
-    : new BedrockAgentRuntimeClient();
+      ? new BedrockAgentRuntimeClient({ region: options.region })
+      : new BedrockAgentRuntimeClient();
   }
 
   /**
@@ -53,15 +52,15 @@ export class AmazonBedrockAgent extends Agent {
     chatHistory: ConversationMessage[],
     additionalParams?: Record<string, string>
   ): Promise<ConversationMessage> {
-    // Construct the command to invoke the Amazon Bedrock agent with user input
-    const command = new InvokeAgentCommand({
-      agentId: this.agentId,
-      agentAliasId: this.agentAliasId,
-      sessionId,
-      inputText
-    });
-
     try {
+      // Construct the command to invoke the Amazon Bedrock agent with user input
+      const command = new InvokeAgentCommand({
+        agentId: this.agentId,
+        agentAliasId: this.agentAliasId,
+        sessionId,
+        inputText
+      });
+
       let completion = "";
       const response = await this.client.send(command);
 
@@ -86,20 +85,10 @@ export class AmazonBedrockAgent extends Agent {
         role: ParticipantRole.ASSISTANT,
         content: [{ text: completion }],
       };
-    } catch (err) {
+    } catch (error) {
       // Handle errors encountered while invoking the Amazon Bedrock agent
-      Logger.logger.error(err);
-
-      // Return a default error message as a fallback response
-      return {
-        role: ParticipantRole.ASSISTANT,
-        content: [
-          {
-            text: "Sorry, I encountered an error while processing your request.",
-          },
-        ],
-      };
+      Logger.logger.error("Error in AmazonBedrockAgent.processRequest:", error);
+      return this.createErrorResponse("An error occurred while processing your request with the Amazon Bedrock agent.", error);
     }
   }
 }
-
