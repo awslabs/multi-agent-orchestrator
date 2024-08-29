@@ -66,6 +66,14 @@ The demo highlights the system's ability to handle complex, multi-turn conversat
 
 Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
 
+## 🌟 Use cases and implementations
+
+Discover creative implementations and diverse applications of the Multi-Agent Orchestrator:
+
+- **[From 'Bonjour' to 'Boarding Pass': Multilingual AI Chatbot for Flight Reservations](https://community.aws/content/2lCi8jEKydhDm8eE8QFIQ5K23pF/from-bonjour-to-boarding-pass-multilingual-ai-chatbot-for-flight-reservations)**
+
+  Create a global flight reservation chatbot in minutes! This article demonstrates how to build a multilingual chatbot using the Multi-Agent Orchestrator framework. Learn to effortlessly chain AI agents for instant language processing and booking across multiple languages, transforming complex, multi-step processes into a polyglot flight reservation system.
+
 ### TypeScript Version
 
 #### Installation
@@ -249,6 +257,12 @@ These examples showcase:
 2. Integration of a Lex Bot Agent for specialized tasks (in this case, travel-related queries).
 3. The orchestrator's ability to route requests to the most appropriate agent based on the input.
 4. Handling of both streaming and non-streaming responses from different types of agents.
+
+📚 Featured Articles
+We're excited to share contributions that showcase the power and flexibility of the Multi-Agent Orchestrator. Check out this featured article:
+
+From 'Bonjour' to 'Boarding Pass': Multilingual AI Chatbot for Flight Reservations
+Create a global flight reservation chatbot in minutes! This tutorial walks you through building a multilingual chatbot using the Multi-Agent Orchestrator framework. Learn to effortlessly chain AI agents for instant language processing and booking across multiple languages. Transform complex, multi-step processes into a polyglot flight reservation system.
 
 ## 🤝 Contributing
 
