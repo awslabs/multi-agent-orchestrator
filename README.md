@@ -72,7 +72,8 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 
 - **[From 'Bonjour' to 'Boarding Pass': Multilingual AI Chatbot for Flight Reservations](https://community.aws/content/2lCi8jEKydhDm8eE8QFIQ5K23pF/from-bonjour-to-boarding-pass-multilingual-ai-chatbot-for-flight-reservations)**
 
-  Create a global flight reservation chatbot in minutes! This article demonstrates how to build a multilingual chatbot using the Multi-Agent Orchestrator framework. Learn to effortlessly chain AI agents for instant language processing and booking across multiple languages, transforming complex, multi-step processes into a polyglot flight reservation system.
+  This article demonstrates how to build a multilingual chatbot using the Multi-Agent Orchestrator framework. The article explains how to use an **Amazon Lex** bot as an agent, along with 2 other new agents to make it work in many languages with just a few lines of code.
+
 
 ### TypeScript Version
 
