@@ -1,179 +1,89 @@
 ---
-title: AWS Lambda Python 
-description: How to deploy the Multi-Agent Orchestrator System to AWS Lambda using Python
+title: AWS Lambda Python with Multi-Agent Orchestrator
+description: How to set up the Multi-Agent Orchestrator System for AWS Lambda using Python
 ---
 
-> **Important**
-> 
->   The following code sample primarily demonstrates how to use the Multi-Agent Orchestrator framework within an AWS Lambda function. To ensure the code works correctly inside an AWS Lambda function and across different operating systems, please refer to the official AWS Lambda documentation. This sample is intended to illustrate the framework's usage rather than provide a complete, production-ready solution.
-
-
-
-
-This guide walks you through deploying the Multi-Agent Orchestrator System to AWS Lambda using Python. It includes support for both streaming and non-streaming responses, allowing you to run your multi-agent setup in a serverless environment.
+The Multi-Agent Orchestrator framework can be used inside an AWS Lambda function like any other library. This guide outlines the process of setting up the Multi-Agent Orchestrator System for use with AWS Lambda using Python.
 
 ## Prerequisites
 
 - AWS account with appropriate permissions
-- AWS CLI installed and configured
 - Python 3.12 or later installed
-- Basic familiarity with AWS Lambda, API Gateway, and Boto3
+- Basic familiarity with AWS Lambda and Python
 
-## Deployment Steps
+## Installation and Setup
 
-1. **Install Required Libraries**
-
-   Create a new directory for your project and navigate to it:
+1. **Create a New Project Directory**
 
    ```bash
    mkdir multi-agent-lambda && cd multi-agent-lambda
    ```
 
-   Create a virtual environment and activate it:
+2. **Create and Activate a Virtual Environment**
 
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
    ```
 
-   Install the required packages:
+3. **Install the Multi-Agent Orchestrator Framework**
 
    ```bash
    pip install multi-agent-orchestrator boto3
    ```
 
-   After installation, create a requirements.txt file:
+4. **Create Requirements File**
 
    ```bash
    pip freeze > requirements.txt
    ```
 
-2. **Prepare Your Code**
+## Lambda Function Structure
 
-   Create a new file, e.g., `lambda_function.py`, and add the following code:
+Create a new file named `lambda_function.py` in your project directory. Here's a high-level overview of what your Lambda function should include:
 
-   ```python
-   import json
-   from typing import Dict, Any
-   from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-   from multi_agent_orchestrator.agents import (
-       BedrockLLMAgent,
-       BedrockLLMAgentOptions
-   )
+```python
+import json
+from typing import Dict, Any
+from multi_agent_orchestrator import MultiAgentOrchestrator, OrchestratorConfig
+from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
 
-   # Initialize orchestrator
-   orchestrator = MultiAgentOrchestrator(OrchestratorConfig(
-       LOG_AGENT_CHAT=True,
-       LOG_CLASSIFIER_CHAT=True,
-       LOG_CLASSIFIER_RAW_OUTPUT=True,
-       LOG_CLASSIFIER_OUTPUT=True,
-       LOG_EXECUTION_TIMES=True
-   ))
+# Initialize orchestrator
+orchestrator = MultiAgentOrchestrator(OrchestratorConfig(
+    # Configuration options
+))
 
-   # Add agents
-   tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
-     name="Tech Agent",
-     streaming=True,
-     description="Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.",
-     model_id="anthropic.claude-3-sonnet-20240229-v1:0",
-     inference_config={
-         "temperature": 0.1
-     }
-   ))
+# Add agents
+tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+    # Agent configuration
+))
 
-   health_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
-     name="Health Agent",
-     description="Focuses on health and medical topics such as general wellness, nutrition, diseases, treatments, mental health, fitness, healthcare systems, and medical terminology or concepts."
-   ))
+orchestrator.add_agent(tech_agent)
 
-   orchestrator.add_agent(tech_agent)
-   orchestrator.add_agent(health_agent)
+async def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+    try:
+        user_input = event.get('query')
+        user_id = event.get('userId')
+        session_id = event.get('sessionId')
+        response = await orchestrator.route_request(user_input, user_id, session_id)
+        return response
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "Internal Server Error"})
+        }
+```
 
-   def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
-       # Parse the incoming event
-       body = json.loads(event.get('body', '{}'))
-       query = body.get('query')
-       user_id = body.get('userId')
-       session_id = body.get('sessionId')
+Customize the orchestrator configuration and agent setup according to your specific requirements.
 
-       # Route the request
-       response = orchestrator.route_request(query, user_id, session_id)
+## Deployment
 
-       # Format the response
-       formatted_response = {
-           "statusCode": 200,
-           "headers": {
-               "Content-Type": "application/json"
-           },
-           "body": json.dumps({
-               "metadata": response.metadata.__dict__,
-               "streaming": response.streaming
-           }),
-           "isBase64Encoded": False
-       }
+Use your preferred method to deploy the Lambda function (e.g., AWS CDK, Terraform, Serverless Framework, AWS SAM, or manual deployment through AWS Console).
 
-       if response.streaming:
-           # For streaming responses, collect all chunks
-           chunks = [chunk for chunk in response.output]
-           formatted_response["body"] = json.dumps({
-               "metadata": response.metadata.__dict__,
-               "chunks": chunks,
-               "streaming": True
-           })
-       else:
-           # For non-streaming responses, include the full output
-           formatted_response["body"] = json.dumps({
-               "metadata": response.metadata.__dict__,
-               "output": response.output.content,
-               "streaming": False
-           })
+## IAM Permissions
 
-       return formatted_response
-   ```
+Ensure your Lambda function's execution role has permissions to:
+- Invoke Amazon Bedrock models
+- Write to CloudWatch Logs
 
-3. **Package Your Code**
-
-   Create a deployment package by zipping your `lambda_function.py` file and the `site-packages` directory from your virtual environment:
-
-   ```bash
-   pip install --target ./package multi-agent-orchestrator boto3
-   cd package
-   zip -r ../deployment-package.zip .
-   cd ..
-   zip -g deployment-package.zip lambda_function.py
-   ```
-
-4. **Deploy Your Code**
-
-   Upload the `deployment-package.zip` file to your Lambda function using the AWS Management Console or AWS CLI.
-
-5. **Configure IAM Permissions**
-
-   Ensure your Lambda function's execution role has permissions to:
-   - Invoke Amazon Bedrock models
-   - Write to CloudWatch Logs
-
-6. **Configure Lambda Function**
-
-   - Set the runtime to Python 3.12 or later.
-   - Set the handler to `lambda_function.lambda_handler`.
-
-7. **Test Your Deployment**
-
-   Use the AWS CLI to invoke your Lambda function:
-
-   ```bash
-   aws lambda invoke --function-name your-function-name --payload '{"body": "{\"query\": \"What is artificial intelligence?\", \"userId\": \"user123\", \"sessionId\": \"session456\"}"}' output.json
-   ```
-
-   Check the `output.json` file for the response.
-
-
-## Considerations
-
-- Be aware of Lambda execution time limits for long-running conversations.
-- Monitor your Lambda function's performance and adjust the timeout and memory settings as needed.
-- Consider implementing error handling and retry logic in your client application.
-- For true real-time streaming, you may need to use API Gateway with WebSocket support. The current implementation collects all chunks before sending the response.
-
-By following these steps, you'll have your Multi-Agent Orchestrator System running in AWS Lambda using Python, ready to handle both streaming and non-streaming responses in a serverless architecture.
