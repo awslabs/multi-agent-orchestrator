@@ -81,65 +81,68 @@ class BedrockLLMAgent(Agent):
         chat_history: List[ConversationMessage],
         additional_params: Optional[Dict[str, str]] = None
     ) -> Union[ConversationMessage, AsyncIterable[Any]]:
-        
-        user_message =ConversationMessage(
-            role=ParticipantRole.USER.value,
-            content=[{'text': input_text}]
-        )
+        try:
+            user_message = ConversationMessage(
+                role=ParticipantRole.USER.value,
+                content=[{'text': input_text}]
+            )
 
-        conversation = [*chat_history, user_message]
+            conversation = [*chat_history, user_message]
 
-        self.update_system_prompt()
+            self.update_system_prompt()
 
-        system_prompt = self.system_prompt
+            system_prompt = self.system_prompt
 
-        if self.retriever:
-            response = await self.retriever.retrieve_and_combine_results(input_text)
-            context_prompt = "\nHere is the context to use to answer the user's question:\n" + response
-            system_prompt += context_prompt
+            if self.retriever:
+                response = await self.retriever.retrieve_and_combine_results(input_text)
+                context_prompt = "\nHere is the context to use to answer the user's question:\n" + response
+                system_prompt += context_prompt
 
-        converse_cmd = {
-            'modelId': self.model_id,
-            'messages': conversation_to_dict(conversation),
-            'system': [{'text': system_prompt}],
-            'inferenceConfig': {
-                'maxTokens': self.inference_config.get('maxTokens'),
-                'temperature': self.inference_config.get('temperature'),
-                'topP': self.inference_config.get('topP'),
-                'stopSequences': self.inference_config.get('stopSequences'),
+            converse_cmd = {
+                'modelId': self.model_id,
+                'messages': conversation_to_dict(conversation),
+                'system': [{'text': system_prompt}],
+                'inferenceConfig': {
+                    'maxTokens': self.inference_config.get('maxTokens'),
+                    'temperature': self.inference_config.get('temperature'),
+                    'topP': self.inference_config.get('topP'),
+                    'stopSequences': self.inference_config.get('stopSequences'),
+                }
             }
-        }
 
-        if self.guardrail_config:
-            converse_cmd["guardrailConfig"] = self.guardrail_config
+            if self.guardrail_config:
+                converse_cmd["guardrailConfig"] = self.guardrail_config
 
-        if self.tool_config:
-            converse_cmd["toolConfig"] = self.tool_config["tool"]
+            if self.tool_config:
+                converse_cmd["toolConfig"] = self.tool_config["tool"]
 
-        if self.tool_config:
-            continue_with_tools = True
-            final_message: ConversationMessage = {'role': ParticipantRole.USER.value, 'content': []}
-            max_recursions = self.tool_config.get('toolMaxRecursions', self.default_max_recursions)
+            if self.tool_config:
+                continue_with_tools = True
+                final_message: ConversationMessage = {'role': ParticipantRole.USER.value, 'content': []}
+                max_recursions = self.tool_config.get('toolMaxRecursions', self.default_max_recursions)
 
-            while continue_with_tools and max_recursions > 0:
-                bedrock_response = await self.handle_single_response(converse_cmd)
-                conversation.append(bedrock_response)
+                while continue_with_tools and max_recursions > 0:
+                    bedrock_response = await self.handle_single_response(converse_cmd)
+                    conversation.append(bedrock_response)
 
-                if any('toolUse' in content for content in bedrock_response.content):
-                    await self.tool_config['useToolHandler'](bedrock_response, conversation)
-                else:
-                    continue_with_tools = False
-                    final_message = bedrock_response
+                    if any('toolUse' in content for content in bedrock_response.content):
+                        await self.tool_config['useToolHandler'](bedrock_response, conversation)
+                    else:
+                        continue_with_tools = False
+                        final_message = bedrock_response
 
-                max_recursions -= 1
-                converse_cmd['messages'] = conversation
+                    max_recursions -= 1
+                    converse_cmd['messages'] = conversation
 
-            return final_message
+                return final_message
 
-        if self.streaming:
-            return await self.handle_streaming_response(converse_cmd)
+            if self.streaming:
+                return await self.handle_streaming_response(converse_cmd)
 
-        return await self.handle_single_response(converse_cmd)
+            return await self.handle_single_response(converse_cmd)
+        except Exception as error:
+            Logger.error("Error in BedrockLLMAgent.process_request:", error)
+            return self.createErrorResponse("An error occurred while processing your request.", error)
 
     async def handle_single_response(self, converse_input: Dict[str, Any]) -> ConversationMessage:
         try:
@@ -152,7 +155,7 @@ class BedrockLLMAgent(Agent):
             )
         except Exception as error:
             Logger.error("Error invoking Bedrock model:", error)
-            raise
+            return self.createErrorResponse("An error occurred while processing your request with the Bedrock model.", error)
 
     async def handle_streaming_response(self, converse_input: Dict[str, Any]) -> ConversationMessage:
         try:
@@ -168,7 +171,7 @@ class BedrockLLMAgent(Agent):
                                        )
         except Exception as error:
             Logger.error("Error getting stream from Bedrock model:", error)
-            raise
+            return self.createErrorResponse("An error occurred while streaming the response from the Bedrock model.", error)
 
     def set_system_prompt(self,
                           template: Optional[str] = None,

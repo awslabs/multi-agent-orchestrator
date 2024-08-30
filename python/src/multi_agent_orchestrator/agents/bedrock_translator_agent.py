@@ -20,7 +20,7 @@ class BedrockTranslatorAgent(Agent):
         self.target_language = options.target_language or 'English'
         self.model_id = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_HAIKU
         self.client = boto3.client('bedrock-runtime', region_name=options.region)
-        
+
         # Default inference configuration
         self.inference_config: Dict[str, Any] = options.inference_config or {
             'maxTokens': 1000,
@@ -55,44 +55,44 @@ class BedrockTranslatorAgent(Agent):
                               session_id: str,
                               chat_history: List[ConversationMessage],
                               additional_params: Optional[Dict[str, str]] = None) -> ConversationMessage:
-        # Check if input is a number and return it as-is if true
-        if input_text.isdigit():
-            return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
-                content=[{"text": input_text}]
+        try:
+            # Check if input is a number and return it as-is if true
+            if input_text.isdigit():
+                return ConversationMessage(
+                    role=ParticipantRole.ASSISTANT,
+                    content=[{"text": input_text}]
+                )
+
+            # Prepare user message
+            user_message = ConversationMessage(
+                role=ParticipantRole.USER,
+                content=[{"text": f"<userinput>{input_text}</userinput>"}]
             )
 
-        # Prepare user message
-        user_message = ConversationMessage(
-            role=ParticipantRole.USER,
-            content=[{"text": f"<userinput>{input_text}</userinput>"}]
-        )
+            # Construct system prompt
+            system_prompt = "You are a translator. Translate the text within the <userinput> tags"
+            if self.source_language:
+                system_prompt += f" from {self.source_language} to {self.target_language}"
+            else:
+                system_prompt += f" to {self.target_language}"
+            system_prompt += ". Only provide the translation using the Translate tool."
 
-        # Construct system prompt
-        system_prompt = "You are a translator. Translate the text within the <userinput> tags"
-        if self.source_language:
-            system_prompt += f" from {self.source_language} to {self.target_language}"
-        else:
-            system_prompt += f" to {self.target_language}"
-        system_prompt += ". Only provide the translation using the Translate tool."
-
-        # Prepare the converse command for Bedrock
-        converse_cmd = {
-            "modelId": self.model_id,
-            "messages": [conversation_to_dict(user_message)],
-            "system": [{"text": system_prompt}],
-            "toolConfig": {
-                "tools": self.tools,
-                "toolChoice": {
-                    "tool": {
-                        "name": "Translate",
+            # Prepare the converse command for Bedrock
+            converse_cmd = {
+                "modelId": self.model_id,
+                "messages": [conversation_to_dict(user_message)],
+                "system": [{"text": system_prompt}],
+                "toolConfig": {
+                    "tools": self.tools,
+                    "toolChoice": {
+                        "tool": {
+                            "name": "Translate",
+                        },
                     },
-                },
-            },            
-            'inferenceConfig': self.inference_config
-        }
+                },            
+                'inferenceConfig': self.inference_config
+            }
 
-        try:
             # Send request to Bedrock
             response = self.client.converse(**converse_cmd)
 
@@ -124,7 +124,7 @@ class BedrockTranslatorAgent(Agent):
             raise ValueError("No valid tool use found in the response")
         except Exception as error:
             Logger.error("Error processing translation request:", error)
-            raise
+            return self.createErrorResponse("An error occurred while processing your translation request.", error)
 
     def set_source_language(self, language: Optional[str]):
         """Set the source language for translation"""

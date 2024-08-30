@@ -24,13 +24,12 @@ class LexBotAgent(Agent):
         self.bot_id = options.bot_id
         self.bot_alias_id = options.bot_alias_id
         self.locale_id = options.locale_id
-
         if not all([self.bot_id, self.bot_alias_id, self.locale_id]):
             raise ValueError("bot_id, bot_alias_id, and locale_id are required for LexBotAgent")
 
     async def process_request(self, input_text: str, user_id: str, session_id: str,
-                        chat_history: List[ConversationMessage],
-                        additional_params: Optional[Dict[str, str]] = None) -> ConversationMessage:
+                              chat_history: List[ConversationMessage],
+                              additional_params: Optional[Dict[str, str]] = None) -> ConversationMessage:
         try:
             params = {
                 'botId': self.bot_id,
@@ -40,20 +39,15 @@ class LexBotAgent(Agent):
                 'text': input_text,
                 'sessionState': {}  # You might want to maintain session state if needed
             }
-
             response = self.lex_client.recognize_text(**params)
-
             concatenated_content = ' '.join(
                 message.get('content', '') for message in response.get('messages', [])
                 if message.get('content')
             )
-
             return ConversationMessage(
                 role=ParticipantRole.ASSISTANT,
                 content=[{"text": concatenated_content or "No response from Lex bot."}]
             )
-
         except (BotoCoreError, ClientError) as error:
             Logger.error(f"Error processing request: {error}")
-            raise
-
+            return self.createErrorResponse("An error occurred while processing your request in the LexBotAgent.", error)

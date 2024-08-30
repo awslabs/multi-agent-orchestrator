@@ -9,25 +9,21 @@ from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils import Logger
 
-
 @dataclass
 class AmazonBedrockAgentOptions(AgentOptions):
     """Options for Amazon Bedrock Agent."""
     agent_id: str = None
     agent_alias_id: str = None
 
-
 class AmazonBedrockAgent(Agent):
     """
     Represents an Amazon Bedrock agent that interacts with a runtime client.
     Extends base Agent class and implements specific methods for Amazon Bedrock.
     """
-
     def __init__(self, options: AmazonBedrockAgentOptions):
         """
         Constructs an instance of AmazonBedrockAgent with the specified options.
         Initializes the agent ID, agent alias ID, and creates a new Bedrock agent runtime client.
-
         :param options: Options to configure the Amazon Bedrock agent.
         """
         super().__init__(options)
@@ -46,12 +42,11 @@ class AmazonBedrockAgent(Agent):
     ) -> ConversationMessage:
         """
         Processes a user request by sending it to the Amazon Bedrock agent for processing.
-
         :param input_text: The user input as a string.
         :param user_id: The ID of the user sending the request.
         :param session_id: The ID of the session associated with the conversation.
         :param chat_history: A list of ConversationMessage objects representing
-        the conversation history.
+                             the conversation history.
         :param additional_params: Optional additional parameters as key-value pairs.
         :return: A ConversationMessage object containing the agent's response.
         """
@@ -62,7 +57,6 @@ class AmazonBedrockAgent(Agent):
                 sessionId=session_id,
                 inputText=input_text
             )
-
             completion = ""
             for event in response['completion']:
                 if 'chunk' in event:
@@ -71,15 +65,10 @@ class AmazonBedrockAgent(Agent):
                     completion += decoded_response
                 else:
                     Logger.warn("Received a chunk event with no chunk data")
-
             return ConversationMessage(
                 role=ParticipantRole.ASSISTANT,
                 content=[{"text": completion}]
             )
-
         except (BotoCoreError, ClientError) as error:
             Logger.error(f"Error processing request: {error}")
-            return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
-                content=[{"text": "Sorry, I encountered an error while processing your request."}]
-            )
+            return self.createErrorResponse("An error occurred while processing your request.", error)
