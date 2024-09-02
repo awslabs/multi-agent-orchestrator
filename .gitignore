@@ -22,6 +22,9 @@ typescript/*.tgz
 *aws-exports.json
 !download.js
 
+docs/*.py
+docs/code_execution_env
+
 examples/local-demo/.env
 typescript/coverage/**/*
 

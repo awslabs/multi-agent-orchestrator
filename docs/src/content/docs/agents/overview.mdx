@@ -41,11 +41,71 @@ The `Agent` class is an abstract base class that defines the essential propertie
 - `save_chat`: A boolean indicating whether to save the chat history for this agent.
 - `callbacks`: An optional `AgentCallbacks` object for handling events like new tokens in streaming responses.
 
+Here's an example of the `Agent` abstract class structure:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs>
+  <TabItem label="TypeScript">
+    ```typescript
+    import { AgentOptions, Message } from './types';
+
+    abstract class Agent {
+      readonly name: string;
+      readonly id: string;
+      readonly description: string;
+      readonly saveChat: boolean;
+      readonly callbacks?: AgentCallbacks;
+
+      constructor(options: AgentOptions) {
+        this.name = options.name;
+        this.id = options.name.toLowerCase().replace(/\s+/g, '-');
+        this.description = options.description;
+        this.saveChat = options.saveChat ?? true;
+        this.callbacks = options.callbacks;
+      }
+
+      abstract processRequest(
+        inputText: string,
+        userId: string,
+        sessionId: string,
+        chatHistory: Message[],
+        additionalParams?: Record<string, any>
+      ): Promise<Message | AsyncIterable<any>>;
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    from abc import ABC, abstractmethod
+    from typing import List, Dict, Union, AsyncIterable, Optional
+    from .types import AgentOptions, Message, AgentCallbacks
+
+    class Agent(ABC):
+        def __init__(self, options: AgentOptions):
+            self.name: str = options.name
+            self.id: str = options.name.lower().replace(' ', '-')
+            self.description: str = options.description
+            self.save_chat: bool = options.save_chat if options.save_chat is not None else True
+            self.callbacks: Optional[AgentCallbacks] = options.callbacks
+
+        @abstractmethod
+        async def process_request(
+            self,
+            input_text: str,
+            user_id: str,
+            session_id: str,
+            chat_history: List[Message],
+            additional_params: Optional[Dict[str, any]] = None
+        ) -> Union[Message, AsyncIterable[any]]:
+            pass
+    ```
+  </TabItem>
+</Tabs>
+
 ### Abstract Method: process_request
 
 The core functionality of any agent is encapsulated in the `process_request` method. This method must be implemented by all concrete agent classes:
-
-import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -153,8 +213,8 @@ Example usage:
 
 When creating a new agent, you can specify various options using the `AgentOptions` class:
 
-<Tabs syncKey="runtime">
-  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+<Tabs>
+  <TabItem label="TypeScript">
     ```typescript
     interface AgentOptions {
       name: string;
@@ -166,18 +226,158 @@ When creating a new agent, you can specify various options using the `AgentOptio
     }
     ```
   </TabItem>
-  <TabItem label="Python" icon="seti:python">
+  <TabItem label="Python">
     ```python
+    from typing import Optional
+    from dataclasses import dataclass
+    from .types import AgentCallbacks
+
     @dataclass
     class AgentOptions:
         name: str
         description: str
         model_id: Optional[str] = None
         region: Optional[str] = None
-        save_chat: bool = True
+        save_chat: Optional[bool] = None
         callbacks: Optional[AgentCallbacks] = None
     ```
   </TabItem>
 </Tabs>
 
 These options allow you to customize various aspects of the agent's behavior and configuration.
+
+### Message Type
+
+The `Message` type is used in the `processRequest` method and represents the structure of messages in the conversation:
+
+<Tabs>
+  <TabItem label="TypeScript">
+    ```typescript
+    type Message = {
+      role: 'user' | 'assistant' | 'system';
+      content: Array<{ text: string }>;
+    };
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    from typing import List, TypedDict
+    from enum import Enum
+
+    class Role(Enum):
+        USER = 'user'
+        ASSISTANT = 'assistant'
+        SYSTEM = 'system'
+
+    class Content(TypedDict):
+        text: str
+
+    class Message(TypedDict):
+        role: Role
+        content: List[Content]
+    ```
+  </TabItem>
+</Tabs>
+
+### Using Additional Parameters
+
+Agents can accept additional parameters to customize their behavior. Here's an example of a weather agent that uses additional parameters:
+
+<Tabs>
+  <TabItem label="TypeScript">
+    ```typescript
+    class WeatherAgent extends Agent {
+      async processRequest(
+        inputText: string,
+        userId: string,
+        sessionId: string,
+        chatHistory: Message[],
+        additionalParams?: Record<string, any>
+      ): Promise<Message> {
+        const location = additionalParams?.location || 'default location';
+        const units = additionalParams?.units || 'metric';
+        
+        // Simulated weather API call
+        const weather = await this.getWeather(location, units);
+        
+        return {
+          role: 'assistant',
+          content: [{ text: `The weather in ${location} is ${weather.description}. Temperature: ${weather.temperature}°${units === 'metric' ? 'C' : 'F'}` }]
+        };
+      }
+
+      private async getWeather(location: string, units: string) {
+        // Simulated API call
+        return { description: 'sunny', temperature: 25 };
+      }
+    }
+
+    // Usage
+    const weatherAgent = new WeatherAgent({
+      name: 'Weather Agent',
+      description: 'An agent that provides weather information'
+    });
+
+    const orchestrator = new Orchestrator();
+    orchestrator.addAgent(weatherAgent);
+
+    const response = await orchestrator.routeRequest(
+      'What\'s the weather like?',
+      'user123',
+      'session456',
+      { location: 'New York', units: 'metric' }
+    );
+    console.log(response);
+    ```
+  </TabItem>
+  <TabItem label="Python">
+    ```python
+    from typing import Dict, Any, Optional
+    from .agent import Agent
+    from .types import Message, Role
+
+    class WeatherAgent(Agent):
+        async def process_request(
+            self,
+            input_text: str,
+            user_id: str,
+            session_id: str,
+            chat_history: List[Message],
+            additional_params: Optional[Dict[str, Any]] = None
+        ) -> Message:
+            location = additional_params.get('location', 'default location')
+            units = additional_params.get('units', 'metric')
+            
+            # Simulated weather API call
+            weather = await self.get_weather(location, units)
+            
+            return {
+                'role': Role.ASSISTANT,
+                'content': [{'text': f"The weather in {location} is {weather['description']}. Temperature: {weather['temperature']}°{'C' if units == 'metric' else 'F'}"}]
+            }
+
+        async def get_weather(self, location: str, units: str) -> Dict[str, Any]:
+            # Simulated API call
+            return {'description': 'sunny', 'temperature': 25}
+
+    # Usage
+    weather_agent = WeatherAgent(AgentOptions(
+        name='Weather Agent',
+        description='An agent that provides weather information'
+    ))
+
+    orchestrator = Orchestrator()
+    orchestrator.add_agent(weather_agent)
+
+    response = await orchestrator.route_request(
+        'What\'s the weather like?',
+        'user123',
+        'session456',
+        additional_params={'location': 'New York', 'units': 'metric'}
+    )
+    print(response)
+    ```
+  </TabItem>
+</Tabs>
+
+This example demonstrates how to create a custom agent that accepts additional parameters to customize its behavior.
