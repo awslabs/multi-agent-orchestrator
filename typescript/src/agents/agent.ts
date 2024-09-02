@@ -1,5 +1,7 @@
-import { ConversationMessage } from "../types";
 import { AccumulatorTransform } from "../utils/helpers";
+import { Logger } from "../utils/logger";
+import { ConversationMessage, ParticipantRole } from "../types";
+
 
 export interface AgentProcessingResult {
   // The original input provided by the user
@@ -116,5 +118,19 @@ abstract processRequest(
   chatHistory: ConversationMessage[],
   additionalParams?: Record<string, string>
 ): Promise<ConversationMessage | AsyncIterable<any>>;
+
+protected createErrorResponse(message: string, error?: unknown): ConversationMessage {
+  let errorMessage = `Sorry, I encountered an error while processing your request.`;
+  if (error instanceof Error) {
+    errorMessage += ` Error details: ${error.message}`;
+  } else {
+    errorMessage += ` ${message}`;
+  }
+  Logger.logger.error(`${this.name} Error:`, errorMessage);
+  return {
+    role: ParticipantRole.ASSISTANT,
+    content: [{ text: errorMessage }],
+  };
+}
 
 }

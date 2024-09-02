@@ -12,6 +12,7 @@ The `BedrockTranslatorAgent` uses Amazon Bedrock's language models to translate 
 - Allows dynamic setting of source and target languages
 - Can be used standalone or as part of a [ChainAgent](/multi-agent-orchestrator/agents/built-in/chain-agent)
 - Configurable inference parameters for fine-tuned control
+- Supports both streaming and non-streaming responses
 
 ## Creating a Bedrock Translator Agent
 
@@ -29,7 +30,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     const agent = new BedrockTranslatorAgent({
       name: 'BasicTranslator',
       description: 'Translates text to English',
-      targetLanguage: 'English'
+      targetLanguage: 'English',
+      streaming: false // Set to true for streaming responses
     });
     ```
   </TabItem>
@@ -40,7 +42,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     agent = BedrockTranslatorAgent(BedrockTranslatorAgentOptions(
         name='BasicTranslator',
         description='Translates text to English',
-        target_language='English'
+        target_language='English',
+        streaming=False  # Set to True for streaming responses
     ))
     ```
   </TabItem>
@@ -62,6 +65,7 @@ For more complex use cases, you can create a BedrockTranslatorAgent with custom 
       targetLanguage: 'German',
       modelId: BEDROCK_MODEL_ID_CLAUDE_3_SONNET,
       region: 'us-west-2',
+      streaming: true, // Enable streaming responses
       inferenceConfig: {
         maxTokens: 2000,
         temperature: 0.1,
@@ -85,6 +89,7 @@ For more complex use cases, you can create a BedrockTranslatorAgent with custom 
         target_language='German',
         model_id=BEDROCK_MODEL_ID_CLAUDE_3_SONNET,
         region='us-west-2',
+        streaming=True,  # Enable streaming responses
         inference_config={
             'maxTokens': 2000,
             'temperature': 0.1,
@@ -94,6 +99,56 @@ For more complex use cases, you can create a BedrockTranslatorAgent with custom 
     )
 
     agent = BedrockTranslatorAgent(options)
+    ```
+  </TabItem>
+</Tabs>
+
+## Streaming Responses
+
+The `streaming` parameter allows you to choose between receiving the entire translation at once or as a stream of partial responses. When set to `true`, the agent will return an asynchronous iterable of string chunks, which can be useful for real-time display of translations or processing very large texts.
+
+### Example of using streaming responses:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { BedrockTranslatorAgent, BedrockTranslatorAgentOptions } from 'multi-agent-orchestrator';
+
+    const agent = new BedrockTranslatorAgent({
+      name: 'StreamingTranslator',
+      description: 'Translates text with streaming responses',
+      targetLanguage: 'French',
+      streaming: true
+    });
+
+    async function translateWithStreaming(text: string) {
+      const response = await agent.processRequest(text, 'user123', 'session456');
+      for await (const chunk of response) {
+        console.log('Partial translation:', chunk);
+      }
+    }
+
+    translateWithStreaming("Hello, world!");
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import BedrockTranslatorAgent, BedrockTranslatorAgentOptions
+
+    agent = BedrockTranslatorAgent(BedrockTranslatorAgentOptions(
+        name='StreamingTranslator',
+        description='Translates text with streaming responses',
+        target_language='French',
+        streaming=True
+    ))
+
+    async def translate_with_streaming(text: str):
+        response = await agent.process_request(text, 'user123', 'session456')
+        async for chunk in response:
+            print('Partial translation:', chunk)
+
+    import asyncio
+    asyncio.run(translate_with_streaming("Hello, world!"))
     ```
   </TabItem>
 </Tabs>
@@ -109,7 +164,8 @@ To set the language during the invocation:
 
     const translator = new BedrockTranslatorAgent({
       name: 'DynamicTranslator',
-      description: 'Translator with dynamically set languages'
+      description: 'Translator with dynamically set languages',
+      streaming: false // Set to true if you want streaming responses
     });
 
     const orchestrator = new MultiAgentOrchestrator();
@@ -140,7 +196,8 @@ To set the language during the invocation:
 
     translator = BedrockTranslatorAgent(BedrockTranslatorAgentOptions(
         name='DynamicTranslator',
-        description='Translator with dynamically set languages'
+        description='Translator with dynamically set languages',
+        streaming=False  # Set to True if you want streaming responses
     ))
 
     orchestrator = MultiAgentOrchestrator()
@@ -180,7 +237,8 @@ The `BedrockTranslatorAgent` can be effectively used within a `ChainAgent` for c
     const translatorToEnglish = new BedrockTranslatorAgent({
       name: 'TranslatorToEnglish',
       description: 'Translates input to English',
-      targetLanguage: 'English'
+      targetLanguage: 'English',
+      streaming: false // Set to true for streaming responses
     });
 
     // Create a processing agent (e.g., a BedrockLLMAgent)
@@ -226,7 +284,8 @@ The `BedrockTranslatorAgent` can be effectively used within a `ChainAgent` for c
     translator_to_english = BedrockTranslatorAgent(BedrockTranslatorAgentOptions(
         name='TranslatorToEnglish',
         description='Translates input to English',
-        target_language='English'
+        target_language='English',
+        streaming=False  # Set to True for streaming responses
     ))
 
     # Create a processing agent (e.g., a BedrockLLMAgent)
@@ -273,4 +332,4 @@ This setup allows for seamless multilingual processing, where the core logic can
 
 ---
 
-By leveraging the `BedrockTranslatorAgent`, you can create sophisticated multilingual applications and workflows, enabling seamless communication and processing across language barriers in your Multi-Agent Orchestrator system.
+By leveraging the `BedrockTranslatorAgent`, you can create sophisticated multilingual applications and workflows, enabling seamless communication and processing across language barriers in your Multi-Agent Orchestrator system. The streaming capability allows for real-time translation of large texts or integration into applications that require immediate feedback.

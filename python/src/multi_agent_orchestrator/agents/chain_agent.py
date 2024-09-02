@@ -27,7 +27,6 @@ class ChainAgent(Agent):
     ) -> Union[ConversationMessage, AsyncIterable[any]]:
         current_input = input_text
         final_response: Union[ConversationMessage, AsyncIterable[any]]
-
         for i, agent in enumerate(self.agents):
             is_last_agent = i == len(self.agents) - 1
             try:
@@ -56,16 +55,13 @@ class ChainAgent(Agent):
                 else:
                     Logger.logger.warning(f"Agent {agent.name} returned an invalid response type.")
                     return self.create_default_response()
-
                 # If it's not the last agent, ensure we have a non-streaming response to pass to the next agent
                 if not is_last_agent and not self.is_conversation_message(final_response):
                     Logger.logger.error(f"Expected non-streaming response from intermediate agent {agent.name}")
                     return self.create_default_response()
-
             except Exception as error:
                 Logger.logger.error(f"Error processing request with agent {agent.name}:", error)
-                return self.create_default_response()
-
+                return self.createErrorResponse(f"An error occurred while processing your request with agent {agent.name}.", error)
         return final_response
 
     @staticmethod
