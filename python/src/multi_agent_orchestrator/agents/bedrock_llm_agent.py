@@ -132,7 +132,7 @@ class BedrockLLMAgent(Agent):
                     final_message = bedrock_response
 
                 max_recursions -= 1
-                converse_cmd['messages'] = conversation
+                converse_cmd['messages'] = conversation_to_dict(conversation)
 
             return final_message
 
