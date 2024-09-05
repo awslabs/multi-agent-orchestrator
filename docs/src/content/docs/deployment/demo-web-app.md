@@ -16,7 +16,7 @@ In the screen recording below, we demonstrate an extended version of the demo ap
 - **Health Agent**: A Bedrock LLM Agent focused on addressing health-related queries
 
 Watch as the system seamlessly switches context between diverse topics, from booking flights to checking weather, solving math problems, and providing health information.
-Notice how the appropriate agent is selected for each query, maintaining coherence even with brief follow-up inputs. 
+Notice how the appropriate agent is selected for each query, maintaining coherence even with brief follow-up inputs.
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
@@ -38,7 +38,7 @@ Follow these steps to deploy the demo chat web application:
 
 1. **Clone the Repository** (if you haven't already):
    ```
-   git clone https://github.com/your-repo/multi-agent-orchestrator.git
+   git clone https://github.com/awslabs/multi-agent-orchestrator.git
    cd multi-agent-orchestrator
    ```
 
@@ -80,7 +80,7 @@ Follow these steps to deploy the demo chat web application:
    CDK will show you a summary of the changes and ask for confirmation. Type 'y' and press Enter to proceed.
 
 8. **Note the Outputs**:
-   After deployment, CDK will display outputs including the URL of your deployed web app and the user pool ID. 
+   After deployment, CDK will display outputs including the URL of your deployed web app and the user pool ID.
    Save the URL and the user pool Id.
 
 9. **Create a user in Amazon Cognito user pool**:
