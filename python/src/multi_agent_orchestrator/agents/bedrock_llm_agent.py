@@ -81,8 +81,8 @@ class BedrockLLMAgent(Agent):
         chat_history: List[ConversationMessage],
         additional_params: Optional[Dict[str, str]] = None
     ) -> Union[ConversationMessage, AsyncIterable[Any]]:
-        
-        user_message =ConversationMessage(
+
+        user_message = ConversationMessage(
             role=ParticipantRole.USER.value,
             content=[{'text': input_text}]
         )
@@ -114,7 +114,7 @@ class BedrockLLMAgent(Agent):
             converse_cmd["guardrailConfig"] = self.guardrail_config
 
         if self.tool_config:
-            converse_cmd["toolConfig"] = self.tool_config["tool"]
+            converse_cmd["toolConfig"] = {'tools': self.tool_config["tool"]}
 
         if self.tool_config:
             continue_with_tools = True
@@ -132,7 +132,7 @@ class BedrockLLMAgent(Agent):
                     final_message = bedrock_response
 
                 max_recursions -= 1
-                converse_cmd['messages'] = conversation
+                converse_cmd['messages'] = conversation_to_dict(conversation)
 
             return final_message
 

@@ -5,6 +5,8 @@ from typing import Optional, List, Dict, Any
 import json
 import sys
 
+from tools import weather_tool
+
 from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
 from multi_agent_orchestrator.agents import (BedrockLLMAgent,
                         BedrockLLMAgentOptions,
@@ -73,6 +75,20 @@ if __name__ == "__main__":
         callbacks=BedrockLLMAgentCallbacks()
     ))
     orchestrator.add_agent(tech_agent)
+
+    # Add some agents
+    weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Weather Agent",
+        streaming=False,
+        description="Specialized agent for giving weather condition from a city.",
+        tool_config={
+            'tool':weather_tool.weather_tool_description,
+            'toolMaxRecursions': 5,
+            'useToolHandler': weather_tool.weather_tool_handler
+        }
+    ))
+    weather_agent.set_system_prompt(weather_tool.weather_tool_prompt)
+    orchestrator.add_agent(weather_agent)
 
     USER_ID = "user123"
     SESSION_ID = str(uuid.uuid4())
