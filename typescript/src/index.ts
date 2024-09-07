@@ -5,6 +5,9 @@ export { LexBotAgent, LexBotAgentOptions } from './agents/lexBotAgent';
 export { OpenAIAgent, OpenAIAgentOptions } from './agents/openAIAgent';
 export { Agent, AgentOptions } from './agents/agent';
 export { Classifier, ClassifierResult } from './classifiers/classifier';
+export { ChainAgent, ChainAgentOptions } from './agents/chainAgent';
+
+export { AgentResponse } from './agents/agent';
 
 export { BedrockClassifier, BedrockClassifierOptions } from './classifiers/bedrockClassifier';
 export { AnthropicClassifier, AnthropicClassifierOptions } from './classifiers/anthropicClassifier';
