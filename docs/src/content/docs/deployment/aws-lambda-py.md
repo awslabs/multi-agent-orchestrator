@@ -44,9 +44,10 @@ Create a new file named `lambda_function.py` in your project directory. Here's a
 
 ```python
 import json
+import asyncio
 from typing import Dict, Any
-from multi_agent_orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
+from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentResponse
 
 # Initialize orchestrator
 orchestrator = MultiAgentOrchestrator(OrchestratorConfig(
@@ -60,13 +61,34 @@ tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
 
 orchestrator.add_agent(tech_agent)
 
-async def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+def serialize_agent_response(response: AgentResponse) -> Dict[str, Any]:
+    """Convert AgentResponse into a JSON-serializable dictionary."""
+    return {
+        "metadata": {
+            "agent_id": response.metadata.agent_id,
+            "agent_name": response.metadata.agent_name,
+            "user_input": response.metadata.user_input,
+            "session_id": response.metadata.session_id,
+        },
+        "output": response.output,
+        "streaming": response.streaming,
+    }
+
+def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         user_input = event.get('query')
         user_id = event.get('userId')
         session_id = event.get('sessionId')
-        response = await orchestrator.route_request(user_input, user_id, session_id)
-        return response
+        response:AgentResponse = asyncio.run(orchestrator.route_request(user_input, user_id, session_id))
+
+        # Serialize the AgentResponse to a JSON-compatible format
+        serialized_response = serialize_agent_response(response)
+
+        return {
+            "statusCode": 200,
+            "body": json.dumps(serialized_response)
+        }
+
     except Exception as e:
         print(f"Error: {str(e)}")
         return {
