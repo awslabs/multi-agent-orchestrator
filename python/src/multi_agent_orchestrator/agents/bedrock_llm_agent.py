@@ -31,12 +31,20 @@ class BedrockLLMAgent(Agent):
 
         self.model_id: str = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_HAIKU
         self.streaming: bool = options.streaming
-        self.inference_config: Dict[str, Any] = options.inference_config or {
+        self.inference_config: Dict[str, Any]
+
+        default_inference_config = {
             'maxTokens': 1000,
             'temperature': 0.0,
             'topP': 0.9,
             'stopSequences': []
         }
+
+        if options.inference_config:
+            self.inference_config = {**default_inference_config, **options.inference_config}
+        else:
+            self.inference_config = default_inference_config
+
         self.guardrail_config: Optional[Dict[str, str]] = options.guardrail_config or {}
         self.retriever: Optional[Retriever] = options.retriever
         self.tool_config: Optional[Dict[str, Any]] = options.tool_config
