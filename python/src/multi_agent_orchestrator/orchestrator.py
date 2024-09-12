@@ -21,7 +21,7 @@ class MultiAgentOrchestrator:
     def __init__(self,
                  options: OrchestratorConfig = DEFAULT_CONFIG,
                  storage: ChatStorage = InMemoryChatStorage(),
-                 classifer: Classifier = BedrockClassifier(options=BedrockClassifierOptions()),
+                 classifier: Classifier = BedrockClassifier(options=BedrockClassifierOptions()),
                  logger: Logger = None):
 
         if options is None:
@@ -41,7 +41,7 @@ class MultiAgentOrchestrator:
 
         self.logger = Logger(self.config, logger)
         self.agents: Dict[str, Agent] = {}
-        self.classifier: Classifier = classifer
+        self.classifier: Classifier = classifier
         self.execution_times: Dict[str, float] = {}
         self.default_agent: Agent = BedrockLLMAgent(
             options=BedrockLLMAgentOptions(
