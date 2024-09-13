@@ -20,7 +20,7 @@ class BedrockTranslatorAgent(Agent):
         self.target_language = options.target_language or 'English'
         self.model_id = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_HAIKU
         self.client = boto3.client('bedrock-runtime', region_name=options.region)
-        
+
         # Default inference configuration
         self.inference_config: Dict[str, Any] = options.inference_config or {
             'maxTokens': 1000,
@@ -88,7 +88,7 @@ class BedrockTranslatorAgent(Agent):
                         "name": "Translate",
                     },
                 },
-            },            
+            },
             'inferenceConfig': self.inference_config
         }
 
@@ -123,7 +123,7 @@ class BedrockTranslatorAgent(Agent):
 
             raise ValueError("No valid tool use found in the response")
         except Exception as error:
-            Logger.error("Error processing translation request:", error)
+            Logger.error(f"Error processing translation request:{str(error)}")
             raise
 
     def set_source_language(self, language: Optional[str]):

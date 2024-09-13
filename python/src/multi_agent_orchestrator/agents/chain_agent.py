@@ -31,7 +31,6 @@ class ChainAgent(Agent):
         for i, agent in enumerate(self.agents):
             is_last_agent = i == len(self.agents) - 1
             try:
-                #print(f"Input for agent {i}: {current_input}")
                 response = await agent.process_request(
                     current_input,
                     user_id,
@@ -43,7 +42,6 @@ class ChainAgent(Agent):
                     if response.content and 'text' in response.content[0]:
                         current_input = response.content[0]['text']
                         final_response = response
-                        #print(f"Output from agent {i}: {current_input}")
                     else:
                         Logger.logger.warning(f"Agent {agent.name} returned no text content.")
                         return self.create_default_response()
@@ -63,7 +61,7 @@ class ChainAgent(Agent):
                     return self.create_default_response()
 
             except Exception as error:
-                Logger.logger.error(f"Error processing request with agent {agent.name}:", error)
+                Logger.logger.error(f"Error processing request with agent {agent.name}:{str(error)}")
                 return self.create_default_response()
 
         return final_response

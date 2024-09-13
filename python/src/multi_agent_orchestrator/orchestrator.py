@@ -121,7 +121,7 @@ class MultiAgentOrchestrator:
                 self.print_intent(user_input, classifier_result)
 
         except Exception as error:
-            self.logger.error("Error during intent classification:", error)
+            self.logger.error(f"Error during intent classification: {str(error)}")
             return AgentResponse(
                 metadata=self.create_metadata(None,
                                               user_input,
@@ -188,7 +188,7 @@ class MultiAgentOrchestrator:
                 )
 
         except Exception as error:
-            self.logger.error("Error during agent dispatch or processing:", error)
+            self.logger.error(f"Error during agent dispatch or processing:{str(error)}")
             return AgentResponse(
                     metadata= self.create_metadata(classifier_result,
                                                    user_input,

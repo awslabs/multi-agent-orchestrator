@@ -31,7 +31,7 @@ class DynamoDbChatStorage(ChatStorage):
 
         if self.is_consecutive_message(existing_conversation, new_message):
             Logger.debug(f"> Consecutive {new_message.role} \
-                              message detected for agent {agent_id}. Not saving.")
+                          message detected for agent {agent_id}. Not saving.")
             return existing_conversation
 
         timestamped_message = TimestampedMessage(
@@ -40,10 +40,10 @@ class DynamoDbChatStorage(ChatStorage):
             timestamp=int(time.time() * 1000))
         existing_conversation.append(timestamped_message)
 
-        trimmed_conversation:List[TimestampedMessage] = self.trim_conversation(
+        trimmed_conversation: List[TimestampedMessage] = self.trim_conversation(
             existing_conversation,
             max_history_size
-            )
+        )
 
         item: Dict[str, Union[str, List[TimestampedMessage], int]] = {
             'PK': user_id,
@@ -57,7 +57,7 @@ class DynamoDbChatStorage(ChatStorage):
         try:
             self.table.put_item(Item=item)
         except Exception as error:
-            Logger.logger.error("Error saving conversation to DynamoDB:", error)
+            Logger.logger.error(f"Error saving conversation to DynamoDB:{str(error)}")
             raise
 
         return self._remove_timestamps(trimmed_conversation)
@@ -76,7 +76,7 @@ class DynamoDbChatStorage(ChatStorage):
             )
             return self._remove_timestamps(stored_messages)
         except Exception as error:
-            Logger.logger.error("Error getting conversation from DynamoDB:", error)
+            Logger.logger.error(f"Error getting conversation from DynamoDB:{str(error)}")
             raise
 
     async def fetch_chat_with_timestamp(
@@ -93,7 +93,7 @@ class DynamoDbChatStorage(ChatStorage):
             )
             return stored_messages
         except Exception as error:
-            Logger.logger.error("Error getting conversation from DynamoDB:", error)
+            Logger.logger.error(f"Error getting conversation from DynamoDB: {str(error)}")
             raise
 
     async def fetch_all_chats(self, user_id: str, session_id: str) -> List[ConversationMessage]:
@@ -112,7 +112,7 @@ class DynamoDbChatStorage(ChatStorage):
             all_chats = []
             for item in response['Items']:
                 if not isinstance(item.get('conversation'), list):
-                    Logger.logger.error("Unexpected item structure:", item)
+                    Logger.logger.error(f"Unexpected item structure:{item}")
                     continue
 
                 agent_id = item['SK'].split('#')[1]
@@ -126,15 +126,15 @@ class DynamoDbChatStorage(ChatStorage):
 
                     all_chats.append(
                         TimestampedMessage(
-                        role=msg['role'],
-                        content=content,
-                        timestamp=int(msg['timestamp'])
-                    ))
+                            role=msg['role'],
+                            content=content,
+                            timestamp=int(msg['timestamp'])
+                        ))
 
             all_chats.sort(key=lambda x: x.timestamp)
             return self._remove_timestamps(all_chats)
         except Exception as error:
-            Logger.logger.error("Error querying conversations from DynamoDB:", error)
+            Logger.logger.error(f"Error querying conversations from DynamoDB:{str(error)}")
             raise
 
     def _generate_key(self, user_id: str, session_id: str, agent_id: str) -> str:

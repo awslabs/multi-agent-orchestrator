@@ -96,5 +96,5 @@ class AnthropicClassifier(Classifier):
             return intent_classifier_result
 
         except Exception as error:
-            Logger.error("Error processing request:", error)
+            Logger.error(f"Error processing request:{str(error)}")
             raise error

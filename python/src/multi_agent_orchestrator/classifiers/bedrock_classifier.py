@@ -118,5 +118,5 @@ class BedrockClassifier(Classifier):
             raise ValueError("No valid tool use found in the response")
 
         except (BotoCoreError, ClientError) as error:
-            Logger.error("Error processing request:", error)
+            Logger.error(f"Error processing request:{str(error)}")
             raise

@@ -9,7 +9,7 @@ from botocore.config import Config
 CheckFunction = Callable[[str], str]
 
 class ComprehendFilterAgentOptions(AgentOptions):
-    def __init__(self, 
+    def __init__(self,
                  enable_sentiment_check: bool = True,
                  enable_pii_check: bool = True,
                  enable_toxicity_check: bool = True,
@@ -30,12 +30,12 @@ class ComprehendFilterAgentOptions(AgentOptions):
 class ComprehendFilterAgent(Agent):
     def __init__(self, options: ComprehendFilterAgentOptions):
         super().__init__(options)
-        
+
         config = Config(region_name=options.region) if options.region else None
         self.comprehend_client = boto3.client('comprehend', config=config)
-        
+
         self.custom_checks: List[CheckFunction] = []
-        
+
         self.enable_sentiment_check = options.enable_sentiment_check
         self.enable_pii_check = options.enable_pii_check
         self.enable_toxicity_check = options.enable_toxicity_check
@@ -43,7 +43,7 @@ class ComprehendFilterAgent(Agent):
         self.toxicity_threshold = options.toxicity_threshold
         self.allow_pii = options.allow_pii
         self.language_code = self.validate_language_code(options.language_code) or 'en'
-        
+
         # Ensure at least one check is enabled
         if not any([self.enable_sentiment_check, self.enable_pii_check, self.enable_toxicity_check]):
             self.enable_toxicity_check = True
@@ -95,7 +95,7 @@ class ComprehendFilterAgent(Agent):
             )
 
         except Exception as error:
-            Logger.logger.error("Error in ComprehendContentFilterAgent:", error)
+            Logger.logger.error(f"Error in ComprehendContentFilterAgent:{str(error)}")
             raise
 
     def add_custom_check(self, check: CheckFunction):
