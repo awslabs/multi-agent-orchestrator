@@ -1,12 +1,12 @@
 name: Feature request
-description: Suggest an idea for CloudFront Hosting Toolkit
+description: Suggest an idea for multi-agent-orchestrator
 title: "Feature request: TITLE"
 labels: ["feature-request", "triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for taking the time to suggest an idea to the CloudFront Hosting Toolkit project.
+        Thank you for taking the time to suggest an idea to the multi-agent-orchestrator project.
 
         *Future readers*: Please react with 👍 and your use case to help us understand customer demand.
   - type: textarea
