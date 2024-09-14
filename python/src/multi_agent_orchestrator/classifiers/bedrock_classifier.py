@@ -13,18 +13,25 @@ class BedrockClassifierOptions:
         self,
         model_id: Optional[str] = None,
         region: Optional[str] = None,
-        inference_config: Optional[Dict] = None
+        inference_config: Optional[Dict] = None,
+        aws_profile_name: Optional[str] = None
+
     ):
         self.model_id = model_id
         self.region = region
         self.inference_config = inference_config if inference_config is not None else {}
+        self.aws_profile_name = aws_profile_name
+        
 
 
 class BedrockClassifier(Classifier):
     def __init__(self, options: BedrockClassifierOptions):
         super().__init__()
         self.region = options.region or os.environ.get('REGION')
-        self.client = boto3.client('bedrock-runtime', region_name=self.region)
+        
+        boto3_session = boto3.Session(profile_name=self.aws_profile_name)
+        self.client = boto3_session.client('bedrock-runtime', region_name=self.region)
+
         self.model_id = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
         self.system_prompt: str
         self.inference_config = {
@@ -33,6 +40,8 @@ class BedrockClassifier(Classifier):
             'topP': options.inference_config.get('top_p', 0.9),
             'stopSequences': options.inference_config.get('stop_sequences', [])
         }
+        self.aws_profile_name = options.aws_profile_name
+
         self.tools = [
             {
                 "toolSpec": {

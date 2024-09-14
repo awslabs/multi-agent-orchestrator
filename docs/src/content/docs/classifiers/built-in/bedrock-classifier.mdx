@@ -17,6 +17,7 @@ The BedrockClassifier extends the abstract `Classifier` class and uses Amazon Be
 - Configurable model selection and inference parameters
 - Supports custom system prompts and variables
 - Handles conversation history for context-aware classification
+- Supports AWS CLI profile configuration for improved local development experience
 
 ### Basic Usage
 
@@ -73,7 +74,8 @@ You can customize the BedrockClassifier by creating an instance with specific op
             'maxTokens': 500,
             'temperature': 0.7,
             'topP': 0.9
-        }
+        },
+        aws_profile_name="dev"  # New parameter for specifying AWS CLI profile
     ))
 
     orchestrator = MultiAgentOrchestrator(classifier=custom_bedrock_classifier)
@@ -90,6 +92,7 @@ The BedrockClassifier accepts the following configuration options:
   - `temperature` (optional): Controls randomness in output generation.
   - `topP` (optional): Controls diversity of output generation.
   - `stopSequences` (optional): A list of sequences that, when generated, will stop the generation process.
+- `aws_profile_name` (optional): The name of the AWS CLI profile to use for authentication. This is particularly useful for local development with MFA-enabled profiles.
 
 ## Customizing the System Prompt
 
@@ -146,6 +149,7 @@ The BedrockClassifier includes error handling to manage potential issues during 
 1. **Model Selection**: Choose an appropriate model based on your use case and performance requirements.
 2. **Inference Configuration**: Experiment with different inference parameters to find the best balance between response quality and speed.
 3. **System Prompt**: Craft a clear and comprehensive system prompt to guide the model's classification process effectively.
+4. **AWS Profile**: When developing locally, especially with MFA-enabled accounts, use the `aws_profile_name` parameter to specify the appropriate AWS CLI profile.
 
 ## Limitations
 
