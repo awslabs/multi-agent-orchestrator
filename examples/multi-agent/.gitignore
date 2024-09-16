@@ -1,0 +1,6 @@
+.env
+node_modules/
+.venv
+public/
+.cursorrules
+package-lock.json

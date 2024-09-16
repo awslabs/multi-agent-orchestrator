@@ -1,0 +1,231 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  background-color: #1890ff;
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+header h1 {
+  margin: 0;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.test-response {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.test-response h2 {
+  margin-top: 0;
+}
+
+.agent-management {
+  display: flex;
+  gap: 20px;
+}
+
+.agent-list, .agent-editor, .chat {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.message-list {
+  height: 300px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.message {
+  margin-bottom: 10px;
+}
+
+.message.user {
+  text-align: right;
+}
+
+.message.assistant {
+  text-align: left;
+}
+
+.message.error {
+  color: red;
+}
+
+.examples {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+button {
+  cursor: pointer;
+  padding: 5px 10px;
+  margin: 0 5px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+button:hover {
+  background-color: #40a9ff;
+}
+
+input[type="checkbox"] {
+  cursor: pointer;
+}
+
+select {
+  cursor: pointer;
+  padding: 5px;
+  margin: 5px 0;
+}
+
+.agent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.agent-item:last-child {
+  border-bottom: none;
+}
+
+.settings {
+  margin-top: 20px;
+}
+
+.agent-type-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.agent-type-buttons button {
+  flex: 1;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.agent-type-buttons button.active {
+  background-color: #1890ff;
+  color: white;
+}
+
+.agent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.agent-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.agent-type {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.agent-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.agent-editor {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.agent-type-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.agent-type-buttons button {
+  flex: 1;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.agent-type-buttons button.active {
+  background-color: #1890ff;
+  color: white;
+}
+
+.submit-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.submit-button:hover {
+  background-color: #40a9ff;
+}
