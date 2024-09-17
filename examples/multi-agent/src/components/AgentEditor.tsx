@@ -42,8 +42,7 @@ const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, lambdaFunction
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
-      id: agent ? agent.id : undefined,
+    const newAgent: Agent = {
       name,
       description,
       type,
@@ -51,7 +50,11 @@ const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, lambdaFunction
       lambda_function_name: type === 'LambdaAgent' ? lambdaFunctionName : undefined,
       chain_agents: type === 'ChainAgent' ? chainAgents.split(',').map(a => a.trim()) : undefined,
       enable_web_search: enableWebSearch,
-    });
+    };
+    if (agent && agent.id) {
+      newAgent.id = agent.id;
+    }
+    onSave(newAgent);
     resetForm();
   };
 

@@ -229,3 +229,167 @@ select {
 .submit-button:hover {
   background-color: #40a9ff;
 }
+
+.app nav {
+  margin-top: 1rem;
+}
+
+.app nav button {
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.app nav button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.agents-tab {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.agent-list {
+  margin-bottom: 2rem;
+}
+
+.agent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+}
+
+.agent-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.agent-form input,
+.agent-form textarea,
+.agent-form select {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.agent-form button {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.chain-agents-tab {
+  padding: 20px;
+}
+
+.agent-grid-container {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  margin-bottom: 20px;
+}
+
+.connection-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.agent-box {
+  width: 140px;
+  height: 140px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.agent-box.selected {
+  border-color: #007bff;
+  background-color: #e6f2ff;
+}
+
+.agent-box span {
+  text-align: center;
+  word-break: break-word;
+}
+
+.agent-box .agent-type {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.controls {
+  margin-bottom: 20px;
+}
+
+.connect-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.connect-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.connections-list {
+  border-top: 1px solid #ccc;
+  padding-top: 20px;
+}
+
+.connection-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.remove-button {
+  padding: 5px 10px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.full-width {
+  width: 100%;
+  max-width: none;
+}
