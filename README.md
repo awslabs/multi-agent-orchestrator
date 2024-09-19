@@ -74,6 +74,10 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 
   This article demonstrates how to build a multilingual chatbot using the Multi-Agent Orchestrator framework. The article explains how to use an **Amazon Lex** bot as an agent, along with 2 other new agents to make it work in many languages with just a few lines of code.
 
+- **[Beyond Auto-Replies: Building an AI-Powered E-commerce Support system](https://community.aws/content/2lq6cYYwTYGc7S3Zmz28xZoQNQj/beyond-auto-replies-building-an-ai-powered-e-commerce-support-system)**
+
+  This article demonstrates how to build an AI-driven multi-agent system for automated e-commerce customer email support. It covers the architecture and setup of specialized AI agents using the Multi-Agent Orchestrator framework, integrating automated processing with human-in-the-loop oversight. The guide explores email ingestion, intelligent routing, automated response generation, and human verification, providing a comprehensive approach to balancing AI efficiency with human expertise in customer support.
+
 
 ### TypeScript Version
 
