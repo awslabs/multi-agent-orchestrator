@@ -14,7 +14,7 @@ const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, lambdaFunction
   const [modelId, setModelId] = useState('anthropic.claude-3-sonnet-20240229-v1:0');
   const [lambdaFunctionName, setLambdaFunctionName] = useState('');
   const [chainAgents, setChainAgents] = useState('');
-  const [enableWebSearch, setEnableWebSearch] = useState(false);
+  const [enableWebSearch, setEnableWebSearch] = useState(false);  // Add this line
 
   useEffect(() => {
     if (agent) {
@@ -23,7 +23,7 @@ const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, lambdaFunction
       setType(agent.type);
       setModelId(agent.model_id || 'anthropic.claude-3-sonnet-20240229-v1:0');
       setLambdaFunctionName(agent.lambda_function_name || '');
-      setChainAgents(agent.chain_agents?.join(', ') || '');
+      setChainAgents(agent.chain_agents?.map(ca => ca.agent_id).join(', ') || '');
       setEnableWebSearch(agent.enable_web_search || false);
     } else {
       resetForm();
@@ -48,7 +48,7 @@ const AgentEditor: React.FC<AgentEditorProps> = ({ agent, onSave, lambdaFunction
       type,
       model_id: modelId,
       lambda_function_name: type === 'LambdaAgent' ? lambdaFunctionName : undefined,
-      chain_agents: type === 'ChainAgent' ? chainAgents.split(',').map(a => a.trim()) : undefined,
+      chain_agents: type === 'ChainAgent' ? chainAgents.split(',').map(a => ({ agent_id: a.trim(), input: 'previous_output' })) : undefined,
       enable_web_search: enableWebSearch,
     };
     if (agent && agent.id) {

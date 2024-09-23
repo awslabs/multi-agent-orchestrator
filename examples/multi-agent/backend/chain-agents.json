@@ -1,0 +1,42 @@
+[
+  {
+    "id": "689ab8ce-688c-4d48-a6f6-5f4c27cdce1e",
+    "name": "Connect agents",
+    "description": "Chain agent connecting 3 agents",
+    "type": "ChainAgent",
+    "chain_agents": [
+      {
+        "agent_id": "e46eef1ba7a72",
+        "input": "user_input"
+      },
+      {
+        "agent_id": "browsing-agent",
+        "input": "previous_output"
+      },
+      {
+        "agent_id": "66d07464-67ad-4d1d-b048-91c0869e528e",
+        "input": "previous_output"
+      }
+    ]
+  },
+  {
+    "id": "ae9336cf-82b8-4f24-9edf-4a0e09804fad",
+    "name": "browser-summary",
+    "description": "Chain agent connecting 3 agents",
+    "type": "ChainAgent",
+    "chain_agents": [
+      {
+        "agent_id": "e46eef1ba7a72",
+        "input": "user_input"
+      },
+      {
+        "agent_id": "browsing-agent",
+        "input": "previous_output"
+      },
+      {
+        "agent_id": "ce097fc8-6739-409e-a16f-3efae4e7467c",
+        "input": "previous_output"
+      }
+    ]
+  }
+]

@@ -5,12 +5,15 @@ from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import boto3
+from botocore.config import Config
 from multi_agent_orchestrator import (
     MultiAgentOrchestrator, BedrockLLMAgent, BedrockLLMAgentOptions
 )
+from multi_agent_orchestrator.agents import ChainAgent, ChainAgentOptions
+from multi_agent_orchestrator.agents import LambdaAgent, LambdaAgentOptions
 from duckduckgo_search import DDGS
-from typing import List, Optional
-import asyncio
+from typing import List, Optional, Dict, Union, Any
+from pydantic import BaseModel, Field
 import requests
 import shutil
 
@@ -25,19 +28,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Create a custom boto3 session using the default credentials
+session = boto3.Session()
+
+# Create a custom configuration
+config = Config(
+    region_name=session.region_name or 'us-east-1',
+    signature_version='v4',
+    retries={
+        'max_attempts': 10,
+        'mode': 'standard'
+    }
+)
+
+# Initialize AWS clients using the session and config
+bedrock_runtime = session.client('bedrock-runtime', config=config)
+lambda_client = session.client('lambda', config=config)
+
 # Initialize the orchestrator
 orchestrator = MultiAgentOrchestrator()
 
-# Initialize Bedrock client
-bedrock_runtime = boto3.client(
-    service_name='bedrock-runtime',
-    region_name='us-east-1'  # Replace with your preferred region
-)
-
-# Initialize Lambda client
-lambda_client = boto3.client('lambda', region_name='us-east-1')  # Replace with your preferred region
-
 AGENTS_FILE = 'agents.json'
+CHAIN_AGENTS_FILE = 'chain-agents.json'
 KNOWLEDGE_BASE_DIR = 'knowledge_base'
 
 def load_agents():
@@ -50,61 +62,48 @@ def save_agents(agents):
     with open(AGENTS_FILE, 'w') as f:
         json.dump(agents, f)
 
-# Web search function
-async def web_search(query: str, num_results: int = 3) -> List[str]:
-    with DDGS() as ddgs:
-        results = [r for r in ddgs.text(query, max_results=num_results)]
-    return [f"{r['title']}: {r['body']}" for r in results]
-
-# Custom tool for web search
-class WebSearchTool:
-    def __init__(self):
-        self.name = "web_search"
-        self.description = "Search the web for information"
-
-    async def run(self, query: str) -> str:
-        return json.dumps(await web_search(query))
-
-# Weather tool
-class WeatherTool:
-    def __init__(self):
-        self.name = "weather"
-        self.description = "Get weather information for a location"
-
-    async def run(self, location: str) -> str:
-        api_key = os.getenv("OPENWEATHERMAP_API_KEY")
-        url = f"http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
-        response = requests.get(url)
-        data = response.json()
-        if response.status_code == 200:
-            weather = data["weather"][0]["description"]
-            temp = data["main"]["temp"]
-            return f"The weather in {location} is {weather} with a temperature of {temp}°C"
-        else:
-            return f"Error: Unable to fetch weather data for {location}"
-
-# Custom LambdaAgent implementation
-class LambdaAgent:
-    def __init__(self, name: str, description: str, lambda_function_name: str):
-        self.id = str(uuid.uuid4())
-        self.name = name
-        self.description = description
-        self.lambda_function_name = lambda_function_name
-
-    async def process(self, message: str):
+def load_chain_agents():
+    if os.path.exists(CHAIN_AGENTS_FILE):
         try:
-            response = lambda_client.invoke(
-                FunctionName=self.lambda_function_name,
-                InvocationType='RequestResponse',
-                Payload=json.dumps({'message': message})
-            )
-            return json.loads(response['Payload'].read().decode('utf-8'))
-        except Exception as e:
-            return f"Error invoking Lambda function: {str(e)}"
+            with open(CHAIN_AGENTS_FILE, 'r') as f:
+                content = f.read().strip()
+                if content:
+                    data = json.loads(content)
+                    # Validate and clean the data
+                    cleaned_data = []
+                    for agent in data:
+                        if isinstance(agent.get('chain_agents'), list):
+                            agent['chain_agents'] = [
+                                {'agent_id': step, 'input': 'previous_output'} if isinstance(step, str) else step
+                                for step in agent['chain_agents']
+                            ]
+                        cleaned_data.append(agent)
+                    return cleaned_data
+                else:
+                    print(f"Warning: {CHAIN_AGENTS_FILE} is empty. Initializing with an empty list.")
+                    return []
+        except json.JSONDecodeError as e:
+            print(f"Error decoding {CHAIN_AGENTS_FILE}: {str(e)}. Initializing with an empty list.")
+            return []
+    else:
+        print(f"Warning: {CHAIN_AGENTS_FILE} does not exist. Initializing with an empty list.")
+        return []
 
-# Load existing agents
+def save_chain_agents(chain_agents):
+    with open(CHAIN_AGENTS_FILE, 'w') as f:
+        json.dump(chain_agents, f, indent=2)
+
+# Add this after the function definitions and before loading the agents
+if not os.path.exists(CHAIN_AGENTS_FILE):
+    save_chain_agents([])
+    print(f"Created empty {CHAIN_AGENTS_FILE}")
+
+# Load agents and chain agents
 agents = load_agents()
-for agent_data in agents:
+chain_agents = load_chain_agents()
+
+# Function to add an agent to the orchestrator
+def add_agent_to_orchestrator(agent_data):
     if agent_data['type'] == 'BedrockLLMAgent':
         new_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
             name=agent_data['name'],
@@ -112,13 +111,34 @@ for agent_data in agents:
             model_id=agent_data['model_id'],
             streaming=True
         ))
+        new_agent.client = bedrock_runtime  # Set the client after creation
     elif agent_data['type'] == 'LambdaAgent':
-        new_agent = LambdaAgent(
+        new_agent = LambdaAgent(LambdaAgentOptions(
             name=agent_data['name'],
             description=agent_data['description'],
-            lambda_function_name=agent_data['lambda_function_name']
-        )
+            function_name=agent_data['lambda_function_name']
+        ))
+        new_agent.client = lambda_client  # Set the client after creation
+    else:
+        print(f"Skipping unsupported agent type: {agent_data['type']}")
+        return None
+
+    new_agent.id = agent_data['id']  # Ensure the ID is set
     orchestrator.add_agent(new_agent)
+    return new_agent
+
+# Initialize agents in the orchestrator
+for agent_data in agents:
+    add_agent_to_orchestrator(agent_data)
+
+# Print debug information
+print(f"Orchestrator initialized with {len(orchestrator.agents)} agents:")
+for agent_id, agent in orchestrator.agents.items():
+    print(f"  - {agent.name} (ID: {agent_id}, Type: {type(agent).__name__})")
+
+class ChainAgentStep(BaseModel):
+    agent_id: str
+    input: str
 
 class Agent(BaseModel):
     id: Optional[str]
@@ -127,9 +147,12 @@ class Agent(BaseModel):
     type: str
     model_id: Optional[str]
     lambda_function_name: Optional[str]
-    chain_agents: Optional[List[str]]
-    enable_web_search: Optional[bool] = False
+    chain_agents: Optional[List[Union[str, Dict[str, str], ChainAgentStep]]] = Field(default_factory=list)
+    agent_positions: Optional[Dict[str, Dict[str, float]]]
 
+    class Config:
+        extra = "allow"
+        
 class ChatRequest(BaseModel):
     message: str
     agent_id: str
@@ -147,10 +170,37 @@ class KnowledgeBase(BaseModel):
 
 @app.get("/agents", response_model=List[Agent])
 async def get_agents():
-    return agents
+    all_agents = agents + chain_agents
+    for agent in all_agents:
+        if agent['type'] == 'ChainAgent' and isinstance(agent.get('chain_agents'), list):
+            agent['chain_agents'] = [
+                ChainAgentStep(agent_id=step['agent_id'], input=step['input'])
+                if isinstance(step, dict) else
+                ChainAgentStep(agent_id=step, input='previous_output')
+                if isinstance(step, str) else
+                step
+                for step in agent['chain_agents']
+            ]
+    return all_agents
 
 @app.post("/agents", response_model=Agent)
 async def create_agent(agent: Agent):
+    print(f"Received agent data for duplication: {agent.dict()}")
+    if agent.id:
+        # This is a duplication request
+        existing_agent = next((a for a in agents if a['id'] == agent.id), None)
+        if not existing_agent:
+            raise HTTPException(status_code=404, detail="Agent to duplicate not found")
+        
+        print(f"Existing agent found: {existing_agent}")
+        new_id = str(uuid.uuid4())
+        new_agent = {**existing_agent, 'id': new_id, 'name': agent.name}
+        print(f"New agent created: {new_agent}")
+        agents.append(new_agent)
+        save_agents(agents)
+        return new_agent
+    
+    # Original create agent logic
     if agent.type == "BedrockLLMAgent":
         if not agent.model_id:
             raise HTTPException(status_code=400, detail="model_id is required for BedrockLLMAgent")
@@ -160,14 +210,16 @@ async def create_agent(agent: Agent):
             model_id=agent.model_id,
             streaming=True
         ))
+        new_agent.client = bedrock_runtime
     elif agent.type == "LambdaAgent":
         if not agent.lambda_function_name:
             raise HTTPException(status_code=400, detail="lambda_function_name is required for LambdaAgent")
-        new_agent = LambdaAgent(
+        new_agent = LambdaAgent(LambdaAgentOptions(
             name=agent.name,
             description=agent.description,
-            lambda_function_name=agent.lambda_function_name
-        )
+            function_name=agent.lambda_function_name
+        ))
+        new_agent.client = lambda_client
     else:
         raise HTTPException(status_code=400, detail="Invalid agent type")
 
@@ -177,7 +229,6 @@ async def create_agent(agent: Agent):
     agents.append(agent_data)
     save_agents(agents)
     return agent_data
-
 @app.put("/agents/{agent_id}", response_model=Agent)
 async def update_agent(agent_id: str, updated_agent: Agent):
     global agents, orchestrator
@@ -196,12 +247,14 @@ async def update_agent(agent_id: str, updated_agent: Agent):
             model_id=updated_agent.model_id,
             streaming=True
         ))
+        new_agent.client = bedrock_runtime
     elif updated_agent.type == 'LambdaAgent':
-        new_agent = LambdaAgent(
+        new_agent = LambdaAgent(LambdaAgentOptions(
             name=updated_agent.name,
             description=updated_agent.description,
-            lambda_function_name=updated_agent.lambda_function_name
-        )
+            function_name=updated_agent.lambda_function_name
+        ))
+        new_agent.client = lambda_client
     else:
         raise HTTPException(status_code=400, detail="Invalid agent type")
     
@@ -226,12 +279,14 @@ async def delete_agent(agent_id: str):
                 model_id=agent_data['model_id'],
                 streaming=True
             ))
+            new_agent.client = bedrock_runtime
         elif agent_data['type'] == 'LambdaAgent':
-            new_agent = LambdaAgent(
+            new_agent = LambdaAgent(LambdaAgentOptions(
                 name=agent_data['name'],
                 description=agent_data['description'],
-                lambda_function_name=agent_data['lambda_function_name']
-            )
+                function_name=agent_data['lambda_function_name']
+            ))
+            new_agent.client = lambda_client
         orchestrator.add_agent(new_agent)
     
     return {"message": "Agent deleted successfully"}
@@ -290,150 +345,165 @@ async def upload_file(kb_id: str, file: UploadFile = File(...)):
 
 @app.post("/chain-agents", response_model=Agent)
 async def create_chain_agent(agent: Agent):
-    if agent.type != "ChainAgent" or not agent.chain_agents or len(agent.chain_agents) != 2:
+    if agent.type != "ChainAgent" or not agent.chain_agents:
         raise HTTPException(status_code=400, detail="Invalid chain agent configuration")
 
-    new_agent = {
-        "id": str(uuid.uuid4()),
-        "name": agent.name,
-        "description": agent.description,
-        "type": "ChainAgent",
-        "chain_agents": agent.chain_agents
-    }
+    try:
+        # Get the agents from the agents.json file
+        with open(AGENTS_FILE, 'r') as f:
+            all_agents = json.load(f)
 
-    agents.append(new_agent)
-    save_agents(agents)
-    return new_agent
+        # Create a dictionary of all agents
+        agent_dict = {a['id']: a for a in all_agents}
+
+        # Create BedrockLLMAgent instances for each agent in the chain
+        chain_agent_instances = []
+        serializable_chain_agents = []
+        for step in agent.chain_agents:
+            if isinstance(step, dict):
+                agent_id = step['agent_id']
+                input_type = step['input']
+            else:
+                agent_id = step.agent_id
+                input_type = step.input
+
+            if agent_id not in agent_dict:
+                raise HTTPException(status_code=400, detail=f"Agent with id {agent_id} not found")
+            
+            agent_data = agent_dict[agent_id]
+            if agent_data['type'] == 'BedrockLLMAgent':
+                chain_agent_instances.append(BedrockLLMAgent(BedrockLLMAgentOptions(
+                    name=agent_data['name'],
+                    description=agent_data['description'],
+                    model_id=agent_data['model_id'],
+                    streaming=True
+                )))
+                chain_agent_instances[-1].client = bedrock_runtime
+            elif agent_data['type'] == 'LambdaAgent':
+                chain_agent_instances.append(LambdaAgent(LambdaAgentOptions(
+                    name=agent_data['name'],
+                    description=agent_data['description'],
+                    function_name=agent_data['lambda_function_name']
+                )))
+                chain_agent_instances[-1].client = lambda_client
+            else:
+                raise HTTPException(status_code=400, detail=f"Unsupported agent type {agent_data['type']} for chain agent")
+
+            serializable_chain_agents.append({
+                'agent_id': agent_id,
+                'input': input_type
+            })
+
+        # Create the ChainAgent
+        chain_agent = ChainAgent(ChainAgentOptions(
+            name=agent.name,
+            description=agent.description,
+            agents=chain_agent_instances,
+            default_output='The chain encountered an issue during processing.'
+        ))
+
+        # Add the chain agent to the orchestrator
+        orchestrator.add_agent(chain_agent)
+
+        # Create a dictionary representation of the chain agent
+        new_agent = {
+            "id": str(uuid.uuid4()),
+            "name": agent.name,
+            "description": agent.description,
+            "type": "ChainAgent",
+            "chain_agents": serializable_chain_agents
+        }
+
+        # Update positions for all agents involved in the chain
+        if agent.agent_positions:
+            for agent_id, position in agent.agent_positions.items():
+                # Update the position in the agents list
+                for a in all_agents:
+                    if a['id'] == agent_id:
+                        a['position'] = position
+                        break
+
+            # Save the updated agents to the file
+            save_agents(all_agents)
+
+        # Update the chain_agents.json file
+        chain_agents.append(new_agent)
+        save_chain_agents(chain_agents)
+
+        return new_agent
+    except Exception as e:
+        print(f"Error creating chain agent: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error creating chain agent: {str(e)}")
+    
+# Web search function
+async def web_search(query: str, num_results: int = 3) -> List[str]:
+    with DDGS() as ddgs:
+        results = [r for r in ddgs.text(query, max_results=num_results)]
+    return [f"{r['title']}: {r['body']}" for r in results]
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
     try:
-        agent = next((a for a in agents if a['id'] == request.agent_id), None)
+        print(f"Received chat request for agent ID: {request.agent_id}")
+        agent = next((a for a in agents + chain_agents if a['id'] == request.agent_id), None)
         if not agent:
-            raise HTTPException(status_code=404, detail="Agent not found")
+            raise HTTPException(status_code=404, detail=f"Agent not found for ID: {request.agent_id}")
         
-        if agent['type'] == 'ChainAgent':
-            return await process_chain_agent(agent, request.message)
+        print(f"Found agent: {agent['name']} (Type: {agent['type']})")
         
         context = request.message
-        if request.knowledge_base:
-            kb_path = os.path.join(KNOWLEDGE_BASE_DIR, request.knowledge_base)
-            if os.path.exists(kb_path):
-                with open(kb_path, 'r') as kb_file:
-                    kb_content = kb_file.read()
-                context = f"Knowledge Base: {kb_content}\n\nUser query: {request.message}"
-        
-        print(f"Processing request for agent: {agent['name']} (Type: {agent['type']})")
-        
         if agent.get('enable_web_search', False):
             search_results = await web_search(request.message)
             context = f"Web search results:\n{json.dumps(search_results, indent=2)}\n\nUser query: {request.message}"
 
-        if agent['type'] == 'LambdaAgent':
-            print("Using LambdaAgent")
-            try:
-                print(f"Invoking Lambda function: {agent['lambda_function_name']}")
-                lambda_response = lambda_client.invoke(
-                    FunctionName=agent['lambda_function_name'],
-                    InvocationType='RequestResponse',
-                    Payload=json.dumps({'message': request.message})
-                )
-                lambda_result = json.loads(lambda_response['Payload'].read().decode('utf-8'))
-                print(f"Lambda function response: {lambda_result}")
-                context = f"Lambda function output: {json.dumps(lambda_result)}\n\nUser query: {request.message}"
-            except Exception as e:
-                print(f"Error invoking Lambda function: {str(e)}")
-                raise HTTPException(status_code=500, detail=f"Error invoking Lambda function: {str(e)}")
+        if agent['type'] == 'ChainAgent':
+            print("Processing ChainAgent")
+            chain_agent_data = next((ca for ca in chain_agents if ca['id'] == agent['id']), None)
+            if not chain_agent_data:
+                raise HTTPException(status_code=404, detail=f"Chain agent data not found for ID: {agent['id']}")
+            
+            chain_agent_instances = []
+            for step in chain_agent_data['chain_agents']:
+                agent_id = step['agent_id']
+                agent_data = next((a for a in agents if a['id'] == agent_id), None)
+                if not agent_data:
+                    raise HTTPException(status_code=404, detail=f"Agent with id {agent_id} not found in chain")
+                
+                print(f"Creating chain agent instance for: {agent_data['name']} (Type: {agent_data['type']})")
+                chain_agent_instances.append(add_agent_to_orchestrator(agent_data))
 
-        # Process with Bedrock LLM for all agent types
-        payload = {
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": 500,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": f"You are an AI assistant named {agent['name']}. {agent['description']}\n\n{context}"
-                }
-            ],
-            "temperature": 0.7,
-            "top_p": 1,
-        }
+            print(f"Creating ChainAgent with {len(chain_agent_instances)} instances")
+            chain_agent = ChainAgent(ChainAgentOptions(
+                name=chain_agent_data['name'],
+                description=chain_agent_data['description'],
+                agents=chain_agent_instances,
+                default_output='The chain encountered an issue during processing.'
+            ))
 
-        try:
-            print(f"Invoking Bedrock model: {agent['model_id']}")
-            print(f"Payload: {json.dumps(payload, indent=2)}")
-            response = bedrock_runtime.invoke_model(
-                modelId=agent['model_id'],
-                body=json.dumps(payload)
-            )
-            response_body = json.loads(response['body'].read())
-            print(f"Bedrock response: {json.dumps(response_body, indent=2)}")
-            return {"response": response_body['content'][0]['text']}
-        except Exception as e:
-            print(f"Error invoking Bedrock model: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Error invoking Bedrock model: {str(e)}")
+            print("Processing ChainAgent request")
+            response = await chain_agent.process_request(context, "user_id", "session_id", [])
+            print("ChainAgent request processed successfully")
+            return {"response": response}
+
+        # Handle other agent types (BedrockLLMAgent, LambdaAgent)
+        print(f"Processing request for {agent['type']}")
+        agent_instance = orchestrator.agents.get(agent['id'])
+        if not agent_instance:
+            print(f"Agent not found in orchestrator, attempting to add: {agent['name']} (ID: {agent['id']})")
+            agent_instance = add_agent_to_orchestrator(agent)
+            if not agent_instance:
+                raise HTTPException(status_code=404, detail=f"Failed to create agent for ID: {agent['id']}")
+
+        print("Processing agent request")
+        response = await agent_instance.process_request(context, "user_id", "session_id", [])
+        print("Agent request processed successfully")
+        return {"response": response}
+
     except Exception as e:
         print(f"Error in chat endpoint: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error in chat endpoint: {str(e)}")
-
-async def process_chain_agent(agent: dict, message: str):
-    first_agent = next((a for a in agents if a['id'] == agent['chain_agents'][0]), None)
-    second_agent = next((a for a in agents if a['id'] == agent['chain_agents'][1]), None)
-
-    if not first_agent or not second_agent:
-        raise HTTPException(status_code=404, detail="One or more agents in the chain not found")
-
-    # Process with the first agent
-    first_response = await process_agent(first_agent, message)
-
-    # Process with the second agent
-    final_response = await process_agent(second_agent, first_response)
-
-    return {"response": final_response}
-
-async def process_agent(agent: dict, message: str):
-    if agent['type'] == 'BedrockLLMAgent':
-        return await process_bedrock_agent(agent, message)
-    elif agent['type'] == 'LambdaAgent':
-        return await process_lambda_agent(agent, message)
-    else:
-        raise HTTPException(status_code=400, detail=f"Unsupported agent type: {agent['type']}")
-
-async def process_bedrock_agent(agent: dict, message: str):
-    payload = {
-        "anthropic_version": "bedrock-2023-05-31",
-        "max_tokens": 500,
-        "messages": [
-            {
-                "role": "user",
-                "content": f"You are an AI assistant named {agent['name']}. {agent['description']}\n\n{message}"
-            }
-        ],
-        "temperature": 0.7,
-        "top_p": 1,
-    }
-
-    try:
-        response = bedrock_runtime.invoke_model(
-            modelId=agent['model_id'],
-            body=json.dumps(payload)
-        )
-        response_body = json.loads(response['body'].read())
-        return response_body['content'][0]['text']
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error invoking Bedrock model: {str(e)}")
-
-async def process_lambda_agent(agent: dict, message: str):
-    try:
-        lambda_response = lambda_client.invoke(
-            FunctionName=agent['lambda_function_name'],
-            InvocationType='RequestResponse',
-            Payload=json.dumps({'message': message})
-        )
-        lambda_result = json.loads(lambda_response['Payload'].read().decode('utf-8'))
-        return lambda_result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error invoking Lambda function: {str(e)}")
 
 @app.get("/lambda-functions", response_model=List[LambdaFunction])
 async def get_lambda_functions():
@@ -474,6 +544,20 @@ async def test_bedrock():
         return {"response": response_body['content'][0]['text']}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/connections/{from_id}/{to_id}")
+async def remove_connection(from_id: str, to_id: str):
+    # Implement connection removal logic
+    pass
+
+@app.patch("/agents/{agent_id}/position")
+async def update_agent_position(agent_id: str, position: dict):
+    # Implement position update logic
+    pass
+
+def get_ordered_agents(chain_agents):
+    # Implement topological sort to order agents
+    pass
 
 if __name__ == "__main__":
     import uvicorn
