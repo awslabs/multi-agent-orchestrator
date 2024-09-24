@@ -86,5 +86,5 @@ class Logger:
             Logger.logger.info('> - None -')
         else:
             for timer_name, duration in execution_times.items():
-                Logger.logger.info(f"> {timer_name}: {duration}ms")
+                Logger.logger.info(f"> {timer_name}: {duration}s")
         Logger.logger.info('')
