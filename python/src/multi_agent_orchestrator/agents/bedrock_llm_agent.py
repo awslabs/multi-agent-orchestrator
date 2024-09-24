@@ -2,6 +2,7 @@ from typing import List, Dict, Any, AsyncIterable, Optional, Union
 from dataclasses import dataclass
 import re
 import boto3
+import json
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import (ConversationMessage,
                        ParticipantRole,
@@ -130,7 +131,11 @@ class BedrockLLMAgent(Agent):
             max_recursions = self.tool_config.get('toolMaxRecursions', self.default_max_recursions)
 
             while continue_with_tools and max_recursions > 0:
-                bedrock_response = await self.handle_single_response(converse_cmd)
+                if self.streaming:
+                  bedrock_response = await self.handle_streaming_response(converse_cmd)
+                else:
+                  bedrock_response = await self.handle_single_response(converse_cmd)
+                  
                 conversation.append(bedrock_response)
 
                 if any('toolUse' in content for content in bedrock_response.content):
@@ -165,14 +170,41 @@ class BedrockLLMAgent(Agent):
     async def handle_streaming_response(self, converse_input: Dict[str, Any]) -> ConversationMessage:
         try:
             response = self.client.converse_stream(**converse_input)
-            llm_response = ''
-            for chunk in response["stream"]:
-                if "contentBlockDelta" in chunk:
-                    content = chunk.get("contentBlockDelta", {}).get("delta", {}).get("text")
-                    self.callbacks.on_llm_new_token(content)
-                    llm_response = llm_response + content
+            
+            message = {}
+            content = []
+            message['content'] = content
+            text = ''
+            tool_use = {}
+
+            #stream the response into a message.
+            for chunk in response['stream']:
+                if 'messageStart' in chunk:
+                    message['role'] = chunk['messageStart']['role']
+                elif 'contentBlockStart' in chunk:
+                    tool = chunk['contentBlockStart']['start']['toolUse']
+                    tool_use['toolUseId'] = tool['toolUseId']
+                    tool_use['name'] = tool['name']
+                elif 'contentBlockDelta' in chunk:
+                    delta = chunk['contentBlockDelta']['delta']
+                    if 'toolUse' in delta:
+                        if 'input' not in tool_use:
+                            tool_use['input'] = ''
+                        tool_use['input'] += delta['toolUse']['input']
+                    elif 'text' in delta:
+                        text += delta['text']
+                        self.callbacks.on_llm_new_token(delta['text'])
+                elif 'contentBlockStop' in chunk:
+                    if 'input' in tool_use:
+                        tool_use['input'] = json.loads(tool_use['input'])
+                        content.append({'toolUse': tool_use})
+                        tool_use = {}
+                    else:
+                        content.append({'text': text})
+                        text = ''
+                      
             return ConversationMessage(role=ParticipantRole.ASSISTANT.value,
-                                       content=[{'text':llm_response}]
+                                       content=message['content']
                                        )
         except Exception as error:
             Logger.error(f"Error getting stream from Bedrock model: {str(error)}")
