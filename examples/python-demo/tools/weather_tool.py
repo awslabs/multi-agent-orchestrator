@@ -71,7 +71,6 @@ async def weather_tool_handler(response: ConversationMessage, conversation: List
                         "content": [{"json": {"result": response}}],
                     }
                 })
-                print(response)
 
     # Embed the tool results in a new user message
     message = ConversationMessage(
