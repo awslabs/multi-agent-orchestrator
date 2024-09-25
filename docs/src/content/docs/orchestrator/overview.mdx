@@ -57,7 +57,7 @@ Here's an example that demonstrates how to initialize the Orchestrator with all 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    import { MultiAgentOrchestrator, OrchestratorConfig } from "multi-agent-orchestrator";
     import { DynamoDBChatStorage } from "multi-agent-orchestrator/storage";
     import { CustomClassifier } from "./custom-classifier";
     import { CustomLogger } from "./custom-logger";
@@ -117,7 +117,7 @@ Remember, all these options are optional. If you don't specify an option, the Or
 
 ### Default values
 
-The default configuration is defined as `DEFAULT_CONFIG` in the Python implementation:
+The default configuration is defined as follows:
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -146,11 +146,11 @@ The default configuration is defined as `DEFAULT_CONFIG` in the Python implement
   </TabItem>
 </Tabs>
 
-In the Python implementation, `DEFAULT_CONFIG` is an instance of `OrchestratorConfig` with default values.
+In both implementations, `DEFAULT_CONFIG` is an instance of `OrchestratorConfig` with default values.
 
 ### Available Functions
 
-The MultiAgentOrchestrator provides several functions to manage agents, process requests, and analyze agent configurations. Here's an overview of the key functions in the Python implementation:
+The MultiAgentOrchestrator provides several key functions to manage agents, process requests, and configure the orchestrator. Here's a detailed overview of each function, explaining what it does and why you might use it:
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -159,9 +159,8 @@ The MultiAgentOrchestrator provides several functions to manage agents, process 
     2. getDefaultAgent(): Agent
     3. setDefaultAgent(agent: Agent): void
     4. setClassifier(intentClassifier: Classifier): void
-    5. getAllAgents(): Record<string, { name: string; description: string }>
-    6. analyzeAgentOverlap(): AgentOverlapAnalysis
-    7. routeRequest(userInput: string, userId: string, sessionId: string, additionalParams: Record<string, string> = {}): Promise<AgentResponse>
+    5. getAllAgents(): { [key: string]: { name: string; description: string } }
+    6. routeRequest(userInput: string, userId: string, sessionId: string, additionalParams: Record<string, string> = {}): Promise<AgentResponse>
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
@@ -176,9 +175,139 @@ The MultiAgentOrchestrator provides several functions to manage agents, process 
   </TabItem>
 </Tabs>
 
-Note: The `analyzeAgentOverlap` method is not present in the provided Python implementation.
+Let's break down each function:
+
+1. **addAgent** (TypeScript) / **add_agent** (Python)
+   - **What it does**: Adds a new agent to the orchestrator.
+   - **Why use it**: Use this function to expand the capabilities of your system by introducing new specialized agents. Each agent can handle specific types of queries or tasks.
+   - **Example use case**: Adding a weather agent to handle weather-related queries, or a booking agent for reservation tasks.
+
+2. **getDefaultAgent**
+   - **What it does**: Retrieves the current default agent.
+   - **Why use it**: This function is useful when you need to reference or use the default agent, perhaps for fallback scenarios or to compare its capabilities with other agents.
+   - **Example use case**: Checking the current default agent's configuration before deciding whether to replace it.
+
+3. **setDefaultAgent**
+   - **What it does**: Sets a new default agent for the orchestrator.
+   - **Why use it**: This allows you to change the fallback agent used when no specific agent is selected for a query. It's useful for customizing the general-purpose response handling of your system.
+   - **Example use case**: Replacing the default generalist agent with a more specialized one that better fits your application's primary use case.
+
+4. **setClassifier**
+   - **What it does**: Sets a new classifier for the orchestrator.
+   - **Why use it**: This function allows you to change how the orchestrator determines which agent should handle each request. You might use it to implement a custom classification strategy or to use a different machine learning model for intent classification.
+   - **Example use case**: Implementing a domain-specific classifier that's more accurate for your particular use case than the default classifier.
+
+5. **getAllAgents**
+   - **What it does**: Retrieves a dictionary of all registered agents, including their names and descriptions.
+   - **Why use it**: This function is useful for getting an overview of all available agents in the system. It can be used for debugging, logging, or providing user-facing information about system capabilities.
+   - **Example use case**: Generating a help message that lists all available agents and their capabilities.
+
+6. **routeRequest**
+   - **What it does**: This is the main function for processing user requests. It takes a user's input, classifies it, selects an appropriate agent, and returns the agent's response.
+   - **Why use it**: This is the core function you'll use to handle user interactions in your application. It encapsulates the entire process of understanding the user's intent and generating an appropriate response.
+   - **Example use case**: Processing a user's message in a chatbot interface and returning the appropriate response.
+
+Each of these functions plays a crucial role in configuring and operating the Multi-Agent Orchestrator. By using them effectively, you can create a flexible, powerful system capable of handling a wide range of user requests across multiple domains.
 
 These functions allow you to configure the orchestrator, manage agents, and process user requests. For more detailed information on each function, please refer to the [API Reference](/multi-agent-orchestrator/api-reference) section.
+
+### Agent Selection and Default Behavior
+
+When a user sends a request to the Multi-Agent Orchestrator, the system attempts to classify the intent and select an appropriate agent to handle the request. However, there are cases where no specific agent is selected. 
+
+
+#### When No Agent is Selected
+
+If the classifier cannot confidently determine which agent should handle a request, it may result in no agent being selected. The orchestrator's behavior in this case depends on the `USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED` configuration option:
+
+1. If `USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED` is `True` (default):
+   - The orchestrator will use the default agent to handle the request.
+   - This ensures that users always receive a response, even if it's from a generalist agent.
+
+2. If `USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED` is `False`:
+   - The orchestrator will return a message specified by the `NO_SELECTED_AGENT_MESSAGE` configuration.
+   - This prompts the user to rephrase their request for better agent identification.
+
+#### Default Agent
+
+The default agent is a `BedrockLLMAgent` configured as a generalist, capable of handling a wide range of topics. It's used when:
+
+1. No specific agent is selected and `USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED` is `True`.
+2. You explicitly set it as the fallback option.
+
+You can customize the default agent or replace it entirely using the `set_default_agent` method:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { BedrockLLMAgent, BedrockLLMAgentOptions } from "multi-agent-orchestrator";
+
+    const customDefaultAgent = new BedrockLLMAgent({
+      name: "Custom Default Agent",
+      description: "A custom generalist agent for handling various queries",
+      // Add other options as needed
+    });
+
+    orchestrator.setDefaultAgent(customDefaultAgent);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+
+    custom_default_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Custom Default Agent",
+        description="A custom generalist agent for handling various queries",
+        # Add other options as needed
+    ))
+
+    orchestrator.set_default_agent(custom_default_agent)
+    ```
+  </TabItem>
+</Tabs>
+
+#### Customizing NO_SELECTED_AGENT_MESSAGE
+
+You can customize the message returned when no agent is selected (and `USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED` is `False`) by setting the `NO_SELECTED_AGENT_MESSAGE` in the orchestrator configuration:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { MultiAgentOrchestrator, OrchestratorConfig } from "multi-agent-orchestrator";
+
+    const orchestrator = new MultiAgentOrchestrator({
+      config: {
+        USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: false,
+        NO_SELECTED_AGENT_MESSAGE: "I'm not sure how to handle your request. Could you please provide more details or rephrase it?"
+      }
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
+
+    orchestrator = MultiAgentOrchestrator(
+      options=OrchestratorConfig(
+        USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED=False,
+        NO_SELECTED_AGENT_MESSAGE="I'm not sure how to handle your request. Could you please provide more details or rephrase it?"
+      )
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+#### Best Practices
+
+1. **Default Agent Usage**: Use the default agent when you want to ensure all user queries receive a response, even if it's not from a specialized agent.
+
+2. **Prompting for Clarification**: Set `USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED` to `False` and customize the `NO_SELECTED_AGENT_MESSAGE` when you want to encourage users to provide more specific or clear requests.
+
+3. **Balancing Specificity and Coverage**: Consider your use case carefully. Using a default agent provides broader coverage but may sacrifice specificity. Prompting for clarification may lead to more accurate agent selection but requires additional user interaction.
+
+4. **Monitoring and Iteration**: Regularly review cases where no agent is selected. This can help you identify gaps in your agent coverage or refine your classification process.
+
+By understanding and customizing these behaviors, you can fine-tune your Multi-Agent Orchestrator to provide the best possible user experience for your specific use case.
 
 ### Additional notes
 
@@ -187,7 +316,5 @@ These functions allow you to configure the orchestrator, manage agents, and proc
 - The `logger` option lets you provide a custom logger. If not specified, a default logger will be used. To learn how to implement a custom logger, check out [the logging section](/multi-agent-orchestrator/advanced-features/custom-logging).
 
 - The `classifier` option allows you to use a custom classifier for intent classification. If not provided, a `BedrockClassifier` will be used by default. For details on implementing a custom classifier, see the [Custom Classifiers](/multi-agent-orchestrator/classifiers/custom-classifier) documentation.
-
-- The default agent is a `BedrockLLMAgent` configured as a generalist, capable of handling a wide range of topics. Learn more about the default agent and how to customize it in the Default Agent Configuration section.
 
 By customizing these options, you can tailor the Orchestrator's behavior to suit your specific use case and requirements.
