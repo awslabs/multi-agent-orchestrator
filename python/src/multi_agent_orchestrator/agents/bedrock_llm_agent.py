@@ -2,6 +2,7 @@ from typing import List, Dict, Any, AsyncIterable, Optional, Union
 from dataclasses import dataclass
 import re
 import json
+import os
 import boto3
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import (ConversationMessage,
@@ -30,7 +31,10 @@ class BedrockLLMAgent(Agent):
             self.client = options.client
         else:
             if options.region:
-                self.client = boto3.client('bedrock-runtime', region_name=options.region)
+                self.client = boto3.client(
+                    'bedrock-runtime',
+                    region_name=options.region or os.environ.get('AWS_REGION')
+                )
             else:
                 self.client = boto3.client('bedrock-runtime')
 
