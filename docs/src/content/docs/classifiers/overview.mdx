@@ -12,13 +12,26 @@ The Classifier is a crucial component of the Multi-Agent Orchestrator, responsib
 - **[Anthropic Classifier](/multi-agent-orchestrator/classifiers/built-in/anthropic-classifier)** uses Anthropic's AI models for intent classification. It provides an alternative option for users who prefer or have access to Anthropic's services.
 
 ### Process Flow
+
 Regardless of the classifier used, the general process remains the same:
+
 1. User input is collected by the orchestrator.
 2. The Classifier performs input analysis, considering:
    - Conversation history across all agents
    - Individual agent profiles and capabilities
 3. The most suitable agent is determined.
 
+By default, if no agent is selected the orchestrator can be configured to:
+
+A. Use a default agent (a **[BedrockLLMAgent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent)**)
+
+B. Return a message prompting the user for more information.
+
+This behavior can be customized using the `USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED` and `NO_SELECTED_AGENT_MESSAGE` configuration options in the orchestrator. 
+
+For a detailed explanation of these options and other orchestrator configurations, please refer to the [Orchestrator Overview](/multi-agent-orchestrator/orchestrator/overview#agent-selection-and-default-behavior) page.
+
+The classifier's decision-making process is crucial for the effective routing of user queries to the most appropriate agent, ensuring a seamless and efficient multi-agent interaction experience.
 ### Initialization
 
 When you create a new Orchestrator by initializing a `MultiAgentOrchestrator` the default Bedrock Classifier is initialized.
