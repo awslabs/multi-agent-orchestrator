@@ -12,6 +12,7 @@ class BedrockTranslatorAgentOptions(AgentOptions):
     inference_config: Optional[Dict[str, Any]] = None
     model_id: Optional[str] = None
     region: Optional[str] = None
+    client: Optional[Any] = None
 
 class BedrockTranslatorAgent(Agent):
     def __init__(self, options: BedrockTranslatorAgentOptions):
@@ -19,7 +20,10 @@ class BedrockTranslatorAgent(Agent):
         self.source_language = options.source_language
         self.target_language = options.target_language or 'English'
         self.model_id = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_HAIKU
-        self.client = boto3.client('bedrock-runtime', region_name=options.region)
+        if options.client:
+            self.client = options.client
+        else:
+            self.client = boto3.client('bedrock-runtime', region_name=options.region)
 
         # Default inference configuration
         self.inference_config: Dict[str, Any] = options.inference_config or {

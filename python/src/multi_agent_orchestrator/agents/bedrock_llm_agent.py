@@ -1,8 +1,8 @@
 from typing import List, Dict, Any, AsyncIterable, Optional, Union
 from dataclasses import dataclass
 import re
-import boto3
 import json
+import boto3
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import (ConversationMessage,
                        ParticipantRole,
@@ -20,15 +20,19 @@ class BedrockLLMAgentOptions(AgentOptions):
     retriever: Optional[Retriever] = None
     tool_config: Optional[Dict[str, Any]] = None
     custom_system_prompt: Optional[Dict[str, Any]] = None
+    client: Optional[Any] = None
 
 
 class BedrockLLMAgent(Agent):
     def __init__(self, options: BedrockLLMAgentOptions):
         super().__init__(options)
-        if options.region:
-            self.client = boto3.client('bedrock-runtime', region_name=options.region)
+        if options.client:
+            self.client = options.client
         else:
-            self.client = boto3.client('bedrock-runtime')
+            if options.region:
+                self.client = boto3.client('bedrock-runtime', region_name=options.region)
+            else:
+                self.client = boto3.client('bedrock-runtime')
 
         self.model_id: str = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_HAIKU
         self.streaming: bool = options.streaming
@@ -132,10 +136,10 @@ class BedrockLLMAgent(Agent):
 
             while continue_with_tools and max_recursions > 0:
                 if self.streaming:
-                  bedrock_response = await self.handle_streaming_response(converse_cmd)
+                    bedrock_response = await self.handle_streaming_response(converse_cmd)
                 else:
-                  bedrock_response = await self.handle_single_response(converse_cmd)
-                  
+                    bedrock_response = await self.handle_single_response(converse_cmd)
+
                 conversation.append(bedrock_response)
 
                 if any('toolUse' in content for content in bedrock_response.content):
@@ -170,7 +174,7 @@ class BedrockLLMAgent(Agent):
     async def handle_streaming_response(self, converse_input: Dict[str, Any]) -> ConversationMessage:
         try:
             response = self.client.converse_stream(**converse_input)
-            
+
             message = {}
             content = []
             message['content'] = content
@@ -202,10 +206,11 @@ class BedrockLLMAgent(Agent):
                     else:
                         content.append({'text': text})
                         text = ''
-                      
-            return ConversationMessage(role=ParticipantRole.ASSISTANT.value,
-                                       content=message['content']
-                                       )
+            return ConversationMessage(
+                role=ParticipantRole.ASSISTANT.value,
+                content=message['content']
+            )
+
         except Exception as error:
             Logger.error(f"Error getting stream from Bedrock model: {str(error)}")
             raise
