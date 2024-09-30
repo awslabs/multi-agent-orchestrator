@@ -35,6 +35,7 @@ export interface BedrockLLMAgentOptions extends AgentOptions {
   customSystemPrompt?: {
     template: string, variables?: TemplateVariables
   };
+  client?: BedrockRuntimeClient;
 }
 
 /**
@@ -86,7 +87,7 @@ export class BedrockLLMAgent extends Agent {
   constructor(options: BedrockLLMAgentOptions) {
     super(options);
 
-    this.client = options.region
+    this.client = options.client ? options.client : options.region
       ? new BedrockRuntimeClient({ region: options.region })
       : new BedrockRuntimeClient();
 
@@ -118,14 +119,14 @@ export class BedrockLLMAgent extends Agent {
     - Ask for clarification if any part of the question or prompt is ambiguous.
     - Maintain a consistent, respectful, and engaging tone tailored to the human's communication style.
     - Seamlessly transition between topics as the human introduces new subjects.`
-    
+
     if (options.customSystemPrompt) {
       this.setSystemPrompt(
         options.customSystemPrompt.template,
         options.customSystemPrompt.variables
       );
     }
-    
+
   }
 
   /**
@@ -175,7 +176,7 @@ export class BedrockLLMAgent extends Agent {
     const converseCmd = {
       modelId: this.modelId,
       messages: conversation, //Include the updated conversation history
-      system: [{ text: systemPrompt }], 
+      system: [{ text: systemPrompt }],
       inferenceConfig: {
         maxTokens: this.inferenceConfig.maxTokens,
         temperature: this.inferenceConfig.temperature,
@@ -197,7 +198,7 @@ export class BedrockLLMAgent extends Agent {
 
         // Append the model's response to the ongoing conversation
         conversation.push(bedrockResponse);
-        
+
         // process model response
         if (bedrockResponse.content.some((content) => 'toolUse' in content)){
           // forward everything to the tool use handler
@@ -210,7 +211,7 @@ export class BedrockLLMAgent extends Agent {
         maxRecursions--;
 
         converseCmd.messages = conversation;
-        
+
       }
       return finalMessage;
     }
@@ -254,7 +255,7 @@ export class BedrockLLMAgent extends Agent {
       throw error;
     }
   }
-  
+
 
   setSystemPrompt(template?: string, variables?: TemplateVariables): void {
     if (template) {
@@ -294,6 +295,4 @@ export class BedrockLLMAgent extends Agent {
       return match; // If no replacement found, leave the placeholder as is
     });
   }
-
-
 }
