@@ -194,7 +194,12 @@ export class BedrockLLMAgent extends Agent {
 
       while (continueWithTools && maxRecursions > 0){
         // send the conversation to Amazon Bedrock
-        const bedrockResponse = await this.handleSingleResponse(converseCmd);
+        let bedrockResponse;
+        if (this.streaming) {
+          bedrockResponse =  this.handleStreamingResponse(converseCmd);
+        } else {
+          bedrockResponse = await this.handleSingleResponse(converseCmd);
+        }
 
         // Append the model's response to the ongoing conversation
         conversation.push(bedrockResponse);
@@ -219,7 +224,7 @@ export class BedrockLLMAgent extends Agent {
       if (this.streaming) {
         return this.handleStreamingResponse(converseCmd);
       } else {
-        return this.handleSingleResponse(converseCmd);
+        return await this.handleSingleResponse(converseCmd);
       }
     }
   }
