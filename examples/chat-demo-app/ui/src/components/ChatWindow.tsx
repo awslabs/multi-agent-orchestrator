@@ -178,27 +178,40 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
   return (
     <div className="flex flex-col h-[800px] w-[1000px] bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-6 shadow-lg">
       <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-yellow-900 mb-2">Multi-Agent Orchestrator Demo</h1>
+        <h1 className="text-3xl font-bold text-yellow-900 mb-2">
+          Multi-Agent Orchestrator Demo
+        </h1>
         <p className="text-lg text-yellow-800 mb-4">
-          Experience the power of intelligent routing and context management across multiple AI agents.
+          Experience the power of intelligent routing and context management
+          across multiple AI agents.
         </p>
         <p className="text-md text-yellow-700 italic">
-          Type "hello" or "bonjour" to see the available agents and start interacting!
+          Type "hello" or "bonjour" to see the available agents and start
+          interacting!
         </p>
       </div>
       <div className="flex-grow bg-yellow-100 rounded-lg p-4 overflow-y-auto mb-4">
         {messages.map((msg, index) => (
-          <div key={index} className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'} mb-2`}>
-            <div className={`rounded-lg py-2 px-4 max-w-[70%] ${
-              msg.sender === 'You' ? 'bg-yellow-300 text-yellow-900' : 'bg-gray-300 text-gray-900'
-            }`}>
+          <div
+            key={index}
+            className={`flex ${msg.sender === "You" ? "justify-end" : "justify-start"} mb-2`}
+          >
+            <div
+              className={`rounded-lg py-2 px-4 max-w-[70%] ${
+                msg.sender === "You"
+                  ? "bg-yellow-300 text-yellow-900"
+                  : "bg-gray-300 text-gray-900"
+              }`}
+            >
               <p className="text-xs font-semibold mb-1">{msg.sender}</p>
               {msg.isWaiting ? (
                 <div className="flex items-center justify-center">
                   <Loader className="animate-spin" size={24} />
                 </div>
-              ) : renderMessageContent(msg.content)}
-              
+              ) : (
+                renderMessageContent(msg.content)
+              )}
+
               <p className="text-xs mt-1 text-gray-600">
                 {new Date(msg.timestamp).toLocaleTimeString()}
               </p>
@@ -217,34 +230,45 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
           placeholder="Type a message..."
           disabled={running}
         />
-        <button type="submit" className="bg-amber-500 text-white p-2 rounded-lg" disabled={running}>
+        <button
+          type="submit"
+          className="bg-amber-500 text-white p-2 rounded-lg"
+          disabled={running}
+        >
           <Send size={20} />
         </button>
       </form>
-      <div className="text-center text-yellow-900">
-        <p className="mb-2">To learn more about the Multi-Agent Orchestrator:</p>
-        <div className="flex justify-center space-x-4">
-          <a 
-            href="https://github.com/awslabs/multi-agent-orchestrator" 
-            target="_blank" 
+      <div className="text-center text-yellow-100 mt-8 p-6 bg-orange-600 bg-opacity-30 rounded-xl shadow-lg">
+        <p className="mb-4 text-xl font-semibold">
+          To learn more about the Multi-Agent Orchestrator:
+        </p>
+        <div className="flex justify-center space-x-6">
+          <a
+            href="https://github.com/awslabs/multi-agent-orchestrator"
+            target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center hover:text-yellow-700 transition-colors duration-200"
+            className="flex items-center bg-yellow-400 hover:bg-yellow-500 text-orange-900 font-bold py-2 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
           >
-            <Github size={20} className="mr-2" />
+            <Github size={24} className="mr-2" />
             GitHub Repo
           </a>
-          <a 
-            href="https://awslabs.github.io/multi-agent-orchestrator/" 
-            target="_blank" 
+          <a
+            href="https://awslabs.github.io/multi-agent-orchestrator/"
+            target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center hover:text-yellow-700 transition-colors duration-200"
+            className="flex items-center bg-yellow-400 hover:bg-yellow-500 text-orange-900 font-bold py-2 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
           >
-            <BookOpen size={20} className="mr-2" />
+            <BookOpen size={24} className="mr-2" />
             Documentation
           </a>
         </div>
       </div>
-      <button onClick={handleSignOut} className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg">Sign out</button>
+      <button
+        onClick={handleSignOut}
+        className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg"
+      >
+        Sign out
+      </button>
     </div>
   );
 };
