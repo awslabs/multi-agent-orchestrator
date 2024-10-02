@@ -7,6 +7,7 @@ import { signOut, getCurrentUser } from 'aws-amplify/auth';
 import '@aws-amplify/ui-react/styles.css';
 import { configureAmplify } from '../utils/amplifyConfig';
 import { replaceTextEmotesWithEmojis } from './emojiHelper';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatWindowProps {
   awsExportsUrl: string;
@@ -23,7 +24,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  
+
   useEffect(() => {
     const initializeAuth = async () => {
       await configureAmplify(awsExportsUrl, awsExports);
@@ -41,7 +42,70 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
 
   const renderMessageContent = (content: string) => {
     const processedContent = replaceTextEmotesWithEmojis(content);
-    return <p dangerouslySetInnerHTML={{ __html: processedContent }} />;
+    return (
+      <ReactMarkdown
+        components={{
+          p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+          a: ({ node, ...props }) => <a className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />,
+          code: ({ node, ...props }) =>
+            (
+              <code className="block bg-gray-200 rounded p-2 my-2 whitespace-pre-wrap" {...props} />
+            ),
+            // Add support for headers
+        h1: ({ node, ...props }) => (
+          <h1 className="text-2xl font-bold mt-4 mb-2" {...props} />
+        ),
+        h2: ({ node, ...props }) => (
+          <h2 className="text-xl font-bold mt-3 mb-2" {...props} />
+        ),
+        h3: ({ node, ...props }) => (
+          <h3 className="text-lg font-bold mt-2 mb-1" {...props} />
+        ),
+        h4: ({ node, ...props }) => (
+          <h4 className="text-base font-bold mt-2 mb-1" {...props} />
+        ),
+        h5: ({ node, ...props }) => (
+          <h5 className="text-sm font-bold mt-1 mb-1" {...props} />
+        ),
+        h6: ({ node, ...props }) => (
+          <h6 className="text-xs font-bold mt-1 mb-1" {...props} />
+        ),
+        // Add support for ordered and unordered lists
+        ul: ({ node, ...props }) => (
+          <ul className="list-disc list-inside mb-2" {...props} />
+        ),
+        ol: ({ node, ...props }) => (
+          <ol className="list-decimal mb-2 pl-6" {...props} />
+        ),
+        // Add support for blockquotes
+        blockquote: ({ node, ...props }) => (
+          <blockquote
+            className="border-l-4 border-gray-300 pl-4 italic my-2"
+            {...props}
+          />
+        ),
+        // Add support for horizontal rules
+        hr: ({ node, ...props }) => (
+          <hr className="border-t border-gray-300 my-4" {...props} />
+        ),
+        // Add support for tables
+        table: ({ node, ...props }) => (
+          <table className="border-collapse table-auto w-full my-2" {...props} />
+        ),
+        thead: ({ node, ...props }) => (
+          <thead className="bg-gray-200" {...props} />
+        ),
+        th: ({ node, ...props }) => (
+          <th className="border px-4 py-2 text-left" {...props} />
+        ),
+        td: ({ node, ...props }) => (
+          <td className="border px-4 py-2" {...props} />
+        ),
+        }}
+      >
+        {processedContent}
+      </ReactMarkdown>
+    );
   };
 
   useEffect(() => {
@@ -198,7 +262,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
                   <Loader className="animate-spin" size={24} />
                 </div>
               ) : renderMessageContent(msg.content)}
-              
+
               <p className="text-xs mt-1 text-gray-600">
                 {new Date(msg.timestamp).toLocaleTimeString()}
               </p>
@@ -224,18 +288,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
       <div className="text-center text-yellow-900">
         <p className="mb-2">To learn more about the Multi-Agent Orchestrator:</p>
         <div className="flex justify-center space-x-4">
-          <a 
-            href="https://github.com/awslabs/multi-agent-orchestrator" 
-            target="_blank" 
+          <a
+            href="https://github.com/awslabs/multi-agent-orchestrator"
+            target="_blank"
             rel="noopener noreferrer"
             className="flex items-center hover:text-yellow-700 transition-colors duration-200"
           >
             <Github size={20} className="mr-2" />
             GitHub Repo
           </a>
-          <a 
-            href="https://awslabs.github.io/multi-agent-orchestrator/" 
-            target="_blank" 
+          <a
+            href="https://awslabs.github.io/multi-agent-orchestrator/"
+            target="_blank"
             rel="noopener noreferrer"
             className="flex items-center hover:text-yellow-700 transition-colors duration-200"
           >
