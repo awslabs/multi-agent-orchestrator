@@ -211,7 +211,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
       ]);
     } finally {
       setRunning(false);
-      inputRef.current?.focus();
+      setTimeout(() => inputRef.current?.focus(), 0);
     }
   };
 
@@ -301,17 +301,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
           <Send size={20} />
         </button>
       </form>
-<<<<<<< HEAD
-      <div className="text-center text-yellow-100 mt-8 p-6 bg-orange-600 bg-opacity-30 rounded-xl shadow-lg">
-        <p className="mb-4 text-xl font-semibold">
-          To learn more about the Multi-Agent Orchestrator:
-        </p>
-        <div className="flex justify-center space-x-6">
-=======
       <div className="text-center text-yellow-900">
         <p className="mb-2">To learn more about the Multi-Agent Orchestrator:</p>
         <div className="flex justify-center space-x-4">
->>>>>>> 3cd82c74717929ff9585e10b89136ff63486a413
           <a
             href="https://github.com/awslabs/multi-agent-orchestrator"
             target="_blank"
