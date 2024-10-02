@@ -12,6 +12,14 @@ export interface AmazonBedrockAgentOptions extends AgentOptions {
   agentAliasId: string;   // The alias ID of the Amazon Bedrock agent.
 }
 
+export interface AmazonBedrockAgentOptions extends Omit<AgentOptions, 'name' | 'description'> {
+  name: string;
+  description: string;
+  agentId: string;
+  agentAliasId: string;
+  region?: string;
+}
+
 
 /**
  * Represents an Amazon Bedrock agent that interacts with a runtime client.
@@ -28,7 +36,13 @@ export class AmazonBedrockAgent extends Agent {
    * @param options - Options to configure the Amazon Bedrock agent.
    */
   constructor(options: AmazonBedrockAgentOptions) {
-    super(options);
+    super({
+      name: options.name,
+      description: options.description,
+      saveChat: options.saveChat,
+      modelId: options.modelId
+    });
+
     this.agentId = options.agentId;
     this.agentAliasId = options.agentAliasId;
     this.client = options.region
