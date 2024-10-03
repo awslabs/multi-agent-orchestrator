@@ -10,6 +10,7 @@ import {
   AnthropicClassifier
 } from 'multi-agent-orchestrator';
 import { aiWithHumanVerificationAgent, HumanAgent, orderManagementAgent, productInfoAgent } from './agents';
+import { SQSLogger } from './sqsLogger';
 
 const sqs = new SQSClient({});
 const ssmClient = new SSMClient({});
@@ -57,6 +58,8 @@ const initializeOrchestrator = async (): Promise<MultiAgentOrchestrator> => {
   }
   
   if (!orchestrator) {
+    const sqsLogger = new SQSLogger(process.env.QUEUE_URL!, "log");
+
     orchestrator = new MultiAgentOrchestrator({
       classifier: new AnthropicClassifier({ apiKey }),
       storage: storage,
@@ -69,6 +72,7 @@ const initializeOrchestrator = async (): Promise<MultiAgentOrchestrator> => {
         MAX_MESSAGE_PAIRS_PER_AGENT: 10,
         USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: false,
       },
+      logger: sqsLogger,
     });
 
     const humanAgent = new HumanAgent({

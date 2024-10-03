@@ -31,6 +31,7 @@
     "aws-cdk-lib": "^2.147.3",
     "aws-lambda": "^1.0.7",
     "constructs": "^10.0.0",
+    "esbuild": "^0.24.0",
     "i": "^0.3.7",
     "multi-agent-orchestrator": "^0.0.10",
     "natural": "^7.1.0",

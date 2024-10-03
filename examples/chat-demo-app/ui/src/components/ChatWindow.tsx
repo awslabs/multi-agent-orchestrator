@@ -228,18 +228,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
     return <div>Loading...</div>;
   }
 
-  if (isAuthenticated === false) {
-    return (
-      <Authenticator>
-        {({ user }) => {
-          setIsAuthenticated(true);
-          return null;
-        }}
-      </Authenticator>
-    );
-  }
+  
 
   return (
+    <Authenticator>
+      {({ signOut, user }) => (
     <div className="flex flex-col h-[800px] w-[1000px] bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-6 shadow-lg">
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold text-yellow-900 mb-2">
@@ -331,6 +324,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
         Sign out
       </button>
     </div>
+    )}
+    </Authenticator>
   );
 };
 

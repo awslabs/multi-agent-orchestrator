@@ -35,6 +35,10 @@ export async function configureAmplify(awsExportsUrl: string, preloadedConfig: A
     }
   }
 
+  if (!awsExports) {
+    throw new Error("Failed to initialize awsExports");
+  }
+
   const config = {
     Auth: {
       Cognito: {
