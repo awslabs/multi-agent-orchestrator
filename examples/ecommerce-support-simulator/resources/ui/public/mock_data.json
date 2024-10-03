@@ -1,0 +1,21 @@
+{
+    "orders": {
+      "12345": {
+        "status": "Shipped",
+        "items": ["Widget A", "Gadget B"],
+        "total": 150.0
+      },
+      "67890": {
+        "status": "Processing",
+        "items": ["Gizmo C"],
+        "total": 75.5
+      }
+    },
+    "shipments": {
+      "12345": {
+        "carrier": "FastShip",
+        "trackingNumber": "FS123456789",
+        "status": "In Transit"
+      }
+    }
+  }
