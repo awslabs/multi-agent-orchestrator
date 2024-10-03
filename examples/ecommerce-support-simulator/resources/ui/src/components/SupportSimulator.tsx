@@ -55,15 +55,7 @@ const SupportSimulator = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [client, setClient] = useState<ReturnType<typeof generateClient> | null>(null);
   const [isBehindScenesOpen, setIsBehindScenesOpen] = useState(false);
-
-  const [logs, setLogs] = useState<string[]>([
-    "[2024-03-14 15:30:22] INFO: Session started",
-    "[2024-03-14 15:30:23] DEBUG: Analyzing customer query",
-    "[2024-03-14 15:30:24] INFO: Order agent selected",
-    "[2024-03-14 15:30:25] DEBUG: Retrieving order information",
-    "[2024-03-14 15:30:26] INFO: Human agent notified for review",
-    // Add more log entries as needed
-  ]);
+  const [logs, setLogs] = useState<string[]>([]);
 
 
   const createAuthenticatedClient = async () => {
