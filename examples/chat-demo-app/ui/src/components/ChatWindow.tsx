@@ -145,7 +145,7 @@ const ChatWindow: React.FC = () => {
       setResponseReceived(false); // Reset for next response
     }
   }, [responseReceived]);
-  
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -227,9 +227,8 @@ const ChatWindow: React.FC = () => {
           }
         }
       }
-
     
-    setResponseReceived(true);
+
     } catch (error) {
       console.error('Error in API call:', error);
       setMessages(prevMessages => [
@@ -242,8 +241,9 @@ const ChatWindow: React.FC = () => {
         }
       ]);
     } finally {
+      setResponseReceived(true);
       setRunning(false);
-      //setTimeout(() => inputRef.current?.focus(), 0);
+
     }
   };
 
