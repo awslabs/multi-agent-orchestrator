@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Loader, Github, BookOpen } from 'lucide-react';
+import { Send, Loader, Github, BookOpen, RefreshCw } from 'lucide-react';
 import { ChatApiClient } from '../utils/ApiClient';
 import { v4 as uuidv4 } from 'uuid';
 import { Authenticator } from '@aws-amplify/ui-react';
@@ -9,28 +9,51 @@ import { configureAmplify } from '../utils/amplifyConfig';
 import { replaceTextEmotesWithEmojis } from './emojiHelper';
 import ReactMarkdown from 'react-markdown';
 
-interface ChatWindowProps {
-  awsExportsUrl: string;
-  awsExports: any;
-}
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) => {
+
+const ChatWindow: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [messages, setMessages] = useState<Array<any>>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
-  const [sessionId, setSessionId] = useState<string>('');
   const [running, setRunning] = useState<boolean>(false);
-  const apiClient = new ChatApiClient();
+  //const apiClient = new ChatApiClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [client, setClient] = useState<ReturnType<any> | null>(null);
 
+
+
+  const createAuthenticatedClient = async () => {
+    return new ChatApiClient();
+  };
+
+  useEffect(() => {
+    initializeSessionId();
+  }, []);
+
+  const initializeSessionId = () => {
+    let storedSessionId = localStorage.getItem('sessionId');
+    if (!storedSessionId) {
+      storedSessionId = uuidv4();
+      localStorage.setItem('sessionId', storedSessionId);
+    }
+  };
+
+  const resetSessionId = () => {
+    const newSessionId = uuidv4();
+    localStorage.setItem('sessionId', newSessionId);
+    // Optionally, you may want to clear the messages or perform other reset actions
+    setMessages([]);
+  };
 
   useEffect(() => {
     const initializeAuth = async () => {
-      await configureAmplify(awsExportsUrl, awsExports);
+      await configureAmplify();
       try {
         await getCurrentUser();
         setIsAuthenticated(true);
+        const newClient = await createAuthenticatedClient();
+        setClient(newClient);
       } catch (error) {
         console.log('Not authenticated', error);
         setIsAuthenticated(false);
@@ -38,7 +61,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
     };
 
     initializeAuth();
-  }, [awsExportsUrl, awsExports]);
+  }, []);
 
   const renderMessageContent = (content: string) => {
     const processedContent = replaceTextEmotesWithEmojis(content);
@@ -114,7 +137,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
       session_id = uuidv4();
       localStorage.setItem('sessionId', session_id);
     }
-    setSessionId(session_id);
   }, []);
 
   useEffect(() => {
@@ -150,7 +172,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
     ]);
 
     try {
-      const response = await apiClient.query('chat/query', inputMessage);
+      const response = await client.query('chat/query', inputMessage);
 
       if (response.body) {
         const reader = response.body.getReader();
@@ -233,20 +255,26 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
   return (
     <Authenticator>
       {({ signOut, user }) => (
-    <div className="flex flex-col h-[800px] w-[1000px] bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-6 shadow-lg">
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-yellow-900 mb-2">
-          Multi-Agent Orchestrator Demo
-        </h1>
-        <p className="text-lg text-yellow-800 mb-4">
-          Experience the power of intelligent routing and context management
-          across multiple AI agents.
-        </p>
-        <p className="text-md text-yellow-700 italic">
-          Type "hello" or "bonjour" to see the available agents and start
-          interacting!
-        </p>
-      </div>
+     <div className="flex flex-col h-[800px] w-[1000px] bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-6 shadow-lg">
+     <div className="text-center mb-6 relative">
+       <h1 className="text-3xl font-bold text-yellow-900 mb-2">
+         Multi-Agent Orchestrator Demo
+       </h1>
+       <button
+         onClick={resetSessionId}
+         className="absolute top-0 right-0 bg-yellow-700 hover:bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center text-sm transition-colors duration-200"
+       >
+         <RefreshCw size={24} />
+       </button>
+       <p className="text-lg text-yellow-800 mb-4">
+         Experience the power of intelligent routing and context management
+         across multiple AI agents.
+       </p>
+       <p className="text-md text-yellow-700 italic">
+         Type "hello" or "bonjour" to see the available agents and start
+         interacting!
+       </p>
+     </div>
       <div className="flex-grow bg-yellow-100 rounded-lg p-4 overflow-y-auto mb-4">
         {messages.map((msg, index) => (
           <div
@@ -288,7 +316,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ awsExportsUrl, awsExports }) =>
         />
         <button
           type="submit"
-          className="bg-amber-500 text-white p-2 rounded-lg"
+          className="bg-amber-600 text-white p-2 rounded-lg"
           disabled={running}
         >
           <Send size={20} />

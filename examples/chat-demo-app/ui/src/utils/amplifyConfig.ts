@@ -1,63 +1,36 @@
-import { Amplify } from 'aws-amplify';
+import { Amplify, ResourcesConfig } from 'aws-amplify';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-interface AwsExports {
-  Auth: {
-    Cognito: {
-      userPoolId: string;
-      userPoolClientId: string;
-      identityPoolId: string;
-    }
-  };
-  domainName: string;
+interface ExtendedResourcesConfig extends ResourcesConfig {
   region: string;
+  domainName: string;
 }
 
-let awsExports: AwsExports | null = null;
 
-export async function configureAmplify(awsExportsUrl: string, preloadedConfig: AwsExports | null = null): Promise<void> {
+let awsExports: ExtendedResourcesConfig;
+
+export async function configureAmplify(): Promise<void> {
   if (!awsExports) {
-    if (preloadedConfig) {
-      awsExports = preloadedConfig;
-    } else {
-      try {
-        console.log("Fetching from:", awsExportsUrl);
-        const response = await fetch(awsExportsUrl);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        awsExports = await response.json();
-        console.log("Fetched AWS exports:", awsExports);
-      } catch (error) {
-        console.error("Failed to fetch aws-exports.json:", error);
-        throw error;
+    try {
+      const awsExportsUrl = new URL('/aws-exports.json', window.location.href).toString();
+      console.log("Fetching from:", awsExportsUrl);
+      const response = await fetch(awsExportsUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      awsExports = await response.json();
+      console.log("Fetched AWS exports:", awsExports);
+    } catch (error) {
+      console.error("Failed to fetch aws-exports.json:", error);
+      throw error;
     }
   }
 
   if (!awsExports) {
-    throw new Error("Failed to initialize awsExports");
+    throw new Error("AWS exports configuration is not available");
   }
 
-  const config = {
-    Auth: {
-      Cognito: {
-        userPoolId: awsExports.Auth.Cognito.userPoolId,
-        userPoolClientId: awsExports.Auth.Cognito.userPoolClientId,
-        identityPoolId: awsExports.Auth.Cognito.identityPoolId,
-      }
-    },
-    API: {
-      REST: {
-        MyAPI: {
-          endpoint: awsExports.domainName,
-          region: awsExports.region
-        },
-      }
-    }
-  };
-
-  Amplify.configure(config);
+  Amplify.configure(awsExports);
 }
 
 export async function getAuthToken(): Promise<string | undefined> {
@@ -70,6 +43,9 @@ export async function getAuthToken(): Promise<string | undefined> {
   }
 }
 
-export async function getAwsExports(): Promise<AwsExports | null> {
+export async function getAwsExports(): Promise<ExtendedResourcesConfig> {
+  if (!awsExports) {
+    await configureAmplify();
+  }
   return awsExports;
 }

@@ -270,10 +270,10 @@ const SupportSimulator = () => {
           <h1 className="text-4xl font-bold text-yellow-100 mb-4 drop-shadow-lg">
             AI-Powered E-commerce Support Simulator
           </h1>
-          <p className="text-xl text-yellow-100 mb-4">
+          <p className="text-xl text-yellow-100 mb-3">
             Experience the future of customer support with our multi-agent AI system.
           </p>
-          <p className="text-lg text-yellow-200 italic mb-8">
+          <p className="text-lg text-yellow-200 italic mb-0">
             Try asking "Where is my order?" or "I want to return an item" to see how our AI handles customer support inquiries!
           </p>
         </div>
@@ -372,6 +372,15 @@ const SupportSimulator = () => {
               )}
             </div>
 
+            <div className="text-center mt-6">
+      <a
+        href="/mock_data.json" 
+        target='_blank'
+        className="text-yellow-200 hover:text-yellow-100 text-sm underline transition-colors duration-300"
+      >
+        Access mock data for simulation
+      </a>
+    </div>
 
 
         <div className="text-center text-yellow-100 mt-8 p-6 bg-orange-600 bg-opacity-30 rounded-xl shadow-lg">

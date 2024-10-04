@@ -1,9 +1,9 @@
-import { getAuthToken, getAwsExports } from './amplifyConfig';
+import { getAwsExports } from './amplifyConfig';
 import { fetchAuthSession } from "aws-amplify/auth";
 
 class ApiClientBase {
+
   async getHeaders(): Promise<Record<string, string>> {
-    const token = await getAuthToken();
     return {
       Authorization: `Bearer ${await this.getAccessToken()}`,
       "Content-Type": "application/json",
