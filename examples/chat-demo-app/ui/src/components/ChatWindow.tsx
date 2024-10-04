@@ -46,21 +46,22 @@ const ChatWindow: React.FC = () => {
     setMessages([]);
   };
 
-  useEffect(() => {
-    const initializeAuth = async () => {
+  const initializeClient = async (): Promise<ChatApiClient | null> => {
+    try {
       await configureAmplify();
-      try {
-        await getCurrentUser();
-        setIsAuthenticated(true);
-        const newClient = await createAuthenticatedClient();
-        setClient(newClient);
-      } catch (error) {
-        console.log('Not authenticated', error);
-        setIsAuthenticated(false);
-      }
-    };
+      const newClient = await createAuthenticatedClient();
+      setIsAuthenticated(true);
+      setClient(newClient);
+      return newClient;
+    } catch (error) {
+      console.error('Error initializing client:', error);
+      setIsAuthenticated(false);
+      return null;
+    }
+  };
 
-    initializeAuth();
+  useEffect(() => {
+   initializeClient();
   }, []);
 
   const renderMessageContent = (content: string) => {
@@ -157,6 +158,26 @@ const ChatWindow: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (inputMessage.trim() === '') return;
+
+    let currentClient = client;
+
+    if (!currentClient) {
+      setRunning(true);
+      currentClient = await initializeClient();
+      setRunning(false);
+      if (!currentClient) {
+        setMessages(prevMessages => [
+          ...prevMessages,
+          {
+            content: "Failed to initialize the chat client. Please try again or refresh the page.",
+            sender: 'System',
+            timestamp: new Date().toISOString(),
+            isWaiting: false
+          }
+        ]);
+        return;
+      }
+    }
 
     const newMessage = {
       content: inputMessage,
