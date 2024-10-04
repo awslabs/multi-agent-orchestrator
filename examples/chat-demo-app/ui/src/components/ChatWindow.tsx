@@ -16,7 +16,6 @@ const ChatWindow: React.FC = () => {
   const [messages, setMessages] = useState<Array<any>>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
   const [running, setRunning] = useState<boolean>(false);
-  //const apiClient = new ChatApiClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [client, setClient] = useState<ReturnType<any> | null>(null);
@@ -42,7 +41,6 @@ const ChatWindow: React.FC = () => {
   const resetSessionId = () => {
     const newSessionId = uuidv4();
     localStorage.setItem('sessionId', newSessionId);
-    // Optionally, you may want to clear the messages or perform other reset actions
     setMessages([]);
   };
 
