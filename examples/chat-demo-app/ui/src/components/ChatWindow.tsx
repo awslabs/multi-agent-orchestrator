@@ -20,7 +20,7 @@ const ChatWindow: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [client, setClient] = useState<ReturnType<any> | null>(null);
-
+  const [responseReceived, setResponseReceived] = useState(false);
 
 
   const createAuthenticatedClient = async () => {
@@ -140,6 +140,13 @@ const ChatWindow: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (responseReceived && inputRef.current) {
+      inputRef.current.focus();
+      setResponseReceived(false); // Reset for next response
+    }
+  }, [responseReceived]);
+  
+  useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
@@ -220,6 +227,9 @@ const ChatWindow: React.FC = () => {
           }
         }
       }
+
+    
+    setResponseReceived(true);
     } catch (error) {
       console.error('Error in API call:', error);
       setMessages(prevMessages => [
@@ -233,7 +243,7 @@ const ChatWindow: React.FC = () => {
       ]);
     } finally {
       setRunning(false);
-      setTimeout(() => inputRef.current?.focus(), 0);
+      //setTimeout(() => inputRef.current?.focus(), 0);
     }
   };
 
