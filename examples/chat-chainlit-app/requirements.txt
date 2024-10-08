@@ -1,0 +1,3 @@
+chainlit==1.2.0
+multi_agent_orchestrator==0.0.16
+ollama==0.3.3

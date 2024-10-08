@@ -129,20 +129,31 @@ The [process_request](../overview#abstract-method-processrequest) method must be
     class OllamaAgent(Agent):
         def __init__(self, options: OllamaAgentOptions):
             super().__init__(options)
-            self.options = options
+            self.model_id = options.model_id
+            self.streaming = options.streaming
 
-        async def handle_streaming_response(self, messages: List[Dict[str, str]]) -> AsyncIterable[str]:
+        async def handle_streaming_response(self, messages: List[Dict[str, str]]) -> ConversationMessage:
+            text = ''
             try:
                 response = ollama.chat(
-                    model=self.options.model_id,
+                    model=self.model_id,
                     messages=messages,
-                    stream=True
+                    stream=self.streaming
                 )
                 for part in response:
-                    yield part['message']['content']
+                    text += part['message']['content']
+                    self.callbacks.on_llm_new_token(part['message']['content'])
+
+                return ConversationMessage(
+                    role=ParticipantRole.ASSISTANT.value,
+                    content=[{"text": text}]
+                )
+
             except Exception as error:
-                Logger.error("Error getting stream from Ollama model:", error)
+                Logger.logger.error("Error getting stream from Ollama model:", error)
                 raise error
+
+
 
         async def process_request(
             self,
@@ -158,11 +169,11 @@ The [process_request](../overview#abstract-method-processrequest) method must be
             ]
             messages.append({"role": ParticipantRole.USER.value, "content": input_text})
 
-            if self.options.streaming:
-                return self.handle_streaming_response(messages)
+            if self.streaming:
+                return await self.handle_streaming_response(messages)
             else:
                 response = ollama.chat(
-                    model=self.options.model_id,
+                    model=self.model_id,
                     messages=messages
                 )
                 return ConversationMessage(
