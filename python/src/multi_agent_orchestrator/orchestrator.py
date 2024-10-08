@@ -185,7 +185,7 @@ class MultiAgentOrchestrator:
             return AgentResponse(
                     metadata=metadata,
                     output=agent_response,
-                    streaming=False
+                    streaming=classifier_result.selected_agent.is_streaming_enabled()
                 )
 
         except Exception as error:
