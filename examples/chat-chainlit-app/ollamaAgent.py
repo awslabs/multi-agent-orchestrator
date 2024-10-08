@@ -22,10 +22,10 @@ class OllamaAgent(Agent):
             response = ollama.chat(
                 model=self.options.model_id,
                 messages=messages,
-                stream=True
+                stream=self.options.streaming
             )
             for part in response:
-                yield part['message']['content']
+                self.callbacks.on_llm_new_token(part['message']['content'])
         except Exception as error:
             Logger.error("Error getting stream from Ollama model:", error)
             raise error
@@ -45,7 +45,7 @@ class OllamaAgent(Agent):
         messages.append({"role": ParticipantRole.USER.value, "content": input_text})
 
         if self.options.streaming:
-            return self.handle_streaming_response(messages)
+            return await self.handle_streaming_response(messages)
         else:
             response = ollama.chat(
                 model=self.options.model_id,
