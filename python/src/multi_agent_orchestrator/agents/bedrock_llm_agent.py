@@ -90,6 +90,9 @@ class BedrockLLMAgent(Agent):
                 options.custom_system_prompt.get('variables')
             )
 
+    def is_streaming_enabled(self) -> bool:
+        return self.streaming is True
+
     async def process_request(
         self,
         input_text: str,
