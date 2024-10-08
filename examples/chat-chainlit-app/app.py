@@ -22,7 +22,7 @@ orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
     LOG_CLASSIFIER_OUTPUT=True,
     LOG_EXECUTION_TIMES=True,
     MAX_RETRIES=3,
-    USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED=True,
+    USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED=False,
     MAX_MESSAGE_PAIRS_PER_AGENT=10
 ), classifier=custom_bedrock_classifier)
 
@@ -36,53 +36,6 @@ async def start():
     cl.user_session.set("user_id", str(uuid.uuid4()))
     cl.user_session.set("session_id", str(uuid.uuid4()))
     cl.user_session.set("chat_history", [])
-
-
-@cl.step(type="tool")
-async def select_agent(query: str) -> str:
-    user_id = cl.user_session.get("user_id")
-    session_id = cl.user_session.get("session_id")
-
-    # Get the chat history from the user session or initialize it if it doesn't exist
-    chat_history = cl.user_session.get("chat_history", [])
-
-    # Format the chat history as expected by the classifier
-    formatted_history = [
-        ConversationMessage(
-            role="user",
-            content=[{"text": msg}]
-        )
-        for msg in chat_history
-    ]
-
-    # Add the current query to the formatted history
-    formatted_history.append(
-        ConversationMessage(
-            role="user",
-            content=[{"text": query}]
-        )
-    )
-
-    # Perform classification
-    classification = await orchestrator.classifier.classify(query, formatted_history)
-    print(classification)
-
-    # Update the chat history with the new query
-    chat_history.append(query)
-    cl.user_session.set("chat_history", chat_history)
-
-    # Prepare the output message
-    output = "**Classifying Intent** \n"
-    # output += "=======================\n"
-    output += f"> Text: {query}\n"
-    if classification.selected_agent:
-            output += f"> Selected Agent: {classification.selected_agent.name}\n"
-    else:
-            output += "> Selected Agent: No agent found\n"
-
-    output += f"> Confidence: {classification.confidence:.2f}\n"
-
-    return output
 
 
 @cl.on_message
