@@ -143,7 +143,8 @@ class MultiAgentOrchestrator:
                                                    user_id,
                                                    session_id,
                                                    additional_params),
-                    output= self.config.NO_SELECTED_AGENT_MESSAGE,
+                    output= ConversationMessage(role=ParticipantRole.ASSISTANT.value,
+                                                content=[{'text': self.config.NO_SELECTED_AGENT_MESSAGE}]),
                     streaming=False
                 )
 
