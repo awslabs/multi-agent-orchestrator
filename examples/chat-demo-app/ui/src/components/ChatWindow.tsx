@@ -8,7 +8,7 @@ import '@aws-amplify/ui-react/styles.css';
 import { configureAmplify } from '../utils/amplifyConfig';
 import { replaceTextEmotesWithEmojis } from './emojiHelper';
 import ReactMarkdown from 'react-markdown';
-
+import LoadingScreen from '../components/loadingScreen';
 
 
 const ChatWindow: React.FC = () => {
@@ -246,7 +246,7 @@ const ChatWindow: React.FC = () => {
           }
         }
       }
-    
+
 
     } catch (error) {
       console.error('Error in API call:', error);
@@ -276,15 +276,16 @@ const ChatWindow: React.FC = () => {
   };
 
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;
+    return <LoadingScreen text="Please wait..." />;
   }
 
-  
+
 
   return (
+    <div className="flex items-center justify-center min-h-screen">
     <Authenticator>
       {({ signOut, user }) => (
-     <div className="flex flex-col h-[800px] w-[1000px] bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-6 shadow-lg">
+     <div className="flex flex-col h-[800px] w-[1000px]  bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-6 shadow-lg">
      <div className="text-center mb-6 relative">
        <h1 className="text-3xl font-bold text-yellow-900 mb-2">
          Multi-Agent Orchestrator Demo
@@ -383,6 +384,7 @@ const ChatWindow: React.FC = () => {
     </div>
     )}
     </Authenticator>
+    </div>
   );
 };
 
