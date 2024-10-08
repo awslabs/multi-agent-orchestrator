@@ -1,11 +1,17 @@
 from orchestrator import BedrockLLMAgent, BedrockLLMAgentOptions, AgentCallbacks
 from ollamaAgent import OllamaAgent, OllamaAgentOptions
+import asyncio
 
 import chainlit as cl
 
 class ChainlitAgentCallbacks(AgentCallbacks):
-    async def on_llm_new_token(self, token: str) -> None:
-        await cl.Message(content=token).send()
+    def on_llm_new_token(self, token: str) -> None:
+        print(token, end='', flush=True)
+        asyncio.run(self.stream_token(token))
+
+    async def stream_token(self, token: str) -> None:
+        msg = cl.user_session.get("current_msg")
+        await msg.stream_token(token)
 
 def create_tech_agent():
     return BedrockLLMAgent(BedrockLLMAgentOptions(
