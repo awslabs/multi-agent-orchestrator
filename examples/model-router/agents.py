@@ -29,7 +29,7 @@ def create_haiku_agent():
 def create_llama_agent():
     return OllamaAgent(OllamaAgentOptions(
        name="Ollama Local Agent",
-        model_id="llama3.1:latest",
+        model_id="llama3.2:latest",
         description=f"""Could be less reliable, private model. but no cost in using it. suitable for all types of tasks""",
         streaming=True,
         callbacks=ChainlitAgentCallbacks()
