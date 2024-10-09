@@ -77,13 +77,13 @@ class AmazonBedrockAgent(Agent):
                     Logger.warn("Received a chunk event with no chunk data")
 
             return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
+                role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": completion}]
             )
 
         except (BotoCoreError, ClientError) as error:
             Logger.error(f"Error processing request: {str(error)}")
             return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
+                role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": "Sorry, I encountered an error while processing your request."}]
             )

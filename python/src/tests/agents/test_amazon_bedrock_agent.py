@@ -43,7 +43,7 @@ async def test_process_request_success(bedrock_agent):
     )
 
     assert isinstance(result, ConversationMessage)
-    assert result.role == ParticipantRole.ASSISTANT
+    assert result.role == ParticipantRole.ASSISTANT.value
     assert result.content == [{"text": "Hello, world!"}]
 
     bedrock_agent.client.invoke_agent.assert_called_once_with(
@@ -68,7 +68,7 @@ async def test_process_request_error(bedrock_agent):
     )
 
     assert isinstance(result, ConversationMessage)
-    assert result.role == ParticipantRole.ASSISTANT
+    assert result.role == ParticipantRole.ASSISTANT.value
     assert result.content == [{"text": "Sorry, I encountered an error while processing your request."}]
 
 @pytest.mark.asyncio
@@ -89,7 +89,7 @@ async def test_process_request_empty_chunk(bedrock_agent):
     )
 
     assert isinstance(result, ConversationMessage)
-    assert result.role == ParticipantRole.ASSISTANT
+    assert result.role == ParticipantRole.ASSISTANT.value
     assert result.content == [{"text": "Hello"}]
 
 @pytest.mark.asyncio
@@ -110,5 +110,5 @@ async def test_process_request_with_additional_params(bedrock_agent):
     )
 
     assert isinstance(result, ConversationMessage)
-    assert result.role == ParticipantRole.ASSISTANT
+    assert result.role == ParticipantRole.ASSISTANT.value
     assert result.content == [{"text": "Response with additional params"}]

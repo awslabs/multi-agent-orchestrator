@@ -62,13 +62,13 @@ class BedrockTranslatorAgent(Agent):
         # Check if input is a number and return it as-is if true
         if input_text.isdigit():
             return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
+                role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": input_text}]
             )
 
         # Prepare user message
         user_message = ConversationMessage(
-            role=ParticipantRole.USER,
+            role=ParticipantRole.USER.value,
             content=[{"text": f"<userinput>{input_text}</userinput>"}]
         )
 
@@ -121,7 +121,7 @@ class BedrockTranslatorAgent(Agent):
 
                         # Return the translated text
                         return ConversationMessage(
-                            role=ParticipantRole.ASSISTANT,
+                            role=ParticipantRole.ASSISTANT.value,
                             content=[{"text": translation}]
                         )
 

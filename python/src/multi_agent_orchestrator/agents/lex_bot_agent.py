@@ -49,7 +49,7 @@ class LexBotAgent(Agent):
             )
 
             return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
+                role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": concatenated_content or "No response from Lex bot."}]
             )
 

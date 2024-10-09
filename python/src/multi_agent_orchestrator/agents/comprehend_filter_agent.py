@@ -90,7 +90,7 @@ class ComprehendFilterAgent(Agent):
 
             # If no issues, return the original input as a ConversationMessage
             return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
+                role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": input_text}]
             )
 

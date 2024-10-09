@@ -81,6 +81,6 @@ class ChainAgent(Agent):
 
     def create_default_response(self) -> ConversationMessage:
         return ConversationMessage(
-            role=ParticipantRole.ASSISTANT,
+            role=ParticipantRole.ASSISTANT.value,
             content=[{"text": self.default_output}]
         )
