@@ -1,6 +1,11 @@
 # Introduction
 In this example we define 3 agents, which are basically 3 different models. Based on the model description the classifier picks a model and route the request to appropriate model. Take a look at Test example prompts below (last section) and experiment with more model descriptions and models.
 
+## Architecture
+
+![Architecture](./model_router.png)
+
+
 To set up and run the application first install dependencies from `requirements.txt` file, follow these steps:
 
 ### Prerequisites
