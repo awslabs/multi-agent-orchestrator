@@ -7,7 +7,7 @@ import { signOut, getCurrentUser } from 'aws-amplify/auth';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 
-import ChatMode from './ChatMode'; 
+import ChatMode from './ChatMode';
 import EmailMode from './EmailMode';
 import type { Message } from '../types';
 import { configureAmplify, getAuthToken } from '../utils/amplifyConfig';
@@ -61,7 +61,7 @@ const SupportSimulator = () => {
   const createAuthenticatedClient = async () => {
     await configureAmplify();
     const token = await getAuthToken();
-    
+
     return generateClient({
       authMode: 'userPool',
       authToken: token,
@@ -75,6 +75,7 @@ const SupportSimulator = () => {
       try {
         await getCurrentUser();
         setIsAuthenticated(true);
+        console.log('Creating client')
         const newClient = await createAuthenticatedClient();
         setClient(newClient);
       } catch (error) {
@@ -119,13 +120,13 @@ const SupportSimulator = () => {
   }, [isChatMode, sessionId]);
 
   useEffect(() => {
-    
+
     if (!client) return;
 
     const subscription = client.graphql<GraphQLSubscription<OnResponseReceivedSubscription>>({
       query: onResponseReceivedSubscription
     });
-  
+
     const sub = subscription.subscribe({
       next: ({ data }) => {
         console.log("data=" + JSON.stringify(data));
@@ -137,9 +138,9 @@ const SupportSimulator = () => {
             source: 'backend',
             timestamp: new Date().toISOString(),
           };
-  
+
           setMessages((prevMessages: Message[]) => [...prevMessages, newMessage as Message]);
-  
+
           if (destination === 'customer') {
             setCustomerResponse(message);
           } else if (destination === 'support') {
@@ -147,19 +148,19 @@ const SupportSimulator = () => {
           }else if (destination === 'log') {
             addLog(message);
           }
-  
-          
+
+
         }
       },
       error: (error: any) => console.warn(error),
     });
-  
+
     return () => {
       sub.unsubscribe();
     };
   }, [client]);
-  
-  
+
+
 
   const toggleMode = () => {
     setIsChatMode(prevMode => !prevMode);
@@ -178,15 +179,18 @@ const SupportSimulator = () => {
   const sendMessage = async (source: string, message: string, setResponse: React.Dispatch<React.SetStateAction<string>>, setMessage: React.Dispatch<React.SetStateAction<string>>) => {
     addLog(`Sending ${source} message to backend...`);
     console.log(`Sending ${source} message to backend...`)
+    let localClient;
+
     if (!client) {
       console.error('GraphQL client is not initialized');
-      setResponse('Error: GraphQL client is not initialized. Please try again.');
-      return;
+      localClient = await createAuthenticatedClient();
+      setClient(localClient);
+    }
+    else {
+      localClient = client
     }
     try {
-
-
-      const response = await client.graphql({
+      const response = await localClient.graphql({
         query: sendCustomerMessage,
         variables: {
           source: source,
@@ -194,16 +198,16 @@ const SupportSimulator = () => {
           sessionId: sessionId
         }
       });
-  
+
       console.log("response=" + JSON.stringify(response));
       addLog(`${source} message sent successfully, waiting for response...`);
-      
+
       if (source === "customer") {
         setCustomerResponse("");
       } else if (source === "support") {
         setSupportResponse("");
       }
-  
+
       setMessage('');
     } catch (error) {
       console.error(`Error sending ${source} message:`, error);
@@ -212,13 +216,13 @@ const SupportSimulator = () => {
   };
 
   const handleCustomerSubmit = (newMessage: Message) => {
-    setMessages((prevMessages: Message[]) => [...prevMessages, newMessage]); 
+    setMessages((prevMessages: Message[]) => [...prevMessages, newMessage]);
     sendMessage('customer', newMessage.content, setCustomerResponse, setCustomerMessage);
   };
-  
+
 
   const handleSupportSubmit = (newMessage: Message) => {
-    setMessages((prevMessages: Message[]) => [...prevMessages, newMessage]); 
+    setMessages((prevMessages: Message[]) => [...prevMessages, newMessage]);
     sendMessage('support', newMessage.content, setSupportResponse, setSupportMessage);
   };
 
@@ -351,7 +355,7 @@ const SupportSimulator = () => {
             </ul>
           </div>
         )}
-        
+
          {/* Behind the Scenes Section */}
          <div className="mt-8 bg-amber-800 bg-opacity-90 rounded-xl shadow-lg overflow-hidden">
               <button
@@ -374,7 +378,7 @@ const SupportSimulator = () => {
 
             <div className="text-center mt-6">
       <a
-        href="/mock_data.json" 
+        href="/mock_data.json"
         target='_blank'
         className="text-yellow-200 hover:text-yellow-100 text-sm underline transition-colors duration-300"
       >
