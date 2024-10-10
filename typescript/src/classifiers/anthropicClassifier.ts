@@ -54,10 +54,6 @@ export class AnthropicClassifier extends Classifier {
             type: 'string',
             description: 'The original user input',
           },
-          reworded_userinput: {
-            type: 'string',
-            description: 'The reworded user input',
-          },
           selected_agent: {
             type: 'string',
             description: 'The name of the selected agent',
@@ -125,7 +121,6 @@ async processRequest(
         throw new Error("Tool input does not match expected structure");
       }
 
-      console.log("toolUse="+JSON.stringify(toolUse))
       // Create and return IntentClassifierResult
       const intentClassifierResult: ClassifierResult = {
         selectedAgent: this.getAgentById(toolUse.input.selected_agent),
