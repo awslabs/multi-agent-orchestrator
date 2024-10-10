@@ -1,5 +1,5 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { 
+import {
   MultiAgentOrchestrator,
   BedrockLLMAgent,
   DynamoDbChatStorage,
@@ -169,6 +169,28 @@ if (BEDROCK_AGENT_ENABLED === "true") {
   );
 }
 
+const greetingAgent = new BedrockLLMAgent({
+  name: "Greeting Agent",
+  description: "Welcome the user and list him the available agents",
+  streaming: false,
+  inferenceConfig: {
+    temperature: 0.0,
+  },
+  saveChat: false,
+});
+
+let agentList = "";
+const agents = orchestrator.getAllAgents();
+Object.entries(agents).forEach(([agentKey, agentInfo], index) => {
+  agentList += `${index + 1}-${agentInfo.name}: ${agentInfo.description}\n\n`;
+});
+const greetingAgentPrompt = `You are a greeting agent that responds to hello or help. Be nice with the user.
+List to the user all the agents available to support him from this below list:\n\n${agentList}`;
+
+greetingAgent.setSystemPrompt(greetingAgentPrompt);
+orchestrator.addAgent(greetingAgent);
+
+
 async function eventHandler(
   event: APIGatewayProxyEventV2,
   responseStream: NodeJS.WritableStream
@@ -204,7 +226,7 @@ async function eventHandler(
       // Send metadata immediately
       logger.info(` > Agent ID: ${response.metadata.agentId}`);
       logger.info(` > Agent Name: ${response.metadata.agentName}`);
-      
+
       logger.info(`> User Input: ${response.metadata.userInput}`);
       logger.info(`> User ID: ${response.metadata.userId}`);
       logger.info(`> Session ID: ${response.metadata.sessionId}`);

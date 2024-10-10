@@ -34,7 +34,7 @@ export abstract class Classifier {
   protected customVariables: TemplateVariables;
   protected defaultAgent: Agent;
 
-  
+
 
   /**
    * Constructs a new IntentClassifier instance.
@@ -42,7 +42,7 @@ export abstract class Classifier {
    */
   constructor() {
 
-   
+
     this.defaultAgent = new BedrockLLMAgent({
       name: AgentTypes.DEFAULT,
       streaming: true,
@@ -173,12 +173,12 @@ Skip any preamble and provide only the response in the specified format.
 
     /**
    * Classifies the input text based on the provided chat history.
-   * 
+   *
    * This method orchestrates the classification process by:
    * 1. Setting the chat history.
    * 2. Updating the system prompt with the latest history, agent descriptions, and custom variables.
    * 3. Delegating the actual processing to the abstract `processRequest` method.
-   * 
+   *
    * @param inputText - The text to be classified.
    * @param chatHistory - An array of ConversationMessage objects representing the chat history.
    * @returns A Promise that resolves to a ClassifierResult object containing the classification outcome.
@@ -193,7 +193,7 @@ Skip any preamble and provide only the response in the specified format.
       this.updateSystemPrompt();
       return await this.processRequest(inputText, chatHistory);
     }
-  
+
     /**
      * Abstract method to process a request.
      * This method must be implemented by all concrete agent classes.
@@ -241,10 +241,10 @@ Skip any preamble and provide only the response in the specified format.
     if (!agentId) {
       return null;
     }
-  
+
     const myAgentId = agentId.split(" ")[0].toLowerCase();
     const matchedAgent = this.agents[myAgentId];
-  
+
     return matchedAgent || null;
   }
 }
