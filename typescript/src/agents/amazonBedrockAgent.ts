@@ -10,7 +10,6 @@ import { Logger } from "../utils/logger";
 export interface AmazonBedrockAgentOptions extends AgentOptions {
   agentId: string;        // The ID of the Amazon Bedrock agent.
   agentAliasId: string;   // The alias ID of the Amazon Bedrock agent.
-  client?: BedrockAgentRuntimeClient;  // Client for interacting with the Bedrock agent runtime.
 }
 
 
@@ -32,7 +31,7 @@ export class AmazonBedrockAgent extends Agent {
     super(options);
     this.agentId = options.agentId;
     this.agentAliasId = options.agentAliasId;
-    this.client = options.client ? options.client : options.region
+    this.client = options.region
     ? new BedrockAgentRuntimeClient({ region: options.region })
     : new BedrockAgentRuntimeClient();
   }
@@ -103,3 +102,4 @@ export class AmazonBedrockAgent extends Agent {
     }
   }
 }
+
