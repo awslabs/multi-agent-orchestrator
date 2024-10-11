@@ -138,7 +138,7 @@ export class AnthropicAgent extends Agent {
     userId: string,
     sessionId: string,
     chatHistory: ConversationMessage[],
-    additionalParams?: Record<string, string>
+    _additionalParams?: Record<string, string>
   ): Promise<ConversationMessage | AsyncIterable<any>> {
 
     // Format messages to Anthropic's format
