@@ -171,7 +171,6 @@ export interface AnthropicAgentOptions extends AgentOptions {
         let finalMessage:string = '';
         let toolUse = false;
         let recursions = this.toolConfig?.toolMaxRecursions || 5;
-        let tools = this.toolConfig?.tool;
         do {
 
           // Call Anthropic
@@ -182,7 +181,7 @@ export interface AnthropicAgentOptions extends AgentOptions {
             system: systemPrompt,
             temperature: this.inferenceConfig.temperature,
             top_p: this.inferenceConfig.topP,
-            tools: tools,
+            tools: this.toolConfig?.tool,
           });
 
           const toolUseBlocks = response.content.filter<Anthropic.ToolUseBlock>(
