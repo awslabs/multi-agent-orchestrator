@@ -8,7 +8,52 @@ import '@aws-amplify/ui-react/styles.css';
 import { configureAmplify } from '../utils/amplifyConfig';
 import { replaceTextEmotesWithEmojis } from './emojiHelper';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
 import LoadingScreen from '../components/loadingScreen';
+
+const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
+  useEffect(() => {
+    hljs.highlightAll();
+  }, [content]);
+
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeRaw]}
+      components={{
+        code({ node, className, children, ...props }) {
+          const match = /language-(\w+)/.exec(className || '');
+          return match ? (
+            <pre className="bg-yellow-50 rounded-md p-4 my-2 overflow-x-auto text-sm font-mono">
+              <code className={className} {...props}>
+                {children}
+              </code>
+            </pre>
+          ) : (
+            <code className="bg-yellow-100 text-yellow-900 px-1 rounded font-mono" {...props}>
+              {children}
+            </code>
+          );
+        },
+        p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+        a: ({ node, ...props }) => <a className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />,
+        h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-4 mb-2" {...props} />,
+        h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-3 mb-2" {...props} />,
+        h3: ({ node, ...props }) => <h3 className="text-lg font-bold mt-2 mb-1" {...props} />,
+        ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-2 pl-4" {...props} />,
+        ol: ({ node, ...props }) => <ol className="list-decimal mb-2 pl-6" {...props} />,
+        li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+        blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-yellow-300 pl-4 italic my-2" {...props} />,
+      }}
+      className="markdown-content text-yellow-900"
+    >
+      {content}
+    </ReactMarkdown>
+  );
+};
 
 const ChatWindow: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -19,7 +64,6 @@ const ChatWindow: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [client, setClient] = useState<ReturnType<any> | null>(null);
   const [responseReceived, setResponseReceived] = useState(false);
-
 
   const createAuthenticatedClient = async () => {
     return new ChatApiClient();
@@ -62,53 +106,13 @@ const ChatWindow: React.FC = () => {
   }, []);
 
 
-  interface CodeBlockProps {
-    value: string;
-  }
   
-  const CodeBlock: React.FC<CodeBlockProps> = ({ value }) => {
-    return (
-      <pre className="bg-gray-100 rounded-md p-4 my-2 overflow-x-auto text-sm font-mono">
-        <code>{value}</code>
-      </pre>
-    );
-  };
   
   const renderMessageContent = (content: string) => {
     const processedContent = replaceTextEmotesWithEmojis(content);
-    return (
-      <ReactMarkdown
-        components={{
-          code({ node, inline, className, children, ...props }) {
-            const match = /language-(\w+)/.exec(className || '');
-            const isMultiLine = String(children).includes('\n');
-            
-            if (!inline && (match || isMultiLine)) {
-              return <CodeBlock value={String(children).replace(/\n$/, '')} {...props} />;
-            }
-            
-            return (
-              <code className="bg-yellow-100 text-yellow-900 px-1 rounded font-mono" {...props}>
-                {children}
-              </code>
-            );
-          },
-          p: ({ node, ...props }) => <p className="mb-2" {...props} />,
-          a: ({ node, ...props }) => <a className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />,
-          h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-4 mb-2" {...props} />,
-          h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-3 mb-2" {...props} />,
-          h3: ({ node, ...props }) => <h3 className="text-lg font-bold mt-2 mb-1" {...props} />,
-          ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-2 pl-4" {...props} />,
-          ol: ({ node, ...props }) => <ol className="list-decimal mb-2 pl-6" {...props} />,
-          li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-          blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-2" {...props} />,
-        }}
-        className="markdown-content text-gray-800"
-      >
-        {processedContent}
-      </ReactMarkdown>
-    );
+    return <MarkdownRenderer content={processedContent} />;
   };
+
   
 
   useEffect(() => {
@@ -193,7 +197,8 @@ const ChatWindow: React.FC = () => {
           if (done) break;
 
           const chunk = decoder.decode(value);
-          const lines = chunk.split('\n').filter(line => line.trim() !== '');
+          //console.log("chunk="+chunk)
+          const lines = chunk.split('\n');
 
           for (const line of lines) {
             try {
@@ -211,7 +216,7 @@ const ChatWindow: React.FC = () => {
                   accumulatedContent += `Error: ${parsedLine.data}\n`;
                   break;
               }
-              console.log(accumulatedContent)
+        
               setMessages(prevMessages => [
                 ...prevMessages.slice(0, -1),
                 {
