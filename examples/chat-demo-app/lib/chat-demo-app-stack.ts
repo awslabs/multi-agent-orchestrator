@@ -6,7 +6,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import { UserInterfaceStack } from "./user-interface-stack"
 import * as path from "path";
-import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins"; 
+import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins";
 import { LexAgentConstruct } from './lex-agent-construct';
 import { BedrockKbConstruct } from './bedrock-agent-construct';
 
@@ -134,6 +134,21 @@ export class ChatDemoStack extends cdk.Stack {
         ],
       })
     );
+
+    multiAgentLambdaFunction.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "bedrock:Retrieve",
+        ],
+        resources: [
+          `arn:aws:bedrock:${cdk.Aws.REGION}::foundation-model/*`,
+          `arn:aws:bedrock:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:knowledge-base/${bedrockAgent!.knowledgeBaseId}`
+        ]
+      })
+    );
+
+
 
     const multiAgentLambdaFunctionUrl = multiAgentLambdaFunction.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.AWS_IAM,

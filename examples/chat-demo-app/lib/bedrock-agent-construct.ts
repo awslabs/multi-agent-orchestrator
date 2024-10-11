@@ -11,51 +11,56 @@ import { createHash } from 'crypto';
 
 export class BedrockKbConstruct extends Construct {
   public readonly bedrockAgent: bedrock.Agent;
-  public readonly description:string = "Agent in charge of providing response to restaurant's menu.";
+  public readonly description:string = "Agent in charge of providing response regarding the \
+  multi-agent orchestrator framework. Where to start, how to create an orchestrator.\
+  what are the different elements of the framework. Always Respond in mardown format";
   public readonly knowledgeBaseId: string;
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    const knowledgeBase = new bedrock.KnowledgeBase(this, 'KnowledgeBaseMenus', {
-      embeddingsModel: bedrock.BedrockFoundationModel.TITAN_EMBED_TEXT_V2_1024,
-      instruction: "Knowledge Base containing the restaurant menu's collection",
-      description:"Knowledge Base containing the restaurant menu's collection"
+    const knowledgeBase = new bedrock.KnowledgeBase(this, 'KnowledgeBaseDocs', {
+      embeddingsModel: bedrock.BedrockFoundationModel.COHERE_EMBED_MULTILINGUAL_V3,
+      instruction: "Knowledge Base containing the framework documentation",
+      description:"Knowledge Base containing the framework documentation"
     });
 
     this.knowledgeBaseId = knowledgeBase.knowledgeBaseId;
 
-    const menusBucket = new s3.Bucket(this, 'MenusBucket', {
+    const documentsBucket = new s3.Bucket(this, 'DocumentsBucket', {
       enforceSSL:true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
 
-    const menuDataSource = new bedrock.S3DataSource(this, 'MenusDataSource', {
-      bucket: menusBucket,
+    const menuDataSource = new bedrock.S3DataSource(this, 'DocumentsDataSource', {
+      bucket: documentsBucket,
       knowledgeBase: knowledgeBase,
-      dataSourceName: "RestaurantMenus",
+      dataSourceName: "Documentation",
       chunkingStrategy: bedrock.ChunkingStrategy.FIXED_SIZE,
       maxTokens: 500,
       overlapPercentage: 20,
     });
-    
-    this.bedrockAgent = new bedrock.Agent(this, "RestaurantBookingAgent", {
-      name: "menu-restaurant-agent",
-      description: "Agent in charge of providing response to restaurant's menu.",
+
+    this.bedrockAgent = new bedrock.Agent(this, "MultiAgentOrchestratorDocumentationAgent", {
+      name: "multi-agent-orchestrator-documentation-agent",
+      description: "Agent in charge of providing response regarding the \
+  multi-agent orchestrator framework.",
       foundationModel: bedrock.BedrockFoundationModel.ANTHROPIC_CLAUDE_SONNET_V1_0,
-      instruction: `You are a restaurant agent, helping clients retrieve information restaurant's menu.`,
+      instruction: `Agent in charge of providing response regarding the \
+  multi-agent orchestrator framework. Where to start, how to create an orchestrator.\
+  what are the different elements of the framework. Always Respond in mardown format.`,
       idleSessionTTL: cdk.Duration.minutes(10),
       shouldPrepareAgent: true,
       aliasName: "latest",
       knowledgeBases: [knowledgeBase]
     });
 
-    const assetsPath = path.join(__dirname, "./knowledge-base-assets");
+    const assetsPath = path.join(__dirname, "../../../docs/src/content/docs/");
     const asset = s3deploy.Source.asset(assetsPath);
 
-    new s3deploy.BucketDeployment(this, "DeployMenus", {
+    new s3deploy.BucketDeployment(this, "DeployDocumentation", {
       sources: [asset],
-      destinationBucket: menusBucket
+      destinationBucket: documentsBucket
     });
 
     const payload: string = JSON.stringify({
