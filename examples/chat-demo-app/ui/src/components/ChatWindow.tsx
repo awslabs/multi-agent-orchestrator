@@ -267,6 +267,24 @@ const ChatWindow: React.FC = () => {
       <Authenticator>
         {({ signOut, user }) => (
           <div className="flex flex-col h-[90vh] w-[70vw] bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-6 shadow-lg">
+            <div className="text-center mb-6 relative">
+       <h1 className="text-3xl font-bold text-yellow-900 mb-2">
+         Multi-Agent Orchestrator Demo
+       </h1>
+       <button
+         onClick={resetSessionId}
+         className="absolute top-0 right-0 bg-yellow-700 hover:bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center text-sm transition-colors duration-200"
+       >
+         <RefreshCw size={24} />
+       </button>
+       <p className="text-lg text-yellow-800 mb-4">
+         Experience the power of intelligent routing and context management
+         across multiple AI agents.
+       </p>
+       <p className="text-md text-yellow-700 italic">
+       Type "hello" or "bonjour" to see the available agents, or ask questions like "How do I use agents?", "How can I use the framework to create a custom agent?", "What are the steps to customize an agent?", and more!
+       </p>
+     </div>
             <div className="flex-grow bg-yellow-100 rounded-lg p-4 overflow-y-auto mb-4">
               {messages.map((msg, index) => (
                 <div key={index} className="mb-4">
