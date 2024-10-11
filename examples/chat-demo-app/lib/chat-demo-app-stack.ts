@@ -105,7 +105,7 @@ export class ChatDemoStack extends cdk.Stack {
           LEX_AGENT_CONFIG: JSON.stringify(lexAgentConfig),
           BEDROCK_AGENT_ENABLED: enableAmazonBedrockAgent.toString(),
           BEDROCK_AGENT_CONFIG: JSON.stringify(bedrockAgentConfig),
-          LAMBDA_AGENTS: JSON.stringify([{description:"This is an Agent to use when you forgot about your own name",name:'find-my-name',functionName:pythonLambda.functionName, region:cdk.Aws.REGION}]),
+          LAMBDA_AGENTS: JSON.stringify([{description:"This is an Agent to use when you forgot about your own name",name:'Find my name',functionName:pythonLambda.functionName, region:cdk.Aws.REGION}]),
         },
         bundling: {
           minify: false,

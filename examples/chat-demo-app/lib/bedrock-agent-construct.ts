@@ -42,7 +42,7 @@ export class BedrockKbConstruct extends Construct {
     });
 
     this.bedrockAgent = new bedrock.Agent(this, "MultiAgentOrchestratorDocumentationAgent", {
-      name: "multi-agent-orchestrator-documentation-agent",
+      name: "Multi-Agent-Orchestrator-Documentation-Agent",
       description: "Agent in charge of providing response regarding the \
   multi-agent orchestrator framework.",
       foundationModel: bedrock.BedrockFoundationModel.ANTHROPIC_CLAUDE_SONNET_V1_0,

@@ -1,7 +1,6 @@
 import { Loader2 } from 'lucide-react';
 
 const LoadingScreen = ({ text = 'Loading...' }) => {
-    console.log('resrezrrere')
   return (
     <div className="fixed inset-0 flex items-center justify-center text-yellow-900">
       <div className="text-center">
