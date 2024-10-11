@@ -101,7 +101,7 @@ export class AnthropicAgent extends Agent {
     this.inferenceConfig = {
       maxTokens: options.inferenceConfig?.maxTokens ?? defaultMaxTokens,
       temperature: options.inferenceConfig?.temperature ?? 0.1,
-      topP: options.inferenceConfig?.topP ?? 0.09,
+      topP: options.inferenceConfig?.topP ?? 0.9,
       stopSequences: options.inferenceConfig?.stopSequences ?? [],
     };
 
