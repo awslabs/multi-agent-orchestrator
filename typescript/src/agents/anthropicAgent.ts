@@ -231,21 +231,53 @@ export interface AnthropicAgentOptions extends AgentOptions {
   }
 
   private async *handleStreamingResponse(messages: any[], prompt:any): AsyncIterable<string> {
-    const stream = await this.client.messages.stream({
-      model: this.modelId,
-      max_tokens: this.inferenceConfig.maxTokens,
-      messages: messages,
-      system: prompt,
-      temperature: this.inferenceConfig.temperature,
-      top_p: this.inferenceConfig.topP,
-      tools: this.toolConfig?.tool,
-    });
+    let toolUse = false;
+    let recursions = this.toolConfig?.toolMaxRecursions || 5;
 
-    for await (const event of stream) {
-      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-        yield event.delta.text;
+    do
+    {
+      const stream = await this.client.messages.stream({
+        model: this.modelId,
+        max_tokens: this.inferenceConfig.maxTokens,
+        messages: messages,
+        system: prompt,
+        temperature: this.inferenceConfig.temperature,
+        top_p: this.inferenceConfig.topP,
+        tools: this.toolConfig?.tool,
+      });
+
+      let toolBlock:Anthropic.ToolUseBlock = {id:'', input:{}, name:'', type: 'tool_use'};
+      let inputString = '';
+
+      for await (const event of stream) {
+        if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+          yield event.delta.text;
+        }
+        else if (event.type === 'content_block_start' && event.content_block.type === 'tool_use') {
+          if (!this.toolConfig?.tool){
+            throw new Error("No tools available for tool use");
+          }
+          toolBlock = event.content_block;
+        }
+        else if (event.type === 'content_block_delta' && event.delta.type === 'input_json_delta') {
+          inputString += event.delta.partial_json;
+        }
+        else if (event.type === 'message_delta') {
+          if (event.delta.stop_reason === 'tool_use'){
+            if (toolBlock && inputString){
+              toolBlock.input = JSON.parse(inputString);
+              const message = {role:'assistant', content:[toolBlock]}
+              messages.push(message);
+              const toolResponse = await this.toolConfig!.useToolHandler(message, messages);
+              messages.push(toolResponse);
+              toolUse = true;
+            }
+          } else{
+            toolUse = false;
+          }
+        }
       }
-    }
+    } while (toolUse &&  --recursions > 0)
   }
 
   setSystemPrompt(template?: string, variables?: TemplateVariables): void {
