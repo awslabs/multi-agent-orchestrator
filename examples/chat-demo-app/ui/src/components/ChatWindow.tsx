@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Loader, Github, BookOpen, RefreshCw } from 'lucide-react';
+import { Send, Code2, BookOpen, RefreshCw } from 'lucide-react';
 import { ChatApiClient } from '../utils/ApiClient';
 import { v4 as uuidv4 } from 'uuid';
 import { Authenticator } from '@aws-amplify/ui-react';
-import { signOut, getCurrentUser } from 'aws-amplify/auth';
+import { signOut } from 'aws-amplify/auth';
 import '@aws-amplify/ui-react/styles.css';
 import { configureAmplify } from '../utils/amplifyConfig';
 import { replaceTextEmotesWithEmojis } from './emojiHelper';
@@ -13,6 +13,19 @@ import rehypeRaw from 'rehype-raw';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 import LoadingScreen from '../components/loadingScreen';
+
+const waitMessages = [
+  "Hang tight! Great things take time!",
+  "Almost there... Grabbing the answers!",
+  "Good things come to those who wait!",
+  "Patience is a virtue, right?",
+  "We’re brewing up something special!",
+  "Just a second! AI is thinking hard!",
+];
+
+const getRandomWaitMessage = () => {
+  return waitMessages[Math.floor(Math.random() * waitMessages.length)];
+};
 
 const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
   useEffect(() => {
@@ -270,7 +283,7 @@ const ChatWindow: React.FC = () => {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <Authenticator>
-        {({ signOut, user }) => (
+      {({ signOut: _signOut, user: _user }) => (
           <div className="flex flex-col h-[90vh] w-[70vw] bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-6 shadow-lg">
             <div className="text-center mb-6 relative">
        <h1 className="text-3xl font-bold text-yellow-900 mb-2">
@@ -300,12 +313,33 @@ const ChatWindow: React.FC = () => {
                   }`}>
                     <p className="text-xs font-semibold mb-1">{msg.sender}</p>
                     {msg.isWaiting ? (
-                      <div className="flex items-center justify-center">
-                        <Loader className="animate-spin" size={24} />
+                      <div className="flex flex-col items-center justify-center">
+                        {/* Cooler animated loader - infinity loop icon */}
+                        <div className="animate-spin">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-8 w-8 text-indigo-500"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M5 12a7 7 0 0 1 14 0M12 5a7 7 0 0 1 0 14" />
+                          </svg>
+                        </div>
+
+                        {/* Funny wait message */}
+                        <p className="mt-2 text-gray-600 text-sm">
+                          {getRandomWaitMessage()}
+                        </p>
                       </div>
                     ) : (
                       <div className="markdown-wrapper">{renderMessageContent(msg.content)}</div>
                     )}
+
+
                     <p className="text-xs mt-1 text-yellow-700">
                       {new Date(msg.timestamp).toLocaleTimeString()}
                     </p>
@@ -341,7 +375,7 @@ const ChatWindow: React.FC = () => {
                   rel="noopener noreferrer"
                   className="flex items-center bg-yellow-400 hover:bg-yellow-500 text-orange-900 font-bold py-2 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
                 >
-                  <Github size={24} className="mr-2" />
+                  <Code2 size={24} className="mr-2" />
                   GitHub Repo
                 </a>
                 <a

@@ -7,11 +7,13 @@ import {
   AmazonBedrockAgent,
   LambdaAgent,
   BedrockClassifier,
+  Agent,
 } from "multi-agent-orchestrator";
-import { weatherToolDescription, WEATHER_PROMPT, weatherToolHanlder } from './weather_tool'
-import { mathToolHanlder, mathAgentToolDefinition, MATH_AGENT_PROMPT } from './math_tool';
+import { weatherToolDescription, weatherToolHanlder } from './weather_tool'
+import { mathToolHanlder, mathAgentToolDefinition } from './math_tool';
 import { APIGatewayProxyEventV2, Handler, Context } from "aws-lambda";
 import { Buffer } from "buffer";
+import { GREETING_AGENT_PROMPT, HEALTH_AGENT_PROMPT, MATH_AGENT_PROMPT, TECH_AGENT_PROMPT, WEATHER_AGENT_PROMPT } from "./prompts";
 
 const logger = new Logger();
 
@@ -68,66 +70,67 @@ const orchestrator = new MultiAgentOrchestrator({
     LOG_EXECUTION_TIMES: true,
   },
   logger: logger,
+  classifier: new BedrockClassifier({
+    modelId: "anthropic.claude-3-sonnet-20240229-v1:0",
+  }),
 });
 
-  orchestrator.setClassifier(new BedrockClassifier(
-  {
-      modelId: "anthropic.claude-3-5-sonnet-20240620-v1:0",
-  }
-  ));
 
-orchestrator.addAgent(
-  new BedrockLLMAgent({
-    name: "Tech Agent",
-    description:
-      "Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.",
-    streaming: true,
-    inferenceConfig: {
-      temperature: 0.1,
-    },
-  })
-);
 
-orchestrator.addAgent(
-  new BedrockLLMAgent({
-    name: "Health Agent",
-    description:
-      "Focuses on health and medical topics such as general wellness, nutrition, diseases, treatments, mental health, fitness, healthcare systems, and medical terminology or concepts.",
-  })
-);
+const techAgent = new BedrockLLMAgent({
+  name: "Tech Agent",
+  description:
+    "Specializes in a wide range of technology areas, including software development, hardware, AI, cybersecurity, blockchain, cloud computing, and emerging tech innovations. Handles inquiries related to pricing, costs, and technical details of technology products and services except for the multi-agent orchestrator framework and its components.",
+  streaming: true,
+  inferenceConfig: {
+    temperature: 0.1,
+  },
+});
 
-  const weatherAgent = new BedrockLLMAgent({
-    name: "Weather Agent",
-    description: "Specialized agent for giving weather condition from a city.",
-    streaming: false,
-    inferenceConfig: {
-      temperature: 0.0,
-    },
-    toolConfig:{
-      useToolHandler: weatherToolHanlder,
-      tool: weatherToolDescription,
-      toolMaxRecursions: 5
-    }
-  });
-  weatherAgent.setSystemPrompt(WEATHER_PROMPT);
-  orchestrator.addAgent(weatherAgent);
+techAgent.setSystemPrompt(TECH_AGENT_PROMPT);
 
-  // Add a our custom Math Agent to the orchestrator
-  const mathAgent = new BedrockLLMAgent({
-    name: "Math Agent",
-    description: "Specialized agent for solving mathematical problems. Can dynamically create and execute mathematical operations, handle complex calculations, and explain mathematical concepts. Capable of working with algebra, calculus, statistics, and other advanced mathematical fields.",
-    streaming: false,
-    inferenceConfig: {
-      temperature: 0.0,
-    },
-    toolConfig:{
-      useToolHandler: mathToolHanlder,
-      tool: mathAgentToolDefinition,
-      toolMaxRecursions: 5
-    }
-  });
-  mathAgent.setSystemPrompt(MATH_AGENT_PROMPT);
-  orchestrator.addAgent(mathAgent);
+const healthAgent = new BedrockLLMAgent({
+  name: "Health Agent",
+  description:
+    "Focuses on health and medical topics such as general wellness, nutrition, diseases, treatments, mental health, fitness, healthcare systems, and medical terminology or concepts.",
+});
+
+healthAgent.setSystemPrompt(HEALTH_AGENT_PROMPT);
+
+const weatherAgent = new BedrockLLMAgent({
+  name: "Weather Agent",
+  description: "Specialized agent for giving weather condition from a city.",
+  streaming: true,
+  inferenceConfig: {
+    temperature: 0.0,
+  },
+  toolConfig: {
+    useToolHandler: weatherToolHanlder,
+    tool: weatherToolDescription,
+    toolMaxRecursions: 5,
+  },
+});
+
+weatherAgent.setSystemPrompt(WEATHER_AGENT_PROMPT);
+
+// Add a our custom Math Agent to the orchestrator
+const mathAgent = new BedrockLLMAgent({
+  name: "Math Agent",
+  description:
+    "Specialized agent for solving mathematical problems. Can dynamically create and execute mathematical operations, handle complex calculations, and explain mathematical concepts. Capable of working with algebra, calculus, statistics, and other advanced mathematical fields.",
+  streaming: false,
+  inferenceConfig: {
+    temperature: 0.0,
+  },
+  toolConfig: {
+    useToolHandler: mathToolHanlder,
+    tool: mathAgentToolDefinition,
+    toolMaxRecursions: 5,
+  },
+});
+mathAgent.setSystemPrompt(MATH_AGENT_PROMPT);
+
+
 
 if (LEX_AGENT_ENABLED === "true") {
   const config: LexAgentConfig = JSON.parse(process.env.LEX_AGENT_CONFIG!);
@@ -161,33 +164,42 @@ if (BEDROCK_AGENT_ENABLED === "true") {
   );
   orchestrator.addAgent(
     new AmazonBedrockAgent({
-      name: config.name,
-      description: config.description,
+      name: "Multi-Agent-Orchestrator Documentation Agent",
+      //description: "You specialize in the Multi-Agent Orchestrator framework, which manages multiple AI agents and handles complex conversations. You provide comprehensive support for integrating, configuring, and customizing agents within the orchestrator. You also handle queries about the framework's extensible architecture, dual language support, and deployment flexibility across various environments. Your expertise includes helping users with pre-built agents, agent creation, usage, and optimizing orchestrator workflows for different use cases",
+      description: "Specializes in a wide range of technology areas, including software development, hardware, AI, cybersecurity, blockchain, cloud computing, and emerging tech innovations. Handles inquiries related to pricing, costs, and technical details of technology products and services except for the multi-agent orchestrator framework and its components.",
       agentId: config.agentId,
       agentAliasId: config.agentAliasId,
     })
   );
 }
 
+//orchestrator.addAgent(techAgent);
+orchestrator.addAgent(healthAgent);
+orchestrator.addAgent(weatherAgent);
+orchestrator.addAgent(mathAgent);
+
 const greetingAgent = new BedrockLLMAgent({
   name: "Greeting Agent",
   description: "Welcome the user and list him the available agents",
-  streaming: false,
+  streaming: true,
   inferenceConfig: {
     temperature: 0.0,
   },
   saveChat: false,
 });
 
-let agentList = "";
 const agents = orchestrator.getAllAgents();
-Object.entries(agents).forEach(([agentKey, agentInfo], index) => {
-  agentList += `${index + 1}-${agentInfo.name}: ${agentInfo.description}\n\n`;
-});
-const greetingAgentPrompt = `You are a greeting agent that responds to hello or help. Be nice with the user.
-List to the user all the agents available to support him from this below list:\n\n${agentList}`;
+const agentList = Object.entries(agents)
+  .map(([agentKey, agentInfo], index) => {
+    const name = (agentInfo as any).name || agentKey;
+    const description = (agentInfo as any).description;
+    return `${index + 1}. **${name}**: ${description}`;
+  })
+  .join('\n\n');
+greetingAgent.setSystemPrompt(GREETING_AGENT_PROMPT(agentList));
 
-greetingAgent.setSystemPrompt(greetingAgentPrompt);
+
+
 orchestrator.addAgent(greetingAgent);
 
 
