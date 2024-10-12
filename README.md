@@ -1,4 +1,4 @@
-<h2 align="center">Multi-Agent Orchestrator&nbsp;<img alt="Static Badge" src="https://img.shields.io/badge/Beta-4e9bcd"></h2>
+<h2 align="center">Multi-Agent Orchestrator&nbsp;</h2>
 <p align="center">Flexible and powerful framework for managing multiple AI agents and handling complex conversations.</p>
 <p align="center">
   <a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
@@ -272,6 +272,15 @@ Create a global flight reservation chatbot in minutes! This tutorial walks you t
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/CONTRIBUTING.md) for more details.
+
+# Authors
+
+- [Corneliu Croitoru](https://www.linkedin.com/in/corneliucroitoru/)
+- [Anthony Bernabeu](https://www.linkedin.com/in/anthony-bernabeu-74228160/)
+
+# Contributors
+[![contributors](https://contrib.rocks/image?repo=awslabs/multi-agent-orchestrator&max=2000)](https://github.com/awslabs/multi-agent-orchestrator/graphs/contributors)
+
 
 ## 📄 LICENSE
 
