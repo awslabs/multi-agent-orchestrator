@@ -82,10 +82,10 @@ function executeMathOperation(
     const safeEval = (code: string) => {
       return Function('"use strict";return (' + code + ")")();
     };
-  
+
     try {
       let result: number;
-  
+
       switch (operation.toLowerCase()) {
         case 'add':
         case 'addition':
@@ -127,7 +127,7 @@ function executeMathOperation(
             throw new Error(`Unsupported operation: ${operation}`);
           }
       }
-  
+
       return { result };
     } catch (error) {
       return {
@@ -135,8 +135,8 @@ function executeMathOperation(
       };
     }
 }
-  
-  
+
+
 function calculateStatistics(operation: string, args: number[]): { result: number } | { error: string } {
 try {
     switch (operation.toLowerCase()) {
@@ -178,19 +178,19 @@ try {
 }
 
 
-export  async function mathToolHanlder(response:any, conversation: ConversationMessage[]){
+export  async function mathToolHanlder(response:any, conversation: ConversationMessage[]): Promise<any>{
 
     const responseContentBlocks = response.content as any[];
-  
+
     const mathOperations: string[] = [];
     let lastResult: number | string | undefined;
-    
+
     // Initialize an empty list of tool results
     let toolResults:any = []
-  
+
     if (!responseContentBlocks) {
       throw new Error("No content blocks in response");
-    } 
+    }
     for (const contentBlock of response.content) {
         if ("text" in contentBlock) {
             Logger.logger.info(contentBlock.text);
@@ -198,7 +198,7 @@ export  async function mathToolHanlder(response:any, conversation: ConversationM
         if ("toolUse" in contentBlock) {
             const toolUseBlock = contentBlock.toolUse;
             const toolUseName = toolUseBlock.name;
-    
+
             if (toolUseName === "perform_math_operation") {
                 const operation = toolUseBlock.input.operation;
                 let args = toolUseBlock.input.args;
@@ -207,13 +207,13 @@ export  async function mathToolHanlder(response:any, conversation: ConversationM
                     const degToRad = Math.PI / 180;
                     args = [args[0] * degToRad];
                 }
-        
+
                 const result = executeMathOperation(operation, args);
-        
+
                 if ('result' in result) {
                     lastResult = result.result;
                     mathOperations.push(`Tool call ${mathOperations.length + 1}: perform_math_operation: args=[${args.join(', ')}] operation=${operation} result=${lastResult}\n`);
-        
+
                     toolResults.push({
                         toolResult: {
                             toolUseId: toolUseBlock.toolUseId,
@@ -237,7 +237,7 @@ export  async function mathToolHanlder(response:any, conversation: ConversationM
                 const operation = toolUseBlock.input.operation;
                 const args = toolUseBlock.input.args;
                 const result = calculateStatistics(operation, args);
-            
+
                 if ('result' in result) {
                     lastResult = result.result;
                     mathOperations.push(`Tool call ${mathOperations.length + 1}: perform_statistical_calculation: args=[${args.join(', ')}] operation=${operation} result=${lastResult}\n`);
@@ -265,9 +265,7 @@ export  async function mathToolHanlder(response:any, conversation: ConversationM
     }
     // Embed the tool results in a new user message
     const message:ConversationMessage = {role: ParticipantRole.USER, content: toolResults};
-    
-    // Append the new message to the ongoing conversation
-    conversation.push(message);
+
+    return message;
 }
-  
-  
+
