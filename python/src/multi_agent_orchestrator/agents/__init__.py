@@ -9,7 +9,7 @@ from .amazon_bedrock_agent import AmazonBedrockAgent, AmazonBedrockAgentOptions
 from .comprehend_filter_agent import ComprehendFilterAgent, ComprehendFilterAgentOptions
 from .chain_agent import ChainAgent, ChainAgentOptions
 from .bedrock_translator_agent import BedrockTranslatorAgent, BedrockTranslatorAgentOptions
-
+from .anthropic_agent import AnthropicAgent, AnthropicAgentOptions
 
 __all__ = [
     'Agent',
@@ -30,5 +30,7 @@ __all__ = [
     'BedrockTranslatorAgent',
     'BedrockTranslatorAgentOptions',
     'ChainAgent',
-    'ChainAgentOptions'
+    'ChainAgentOptions',
+    'AnthropicAgent',
+    'AnthropicAgentOptions'
 ]
