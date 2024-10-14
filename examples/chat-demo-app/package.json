@@ -33,7 +33,7 @@
     "constructs": "^10.0.0",
     "esbuild": "^0.24.0",
     "i": "^0.3.7",
-    "multi-agent-orchestrator": "^0.0.10",
+    "multi-agent-orchestrator": "^0.0.17",
     "natural": "^7.1.0",
     "npm": "^10.8.1",
     "source-map-support": "^0.5.21",
