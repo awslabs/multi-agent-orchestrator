@@ -64,6 +64,7 @@ export default defineConfig({
 						{ label: 'Amazon Lex Bot Agent', link: '/agents/built-in/lex-bot-agent' },
 						{ label: 'AWS Lambda Agent', link: '/agents/built-in/lambda-agent' },
 						{ label: 'OpenAI Agent', link: '/agents/built-in/openai-agent' },
+						{ label: 'Anthropic Agent', link: '/agents/built-in/anthropic-agent'},
 						{ label: 'Chain Agent', link: '/agents/built-in/chain-agent' },
 						{ label: 'Comprehend Filter Agent', link: '/agents/built-in/comprehend-filter-agent' },
 						{ label: 'Amazon Bedrock Translator Agent', link: '/agents/built-in/bedrock-translator-agent' }
@@ -102,7 +103,7 @@ export default defineConfig({
 						items: [
 							{ label: 'Bedrock Knowledge Base', link: '/retrievers/built-in/bedrock-kb-retriever' },
 						]
-					},					  
+					},
 					  { label: 'Custom Retriever', link: '/retrievers/custom-retriever' },
 					]
 				},

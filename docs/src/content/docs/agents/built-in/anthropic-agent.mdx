@@ -1,0 +1,231 @@
+---
+title: Anthropic Agent
+description: Documentation for the AnthropicAgent in the Multi-Agent Orchestrator
+---
+## Overview
+
+The `AnthropicAgent` is a powerful and flexible agent class in the Multi-Agent Orchestrator System.
+It leverages the [Anthropic API](https://docs.anthropic.com/en/api/getting-started) to interact with various Large Language Models (LLMs) provided by Anthropic, such as Claude.
+This agent can handle a wide range of processing tasks, making it suitable for diverse applications such as conversational AI, question-answering systems, and more.
+
+## Key Features
+
+- Integration with Anthropic's API
+- Support for multiple LLM models available on Anthropic's platform
+- Streaming and non-streaming response options
+- Customizable inference configuration
+- Ability to set and update custom system prompts
+- Optional integration with retrieval systems for enhanced context
+- Support for Tool use within the conversation flow
+
+## Creating a AnthropicAgent
+
+By default, the **AnthropicAgent** uses the `claude-3-5-sonnet-20240620 model`.
+
+### Basic Example
+
+To create a new **Anthropic Agent** with only the required parameters, use the following code:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { AnthropicAgent } from 'multi-agent-orchestrator';
+
+    const agent = new AnthropicAgent({
+      name: 'Tech Agent',
+      description: 'Specializes in technology areas including software development, \
+      hardware, AI, cybersecurity, blockchain, cloud computing, \
+      emerging tech innovations,and pricing/costs related to \
+      technology products and services.',
+      apiKey: 'your-anthropic-api-key-here'
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+
+    ```
+  </TabItem>
+</Tabs>
+
+In this basic example, only the `name`, `description` and `apiKey` are provided, which are the only required parameters for creating a AnthropicAgent.
+
+### Advanced Example
+
+For more complex use cases, you can create a **Anthropic Agent** with all available options. All parameters except `name`, `description` and `apiKey` or `client` are optional:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { AnthropicAgent, AnthropicAgentOptions, ParticipantRole } from 'multi-agent-orchestrator';
+    import { Retriever } from '../retrievers/retriever';
+
+    const options: AnthropicAgentOptions = {
+      name: 'My Advanced Anthropic Agent',
+      description: 'A versatile agent for complex NLP tasks',
+      apiKey: 'your-anthropic-api-key-here',
+      modelId: 'claude-3-opus-20240229',
+      streaming: true,
+      inferenceConfig: {
+        maxTokens: 1000,
+        temperature: 0.7,
+        topP: 0.9,
+        stopSequences: ['Human:', 'AI:']
+      },
+      retriever: new Retriever(), // Assuming you have a Retriever class implemented
+      toolConfig: {
+        tool: [
+          {
+            type: 'function',
+            function: {
+              name: 'get_current_weather',
+              description: 'Get the current weather in a given location',
+              parameters: {
+                type: 'object',
+                properties: {
+                  location: {
+                    type: 'string',
+                    description: 'The city and state, e.g. San Francisco, CA'
+                  },
+                  unit: { type: 'string', enum: ['celsius', 'fahrenheit'] }
+                },
+                required: ['location']
+              }
+            }
+          }
+        ],
+        useToolHandler: (response, conversation) => {
+          // Process tool response
+          // Return processed response
+          return {role: ParticipantRole.USER, content: {
+                    "type": "tool_result",
+                    "tool_use_id": "tool_user_id",
+                    "content": "Response from the tool"
+                }}
+        }
+      }
+    };
+
+    const agent = new AnthropicAgent(options);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+
+    ```
+  </TabItem>
+</Tabs>
+
+### Option Explanations
+
+- `name` and `description`: Identify and describe the agent's purpose.
+- `apiKey`: Your Anthropic API key for authentication.
+- `modelId`: Specifies the LLM model to use (e.g., Claude 3 Sonnet).
+- `streaming`: Enables streaming responses for real-time output.
+- `inferenceConfig`: Fine-tunes the model's output characteristics.
+- `retriever`: Integrates a retrieval system for enhanced context.
+- `toolConfig`: Defines tools the agent can use and how to handle their responses.
+
+## Setting a New Prompt
+
+You can dynamically set or update the system prompt for the agent:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    agent.setSystemPrompt(
+      `You are an AI assistant specialized in {{DOMAIN}}.
+       Your main goal is to {{GOAL}}.
+       Always maintain a {{TONE}} tone in your responses.`,
+      {
+        DOMAIN: "cybersecurity",
+        GOAL: "help users understand and mitigate potential security threats",
+        TONE: "professional and reassuring"
+      }
+    );
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    agent.set_system_prompt(
+        """You are an AI assistant specialized in {{DOMAIN}}.
+           Your main goal is to {{GOAL}}.
+           Always maintain a {{TONE}} tone in your responses.""",
+        {
+            "DOMAIN": "cybersecurity",
+            "GOAL": "help users understand and mitigate potential security threats",
+            "TONE": "professional and reassuring"
+        }
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+This method allows you to dynamically change the agent's behavior and focus without creating a new instance.
+
+## Adding the Agent to the Orchestrator
+
+To integrate the **Anthropic Agent** into your orchestrator, follow these steps:
+
+1. First, ensure you have created an instance of the orchestrator:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+
+    const orchestrator = new MultiAgentOrchestrator();
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    orchestrator = MultiAgentOrchestrator()
+    ```
+  </TabItem>
+</Tabs>
+
+2. Then, add the agent to the orchestrator:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    orchestrator.addAgent(agent);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    orchestrator.add_agent(agent)
+    ```
+  </TabItem>
+</Tabs>
+
+3. Now you can use the orchestrator to route requests to the appropriate agent, including your Anthropic agent:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const response = await orchestrator.routeRequest(
+      "What is the base rate interest for 30 years?",
+      "user123",
+      "session456"
+    );
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    response = await orchestrator.route_request(
+        "What is the base rate interest for 30 years?",
+        "user123",
+        "session456"
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+By leveraging the **AnthropicAgent**, you can create sophisticated, context-aware AI agents capable of handling a wide range of tasks and interactions, all powered by the latest LLM models available through Anthropic's platform.
