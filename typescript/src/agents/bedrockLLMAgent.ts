@@ -29,7 +29,7 @@ export interface BedrockLLMAgentOptions extends AgentOptions {
   retriever?: Retriever;
   toolConfig?: {
     tool: Tool[];
-    useToolHandler: (response: any, conversation: ConversationMessage[]) => void ;
+    useToolHandler: (response: any, conversation: ConversationMessage[]) => any ;
     toolMaxRecursions?: number;
   };
   customSystemPrompt?: {
@@ -71,7 +71,7 @@ export class BedrockLLMAgent extends Agent {
 
   private toolConfig?: {
     tool: any[];
-    useToolHandler: (response: any, conversation: ConversationMessage[]) => void;
+    useToolHandler: (response: any, conversation: ConversationMessage[]) => any;
     toolMaxRecursions?: number;
   };
 
@@ -187,40 +187,40 @@ export class BedrockLLMAgent extends Agent {
       toolConfig: (this.toolConfig ? { tools:this.toolConfig.tool}:undefined)
     };
 
-    if (this.toolConfig){
-      let continueWithTools = true;
-      let finalMessage:ConversationMessage = { role: ParticipantRole.USER, content:[]};
-      let maxRecursions = this.toolConfig.toolMaxRecursions || this.defaultMaxRecursions;
+    if (this.streaming){
+      return this.handleStreamingResponse(converseCmd);
+    } else {
+        let continueWithTools = false;
+        let finalMessage:ConversationMessage = { role: ParticipantRole.USER, content:[]};
+        let maxRecursions = this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
 
-      while (continueWithTools && maxRecursions > 0){
-        // send the conversation to Amazon Bedrock
-        const bedrockResponse = await this.handleSingleResponse(converseCmd);
+        do{
+          // send the conversation to Amazon Bedrock
+          const bedrockResponse = await this.handleSingleResponse(converseCmd);
 
-        // Append the model's response to the ongoing conversation
-        conversation.push(bedrockResponse);
+          // Append the model's response to the ongoing conversation
+          conversation.push(bedrockResponse);
 
-        // process model response
-        if (bedrockResponse.content.some((content) => 'toolUse' in content)){
-          // forward everything to the tool use handler
-          await this.toolConfig.useToolHandler(bedrockResponse, conversation);
-        }
-        else {
-          continueWithTools = false;
-          finalMessage = bedrockResponse;
-        }
-        maxRecursions--;
+          // process model response
+          if (bedrockResponse?.content?.some((content) => 'toolUse' in content)){
+            // forward everything to the tool use handler
+            if (!this.toolConfig){
+              throw new Error("Tool config is not defined");
+            }
+            const toolResponse = await this.toolConfig.useToolHandler(bedrockResponse, conversation);
+            continueWithTools = true;
+            converseCmd.messages.push(toolResponse);
+          }
+          else {
+            continueWithTools = false;
+            finalMessage = bedrockResponse;
+          }
+          maxRecursions--;
 
-        converseCmd.messages = conversation;
+          converseCmd.messages = conversation;
 
-      }
-      return finalMessage;
-    }
-    else {
-      if (this.streaming) {
-        return this.handleStreamingResponse(converseCmd);
-      } else {
-        return this.handleSingleResponse(converseCmd);
-      }
+        }while (continueWithTools && maxRecursions > 0)
+        return finalMessage;
     }
   }
 
@@ -240,20 +240,42 @@ export class BedrockLLMAgent extends Agent {
   }
 
   private async *handleStreamingResponse(input: any): AsyncIterable<string> {
-    try {
-      const command = new ConverseStreamCommand(input);
-      const response = await this.client.send(command);
-      for await (const chunk of response.stream) {
-        const content = chunk.contentBlockDelta?.delta?.text;
-       if (chunk.contentBlockDelta && chunk.contentBlockDelta.delta && chunk.contentBlockDelta.delta.text) {
-        yield content;
-      }
+      let toolBlock:any = {toolUseId:'', input:{}, name:''};
+      let inputString = '';
+      let toolUse = false;
+      let recursions = this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
 
+      try {
+          do
+          {
+              const command = new ConverseStreamCommand(input);
+              const response = await this.client.send(command);
+              if (!response.stream) {
+                  throw new Error("No stream received from Bedrock model");
+              }
+              for await (const chunk of response.stream) {
+                  if (chunk.contentBlockDelta && chunk.contentBlockDelta.delta && chunk.contentBlockDelta.delta.text) {
+                      yield chunk.contentBlockDelta.delta.text;
+                  } else if (chunk.contentBlockStart?.start?.toolUse){
+                      toolBlock = chunk.contentBlockStart?.start?.toolUse
+                  } else if (chunk.contentBlockDelta?.delta?.toolUse){
+                      inputString += chunk.contentBlockDelta.delta.toolUse.input
+                  } else if (chunk.messageStop?.stopReason === 'tool_use'){
+                      toolBlock.input = JSON.parse(inputString);
+                      const message = {role:ParticipantRole.ASSISTANT, content:[{'toolUse':toolBlock}]}
+                      input.messages.push(message);
+                      const toolResponse = await this.toolConfig!.useToolHandler(message, input.messages);
+                      input.messages.push(toolResponse);
+                      toolUse = true;
+                  } else if (chunk.messageStop?.stopReason === 'end_turn') {
+                      toolUse=false;
+                  }
+              }
+          } while (toolUse &&  --recursions > 0)
+      } catch (error) {
+          Logger.logger.error("Error getting stream from Bedrock model:", error);
+          throw error;
       }
-    } catch (error) {
-      Logger.logger.error("Error getting stream from Bedrock model:", error);
-      throw error;
-    }
   }
 
 

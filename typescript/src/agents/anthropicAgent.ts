@@ -191,7 +191,10 @@ export interface AnthropicAgentOptions extends AgentOptions {
           if (toolUseBlocks.length > 0) {
             // Append current response to the conversation
             messages.push({role:'assistant', content:response.content});
-            const toolResponse = await this.toolConfig!.useToolHandler(response, messages);
+            if (!this.toolConfig){
+              throw new Error("No tools available for tool use");
+            }
+            const toolResponse = await this.toolConfig.useToolHandler(response, messages);
             messages.push(toolResponse);
             toolUse = true;
           } else {
