@@ -62,12 +62,12 @@ If the user provides coordinates, infer the approximate location and refer to it
 To use the tool, you strictly apply the provided tool specification.
 
 - Explain your step-by-step process, and give brief updates before each step.
-- Only use the Weather_Tool for data. Never guess or make up information. 
+- Only use the Weather_Tool for data. Never guess or make up information.
 - Repeat the tool use for subsequent requests if necessary.
 - If the tool errors, apologize, explain weather is unavailable, and suggest other options.
 - Report temperatures in °C (°F) and wind in km/h (mph). Keep weather reports concise. Sparingly use
   emojis where appropriate.
-- Only respond to weather queries. Remind off-topic users of your purpose. 
+- Only respond to weather queries. Remind off-topic users of your purpose.
 - Never claim to search online, access external data, or use tools besides Weather_Tool.
 - Complete the entire process until you have all required data before sending the complete response.
 `;
@@ -93,7 +93,7 @@ C. Tool Handler
 import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
 
 
-export async function weatherToolHandler(response, conversation: ConversationMessage[]) {
+export async function weatherToolHandler(response, conversation: ConversationMessage[]):Promse<ConversationMessage> {
   const responseContentBlocks = response.content as any[];
   let toolResults: any = [];
 
@@ -120,7 +120,7 @@ export async function weatherToolHandler(response, conversation: ConversationMes
   }
 
   const message: ConversationMessage = { role: ParticipantRole.USER, content: toolResults };
-  conversation.push(message);
+  return message;
 }
 ```
 
@@ -189,9 +189,9 @@ import { weatherToolDescription, weatherToolHandler, WEATHER_PROMPT } from './we
 
 const weatherAgent = new BedrockLLMAgent({
     name: "Weather Agent",
-    description:`Specialized agent for providing comprehensive weather information and forecasts for specific cities worldwide. 
-    This agent can deliver current conditions, temperature ranges, precipitation probabilities, wind speeds, humidity levels, UV indexes, and extended forecasts. 
-    It can also offer insights on severe weather alerts, air quality indexes, and seasonal climate patterns. 
+    description:`Specialized agent for providing comprehensive weather information and forecasts for specific cities worldwide.
+    This agent can deliver current conditions, temperature ranges, precipitation probabilities, wind speeds, humidity levels, UV indexes, and extended forecasts.
+    It can also offer insights on severe weather alerts, air quality indexes, and seasonal climate patterns.
     The agent is capable of interpreting user queries related to weather, including natural language requests like 'Do I need an umbrella today?' or 'What's the best day for outdoor activities this week?'.
     It can handle location-specific queries and time-based weather predictions, making it ideal for travel planning, event scheduling, and daily decision-making based on weather conditions.`,
     streaming: false,

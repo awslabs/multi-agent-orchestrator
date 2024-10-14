@@ -84,7 +84,7 @@ B. Tool Handler
 ```typescript
 import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
 
-export async function mathToolHandler(response, conversation: ConversationMessage[]) {
+export async function mathToolHandler(response, conversation: ConversationMessage[]): Promise<ConversationMessage> {
     const responseContentBlocks = response.content as any[];
     let toolResults: any = [];
 
@@ -108,7 +108,7 @@ export async function mathToolHandler(response, conversation: ConversationMessag
     }
 
     const message: ConversationMessage = { role: ParticipantRole.USER, content: toolResults };
-    conversation.push(message);
+    return messages;
 }
 ```
 
@@ -137,10 +137,10 @@ function executeMathOperation(
     const safeEval = (code: string) => {
       return Function('"use strict";return (' + code + ")")();
     };
-  
+
     try {
       let result: number;
-  
+
       switch (operation.toLowerCase()) {
         case 'add':
         case 'addition':
@@ -182,7 +182,7 @@ function executeMathOperation(
             throw new Error(`Unsupported operation: ${operation}`);
           }
       }
-  
+
       return { result };
     } catch (error) {
       return {
