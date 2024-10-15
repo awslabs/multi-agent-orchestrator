@@ -130,9 +130,7 @@ The default configuration is defined as follows:
       LOG_EXECUTION_TIMES: false,
       MAX_RETRIES: 3,
       USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: true,
-      CLASSIFICATION_ERROR_MESSAGE: "I'm sorry, an error occurred while processing your request. Please try again later.",
       NO_SELECTED_AGENT_MESSAGE: "I'm sorry, I couldn't determine how to handle your request. Could you please rephrase it?",
-      GENERAL_ROUTING_ERROR_MSG_MESSAGE: "An error occurred while processing your request. Please try again later.",
       MAX_MESSAGE_PAIRS_PER_AGENT: 100,
     };
     ```
@@ -213,7 +211,7 @@ These functions allow you to configure the orchestrator, manage agents, and proc
 
 ### Agent Selection and Default Behavior
 
-When a user sends a request to the Multi-Agent Orchestrator, the system attempts to classify the intent and select an appropriate agent to handle the request. However, there are cases where no specific agent is selected. 
+When a user sends a request to the Multi-Agent Orchestrator, the system attempts to classify the intent and select an appropriate agent to handle the request. However, there are cases where no specific agent is selected.
 
 
 #### When No Agent is Selected

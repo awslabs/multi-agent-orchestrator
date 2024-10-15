@@ -114,13 +114,13 @@ export const DEFAULT_CONFIG: OrchestratorConfig = {
   USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: true,
 
   /** Default error message for classification errors */
-  CLASSIFICATION_ERROR_MESSAGE: "I'm sorry, an error occurred while processing your request. Please try again later.",
+  CLASSIFICATION_ERROR_MESSAGE: null,
 
   /** Default message when no agent is selected to handle the request */
   NO_SELECTED_AGENT_MESSAGE: "I'm sorry, I couldn't determine how to handle your request. Could you please rephrase it?",
 
   /** Default general error message for routing errors */
-  GENERAL_ROUTING_ERROR_MSG_MESSAGE: "An error occurred while processing your request. Please try again later.",
+  GENERAL_ROUTING_ERROR_MSG_MESSAGE: null,
 
   /** Default: Maximum of 100 message pairs (200 individual messages) to retain per agent */
   MAX_MESSAGE_PAIRS_PER_AGENT: 100,
