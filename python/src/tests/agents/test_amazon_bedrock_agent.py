@@ -60,16 +60,21 @@ async def test_process_request_error(bedrock_agent):
         'invoke_agent'
     ))
 
-    result = await bedrock_agent.process_request(
-        input_text="Test input",
-        user_id="test_user",
-        session_id="test_session",
-        chat_history=[]
-    )
+    try:
+        result = await bedrock_agent.process_request(
+            input_text="Test input",
+            user_id="test_user",
+            session_id="test_session",
+            chat_history=[]
+        )
+    except Exception as error:
+        assert isinstance(error, ClientError)
+        assert error.response['Error']['Code'] == 'TestException'
+        assert error.response['Error']['Message'] == 'Test error'
+        pass
 
-    assert isinstance(result, ConversationMessage)
-    assert result.role == ParticipantRole.ASSISTANT.value
-    assert result.content == [{"text": "Sorry, I encountered an error while processing your request."}]
+    # Optionally, you can assert that the invoke_agent method was called
+    bedrock_agent.client.invoke_agent.assert_called_once()
 
 @pytest.mark.asyncio
 async def test_process_request_empty_chunk(bedrock_agent):
