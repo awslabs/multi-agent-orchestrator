@@ -58,7 +58,7 @@ export interface OrchestratorConfig {
 
   /**
    * The message to display when no agent is selected to handle the user's request.
-   * 
+   *
    * This message is shown when the classifier couldn't determine an appropriate agent
    * and USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED is set to false.
    */
@@ -66,7 +66,7 @@ export interface OrchestratorConfig {
 
   /**
    * The general error message to display when an error occurs during request routing.
-   * 
+   *
    * This message is shown when an unexpected error occurs during the processing of a user's request,
    * such as errors in agent dispatch or processing.
    */
@@ -217,15 +217,11 @@ export class MultiAgentOrchestrator {
         USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED:
         options.config?.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED ??
         DEFAULT_CONFIG.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED,
-        CLASSIFICATION_ERROR_MESSAGE:
-        options.config?.CLASSIFICATION_ERROR_MESSAGE ??
-        DEFAULT_CONFIG.CLASSIFICATION_ERROR_MESSAGE,  
+        CLASSIFICATION_ERROR_MESSAGE: options.config?.CLASSIFICATION_ERROR_MESSAGE,
         NO_SELECTED_AGENT_MESSAGE:
         options.config?.NO_SELECTED_AGENT_MESSAGE ??
         DEFAULT_CONFIG.NO_SELECTED_AGENT_MESSAGE,
-        GENERAL_ROUTING_ERROR_MSG_MESSAGE:
-        options.config?.GENERAL_ROUTING_ERROR_MSG_MESSAGE ??
-        DEFAULT_CONFIG.GENERAL_ROUTING_ERROR_MSG_MESSAGE,    
+        GENERAL_ROUTING_ERROR_MSG_MESSAGE: options.config?.GENERAL_ROUTING_ERROR_MSG_MESSAGE
     };
 
     this.executionTimes = new Map();
@@ -349,7 +345,7 @@ export class MultiAgentOrchestrator {
     this.executionTimes = new Map();
     let classifierResult: ClassifierResult;
     const chatHistory = (await this.storage.fetchAllChats(userId, sessionId)) || [];
-  
+
     try {
       classifierResult = await this.measureExecutionTime(
         "Classifying user intent",
@@ -361,7 +357,7 @@ export class MultiAgentOrchestrator {
       this.logger.error("Error during intent classification:", error);
       return {
         metadata: this.createMetadata(null, userInput, userId, sessionId, additionalParams),
-        output: this.config.CLASSIFICATION_ERROR_MESSAGE,
+        output: this.config.CLASSIFICATION_ERROR_MESSAGE ? this.config.CLASSIFICATION_ERROR_MESSAGE:error,
         streaming: false,
       };
     }
@@ -379,7 +375,7 @@ export class MultiAgentOrchestrator {
         };
       }
     }
-  
+
     try {
       const agentResponse = await this.dispatchToAgent({
         userInput,
@@ -388,9 +384,9 @@ export class MultiAgentOrchestrator {
         classifierResult,
         additionalParams,
       });
-  
+
       const metadata = this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams);
-  
+
       if (this.isAsyncIterable(agentResponse)) {
         const accumulatorTransform = new AccumulatorTransform();
         this.processStreamInBackground(
@@ -407,7 +403,7 @@ export class MultiAgentOrchestrator {
           streaming: true,
         };
       }
-  
+
       // Check if we should save the conversation
       if (classifierResult?.selectedAgent.saveChat) {
         await saveConversationExchange(
@@ -431,7 +427,7 @@ export class MultiAgentOrchestrator {
       this.logger.error("Error during agent dispatch or processing:", error);
       return {
         metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
-        output: this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE,
+        output: this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE ? this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE: error,
         streaming: false,
       };
     } finally {
@@ -469,7 +465,7 @@ export class MultiAgentOrchestrator {
       if (fullResponse) {
 
 
-        
+
       if (agent.saveChat) {
         await saveConversationExchange(
           userInput,
@@ -480,7 +476,7 @@ export class MultiAgentOrchestrator {
           agent.id
         );
       }
-       
+
       } else {
         this.logger.warn("No data accumulated, messages not saved");
       }

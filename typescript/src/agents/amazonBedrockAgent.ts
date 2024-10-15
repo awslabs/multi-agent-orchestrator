@@ -90,16 +90,7 @@ export class AmazonBedrockAgent extends Agent {
     } catch (err) {
       // Handle errors encountered while invoking the Amazon Bedrock agent
       Logger.logger.error(err);
-
-      // Return a default error message as a fallback response
-      return {
-        role: ParticipantRole.ASSISTANT,
-        content: [
-          {
-            text: "Sorry, I encountered an error while processing your request.",
-          },
-        ],
-      };
+      throw err;
     }
   }
 }
