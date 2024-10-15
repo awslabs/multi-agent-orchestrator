@@ -290,49 +290,54 @@ export class MultiAgentOrchestrator {
       additionalParams = {},
     } = params;
 
-    if (!classifierResult.selectedAgent) {
-      return "I'm sorry, but I need more information to understand your request. Could you please be more specific?";
-    } else {
-      const { selectedAgent } = classifierResult;
-      const agentChatHistory = await this.storage.fetchChat(
-        userId,
-        sessionId,
-        selectedAgent.id
-      );
+    try {
+      if (!classifierResult.selectedAgent) {
+        return "I'm sorry, but I need more information to understand your request. Could you please be more specific?";
+      } else {
+        const { selectedAgent } = classifierResult;
+        const agentChatHistory = await this.storage.fetchChat(
+          userId,
+          sessionId,
+          selectedAgent.id
+        );
 
-      this.logger.printChatHistory(agentChatHistory, selectedAgent.id);
+        this.logger.printChatHistory(agentChatHistory, selectedAgent.id);
 
-      this.logger.info(
-        `Routing intent "${userInput}" to ${selectedAgent.id} ...`
-      );
+        this.logger.info(
+          `Routing intent "${userInput}" to ${selectedAgent.id} ...`
+        );
 
-      const response = await this.measureExecutionTime(
-        `Agent ${selectedAgent.name} | Processing request`,
-        () =>
-          selectedAgent.processRequest(
-            userInput,
-            userId,
-            sessionId,
-            agentChatHistory,
-            additionalParams
-          )
-      );
+        const response = await this.measureExecutionTime(
+          `Agent ${selectedAgent.name} | Processing request`,
+          () =>
+            selectedAgent.processRequest(
+              userInput,
+              userId,
+              sessionId,
+              agentChatHistory,
+              additionalParams
+            )
+        );
 
-      //if (this.isStream(response)) {
-      if (this.isAsyncIterable(response)) {
-        return response;
+        //if (this.isStream(response)) {
+        if (this.isAsyncIterable(response)) {
+          return response;
+        }
+
+        let responseText = "No response content";
+        if (
+          response.content &&
+          response.content.length > 0 &&
+          response.content[0].text
+        ) {
+          responseText = response.content[0].text;
+        }
+
+        return responseText;
       }
-
-      let responseText = "No response content";
-      if (
-        response.content &&
-        response.content.length > 0 &&
-        response.content[0].text
-      ) {
-        responseText = response.content[0].text;
-      }
-
-      return responseText;
+    } catch (error) {
+      this.logger.error("Error during agent dispatch:", error);
+      throw error;
     }
   }
 
@@ -362,21 +367,21 @@ export class MultiAgentOrchestrator {
       };
     }
 
-    // Handle case where no agent was selected
-    if (!classifierResult.selectedAgent) {
-      if (this.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED) {
-        classifierResult = this.getFallbackResult();
-        this.logger.info("Using default agent as no agent was selected");
-      } else {
-        return {
-          metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
-          output: this.config.NO_SELECTED_AGENT_MESSAGE!,
-          streaming: false,
-        };
-      }
-    }
-
     try {
+      // Handle case where no agent was selected
+      if (!classifierResult.selectedAgent) {
+        if (this.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED) {
+          classifierResult = this.getFallbackResult();
+          this.logger.info("Using default agent as no agent was selected");
+        } else {
+          return {
+            metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
+            output: this.config.NO_SELECTED_AGENT_MESSAGE!,
+            streaming: false,
+          };
+        }
+      }
+
       const agentResponse = await this.dispatchToAgent({
         userInput,
         userId,
@@ -425,6 +430,7 @@ export class MultiAgentOrchestrator {
       };
     } catch (error) {
       this.logger.error("Error during agent dispatch or processing:", error);
+
       return {
         metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
         output: this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE ? this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE: String(error),
@@ -482,7 +488,7 @@ export class MultiAgentOrchestrator {
       }
     } catch (error) {
       this.logger.error("Error processing stream:", error);
-
+      accumulatorTransform.end();
       if (error instanceof Error) {
         accumulatorTransform.destroy(error);
       } else if (typeof error === "string") {
