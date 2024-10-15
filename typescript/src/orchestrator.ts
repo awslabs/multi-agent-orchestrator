@@ -114,13 +114,13 @@ export const DEFAULT_CONFIG: OrchestratorConfig = {
   USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: true,
 
   /** Default error message for classification errors */
-  CLASSIFICATION_ERROR_MESSAGE: null,
+  CLASSIFICATION_ERROR_MESSAGE: undefined,
 
   /** Default message when no agent is selected to handle the request */
   NO_SELECTED_AGENT_MESSAGE: "I'm sorry, I couldn't determine how to handle your request. Could you please rephrase it?",
 
   /** Default general error message for routing errors */
-  GENERAL_ROUTING_ERROR_MSG_MESSAGE: null,
+  GENERAL_ROUTING_ERROR_MSG_MESSAGE: undefined,
 
   /** Default: Maximum of 100 message pairs (200 individual messages) to retain per agent */
   MAX_MESSAGE_PAIRS_PER_AGENT: 100,
@@ -214,14 +214,14 @@ export class MultiAgentOrchestrator {
       MAX_MESSAGE_PAIRS_PER_AGENT:
         options.config?.MAX_MESSAGE_PAIRS_PER_AGENT ??
         DEFAULT_CONFIG.MAX_MESSAGE_PAIRS_PER_AGENT,
-        USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED:
+      USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED:
         options.config?.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED ??
         DEFAULT_CONFIG.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED,
-        CLASSIFICATION_ERROR_MESSAGE: options.config?.CLASSIFICATION_ERROR_MESSAGE,
-        NO_SELECTED_AGENT_MESSAGE:
+      CLASSIFICATION_ERROR_MESSAGE: options.config?.CLASSIFICATION_ERROR_MESSAGE,
+      NO_SELECTED_AGENT_MESSAGE:
         options.config?.NO_SELECTED_AGENT_MESSAGE ??
         DEFAULT_CONFIG.NO_SELECTED_AGENT_MESSAGE,
-        GENERAL_ROUTING_ERROR_MSG_MESSAGE: options.config?.GENERAL_ROUTING_ERROR_MSG_MESSAGE
+      GENERAL_ROUTING_ERROR_MSG_MESSAGE: options.config?.GENERAL_ROUTING_ERROR_MSG_MESSAGE
     };
 
     this.executionTimes = new Map();
@@ -357,7 +357,7 @@ export class MultiAgentOrchestrator {
       this.logger.error("Error during intent classification:", error);
       return {
         metadata: this.createMetadata(null, userInput, userId, sessionId, additionalParams),
-        output: this.config.CLASSIFICATION_ERROR_MESSAGE ? this.config.CLASSIFICATION_ERROR_MESSAGE:error,
+        output: this.config.CLASSIFICATION_ERROR_MESSAGE ? this.config.CLASSIFICATION_ERROR_MESSAGE: String(error),
         streaming: false,
       };
     }
@@ -370,7 +370,7 @@ export class MultiAgentOrchestrator {
       } else {
         return {
           metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
-          output: this.config.NO_SELECTED_AGENT_MESSAGE,
+          output: this.config.NO_SELECTED_AGENT_MESSAGE!,
           streaming: false,
         };
       }
@@ -427,7 +427,7 @@ export class MultiAgentOrchestrator {
       this.logger.error("Error during agent dispatch or processing:", error);
       return {
         metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
-        output: this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE ? this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE: error,
+        output: this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE ? this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE: String(error),
         streaming: false,
       };
     } finally {
