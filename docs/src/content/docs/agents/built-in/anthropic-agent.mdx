@@ -78,21 +78,21 @@ For more complex use cases, you can create a **Anthropic Agent** with all availa
       toolConfig: {
         tool: [
           {
-            type: 'function',
-            function: {
-              name: 'get_current_weather',
-              description: 'Get the current weather in a given location',
-              parameters: {
-                type: 'object',
+            name: "Weather_Tool",
+            description: "Get the current weather for a given location, based on its WGS84 coordinates.",
+            input_schema: {
+                type: "object",
                 properties: {
-                  location: {
-                    type: 'string',
-                    description: 'The city and state, e.g. San Francisco, CA'
-                  },
-                  unit: { type: 'string', enum: ['celsius', 'fahrenheit'] }
+                    latitude: {
+                        type: "string",
+                        description: "Geographical WGS84 latitude of the location.",
+                    },
+                    longitude: {
+                        type: "string",
+                        description: "Geographical WGS84 longitude of the location.",
+                    },
                 },
-                required: ['location']
-              }
+                required: ["latitude", "longitude"],
             }
           }
         ],
