@@ -96,7 +96,7 @@ class ComprehendFilterAgent(Agent):
 
         except Exception as error:
             Logger.logger.error(f"Error in ComprehendContentFilterAgent:{str(error)}")
-            raise
+            raise error
 
     def add_custom_check(self, check: CheckFunction):
         self.custom_checks.append(check)

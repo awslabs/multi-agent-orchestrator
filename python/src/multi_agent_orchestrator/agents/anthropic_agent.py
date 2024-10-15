@@ -175,16 +175,16 @@ class AnthropicAgent(Agent):
             )
 
         except Exception as error:
-            print(f"Error processing request: {error}")
-            raise str(error)
+            Logger.error(f"Error processing request: {error}")
+            raise error
 
     async def handle_single_response(self, input_data: Dict) -> Any:
         try:
             response = self.client.messages.create(**input_data)
             return response
         except Exception as error:
-            print(f"Error invoking Anthropic: {error}")
-            raise str(error)
+            Logger.error(f"Error invoking Anthropic: {error}")
+            raise error
 
     async def handle_streaming_response(self, input) -> Any:
         message = {}
@@ -211,7 +211,7 @@ class AnthropicAgent(Agent):
 
         except Exception as error:
             Logger.error(f"Error getting stream from Anthropic model: {str(error)}")
-            raise str(error)
+            raise error
 
 
     def set_system_prompt(self,

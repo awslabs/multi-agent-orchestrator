@@ -58,7 +58,7 @@ class DynamoDbChatStorage(ChatStorage):
             self.table.put_item(Item=item)
         except Exception as error:
             Logger.logger.error(f"Error saving conversation to DynamoDB:{str(error)}")
-            raise
+            raise error
 
         return self._remove_timestamps(trimmed_conversation)
 
@@ -77,7 +77,7 @@ class DynamoDbChatStorage(ChatStorage):
             return self._remove_timestamps(stored_messages)
         except Exception as error:
             Logger.logger.error(f"Error getting conversation from DynamoDB:{str(error)}")
-            raise
+            raise error
 
     async def fetch_chat_with_timestamp(
         self,
@@ -94,7 +94,7 @@ class DynamoDbChatStorage(ChatStorage):
             return stored_messages
         except Exception as error:
             Logger.logger.error(f"Error getting conversation from DynamoDB: {str(error)}")
-            raise
+            raise error
 
     async def fetch_all_chats(self, user_id: str, session_id: str) -> List[ConversationMessage]:
         try:
@@ -135,7 +135,7 @@ class DynamoDbChatStorage(ChatStorage):
             return self._remove_timestamps(all_chats)
         except Exception as error:
             Logger.logger.error(f"Error querying conversations from DynamoDB:{str(error)}")
-            raise
+            raise error
 
     def _generate_key(self, user_id: str, session_id: str, agent_id: str) -> str:
         return f"{session_id}#{agent_id}"

@@ -176,7 +176,7 @@ class BedrockLLMAgent(Agent):
             )
         except Exception as error:
             Logger.error(f"Error invoking Bedrock model:{str(error)}")
-            raise
+            raise error
 
     async def handle_streaming_response(self, converse_input: Dict[str, Any]) -> ConversationMessage:
         try:
@@ -220,7 +220,7 @@ class BedrockLLMAgent(Agent):
 
         except Exception as error:
             Logger.error(f"Error getting stream from Bedrock model: {str(error)}")
-            raise
+            raise error
 
     def set_system_prompt(self,
                           template: Optional[str] = None,

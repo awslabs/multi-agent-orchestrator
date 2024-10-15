@@ -83,7 +83,4 @@ class AmazonBedrockAgent(Agent):
 
         except (BotoCoreError, ClientError) as error:
             Logger.error(f"Error processing request: {str(error)}")
-            return ConversationMessage(
-                role=ParticipantRole.ASSISTANT.value,
-                content=[{"text": "Sorry, I encountered an error while processing your request."}]
-            )
+            raise error

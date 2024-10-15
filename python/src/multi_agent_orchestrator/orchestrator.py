@@ -128,7 +128,9 @@ class MultiAgentOrchestrator:
                                               user_id,
                                               session_id,
                                               additional_params),
-                output=self.config.CLASSIFICATION_ERROR_MESSAGE,
+                output=self.config.CLASSIFICATION_ERROR_MESSAGE
+                 if self.config.CLASSIFICATION_ERROR_MESSAGE else
+                 str(error),
                 streaming=False
             )
 
@@ -196,7 +198,8 @@ class MultiAgentOrchestrator:
                                                    user_id,
                                                    session_id,
                                                    additional_params),
-                    output= self.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE,
+                    output = self.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE \
+                        if self.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE else str(error),
                     streaming=False
                 )
 

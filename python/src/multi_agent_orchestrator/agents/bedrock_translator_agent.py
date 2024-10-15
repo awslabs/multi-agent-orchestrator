@@ -128,7 +128,7 @@ class BedrockTranslatorAgent(Agent):
             raise ValueError("No valid tool use found in the response")
         except Exception as error:
             Logger.error(f"Error processing translation request:{str(error)}")
-            raise
+            raise error
 
     def set_source_language(self, language: Optional[str]):
         """Set the source language for translation"""

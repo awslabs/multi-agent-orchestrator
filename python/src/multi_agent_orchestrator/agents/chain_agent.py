@@ -62,7 +62,7 @@ class ChainAgent(Agent):
 
             except Exception as error:
                 Logger.logger.error(f"Error processing request with agent {agent.name}:{str(error)}")
-                return self.create_default_response()
+                raise f"Error processing request with agent {agent.name}:{str(error)}"
 
         return final_response
 
