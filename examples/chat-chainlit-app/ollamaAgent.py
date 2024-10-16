@@ -34,7 +34,7 @@ class OllamaAgent(Agent):
             )
 
         except Exception as error:
-            Logger.logger.error("Error getting stream from Ollama model:", error)
+            Logger.error("Error getting stream from Ollama model:", error)
             raise error
 
 

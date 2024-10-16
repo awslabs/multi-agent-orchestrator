@@ -43,25 +43,25 @@ class ChainAgent(Agent):
                         current_input = response.content[0]['text']
                         final_response = response
                     else:
-                        Logger.logger.warning(f"Agent {agent.name} returned no text content.")
+                        Logger.warn(f"Agent {agent.name} returned no text content.")
                         return self.create_default_response()
                 elif self.is_async_iterable(response):
                     if not is_last_agent:
-                        Logger.logger.warning(f"Intermediate agent {agent.name} returned a streaming response, which is not allowed.")
+                        Logger.warn(f"Intermediate agent {agent.name} returned a streaming response, which is not allowed.")
                         return self.create_default_response()
                     # It's the last agent and streaming is allowed
                     final_response = response
                 else:
-                    Logger.logger.warning(f"Agent {agent.name} returned an invalid response type.")
+                    Logger.warn(f"Agent {agent.name} returned an invalid response type.")
                     return self.create_default_response()
 
                 # If it's not the last agent, ensure we have a non-streaming response to pass to the next agent
                 if not is_last_agent and not self.is_conversation_message(final_response):
-                    Logger.logger.error(f"Expected non-streaming response from intermediate agent {agent.name}")
+                    Logger.error(f"Expected non-streaming response from intermediate agent {agent.name}")
                     return self.create_default_response()
 
             except Exception as error:
-                Logger.logger.error(f"Error processing request with agent {agent.name}:{str(error)}")
+                Logger.error(f"Error processing request with agent {agent.name}:{str(error)}")
                 raise f"Error processing request with agent {agent.name}:{str(error)}"
 
         return final_response

@@ -91,7 +91,6 @@ class MultiAgentOrchestrator:
         agent_chat_history = await self.storage.fetch_chat(user_id, session_id, selected_agent.id)
 
         self.logger.print_chat_history(agent_chat_history, selected_agent.id)
-        #self.logger.info(f"Routing intent '{user_input}' to {selected_agent.id} ...")
 
         response = await self.measure_execution_time(
             f"Agent {selected_agent.name} | Processing request",
@@ -110,9 +109,9 @@ class MultiAgentOrchestrator:
                             session_id: str,
                             additional_params: Dict[str, str] = {}) -> AgentResponse:
         self.execution_times.clear()
-        chat_history = await self.storage.fetch_all_chats(user_id, session_id) or []
 
         try:
+            chat_history = await self.storage.fetch_all_chats(user_id, session_id) or []
             classifier_result:ClassifierResult = await self.measure_execution_time(
                 "Classifying user intent",
                 lambda: self.classifier.classify(user_input, chat_history)
@@ -210,13 +209,13 @@ class MultiAgentOrchestrator:
 
     def print_intent(self, user_input: str, intent_classifier_result: ClassifierResult) -> None:
         """Print the classified intent."""
-        Logger.log_header('Classified Intent')
-        Logger.logger.info(f"> Text: {user_input}")
-        Logger.logger.info(f"> Selected Agent: {intent_classifier_result.selected_agent.name \
+        self.logger.log_header('Classified Intent')
+        self.logger.info(f"> Text: {user_input}")
+        self.logger.info(f"> Selected Agent: {intent_classifier_result.selected_agent.name \
                                                 if intent_classifier_result.selected_agent \
                                                     else 'No agent selected'}")
-        Logger.logger.info(f"> Confidence: {intent_classifier_result.confidence:.2f}")
-        Logger.logger.info('')
+        self.logger.info(f"> Confidence: {intent_classifier_result.confidence:.2f}")
+        self.logger.info('')
 
     async def measure_execution_time(self, timer_name: str, fn):
         if not self.config.LOG_EXECUTION_TIMES:
