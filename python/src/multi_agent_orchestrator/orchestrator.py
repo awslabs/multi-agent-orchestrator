@@ -14,8 +14,6 @@ from multi_agent_orchestrator.agents import (Agent,
                         BedrockLLMAgentOptions)
 from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
 
-DEFAULT_CONFIG=OrchestratorConfig()
-
 @dataclass
 class MultiAgentOrchestrator:
     def __init__(self,
@@ -23,6 +21,8 @@ class MultiAgentOrchestrator:
                  storage: Optional[ChatStorage] = None,
                  classifier: Optional[Classifier] = None,
                  logger: Optional[Logger] = None):
+
+        DEFAULT_CONFIG=OrchestratorConfig()
 
         if options is None:
             options = {}
