@@ -19,10 +19,10 @@ DEFAULT_CONFIG=OrchestratorConfig()
 @dataclass
 class MultiAgentOrchestrator:
     def __init__(self,
-                 options: OrchestratorConfig = DEFAULT_CONFIG,
-                 storage: ChatStorage = InMemoryChatStorage(),
-                 classifier: Classifier = BedrockClassifier(options=BedrockClassifierOptions()),
-                 logger: Logger = None):
+                 options: Optional[OrchestratorConfig] = None,
+                 storage: Optional[ChatStorage] = None,
+                 classifier: Optional[Classifier] = None,
+                 logger: Optional[Logger] = None):
 
         if options is None:
             options = {}
@@ -41,7 +41,8 @@ class MultiAgentOrchestrator:
 
         self.logger = Logger(self.config, logger)
         self.agents: Dict[str, Agent] = {}
-        self.classifier: Classifier = classifier
+        self.storage = storage or InMemoryChatStorage()
+        self.classifier: Classifier = classifier or BedrockClassifier(options=BedrockClassifierOptions())
         self.execution_times: Dict[str, float] = {}
         self.default_agent: Agent = BedrockLLMAgent(
             options=BedrockLLMAgentOptions(
