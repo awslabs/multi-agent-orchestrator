@@ -267,11 +267,6 @@ These examples showcase:
 3. The orchestrator's ability to route requests to the most appropriate agent based on the input.
 4. Handling of both streaming and non-streaming responses from different types of agents.
 
-📚 Featured Articles
-We're excited to share contributions that showcase the power and flexibility of the Multi-Agent Orchestrator. Check out this featured article:
-
-From 'Bonjour' to 'Boarding Pass': Multilingual AI Chatbot for Flight Reservations
-Create a global flight reservation chatbot in minutes! This tutorial walks you through building a multilingual chatbot using the Multi-Agent Orchestrator framework. Learn to effortlessly chain AI agents for instant language processing and booking across multiple languages. Transform complex, multi-step processes into a polyglot flight reservation system.
 
 ## 🤝 Contributing
 
