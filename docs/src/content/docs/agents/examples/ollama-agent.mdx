@@ -150,7 +150,7 @@ The [process_request](../overview#abstract-method-processrequest) method must be
                 )
 
             except Exception as error:
-                Logger.logger.error("Error getting stream from Ollama model:", error)
+                Logger.get_logger().error("Error getting stream from Ollama model:", error)
                 raise error
 
 
