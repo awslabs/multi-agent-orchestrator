@@ -25,9 +25,10 @@
     "@aws-cdk/aws-cognito-identitypool-alpha": "^2.158.0-alpha.0",
     "@aws-cdk/aws-lambda-python-alpha": "^2.158.0-alpha.0",
     "@aws-lambda-powertools/logger": "^2.3.0",
+    "@aws-sdk/client-bedrock-agent": "^3.675.0",
     "@aws-sdk/client-bedrock-runtime": "^3.651.1",
     "@aws-sdk/core": "^3.651.1",
-    "@cdklabs/generative-ai-cdk-constructs": "^0.1.234",
+    "@opensearch-project/opensearch": "^2.12.0",
     "aws-cdk-lib": "^2.147.3",
     "aws-lambda": "^1.0.7",
     "constructs": "^10.0.0",
@@ -38,6 +39,7 @@
     "npm": "^10.8.1",
     "source-map-support": "^0.5.21",
     "stopword": "^3.0.1",
+    "ts-retry": "^5.0.1",
     "xml2js": "^0.6.2"
   }
 }

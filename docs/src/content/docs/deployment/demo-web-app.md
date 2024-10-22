@@ -63,12 +63,10 @@ Follow these steps to deploy the demo chat web application:
    ```
    "context": {
     "enableLexAgent": true,
-    "enableAmazonBedrockAgent": true,
    ...
    ```
 
    **enableLexAgent:** Enable the sample Airlines Bot (See AWS Blogpost [here](https://aws.amazon.com/blogs/machine-learning/automate-the-customer-service-experience-for-flight-reservations-using-amazon-lex/))
-   **enableAmazonBedrockAgent:** Enable the sample Amazon Bedrock Agent with prefined knowledge base about restaurant's menu (See knowledge base documents [here](https://github.com/aws-east-ai/Bedrock-Claude-Deep-Dive-Workshop/tree/main/05_Agents/kb_documents))
 
 
 6. **Deploy the Application**:

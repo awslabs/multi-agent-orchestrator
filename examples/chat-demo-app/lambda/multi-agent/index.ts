@@ -4,16 +4,16 @@ import {
   BedrockLLMAgent,
   DynamoDbChatStorage,
   LexBotAgent,
-  AmazonBedrockAgent,
+  AmazonKnowledgeBasesRetriever,
   LambdaAgent,
   BedrockClassifier,
-  Agent,
 } from "multi-agent-orchestrator";
 import { weatherToolDescription, weatherToolHanlder } from './weather_tool'
 import { mathToolHanlder, mathAgentToolDefinition } from './math_tool';
 import { APIGatewayProxyEventV2, Handler, Context } from "aws-lambda";
 import { Buffer } from "buffer";
 import { GREETING_AGENT_PROMPT, HEALTH_AGENT_PROMPT, MATH_AGENT_PROMPT, TECH_AGENT_PROMPT, WEATHER_AGENT_PROMPT } from "./prompts";
+import { BedrockAgentRuntimeClient, SearchType } from '@aws-sdk/client-bedrock-agent-runtime';
 
 const logger = new Logger();
 
@@ -37,13 +37,6 @@ interface LexAgentConfig {
   localeId: string;
 }
 
-interface BedrockAgentConfig {
-  name: string;
-  description: string;
-  agentId: string;
-  agentAliasId: string;
-}
-
 interface BodyData {
   query: string;
   sessionId: string;
@@ -51,7 +44,6 @@ interface BodyData {
 }
 
 const LEX_AGENT_ENABLED = process.env.LEX_AGENT_ENABLED || "false";
-const BEDROCK_AGENT_ENABLED = process.env.BEDROCK_AGENT_ENABLED || "false";
 
 const storage = new DynamoDbChatStorage(
   process.env.HISTORY_TABLE_NAME!,
@@ -75,19 +67,6 @@ const orchestrator = new MultiAgentOrchestrator({
   }),
 });
 
-
-
-const techAgent = new BedrockLLMAgent({
-  name: "Tech Agent",
-  description:
-    "Specializes in a wide range of technology areas, including software development, hardware, AI, cybersecurity, blockchain, cloud computing, and emerging tech innovations. Handles inquiries related to pricing, costs, and technical details of technology products and services except for the multi-agent orchestrator framework and its components.",
-  streaming: true,
-  inferenceConfig: {
-    temperature: 0.1,
-  },
-});
-
-techAgent.setSystemPrompt(TECH_AGENT_PROMPT);
 
 const healthAgent = new BedrockLLMAgent({
   name: "Health Agent",
@@ -158,20 +137,62 @@ if (process.env.LAMBDA_AGENTS){
   }
 }
 
-if (BEDROCK_AGENT_ENABLED === "true") {
-  const config: BedrockAgentConfig = JSON.parse(
-    process.env.BEDROCK_AGENT_CONFIG!
-  );
-  orchestrator.addAgent(
-    new AmazonBedrockAgent({
-      name: "Multi-Agent-Orchestrator Documentation Agent",
-      //description: "You specialize in the Multi-Agent Orchestrator framework, which manages multiple AI agents and handles complex conversations. You provide comprehensive support for integrating, configuring, and customizing agents within the orchestrator. You also handle queries about the framework's extensible architecture, dual language support, and deployment flexibility across various environments. Your expertise includes helping users with pre-built agents, agent creation, usage, and optimizing orchestrator workflows for different use cases",
-      description: "Specializes in a wide range of technology areas, including software development, hardware, AI, cybersecurity, blockchain, cloud computing, and emerging tech innovations. Handles inquiries related to pricing, costs, and technical details of technology products and services except for the multi-agent orchestrator framework and its components.",
-      agentId: config.agentId,
-      agentAliasId: config.agentAliasId,
-    })
-  );
-}
+// Add a our Multi-agent orchestrator documentation agent
+const maoDocAgent = new BedrockLLMAgent({
+  name: "Tech agent",
+  description:
+    "A tech expert specializing in the multi-agent orchestrator framework, technical domains, and AI-driven solutions.",
+  streaming: true,
+  inferenceConfig: {
+    temperature: 0.0,
+  },
+  toolConfig: {
+    useToolHandler: mathToolHanlder,
+    tool: mathAgentToolDefinition,
+    toolMaxRecursions: 5,
+  },
+  customSystemPrompt:{
+    template:`
+  You are a tech expert specializing in both the technical domain, including software development, AI, cloud computing, and the multi-agent orchestrator framework. Your role is to provide comprehensive, accurate, and helpful information about these areas, with a specific focus on the orchestrator framework, its agents, and their applications. Always structure your responses using clear, well-formatted markdown.
+
+        Key responsibilities:
+        - Explain the multi-agent orchestrator framework, its agents, and its benefits
+        - Guide users on how to get started with the framework and configure agents
+        - Provide technical advice on topics like software development, AI, and cloud computing
+        - Detail the process of creating and configuring an orchestrator
+        - Describe the various components and elements of the framework
+        - Provide examples and best practices for technical implementation
+
+        When responding to queries:
+        1. Start with a brief overview of the topic
+        2. Break down complex concepts into clear, digestible sections
+        3. **When the user asks for an example or code, always respond with a code snippet, using proper markdown syntax for code blocks (\`\`\`).** Provide explanations alongside the code when necessary.
+        4. Conclude with next steps or additional resources if relevant
+
+        Always use proper markdown syntax, including:
+        - Headings (##, ###) for main sections and subsections
+        - Bullet points (-) or numbered lists (1., 2., etc.) for enumerating items
+        - Code blocks (\`\`\`) for code snippets or configuration examples
+        - Bold (**text**) for emphasizing key terms or important points
+        - Italic (*text*) for subtle emphasis or introducing new terms
+        - Links ([text](URL)) when referring to external resources or documentation
+
+        Tailor your responses to both beginners and experienced developers, providing clear explanations and technical depth as appropriate.`
+  },
+  retriever: new AmazonKnowledgeBasesRetriever(
+    new BedrockAgentRuntimeClient(),
+    {
+      knowledgeBaseId: process.env.KNOWLEDGE_BASE_ID,
+      retrievalConfiguration: {
+        vectorSearchConfiguration: {
+          numberOfResults: 10,
+          overrideSearchType: SearchType.HYBRID,
+        },
+      },
+    }
+  )
+  });
+orchestrator.addAgent(maoDocAgent);
 
 //orchestrator.addAgent(techAgent);
 orchestrator.addAgent(healthAgent);
