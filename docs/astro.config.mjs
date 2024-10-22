@@ -50,6 +50,12 @@ export default defineConfig({
 						]
 					  },
 					  { label: 'Custom Classifier', link: '/classifiers/custom-classifier' },
+					  {
+						label: 'Examples',
+						items: [
+						  { label: 'Ollama Classifier', link: '/classifiers/examples/ollama-classifier'},
+						]
+					  },
 					]
 				},
 				{
