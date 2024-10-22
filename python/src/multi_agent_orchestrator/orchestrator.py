@@ -211,9 +211,10 @@ class MultiAgentOrchestrator:
         """Print the classified intent."""
         self.logger.log_header('Classified Intent')
         self.logger.info(f"> Text: {user_input}")
-        self.logger.info(f"> Selected Agent: {intent_classifier_result.selected_agent.name \
+        selected_agent_string = intent_classifier_result.selected_agent.name \
                                                 if intent_classifier_result.selected_agent \
-                                                    else 'No agent selected'}")
+                                                    else 'No agent selected'
+        self.logger.info(f"> Selected Agent: {selected_agent_string}")
         self.logger.info(f"> Confidence: {intent_classifier_result.confidence:.2f}")
         self.logger.info('')
 
