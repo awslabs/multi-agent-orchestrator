@@ -60,4 +60,4 @@ User: "Recommend a workout routine"
 → Routed to Health Agent
 ```
 
-Ready to build your own multi-agent chat application? Check out the complete [source code]() in our GitHub repository.
+Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/chat-chainlit-app) in our GitHub repository.

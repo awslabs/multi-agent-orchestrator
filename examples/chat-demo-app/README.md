@@ -6,16 +6,15 @@ The demo showcases the versatility of the Multi-Agent Orchestrator System throug
 ![Demo Application](./img/demo-app.jpg)
 
 ### Featured Agents
-Our extended demo version showcases 6 specialized agents:
+Our demo showcases specialized agents, each designed for specific use cases:
 
 | Agent | Technology | Purpose |
 |-------|------------|---------|
-| Travel Agent | Amazon Lex Bot | Flight bookings and travel queries |
-| Weather Agent | Bedrock LLM + API Tool | Real-time weather information |
-| Restaurant Agent | Amazon Bedrock | Restaurant recommendations |
-| Math Agent | Bedrock LLM + Math Tools | Mathematical calculations |
-| Tech Agent | Bedrock LLM | Technical support and information |
-| Health Agent | Bedrock LLM | Health-related inquiries |
+| Travel Agent | Amazon Lex Bot | Handles travel planning, flight bookings, and itinerary queries through a conversational interface |
+| Weather Agent | Bedrock LLM + Open-Meteo API | Provides real-time weather forecasts and conditions using API integration |
+| Math Agent | Bedrock LLM + Calculator Tools | Performs complex calculations and solves mathematical problems with custom tools |
+| **Tech Agent** | Bedrock LLM + Knowledge Base | Offers technical support and documentation assistance with direct access to **Multi-Agent Orchestrator framework source code** |
+| Health Agent | Bedrock LLM | Provides health and wellness guidance, including fitness advice and general health information |
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
