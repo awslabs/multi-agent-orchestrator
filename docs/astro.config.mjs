@@ -50,12 +50,7 @@ export default defineConfig({
 						]
 					  },
 					  { label: 'Custom Classifier', link: '/classifiers/custom-classifier' },
-					  {
-						label: 'Examples',
-						items: [
-						  { label: 'Ollama Classifier', link: '/classifiers/examples/ollama-classifier'},
-						]
-					  },
+					  
 					]
 				},
 				{
@@ -77,13 +72,7 @@ export default defineConfig({
 					  ]
 					},
 					{ label: 'Custom Agents', link: '/agents/custom-agents' },
-					{
-						label: 'Examples',
-						items: [
-						  { label: 'Ollama Agent', link: '/agents/examples/ollama-agent'},
-						  { label: 'Api Agent', link: '/agents/examples/api-agent'},
-						]
-					  },
+					
 				  ]
 				},
 				{
@@ -114,29 +103,59 @@ export default defineConfig({
 					]
 				},
 				{
-				  label: 'Advanced Features',
-				  items: [
-					{ label: 'Agent Overlap Analysis', link: '/advanced-features/agent-overlap' },
-					{ label: 'Create a Weather Agent using Tools', link: '/advanced-features/weather-tool-use' },
-					{ label: 'Create a Math Agent using Tools', link: '/advanced-features/math-tool-use' },
-					{ label: 'Logging', link: '/advanced-features/logging' },
-				  ]
-				},
-				{
-					label: 'Deployment',
+					label: 'Cookbook',
 					items: [
-					  { label: 'Local Development', link: '/deployment/local' },
-					  { label: 'AWS Lambda Typescript', link: '/deployment/aws-lambda-ts' },
-					  { label: 'AWS Lambda Python', link: '/deployment/aws-lambda-py' },
-					  { label: 'Demo Web App', link: '/deployment/demo-web-app' },
+					  { 
+						label: 'Getting Started',
+						items: [
+						  { label: 'Overview', link: '/cookbook/overview' },
+						  { label: 'Local Development', link: '/cookbook/getting-started/local-development' }
+						]
+					  },
+					  {
+						label: 'Examples',
+						items: [
+						  { label: 'Chat Chainlit App', link: '/cookbook/examples/chat-chainlit-app' },
+						  { label: 'Chat Demo App', link: '/cookbook/examples/chat-demo-app' },
+						  { label: 'E-commerce Support Simulator', link: '/cookbook/examples/ecommerce-support-simulator' },
+						  { label: 'Fast API Streaming', link: '/cookbook/examples/fast-api-streaming' },
+						  { label: 'Typescript Local Demo', link: '/cookbook/examples/typescript-local-demo' },
+						  { label: 'Python Local Demo', link: '/cookbook/examples/python-local-demo' },
+						  { label: 'Api Agent', link: '/cookbook/examples/api-agent' },
+						  { label: 'Ollama Agent', link: '/cookbook/examples/ollama-agent' },
+						  { label: 'Ollama Classifier', link: '/cookbook/examples/ollama-classifier' }
+						]
+					  },
+					  {
+						label: 'Lambda Implementations',
+						items: [
+						  { label: 'Python Lambda', link: '/cookbook/lambda/aws-lambda-python' },
+						  { label: 'NodeJs Lambda', link: '/cookbook/lambda/aws-lambda-nodejs' }
+						]
+					  },
+					  {
+						label: 'Tool Integration',
+						items: [
+						  { label: 'Weather API Integration', link: '/cookbook/tools/weather-api' },
+						  { label: 'Math Operations', link: '/cookbook/tools/math-operations' }
+						]
+					  },
+					  {
+						label: 'Routing Patterns',
+						items: [
+						  { label: 'Cost-Efficient Routing', link: '/cookbook/patterns/cost-efficient' },
+						  { label: 'Multi-lingual Routing', link: '/cookbook/patterns/multi-lingual' }
+						]
+					  },
+					  {
+						label: 'Optimization & Monitoring',
+						items: [
+						  { label: 'Agent Overlap Analysis', link: '/cookbook/monitoring/agent-overlap' },
+						  { label: 'Logging and Monitoring', link: '/cookbook/monitoring/logging' }
+						]
+					  }
 					]
-				  },
-				  {
-					  label: 'Use cases',
-					  items: [
-						{ label: 'Use case examples', link: '/use-cases/use-cases' },
-					  ]
-				  },
+				  }
 			  ]
 		})
 	]
