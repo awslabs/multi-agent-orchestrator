@@ -57,8 +57,6 @@ This simulator demonstrates the seamless integration of AI agents and human supp
 
 ## Getting Started
 
-[TODO]
-
 This simulator serves as a practical example of how AI and human support can be integrated effectively in a customer service environment. It demonstrates the potential for enhancing efficiency while maintaining the ability to provide personalized, human touch when necessary.# AI-Powered E-commerce Support Simulator
 
 A demonstration of how AI agents and human support can work together in an e-commerce customer service environment. This project showcases intelligent query routing, multi-agent collaboration, and seamless human integration for complex support scenarios.
