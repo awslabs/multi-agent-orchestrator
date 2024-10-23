@@ -3,11 +3,31 @@ title: Ollama classifier with llama3.1
 description: Example of an Ollama classifier
 ---
 
-This example shows an implementation of a classifier using Ollama with a default llama3.1 model in the Multi-Agent Orchestrator System.
+Welcome to the Ollama Classifier guide!
+This example will walk you through creating an Ollama classifier and integrating it into your Multi-Agent Orchestrator System. Let’s dive in!
 
-## Implementation
+## 📚 Prerequisites:
+- Basic knowledge of Python
+- Familiarity with the Multi-Agent Orchestrator System
+- [Ollama installed](https://ollama.com/download) on your machine
+
+## 💾 1. Ollama installation:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="Python" icon="seti:python">
+    First, let's install the Ollama Python package:
+    ```bash
+    pip install ollama
+    ```
+  </TabItem>
+</Tabs>
+
+## 🧬 2. Create the Ollama Classifier class:
+
+Now, let's create our `OllamaClassifier` class. This class extends the `Classifier` abstract class from the Multi-Agent Orchestrator.
+The [process_request](../overview#abstract-method-processrequest) method must be implemented by the `OllamaClassifier`
 
 <Tabs syncKey="runtime">
   <TabItem label="Python" icon="seti:python">
@@ -17,7 +37,6 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
     from multi_agent_orchestrator.utils import Logger
     import ollama
-    from dataclasses import dataclass
 
 
     class OllamaClassifierOptions:
@@ -98,3 +117,57 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     ```
   </TabItem>
 </Tabs>
+
+Now that we have our `OllamaClassifier`, let's use it in the Multi-Agent Orchestrator:
+
+
+## 🔗 3. Use OllamaClassifier in the orchestrator:
+
+If you have used the quickstarter sample program, you can use the Ollama classifier and run it like this:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from ollamaClassifier import OllamaClassifier, OllamaClassifierOptions
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    classifier = OllamaClassifier(OllamaClassifierOptions(
+            model_id='llama3.1',
+            inference_config={'temperature':0.0}
+        ))
+
+    orchestrator = MultiAgentOrchestrator()
+
+    # Use our newly created classifier within the orchestrator
+    orchestrator.set_classifier(classifier)
+    ```
+  </TabItem>
+</Tabs>
+
+And you are done!
+
+## 🏃 4. Run Your Ollama Model Locally:
+Before running your program, make sure to start the Ollama model locally:
+```bash
+ollama run llama3.1
+```
+If you haven't downloaded the Llama3.1 model yet, it will be downloaded automatically before running.
+
+🎉 **You're All Set!**
+
+Congratulations! You've successfully integrated an Ollama classifier into your Multi-Agent Orchestrator System.
+ Now you can start classifiying user requests and leveraging the power of Llama3.1 in your applications!
+
+## 5.🔗 **Useful Links:**
+
+- [Ollama](https://ollama.com/)
+- [Ollama Python](https://github.com/ollama/ollama-python)
+- [Ollama GitHub Repository](https://github.com/ollama)
+
+## 6.💡 **Next Steps:**
+
+- Experiment with different Ollama models
+- Build a complete multi agent system in an offline environment
+
+Happy coding! 🚀
+
