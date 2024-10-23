@@ -10,9 +10,8 @@ The Multi-Agent Orchestrator System includes a demo chat web application that sh
 In the screen recording below, we demonstrate an extended version of the demo app that uses 6 specialized agents:
 - **Travel Agent**: Powered by an Amazon Lex Bot
 - **Weather Agent**: Utilizes a Bedrock LLM Agent with a tool to query the open-meteo API
-- **Restaurant Agent**: Implemented as an Amazon Bedrock Agent
 - **Math Agent**: Utilizes a Bedrock LLM Agent with two tools for executing mathematical operations
-- **Tech Agent**: A Bedrock LLM Agent designed to answer questions on technical topics
+- **Tech Agent**: A Bedrock LLM Agent designed to offer technical support and documentation assistance with direct access to **Multi-Agent Orchestrator framework source code**
 - **Health Agent**: A Bedrock LLM Agent focused on addressing health-related queries
 
 Watch as the system seamlessly switches context between diverse topics, from booking flights to checking weather, solving math problems, and providing health information.
