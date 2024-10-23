@@ -1,5 +1,5 @@
 ---
-title: AWS Lambda JavaScript with Multi-Agent Orchestrator
+title: AWS Lambda NodeJs with Multi-Agent Orchestrator
 description: How to set up the Multi-Agent Orchestrator System for AWS Lambda using JavaScript
 ---
 
