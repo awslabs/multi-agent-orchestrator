@@ -1,74 +1,47 @@
 # AI-Powered E-commerce Support Simulator
 
-This project demonstrates the practical application of AI agents and human-in-the-loop interactions in an e-commerce support context. It showcases how AI can handle customer queries efficiently while seamlessly integrating human support when needed.
-
-## Overview
-
-The AI-Powered E-commerce Support Simulator is designed to showcase a sophisticated customer support system that combines AI agents with human support. It demonstrates how AI can handle routine queries automatically while routing complex issues to human agents, providing a comprehensive support experience.
-
-## Features
-
-- AI-powered response generation for common queries
-- Intelligent routing of complex issues to human support
-- Real-time chat functionality
-- Email-style communication option
-
-## UI Modes
-
-### Chat Mode
-
-The Chat Mode provides a real-time conversation interface, simulating instant messaging between customers and the support system. It features:
-
-- Separate chat windows for customer and support perspectives
-- Real-time message updates
-- Automatic scrolling to the latest message
-
-![Chat Mode Screenshot](./img/chat_mode.png)
-
-### Email Mode
-
-The Email Mode simulates asynchronous email communication. It includes:
-
-- Email composition interfaces for both customer and support
-- Pre-defined email templates for common scenarios
-- Response viewing areas for both parties
-
-![Chat Mode Screenshot](./img/email_mode.png)
-
-## Mock Data
-
-The project includes a `mock_data.json` file for testing and demonstration purposes. This file contains sample data that simulates various customer scenarios, product information, and order details.
-
-To view and use the mock data:
-
-1. Navigate to the `public` directory in the project.
-2. Open the `mock_data.json` file to view its contents.
-3. Use the provided data to test different support scenarios and observe how the system handles various queries.
-
-## AI and Human Interaction
-
-This simulator demonstrates the seamless integration of AI agents and human support:
-
-- Automated Handling: AI agents automatically process and respond to common or straightforward queries.
-- Human Routing: Complex or sensitive issues are identified and routed to human support agents.
-- Customer Notification: When a query is routed to human support, the customer receives an automatic confirmation.
-- Support Interface: The support side of the interface allows human agents to see which messages require their attention and respond accordingly.
-- Handoff Visibility: Users can observe when a query is handled by AI and when it's transferred to a human agent.
-
-## Getting Started
-
-This simulator serves as a practical example of how AI and human support can be integrated effectively in a customer service environment. It demonstrates the potential for enhancing efficiency while maintaining the ability to provide personalized, human touch when necessary.# AI-Powered E-commerce Support Simulator
-
 A demonstration of how AI agents and human support can work together in an e-commerce customer service environment. This project showcases intelligent query routing, multi-agent collaboration, and seamless human integration for complex support scenarios.
 
 ## 🎯 Key Features
 
-- Multi-agent AI orchestration
+- Multi-agent AI orchestration with specialized models
 - Real-time and asynchronous communication modes
-- Integration with human support workflow
+- Seamless integration with human support workflow
 - Tool-augmented AI interactions
 - Production-ready AWS architecture
 - Mock data for realistic scenarios
+
+## 💻 Interface & Communication Modes
+
+The system provides two distinct interaction modes to accommodate different support scenarios and user preferences:
+
+### Real-Time Chat Interface
+![Chat Mode](./img/chat_mode.png)
+
+The chat interface provides immediate, conversational support:
+- Instant messaging-style communication
+- Live message streaming
+- Real-time agent responses
+- Automatic message routing
+- Separate chat windows for customer and support perspectives
+
+### Email-Style Communication
+![Email Mode](./img/email_mode.png)
+
+The email interface supports structured, asynchronous communication:
+- Email composition interfaces for both customer and support
+- Pre-defined templates for common scenarios
+- Response viewing areas for both parties
+- Asynchronous message handling
+- Template support for standardized responses
+
+### Key Features Across Both Modes
+
+Both interfaces demonstrate:
+1. **AI Capabilities**: Natural language understanding, context retention, appropriate tool usage
+2. **Human Integration**: Seamless handoffs, verification workflows, complex case handling
+3. **Tool Usage**: Order lookup, shipment tracking, return processing
+4. **System Intelligence**: Query classification, routing decisions, escalation handling
 
 ## 🏗️ System Architecture
 
@@ -76,148 +49,124 @@ A demonstration of how AI agents and human support can work together in an e-com
 
 ![Agents](./img/ai_e-commerce_support_system.png)
 
-The system employs three specialized agents:
+The system employs multiple specialized AI agents, each designed for specific tasks:
 
-#### 1. Order Management Agent (Claude 3 Sonnet)
-- 🎯 **Purpose**: Handles order-related inquiries
-- 🛠️ **Tools**:
-  - `orderlookup`: Retrieves order details
-  - `shipmenttracker`: Tracks shipping status
-  - `returnprocessor`: Manages returns
-- ✨ **Capabilities**:
-  - Real-time order tracking
-  - Return processing
-  - Refund handling
+#### 1. Order Management Agent
+- **Model**: Anthropic Claude 3 Sonnet
+- **Purpose**: Handles all order-related inquiries
+- **Custom Tools**:
+  - `orderlookup`: Retrieves detailed order information
+  - `shipmenttracker`: Provides real-time shipping status
+  - `returnprocessor`: Initiates and manages return requests
+- **Key Features**:
+  - Accesses order database
+  - Tracks shipments in real-time
+  - Processes return requests
+  - Handles refund inquiries
 
-#### 2. Product Information Agent (Claude 3 Haiku)
-- 🎯 **Purpose**: Product information and specifications
-- 🧠 **Knowledge Base**: Integrated product database
-- ✨ **Capabilities**:
-  - Product specifications
-  - Compatibility checking
-  - Availability information
+#### 2. Product Information Agent
+- **Model**: Anthropic Claude 3 Haiku
+- **Purpose**: Provides detailed product information and specifications
+- **Key Features**:
+  - Integrates with product knowledge base
+  - Provides availability information
+  - Handles specification inquiries
 
-#### 3. Human Agent
-- 🎯 **Purpose**: Complex case handling and oversight
-- ✨ **Capabilities**:
-  - Complex complaint resolution
-  - Critical decision oversight
-  - AI response verification
+#### 3. Human Agent (Custom Implementation)
+- **Type**: Custom agent implementation
+- **Purpose**: Handles complex cases and verifies AI responses
+- **Key Features**:
+  - Handles complex customer complaints
+  - Provides human oversight for critical decisions
 
 ### AWS Infrastructure
 
 ![Infrastructure](./img/ai-powered_e-commerce_support_simulator.png)
 
-#### Core Components
-- 🌐 **Frontend**: React + CloudFront
-- 🔌 **API**: AppSync GraphQL
-- 📨 **Messaging**: SQS queues
-- ⚡ **Processing**: Lambda functions
-- 💾 **Storage**: DynamoDB + S3
-- 🔐 **Auth**: Cognito
+The system is built on AWS with the following key components:
 
-## 💬 Communication Modes
+- **Frontend**: React-based web application served via CloudFront
+- **API Layer**: AppSync GraphQL API
+- **Message Routing**: SQS queues for reliable message delivery
+- **Processing**: Lambda functions for message handling
+- **Storage**: 
+  - DynamoDB for conversation history
+  - S3 for static assets
+- **Authentication**: Cognito user pools and identity pools
+- **Monitoring**: Built-in logging and debugging capabilities
 
-### Real-Time Chat
-![Chat Mode](./img/chat_mode.png)
-- Instant messaging interface
-- Real-time response streaming
-- Automatic routing
+### Mock Data
+The system includes a comprehensive `mock_data.json` file that provides sample order information
 
-### Email-Style
-![Email Mode](./img/email_mode.png)
-- Asynchronous communication
-- Template-based responses
-- Structured conversations
+## 📋 Deployment
 
-## 🛠️ Mock System Integration
+Before deploying the demo web app, ensure you have the following:
 
-### Mock Data Structure
-The `mock_data.json` provides realistic test data:
-```json
-{
-  "orders": {...},
-  "products": {...},
-  "shipping": {...}
-}
-```
+1. An AWS account with appropriate permissions
+2. AWS CLI installed and configured with your credentials
+3. Node.js and npm installed on your local machine
+4. AWS CDK CLI installed (`npm install -g aws-cdk`)
 
-### Tool Integration
-- Order management tools use mock database
-- Shipment tracking simulates real-time updates
-- Return processing demonstrates workflow
+## 🚀 Deployment Steps
 
-## 🚀 Deployment Guide
+Follow these steps to deploy the demo chat web application:
 
-### Prerequisites
-- AWS account with permissions
-- AWS CLI configured
-- Node.js and npm
-- AWS CDK CLI
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/awslabs/multi-agent-orchestrator.git
+   cd multi-agent-orchestrator/examples/ecommerce-support-simulator
+   ```
 
-### Quick Start
-```bash
-# Clone repository
-git clone https://github.com/awslabs/multi-agent-orchestrator.git
-cd multi-agent-orchestrator/examples/ecommerce-support-simulator
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-# Install and deploy
-npm install
-cdk bootstrap
-cdk deploy
+3. **Bootstrap AWS CDK**:
+   ```bash
+   cdk bootstrap
+   ```
 
-# Create user
-aws cognito-idp admin-create-user \
-    --user-pool-id your-region_xxxxxxx \
-    --username your@email.com \
-    --user-attributes Name=email,Value=your@email.com \
-    --temporary-password "MyChallengingPassword" \
-    --message-action SUPPRESS \
-    --region your-region
-```
+4. **Deploy the Application**:
+   ```bash
+   cdk deploy
+   ```
 
-## 🔍 Demo Scenarios
+5. **Create a user in Amazon Cognito user pool**:
+   ```bash
+   aws cognito-idp admin-create-user \
+       --user-pool-id your-region_xxxxxxx  \
+       --username your@email.com \
+       --user-attributes Name=email,Value=your@email.com \
+       --temporary-password "MyChallengingPassword" \
+       --message-action SUPPRESS \
+       --region your-region
+   ```
 
-1. **Order Management**
-   - Order status inquiries
-   - Shipment tracking
-   - Return requests
+## 🌐 Accessing the Demo Web App
 
-2. **Product Support**
-   - Product specifications
-   - Compatibility checks
-   - Availability queries
+Once deployment is complete:
+1. Open the URL provided in the CDK outputs in your web browser
+2. Log in with the created credentials
 
-3. **Complex Cases**
-   - Multi-step resolutions
-   - Human escalation
-   - Critical decisions
+## 🧹 Cleaning Up
 
-## 🧹 Cleanup
+To avoid incurring unnecessary AWS charges:
 ```bash
 cdk destroy
 ```
 
 ## 🔧 Troubleshooting
 
-Common issues and solutions:
-1. **Deployment Failures**
-   - Verify AWS credentials
-   - Check permissions
-   - Review CloudFormation logs
+If you encounter issues during deployment:
 
-2. **Runtime Issues**
-   - Validate mock data format
-   - Check queue configurations
-   - Verify Lambda logs
+1. Ensure your AWS credentials are correctly configured
+2. Check that you have the necessary permissions in your AWS account
+3. Verify that all dependencies are correctly installed
+4. Review the AWS CloudFormation console for detailed error messages if the deployment fails
 
 ## ⚠️ Disclaimer
 
 This demo application is intended solely for demonstration purposes. It is not designed for handling, storing, or processing any kind of Personally Identifiable Information (PII) or personal data. Users are strongly advised not to enter, upload, or use any PII or personal data within this application. Any use of PII or personal data is at the user's own risk and the developers of this application shall not be held responsible for any data breaches, misuse, or any other related issues. Please ensure that all data used in this demo is non-sensitive and anonymized.
 
 For production usage, it is crucial to implement proper security measures to protect PII and personal data. This includes obtaining proper permissions from users, utilizing encryption for data both in transit and at rest, and adhering to industry standards and regulations to maximize security. Failure to do so may result in data breaches and other serious security issues.
-## 📚 Additional Resources
-
-- [Multi-Agent Orchestrator Documentation](https://github.com/awslabs/multi-agent-orchestrator)
-- [AWS AppSync Documentation](https://docs.aws.amazon.com/appsync)
-- [Claude API Documentation](https://docs.anthropic.com/claude/reference)
