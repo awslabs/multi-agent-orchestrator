@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, MessageSquare, RefreshCw } from 'lucide-react';
-import { Send, Loader, Github, BookOpen } from 'lucide-react';
+import { Mail, MessageSquare } from 'lucide-react';
+import { Send, Code2, BookOpen, RefreshCw } from 'lucide-react';
+
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { generateClient, type GraphQLSubscription } from 'aws-amplify/api';
 import { signOut, getCurrentUser } from 'aws-amplify/auth';
@@ -264,109 +265,108 @@ const SupportSimulator = () => {
   }
 
 
-
   return (
     <Authenticator>
-  {({ signOut, user }) => (
-    <div className="min-h-screen w-full bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 p-4 flex flex-col items-center">
-      <div className="w-full max-w-6xl bg-orange-100 bg-opacity-10 backdrop-blur-md rounded-3xl p-8 flex flex-col shadow-2xl">
-        <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-yellow-100 mb-4 drop-shadow-lg">
-            AI-Powered E-commerce Support Simulator
-          </h1>
-          <p className="text-xl text-yellow-100 mb-3">
-            Experience the future of customer support with our multi-agent AI system.
-          </p>
-          <p className="text-lg text-yellow-200 italic mb-0">
-            Try asking "Where is my order?" or "I want to return an item" to see how our AI handles customer support inquiries!
-          </p>
-        </div>
-
-        <div className="flex justify-between items-center mb-4">
-          <button
-            onClick={toggleMode}
-            className="bg-yellow-400 hover:bg-yellow-500 text-orange-900 font-bold p-3 rounded-full shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110 flex items-center"
-          >
-            {isChatMode ? <Mail size={24} /> : <MessageSquare size={24} />}
-            <span className="ml-2">{isChatMode ? 'Email Mode' : 'Chat Mode'}</span>
-          </button>
-          <button
-            onClick={handleReset}
-            className="bg-yellow-400 hover:bg-yellow-500 text-orange-900 font-bold p-3 rounded-full shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110"
-          >
-            <RefreshCw size={24} />
-          </button>
-        </div>
-
-        <div className="flex justify-between mb-4">
-          <div className="w-1/2 pr-2">
-            <p className="text-yellow-100 text-center font-semibold mb-2">
-              Customer Interface
-            </p>
-            <p className="text-yellow-200 text-sm text-center italic">
-            Customer's view of the interaction
-            </p>
-          </div>
-          <div className="w-1/2 pl-2">
-            <p className="text-yellow-100 text-center font-semibold mb-2">
-              Support Center Interface
-            </p>
-            <p className="text-yellow-200 text-sm text-center italic">
-            Human agent's view and responses
-            </p>
-          </div>
-        </div>
-
-        {isChatMode ? (
-          <ChatMode
-            messages={messages}
-            customerMessage={customerMessage}
-            setCustomerMessage={setCustomerMessage}
-            supportMessage={supportMessage}
-            setSupportMessage={setSupportMessage}
-            handleCustomerSubmit={handleCustomerSubmit}
-            handleSupportSubmit={handleSupportSubmit}
-          />
-        ) : (
-          <EmailMode
-            fromEmail={fromEmail}
-            setFromEmail={setFromEmail}
-            selectedTemplate={selectedTemplate}
-            handleTemplateChange={handleTemplateChange}
-            customerMessage={customerMessage}
-            setCustomerMessage={setCustomerMessage}
-            supportMessage={supportMessage}
-            setSupportMessage={setSupportMessage}
-            customerResponse={customerResponse}
-            supportResponse={supportResponse}
-            handleCustomerSubmit={handleCustomerSubmit}
-            handleSupportSubmit={handleSupportSubmit}
-            emailTemplates={emailTemplates}
-          />
-        )}
-
-        {showLogs && (
-          <div className="mt-4 bg-gray-100 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold mb-2">Logs:</h3>
-            <ul className="list-disc pl-5">
-              {logs.map((log, index) => (
-                <li key={index}>{log}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-         {/* Behind the Scenes Section */}
-         <div className="mt-8 bg-amber-800 bg-opacity-90 rounded-xl shadow-lg overflow-hidden">
+      {({ signOut, user }) => (
+        <div className="min-h-screen w-full bg-slate-50 p-4 flex flex-col items-center">
+          <div className="w-full max-w-6xl bg-white rounded-2xl p-8 flex flex-col shadow-lg border border-gray-200">
+            <div className="text-center mb-6">
+              <h1 className="text-3xl font-bold text-blue-600 mb-4">
+                Multi-Agent Orchestrator Demo
+              </h1>
+              <p className="text-lg text-gray-700 mb-3">
+                Experience the power of intelligent routing and context management across multiple AI agents.
+              </p>
+              <p className="text-md text-gray-600 italic mb-0">
+                Type "hello" or "bonjour" to see the available agents, or ask questions like "How do I use agents?"
+              </p>
+            </div>
+  
+            <div className="flex justify-between items-center mb-4">
+              <button
+                onClick={toggleMode}
+                className="bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold p-3 rounded-lg transition-all duration-200 flex items-center border border-blue-200"
+              >
+                {isChatMode ? <Mail size={24} /> : <MessageSquare size={24} />}
+                <span className="ml-2">{isChatMode ? 'Email Mode' : 'Chat Mode'}</span>
+              </button>
+              <button
+                onClick={handleReset}
+                className="bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold p-3 rounded-lg transition-all duration-200 border border-blue-200"
+              >
+                <RefreshCw size={24} />
+              </button>
+            </div>
+  
+            <div className="flex justify-between mb-4">
+              <div className="w-1/2 pr-2">
+                <p className="text-gray-900 text-center font-semibold mb-2">
+                  Customer Interface
+                </p>
+                <p className="text-gray-600 text-sm text-center italic">
+                  Customer's view of the interaction
+                </p>
+              </div>
+              <div className="w-1/2 pl-2">
+                <p className="text-gray-900 text-center font-semibold mb-2">
+                  Support Center Interface
+                </p>
+                <p className="text-gray-600 text-sm text-center italic">
+                  Human agent's view and responses
+                </p>
+              </div>
+            </div>
+  
+            {isChatMode ? (
+              <ChatMode
+                messages={messages}
+                customerMessage={customerMessage}
+                setCustomerMessage={setCustomerMessage}
+                supportMessage={supportMessage}
+                setSupportMessage={setSupportMessage}
+                handleCustomerSubmit={handleCustomerSubmit}
+                handleSupportSubmit={handleSupportSubmit}
+              />
+            ) : (
+              <EmailMode
+                fromEmail={fromEmail}
+                setFromEmail={setFromEmail}
+                selectedTemplate={selectedTemplate}
+                handleTemplateChange={handleTemplateChange}
+                customerMessage={customerMessage}
+                setCustomerMessage={setCustomerMessage}
+                supportMessage={supportMessage}
+                setSupportMessage={setSupportMessage}
+                customerResponse={customerResponse}
+                supportResponse={supportResponse}
+                handleCustomerSubmit={handleCustomerSubmit}
+                handleSupportSubmit={handleSupportSubmit}
+                emailTemplates={emailTemplates}
+              />
+            )}
+  
+            {showLogs && (
+              <div className="mt-4 bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">Logs:</h3>
+                <ul className="list-disc pl-5 text-gray-700">
+                  {logs.map((log, index) => (
+                    <li key={index}>{log}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+  
+            {/* Behind the Scenes Section */}
+            <div className="mt-8 bg-gray-50 border border-gray-200 rounded-xl shadow-sm overflow-hidden">
               <button
                 onClick={() => setIsBehindScenesOpen(!isBehindScenesOpen)}
-                className="w-full flex justify-between items-center p-4 text-amber-100 font-semibold focus:outline-none hover:bg-amber-700 transition-colors duration-300"
+                className="w-full flex justify-between items-center p-4 text-gray-900 font-semibold focus:outline-none hover:bg-gray-100 transition-colors duration-200"
               >
                 <span className="text-xl">Behind the Scenes</span>
                 {isBehindScenesOpen ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
               </button>
               {isBehindScenesOpen && (
-                <div className="p-4 bg-amber-900 text-amber-100 font-mono text-xs overflow-y-auto max-h-60">
+                <div className="p-4 bg-white border-t border-gray-200 font-mono text-xs overflow-y-auto max-h-60 text-gray-700">
                   {logs.map((log, index) => (
                     <div key={index} className="mb-1">
                       {log}
@@ -375,51 +375,75 @@ const SupportSimulator = () => {
                 </div>
               )}
             </div>
-
+  
             <div className="text-center mt-6">
-      <a
-        href="/mock_data.json"
-        target='_blank'
-        className="text-yellow-200 hover:text-yellow-100 text-sm underline transition-colors duration-300"
-      >
-        Access mock data for simulation
-      </a>
-    </div>
-
-
-        <div className="text-center text-yellow-100 mt-8 p-6 bg-orange-600 bg-opacity-30 rounded-xl shadow-lg">
-          <p className="mb-4 text-xl font-semibold">To learn more about the Multi-Agent Orchestrator:</p>
-          <div className="flex justify-center space-x-6">
-            <a
-              href="https://github.com/awslabs/multi-agent-orchestrator"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center bg-yellow-400 hover:bg-yellow-500 text-orange-900 font-bold py-2 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
+              <a
+                href="/mock_data.json"
+                target='_blank'
+                className="text-blue-600 hover:text-blue-700 text-sm underline transition-colors duration-200"
+              >
+                Access mock data for simulation
+              </a>
+            </div>
+  
+            <div className="text-center text-slate-900">
+              <p className="mb-2">To learn more about the Multi-Agent Orchestrator:</p>
+              <div className="flex justify-center space-x-4">
+                <a
+                  href="https://github.com/awslabs/multi-agent-orchestrator"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-2 px-4 rounded-lg transition-all duration-300"
+                >
+                  <Code2 size={24} className="mr-2 text-blue-700" />
+                  GitHub Repo
+                </a>
+                <a
+                  href="https://awslabs.github.io/multi-agent-orchestrator/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-2 px-4 rounded-lg transition-all duration-300"
+                >
+                  <BookOpen size={24} className="mr-2 text-blue-700" />
+                  Documentation
+                </a>
+                <a
+                  href="https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/ecommerce-support-simulator"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-2 px-4 rounded-lg transition-all duration-300"
+                >
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    className="w-6 h-6 mr-2 text-blue-700"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                    <polyline points="7.5 4.21 12 6.81 16.5 4.21" />
+                    <polyline points="7.5 19.79 7.5 14.6 3 12" />
+                    <polyline points="21 12 16.5 14.6 16.5 19.79" />
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                    <line x1="12" y1="22.08" x2="12" y2="12" />
+                  </svg>
+                  Deploy this app!
+                </a>
+              </div>
+            </div>
+            
+            <button
+              onClick={handleSignOut}
+              className="mt-6 bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 self-center"
             >
-              <Github size={24} className="mr-2" />
-              GitHub Repo
-            </a>
-            <a
-              href="https://awslabs.github.io/multi-agent-orchestrator/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center bg-yellow-400 hover:bg-yellow-500 text-orange-900 font-bold py-2 px-4 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
-            >
-              <BookOpen size={24} className="mr-2" />
-              Documentation
-            </a>
+              Sign Out
+            </button>
           </div>
         </div>
-        <button
-          onClick={handleSignOut}
-          className="mt-6 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors duration-300 self-center"
-        >
-          Sign Out
-        </button>
-      </div>
-    </div>
-  )}
-</Authenticator>
+      )}
+    </Authenticator>
   );
 };
 

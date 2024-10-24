@@ -3,7 +3,7 @@
 ### Overview
 The demo showcases the versatility of the Multi-Agent Orchestrator System through an interactive chat interface. Watch how the system seamlessly handles diverse queries using specialized agents:
 
-![Demo Application](./img/demo-app.jpg)
+![Demo Application](./img/chat-demo-app.png)
 
 ### Featured Agents
 Our demo showcases specialized agents, each designed for specific use cases:

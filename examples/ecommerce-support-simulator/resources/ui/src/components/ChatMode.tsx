@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import { Send } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import type { Message } from '../types';
-
 const ChatMode = ({
   messages,
   customerMessage,
@@ -46,20 +45,24 @@ const ChatMode = ({
         <div key={index} className={`flex ${isFromUI ? 'justify-end' : 'justify-start'} mb-2`}>
           <div className={`rounded-lg py-2 px-4 max-w-[80%] break-words ${
             isFromUI
-              ? (isCustomer ? 'bg-yellow-300 text-yellow-900' : 'bg-red-300 text-red-900')
-              : 'bg-gray-300 text-gray-900'
+              ? (isCustomer ? 'bg-blue-50 border border-blue-100 text-gray-900' : 'bg-gray-50 border border-gray-200 text-gray-900')
+              : 'bg-white border border-gray-200 text-gray-900'
           }`}>
-            <p className="text-xs font-semibold mb-1">{senderLabel}</p>
+            <p className={`text-xs font-semibold mb-1 ${
+              isFromUI ? 'text-blue-600' : 'text-gray-600'
+            }`}>
+              {senderLabel}
+            </p>
             <ReactMarkdown 
-              className="prose prose-sm max-w-none"
+              className="prose prose-sm max-w-none text-gray-900"
               components={{
                 p: ({node, ...props}) => <p className="whitespace-pre-wrap" {...props} />,
-                pre: ({node, ...props}) => <pre className="whitespace-pre-wrap overflow-x-auto" {...props} />
+                pre: ({node, ...props}) => <pre className="whitespace-pre-wrap overflow-x-auto bg-gray-50 p-2 rounded" {...props} />
               }}
             >
               {msg.content}
             </ReactMarkdown>
-            <p className="text-xs mt-1 text-gray-600">
+            <p className="text-xs mt-1 text-gray-500">
               {new Date(msg.timestamp).toLocaleTimeString()}
             </p>
           </div>
@@ -71,6 +74,8 @@ const ChatMode = ({
   const submitMessage = (e: React.FormEvent, isCustomer: boolean) => {
     e.preventDefault();
     const message = isCustomer ? customerMessage : supportMessage;
+    if (!message.trim()) return;
+    
     const newMessage = {
       content: message,
       destination: isCustomer ? 'customer' : 'support',
@@ -88,49 +93,64 @@ const ChatMode = ({
 
   return (
     <div className="flex flex-col space-y-4 h-[700px]">
-    <div className="flex-grow flex space-x-4 h-full">
-      {/* Customer Chat */}
-      <div className="flex-1 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-4 shadow-lg flex flex-col">
-        <h2 className="text-2xl font-bold text-yellow-900 mb-4">Customer Chat</h2>
-        <div ref={customerChatRef} className="flex-grow bg-yellow-100 rounded-lg p-4 overflow-y-auto mb-4 h-[calc(100%-120px)]">
-          {renderMessages(true)}
+      <div className="flex-grow flex space-x-4 h-full">
+        {/* Customer Chat */}
+        <div className="flex-1 bg-white rounded-xl p-4 shadow-sm border border-gray-200 flex flex-col">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Customer Chat</h2>
+          <div 
+            ref={customerChatRef} 
+            className="flex-grow bg-gray-50 rounded-lg p-4 overflow-y-auto mb-4 h-[calc(100%-120px)] border border-gray-100"
+          >
+            {renderMessages(true)}
+          </div>
+          <form onSubmit={(e) => submitMessage(e, true)} className="flex mt-auto">
+            <input
+              ref={customerInputRef}
+              type="text"
+              value={customerMessage}
+              onChange={(e) => setCustomerMessage(e.target.value)}
+              className="flex-grow mr-2 p-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-900 placeholder-gray-500"
+              placeholder="Type a message..."
+            />
+            <button 
+              type="submit" 
+              className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors duration-200"
+              disabled={!customerMessage.trim()}
+            >
+              <Send size={20} />
+            </button>
+          </form>
         </div>
-        <form onSubmit={(e) => submitMessage(e, true)} className="flex mt-auto">
-          <input
-            ref={customerInputRef}
-            type="text"
-            value={customerMessage}
-            onChange={(e) => setCustomerMessage(e.target.value)}
-            className="flex-grow mr-2 p-2 rounded-lg"
-            placeholder="Type a message..."
-          />
-          <button type="submit" className="bg-amber-500 text-white p-2 rounded-lg">
-            <Send size={20} />
-          </button>
-        </form>
-      </div>
-      {/* Support Chat */}
-      <div className="flex-1 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-4 shadow-lg flex flex-col">
-        <h2 className="text-2xl font-bold text-red-900 mb-4">Support Chat</h2>
-        <div ref={supportChatRef} className="flex-grow bg-red-100 rounded-lg p-4 overflow-y-auto mb-4 h-[calc(100%-120px)]">
-          {renderMessages(false)}
+
+        {/* Support Chat */}
+        <div className="flex-1 bg-white rounded-xl p-4 shadow-sm border border-gray-200 flex flex-col">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Support Chat</h2>
+          <div 
+            ref={supportChatRef} 
+            className="flex-grow bg-gray-50 rounded-lg p-4 overflow-y-auto mb-4 h-[calc(100%-120px)] border border-gray-100"
+          >
+            {renderMessages(false)}
+          </div>
+          <form onSubmit={(e) => submitMessage(e, false)} className="flex mt-auto">
+            <input
+              ref={supportInputRef}
+              type="text"
+              value={supportMessage}
+              onChange={(e) => setSupportMessage(e.target.value)}
+              className="flex-grow mr-2 p-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-900 placeholder-gray-500"
+              placeholder="Type a response..."
+            />
+            <button 
+              type="submit" 
+              className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors duration-200"
+              disabled={!supportMessage.trim()}
+            >
+              <Send size={20} />
+            </button>
+          </form>
         </div>
-        <form onSubmit={(e) => submitMessage(e, false)} className="flex mt-auto">
-          <input
-            ref={supportInputRef}
-            type="text"
-            value={supportMessage}
-            onChange={(e) => setSupportMessage(e.target.value)}
-            className="flex-grow mr-2 p-2 rounded-lg"
-            placeholder="Type a response..."
-          />
-          <button type="submit" className="bg-red-500 text-white p-2 rounded-lg">
-            <Send size={20} />
-          </button>
-        </form>
       </div>
     </div>
-  </div>
   );
 };
 

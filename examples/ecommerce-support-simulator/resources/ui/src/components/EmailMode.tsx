@@ -1,6 +1,5 @@
 import React from 'react';
 import { Send } from 'lucide-react';
-
 const EmailMode = ({
   fromEmail,
   setFromEmail,
@@ -46,26 +45,26 @@ const EmailMode = ({
   return (
     <div className="grid grid-cols-2 gap-4 h-full">
       {/* Customer Email */}
-      <div className="bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-6 shadow-lg flex flex-col h-full">
-        <h2 className="text-2xl font-bold text-yellow-900 mb-4">Customer Email</h2>
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 flex flex-col h-full">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Customer Email</h2>
         <div className="flex flex-col flex-grow">
           <form onSubmit={submitCustomerEmail} className="flex flex-col flex-grow">
             <div className="mb-2">
-              <label className="block text-sm font-medium text-yellow-900 mb-1">From:</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">From:</label>
               <input
                 type="email"
                 value={fromEmail}
                 onChange={(e) => setFromEmail(e.target.value)}
-                className="w-full p-2 rounded-lg"
+                className="w-full p-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 required
               />
             </div>
             <div className="mb-2">
-              <label className="block text-sm font-medium text-yellow-900 mb-1">Template:</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Template:</label>
               <select
                 value={selectedTemplate}
                 onChange={handleTemplateChange}
-                className="w-full p-2 rounded-lg"
+                className="w-full p-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white"
               >
                 {Object.entries(emailTemplates).map(([key, value]) => (
                   <option key={key} value={key}>{String(value)}</option>
@@ -73,21 +72,21 @@ const EmailMode = ({
               </select>
             </div>
             <div className="flex-grow mb-4">
-              <label className="block text-sm font-medium text-yellow-900 mb-1">Message:</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Message:</label>
               <textarea
                 value={customerMessage}
                 onChange={(e) => setCustomerMessage(e.target.value)}
-                className="w-full p-2 rounded-lg h-full min-h-[120px] resize-none"
+                className="w-full p-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-full min-h-[120px] resize-none"
                 required
               />
             </div>
-            <div className="mt-4"> {/* Added margin top here */}
+            <div className="mt-4">
               <button 
                 type="submit" 
-                className={`w-full flex items-center justify-center text-lg py-2 px-4 rounded-lg ${
+                className={`w-full flex items-center justify-center text-lg py-2 px-4 rounded-lg transition-colors duration-200 ${
                   isCustomerMessageEmpty 
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                    : 'bg-amber-500 text-white hover:bg-amber-600'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
                 disabled={isCustomerMessageEmpty}
               >
@@ -97,33 +96,33 @@ const EmailMode = ({
             </div>
           </form>
         </div>
-        <div className="mt-4 bg-yellow-100 p-4 rounded-lg h-32 overflow-auto">
-          <h3 className="font-semibold mb-2">Response:</h3>
-          <p>{customerResponse}</p>
+        <div className="mt-4 bg-gray-50 border border-gray-200 p-4 rounded-lg h-32 overflow-auto">
+          <h3 className="font-semibold mb-2 text-gray-900">Response:</h3>
+          <p className="text-gray-700">{customerResponse}</p>
         </div>
       </div>
 
       {/* Support Email */}
-      <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-6 shadow-lg flex flex-col h-full">
-        <h2 className="text-2xl font-bold text-red-900 mb-4">Support Email</h2>
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 flex flex-col h-full">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Support Email</h2>
         <div className="flex flex-col flex-grow">
           <form onSubmit={submitSupportEmail} className="flex flex-col flex-grow">
             <div className="flex-grow mb-4">
-              <label className="block text-sm font-medium text-red-900 mb-1">Message:</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Message:</label>
               <textarea
                 value={supportMessage}
                 onChange={(e) => setSupportMessage(e.target.value)}
-                className="w-full p-2 rounded-lg h-full min-h-[120px] resize-none"
+                className="w-full p-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 h-full min-h-[120px] resize-none"
                 required
               />
             </div>
-            <div className="mt-4"> {/* Added margin top here */}
+            <div className="mt-4">
               <button 
                 type="submit" 
-                className={`w-full flex items-center justify-center text-lg py-2 px-4 rounded-lg ${
+                className={`w-full flex items-center justify-center text-lg py-2 px-4 rounded-lg transition-colors duration-200 ${
                   isSupportMessageEmpty 
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                    : 'bg-red-500 text-white hover:bg-red-600'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
                 disabled={isSupportMessageEmpty}
               >
@@ -133,9 +132,9 @@ const EmailMode = ({
             </div>
           </form>
         </div>
-        <div className="mt-4 bg-red-100 p-4 rounded-lg h-32 overflow-auto">
-          <h3 className="font-semibold mb-2">Response:</h3>
-          <p>{supportResponse}</p>
+        <div className="mt-4 bg-gray-50 border border-gray-200 p-4 rounded-lg h-32 overflow-auto">
+          <h3 className="font-semibold mb-2 text-gray-900">Response:</h3>
+          <p className="text-gray-700">{supportResponse}</p>
         </div>
       </div>
     </div>
