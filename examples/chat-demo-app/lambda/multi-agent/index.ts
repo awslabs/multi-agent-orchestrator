@@ -146,11 +146,6 @@ const maoDocAgent = new BedrockLLMAgent({
   inferenceConfig: {
     temperature: 0.0,
   },
-  toolConfig: {
-    useToolHandler: mathToolHanlder,
-    tool: mathAgentToolDefinition,
-    toolMaxRecursions: 5,
-  },
   customSystemPrompt:{
     template:`
   You are a tech expert specializing in both the technical domain, including software development, AI, cloud computing, and the multi-agent orchestrator framework. Your role is to provide comprehensive, accurate, and helpful information about these areas, with a specific focus on the orchestrator framework, its agents, and their applications. Always structure your responses using clear, well-formatted markdown.
