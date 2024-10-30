@@ -42,6 +42,9 @@ class Agent(ABC):
         self.save_chat = options.save_chat
         self.callbacks = options.callbacks if options.callbacks is not None else AgentCallbacks()
 
+    def is_streaming_enabled(self) -> bool:
+        return False
+
     @staticmethod
     def generate_key_from_name(name: str) -> str:
         import re

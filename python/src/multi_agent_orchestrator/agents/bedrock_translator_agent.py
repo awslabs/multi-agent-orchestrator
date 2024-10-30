@@ -12,6 +12,7 @@ class BedrockTranslatorAgentOptions(AgentOptions):
     inference_config: Optional[Dict[str, Any]] = None
     model_id: Optional[str] = None
     region: Optional[str] = None
+    client: Optional[Any] = None
 
 class BedrockTranslatorAgent(Agent):
     def __init__(self, options: BedrockTranslatorAgentOptions):
@@ -19,7 +20,10 @@ class BedrockTranslatorAgent(Agent):
         self.source_language = options.source_language
         self.target_language = options.target_language or 'English'
         self.model_id = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_HAIKU
-        self.client = boto3.client('bedrock-runtime', region_name=options.region)
+        if options.client:
+            self.client = options.client
+        else:
+            self.client = boto3.client('bedrock-runtime', region_name=options.region)
 
         # Default inference configuration
         self.inference_config: Dict[str, Any] = options.inference_config or {
@@ -58,13 +62,13 @@ class BedrockTranslatorAgent(Agent):
         # Check if input is a number and return it as-is if true
         if input_text.isdigit():
             return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
+                role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": input_text}]
             )
 
         # Prepare user message
         user_message = ConversationMessage(
-            role=ParticipantRole.USER,
+            role=ParticipantRole.USER.value,
             content=[{"text": f"<userinput>{input_text}</userinput>"}]
         )
 
@@ -117,14 +121,14 @@ class BedrockTranslatorAgent(Agent):
 
                         # Return the translated text
                         return ConversationMessage(
-                            role=ParticipantRole.ASSISTANT,
+                            role=ParticipantRole.ASSISTANT.value,
                             content=[{"text": translation}]
                         )
 
             raise ValueError("No valid tool use found in the response")
         except Exception as error:
             Logger.error(f"Error processing translation request:{str(error)}")
-            raise
+            raise error
 
     def set_source_language(self, language: Optional[str]):
         """Set the source language for translation"""

@@ -57,8 +57,8 @@ class DynamoDbChatStorage(ChatStorage):
         try:
             self.table.put_item(Item=item)
         except Exception as error:
-            Logger.logger.error(f"Error saving conversation to DynamoDB:{str(error)}")
-            raise
+            Logger.error(f"Error saving conversation to DynamoDB:{str(error)}")
+            raise error
 
         return self._remove_timestamps(trimmed_conversation)
 
@@ -76,8 +76,8 @@ class DynamoDbChatStorage(ChatStorage):
             )
             return self._remove_timestamps(stored_messages)
         except Exception as error:
-            Logger.logger.error(f"Error getting conversation from DynamoDB:{str(error)}")
-            raise
+            Logger.error(f"Error getting conversation from DynamoDB:{str(error)}")
+            raise error
 
     async def fetch_chat_with_timestamp(
         self,
@@ -93,8 +93,8 @@ class DynamoDbChatStorage(ChatStorage):
             )
             return stored_messages
         except Exception as error:
-            Logger.logger.error(f"Error getting conversation from DynamoDB: {str(error)}")
-            raise
+            Logger.error(f"Error getting conversation from DynamoDB: {str(error)}")
+            raise error
 
     async def fetch_all_chats(self, user_id: str, session_id: str) -> List[ConversationMessage]:
         try:
@@ -112,7 +112,7 @@ class DynamoDbChatStorage(ChatStorage):
             all_chats = []
             for item in response['Items']:
                 if not isinstance(item.get('conversation'), list):
-                    Logger.logger.error(f"Unexpected item structure:{item}")
+                    Logger.error(f"Unexpected item structure:{item}")
                     continue
 
                 agent_id = item['SK'].split('#')[1]
@@ -134,8 +134,8 @@ class DynamoDbChatStorage(ChatStorage):
             all_chats.sort(key=lambda x: x.timestamp)
             return self._remove_timestamps(all_chats)
         except Exception as error:
-            Logger.logger.error(f"Error querying conversations from DynamoDB:{str(error)}")
-            raise
+            Logger.error(f"Error querying conversations from DynamoDB:{str(error)}")
+            raise error
 
     def _generate_key(self, user_id: str, session_id: str, agent_id: str) -> str:
         return f"{session_id}#{agent_id}"

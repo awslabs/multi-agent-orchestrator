@@ -58,7 +58,7 @@ export interface OrchestratorConfig {
 
   /**
    * The message to display when no agent is selected to handle the user's request.
-   * 
+   *
    * This message is shown when the classifier couldn't determine an appropriate agent
    * and USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED is set to false.
    */
@@ -66,7 +66,7 @@ export interface OrchestratorConfig {
 
   /**
    * The general error message to display when an error occurs during request routing.
-   * 
+   *
    * This message is shown when an unexpected error occurs during the processing of a user's request,
    * such as errors in agent dispatch or processing.
    */
@@ -114,13 +114,13 @@ export const DEFAULT_CONFIG: OrchestratorConfig = {
   USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: true,
 
   /** Default error message for classification errors */
-  CLASSIFICATION_ERROR_MESSAGE: "I'm sorry, an error occurred while processing your request. Please try again later.",
+  CLASSIFICATION_ERROR_MESSAGE: undefined,
 
   /** Default message when no agent is selected to handle the request */
   NO_SELECTED_AGENT_MESSAGE: "I'm sorry, I couldn't determine how to handle your request. Could you please rephrase it?",
 
   /** Default general error message for routing errors */
-  GENERAL_ROUTING_ERROR_MSG_MESSAGE: "An error occurred while processing your request. Please try again later.",
+  GENERAL_ROUTING_ERROR_MSG_MESSAGE: undefined,
 
   /** Default: Maximum of 100 message pairs (200 individual messages) to retain per agent */
   MAX_MESSAGE_PAIRS_PER_AGENT: 100,
@@ -214,18 +214,14 @@ export class MultiAgentOrchestrator {
       MAX_MESSAGE_PAIRS_PER_AGENT:
         options.config?.MAX_MESSAGE_PAIRS_PER_AGENT ??
         DEFAULT_CONFIG.MAX_MESSAGE_PAIRS_PER_AGENT,
-        USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED:
+      USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED:
         options.config?.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED ??
         DEFAULT_CONFIG.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED,
-        CLASSIFICATION_ERROR_MESSAGE:
-        options.config?.CLASSIFICATION_ERROR_MESSAGE ??
-        DEFAULT_CONFIG.CLASSIFICATION_ERROR_MESSAGE,  
-        NO_SELECTED_AGENT_MESSAGE:
+      CLASSIFICATION_ERROR_MESSAGE: options.config?.CLASSIFICATION_ERROR_MESSAGE,
+      NO_SELECTED_AGENT_MESSAGE:
         options.config?.NO_SELECTED_AGENT_MESSAGE ??
         DEFAULT_CONFIG.NO_SELECTED_AGENT_MESSAGE,
-        GENERAL_ROUTING_ERROR_MSG_MESSAGE:
-        options.config?.GENERAL_ROUTING_ERROR_MSG_MESSAGE ??
-        DEFAULT_CONFIG.GENERAL_ROUTING_ERROR_MSG_MESSAGE,    
+      GENERAL_ROUTING_ERROR_MSG_MESSAGE: options.config?.GENERAL_ROUTING_ERROR_MSG_MESSAGE
     };
 
     this.executionTimes = new Map();
@@ -294,49 +290,54 @@ export class MultiAgentOrchestrator {
       additionalParams = {},
     } = params;
 
-    if (!classifierResult.selectedAgent) {
-      return "I'm sorry, but I need more information to understand your request. Could you please be more specific?";
-    } else {
-      const { selectedAgent } = classifierResult;
-      const agentChatHistory = await this.storage.fetchChat(
-        userId,
-        sessionId,
-        selectedAgent.id
-      );
+    try {
+      if (!classifierResult.selectedAgent) {
+        return "I'm sorry, but I need more information to understand your request. Could you please be more specific?";
+      } else {
+        const { selectedAgent } = classifierResult;
+        const agentChatHistory = await this.storage.fetchChat(
+          userId,
+          sessionId,
+          selectedAgent.id
+        );
 
-      this.logger.printChatHistory(agentChatHistory, selectedAgent.id);
+        this.logger.printChatHistory(agentChatHistory, selectedAgent.id);
 
-      this.logger.info(
-        `Routing intent "${userInput}" to ${selectedAgent.id} ...`
-      );
+        this.logger.info(
+          `Routing intent "${userInput}" to ${selectedAgent.id} ...`
+        );
 
-      const response = await this.measureExecutionTime(
-        `Agent ${selectedAgent.name} | Processing request`,
-        () =>
-          selectedAgent.processRequest(
-            userInput,
-            userId,
-            sessionId,
-            agentChatHistory,
-            additionalParams
-          )
-      );
+        const response = await this.measureExecutionTime(
+          `Agent ${selectedAgent.name} | Processing request`,
+          () =>
+            selectedAgent.processRequest(
+              userInput,
+              userId,
+              sessionId,
+              agentChatHistory,
+              additionalParams
+            )
+        );
 
-      //if (this.isStream(response)) {
-      if (this.isAsyncIterable(response)) {
-        return response;
+        //if (this.isStream(response)) {
+        if (this.isAsyncIterable(response)) {
+          return response;
+        }
+
+        let responseText = "No response content";
+        if (
+          response.content &&
+          response.content.length > 0 &&
+          response.content[0].text
+        ) {
+          responseText = response.content[0].text;
+        }
+
+        return responseText;
       }
-
-      let responseText = "No response content";
-      if (
-        response.content &&
-        response.content.length > 0 &&
-        response.content[0].text
-      ) {
-        responseText = response.content[0].text;
-      }
-
-      return responseText;
+    } catch (error) {
+      this.logger.error("Error during agent dispatch:", error);
+      throw error;
     }
   }
 
@@ -349,7 +350,7 @@ export class MultiAgentOrchestrator {
     this.executionTimes = new Map();
     let classifierResult: ClassifierResult;
     const chatHistory = (await this.storage.fetchAllChats(userId, sessionId)) || [];
-  
+
     try {
       classifierResult = await this.measureExecutionTime(
         "Classifying user intent",
@@ -361,26 +362,26 @@ export class MultiAgentOrchestrator {
       this.logger.error("Error during intent classification:", error);
       return {
         metadata: this.createMetadata(null, userInput, userId, sessionId, additionalParams),
-        output: this.config.CLASSIFICATION_ERROR_MESSAGE,
+        output: this.config.CLASSIFICATION_ERROR_MESSAGE ? this.config.CLASSIFICATION_ERROR_MESSAGE: String(error),
         streaming: false,
       };
     }
 
-    // Handle case where no agent was selected
-    if (!classifierResult.selectedAgent) {
-      if (this.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED) {
-        classifierResult = this.getFallbackResult();
-        this.logger.info("Using default agent as no agent was selected");
-      } else {
-        return {
-          metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
-          output: this.config.NO_SELECTED_AGENT_MESSAGE,
-          streaming: false,
-        };
-      }
-    }
-  
     try {
+      // Handle case where no agent was selected
+      if (!classifierResult.selectedAgent) {
+        if (this.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED) {
+          classifierResult = this.getFallbackResult();
+          this.logger.info("Using default agent as no agent was selected");
+        } else {
+          return {
+            metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
+            output: this.config.NO_SELECTED_AGENT_MESSAGE!,
+            streaming: false,
+          };
+        }
+      }
+
       const agentResponse = await this.dispatchToAgent({
         userInput,
         userId,
@@ -388,9 +389,9 @@ export class MultiAgentOrchestrator {
         classifierResult,
         additionalParams,
       });
-  
+
       const metadata = this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams);
-  
+
       if (this.isAsyncIterable(agentResponse)) {
         const accumulatorTransform = new AccumulatorTransform();
         this.processStreamInBackground(
@@ -407,7 +408,7 @@ export class MultiAgentOrchestrator {
           streaming: true,
         };
       }
-  
+
       // Check if we should save the conversation
       if (classifierResult?.selectedAgent.saveChat) {
         await saveConversationExchange(
@@ -429,9 +430,10 @@ export class MultiAgentOrchestrator {
       };
     } catch (error) {
       this.logger.error("Error during agent dispatch or processing:", error);
+
       return {
         metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
-        output: this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE,
+        output: this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE ? this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE: String(error),
         streaming: false,
       };
     } finally {
@@ -469,7 +471,7 @@ export class MultiAgentOrchestrator {
       if (fullResponse) {
 
 
-        
+
       if (agent.saveChat) {
         await saveConversationExchange(
           userInput,
@@ -480,13 +482,13 @@ export class MultiAgentOrchestrator {
           agent.id
         );
       }
-       
+
       } else {
         this.logger.warn("No data accumulated, messages not saved");
       }
     } catch (error) {
       this.logger.error("Error processing stream:", error);
-
+      accumulatorTransform.end();
       if (error instanceof Error) {
         accumulatorTransform.destroy(error);
       } else if (typeof error === "string") {

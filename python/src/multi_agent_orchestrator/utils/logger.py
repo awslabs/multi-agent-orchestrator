@@ -6,41 +6,57 @@ from multi_agent_orchestrator.types import ConversationMessage, OrchestratorConf
 logging.basicConfig(level=logging.INFO)
 
 class Logger:
+    _instance = None
+    _logger = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self,
                  config: Optional[Dict[str, bool]] = None,
-                 logger: Optional[logging.Logger] = logging.getLogger(__name__)):
+                 logger: Optional[logging.Logger] = None):
+        if not hasattr(self, 'initialized'):
+            Logger._logger = logger or logging.getLogger(__name__)
+            self.initialized = True
         self.config: OrchestratorConfig = config or OrchestratorConfig()
-        self.set_logger(logger or logging.getLogger(__name__))
+
+    @classmethod
+    def get_logger(cls):
+        if cls._logger is None:
+            cls._logger = logging.getLogger(__name__)
+        return cls._logger
 
     @classmethod
     def set_logger(cls, logger: Any) -> None:
-        cls.logger = logger
+        cls._logger = logger
 
     @classmethod
     def info(cls, message: str, *args: Any) -> None:
         """Log an info message."""
-        cls.logger.info(message, *args)
+        cls.get_logger().info(message, *args)
 
     @classmethod
     def warn(cls, message: str, *args: Any) -> None:
         """Log a warning message."""
-        cls.logger.info(message, *args)
+        cls.get_logger().info(message, *args)
 
     @classmethod
     def error(cls, message: str, *args: Any) -> None:
         """Log an error message."""
-        cls.logger.error(message, *args)
+        cls.get_logger().error(message, *args)
 
     @classmethod
     def debug(cls, message: str, *args: Any) -> None:
         """Log a debug message."""
-        cls.logger.debug(message, *args)
+        cls.get_logger().debug(message, *args)
 
     @classmethod
     def log_header(cls, title: str) -> None:
         """Log a header with the given title."""
-        cls.logger.info(f"\n** {title.upper()} **")
-        cls.logger.info('=' * (len(title) + 6))
+        cls.get_logger().info(f"\n** {title.upper()} **")
+        cls.get_logger().info('=' * (len(title) + 6))
 
     def print_chat_history(self,
                            chat_history: List[ConversationMessage],
@@ -52,10 +68,10 @@ class Logger:
             return
 
         title = f"Agent {agent_id} Chat History" if is_agent_chat else 'Classifier Chat History'
-        Logger.log_header(title)
+        self.log_header(title)
 
         if not chat_history:
-            Logger.logger.info('> - None -')
+            self.get_logger().info('> - None -')
         else:
             for index, message in enumerate(chat_history, 1):
                 role = message.role.upper()
@@ -63,8 +79,8 @@ class Logger:
                 text = content[0] if isinstance(content, list) else content
                 text = text.get('text', '') if isinstance(text, dict) else str(text)
                 trimmed_text = f"{text[:80]}..." if len(text) > 80 else text
-                Logger.logger.info(f"> {index}. {role}: {trimmed_text}")
-        Logger.logger.info('')
+                self.get_logger().info(f"> {index}. {role}: {trimmed_text}")
+        self.get_logger().info('')
 
     def log_classifier_output(self, output: Any, is_raw: bool = False) -> None:
         """Log the classifier output."""
@@ -72,19 +88,19 @@ class Logger:
            (not is_raw and not self.config.LOG_CLASSIFIER_OUTPUT):
             return
 
-        Logger.log_header('Raw Classifier Output' if is_raw else 'Processed Classifier Output')
-        Logger.logger.info(output if is_raw else json.dumps(output, indent=2))
-        Logger.logger.info('')
+        self.log_header('Raw Classifier Output' if is_raw else 'Processed Classifier Output')
+        self.get_logger().info(output if is_raw else json.dumps(output, indent=2))
+        self.get_logger().info('')
 
     def print_execution_times(self, execution_times: Dict[str, float]) -> None:
         """Print execution times."""
         if not self.config.LOG_EXECUTION_TIMES:
             return
 
-        Logger.log_header('Execution Times')
+        self.log_header('Execution Times')
         if not execution_times:
-            Logger.logger.info('> - None -')
+            self.get_logger().info('> - None -')
         else:
             for timer_name, duration in execution_times.items():
-                Logger.logger.info(f"> {timer_name}: {duration}ms")
-        Logger.logger.info('')
+                self.get_logger().info(f"> {timer_name}: {duration}s")
+        self.get_logger().info('')

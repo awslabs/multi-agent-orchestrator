@@ -1,12 +1,14 @@
 import readline from "readline";
-import { 
+import {
   MultiAgentOrchestrator,
   BedrockLLMAgent,
   AmazonBedrockAgent,
   LexBotAgent,
   LambdaAgent,
   Logger,
- } from "multi-agent-orchestrator"
+} from "multi-agent-orchestrator";
+
+import {weatherToolDescription, weatherToolHanlder, WEATHER_PROMPT } from './tools/weather_tool'
 
 
 function createOrchestrator(): MultiAgentOrchestrator {
@@ -45,6 +47,24 @@ function createOrchestrator(): MultiAgentOrchestrator {
       localeId: "{{LEX_BOT_LOCALE_ID}}",
     })
   );
+
+  // Add weahter agent with tool
+  const weatherAgent = new BedrockLLMAgent({
+    name: "Weather Agent",
+    description:
+      "Specialized agent for giving weather condition from a city.",
+    streaming: true,
+    inferenceConfig: {
+      temperature: 0.1,
+    },
+    toolConfig: {
+      tool: weatherToolDescription,
+      useToolHandler: weatherToolHanlder,
+      toolMaxRecursions: 5,
+    }
+  });
+  weatherAgent.setSystemPrompt(WEATHER_PROMPT);
+  orchestrator.addAgent(weatherAgent);
 
   // Add an Amazon Bedrock Agent to the orchestrator
   orchestrator.addAgent(

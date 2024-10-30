@@ -18,9 +18,9 @@
 
 ## What's the Multi-Agent Orchestrator ❓
 
-The Multi-Agent Orchestrator is a flexible framework for managing multiple AI agents and handling complex conversations. It intelligently routes queries and maintains context across interactions. 
+The Multi-Agent Orchestrator is a flexible framework for managing multiple AI agents and handling complex conversations. It intelligently routes queries and maintains context across interactions.
 
-The system offers pre-built components for quick deployment, while also allowing easy integration of custom agents and conversation messages storage solutions. 
+The system offers pre-built components for quick deployment, while also allowing easy integration of custom agents and conversation messages storage solutions.
 
 This adaptability makes it suitable for a wide range of applications, from simple chatbots to sophisticated AI systems, accommodating diverse requirements and scaling efficiently.
 
@@ -34,10 +34,10 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 <br /><br />
 
 
-1. The process begins with user input, which is analyzed by a Classifier. 
-2. The Classifier leverages both Agents' Characteristics and Agents' Conversation history to select the most appropriate agent for the task. 
+1. The process begins with user input, which is analyzed by a Classifier.
+2. The Classifier leverages both Agents' Characteristics and Agents' Conversation history to select the most appropriate agent for the task.
 3. Once an agent is selected, it processes the user input.
-4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user. 
+4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user.
 
 
 ## 💬 Demo App
@@ -55,7 +55,7 @@ In the screen recording below, we demonstrate an extended version of the demo ap
 - **Health Agent**: A Bedrock LLM Agent focused on addressing health-related queries
 
 Watch as the system seamlessly switches context between diverse topics, from booking flights to checking weather, solving math problems, and providing health information.
-Notice how the appropriate agent is selected for each query, maintaining coherence even with brief follow-up inputs. 
+Notice how the appropriate agent is selected for each query, maintaining coherence even with brief follow-up inputs.
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
@@ -157,11 +157,11 @@ This example showcases:
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details.
+We welcome contributions! Please see our [Contributing Guide](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/CONTRIBUTING.md) for more details.
 
 ## 📄 LICENSE
 
-This project is licensed under the Apache 2.0 licence - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 licence - see the [LICENSE](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/LICENSE) file for details.
 
 ## 📄 Font License
 This project uses the JetBrainsMono NF font, licensed under the SIL Open Font License 1.1.

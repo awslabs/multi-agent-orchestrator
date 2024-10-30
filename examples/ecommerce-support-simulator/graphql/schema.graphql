@@ -1,0 +1,37 @@
+# Directives for authentication
+directive @aws_iam on FIELD_DEFINITION | OBJECT
+directive @aws_cognito_user_pools(cognito_groups: [String!]) on FIELD_DEFINITION | OBJECT
+
+type Query @aws_iam @aws_cognito_user_pools {
+  # Placeholder query
+  _empty: String
+  sendMessage(source: String, message: String, sessionId: String): Response
+}
+
+type Mutation @aws_iam {
+  sendResponse(destination: String!, message: String!): Message!
+}
+
+type Subscription @aws_cognito_user_pools {
+  onResponseReceived: Message
+    @aws_subscribe(mutations: ["sendResponse"])
+}
+
+type Message @aws_iam {
+  destination: String!
+  message: String!
+}
+
+type Response {
+  MessageId: String!
+  MD5OfMessageBody: String!
+  MD5OfMessageAttributes: String
+  MD5OfMessageSystemAttributes: String
+  SequenceNumber: String
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}

@@ -26,10 +26,12 @@ async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input:str,
     # Print metadata
     print("\nMetadata:")
     print(f"Selected Agent: {response.metadata.agent_name}")
-    if response.streaming:
-        print('Response:', response.output.content[0]['text'])
-    else:
-        print('Response:', response.output.content[0]['text'])
+    if isinstance(response, AgentResponse) and response.streaming is False:
+        # Handle regular response
+        if isinstance(response.output, str):
+            print(response.output)
+        elif isinstance(response.output, ConversationMessage):
+                print(response.output.content[0].get('text'))
 
 def custom_input_payload_encoder(input_text: str,
                                  chat_history: List[Any],
@@ -61,7 +63,7 @@ if __name__ == "__main__":
         LOG_EXECUTION_TIMES=True,
         MAX_RETRIES=3,
         USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED=True,
-        MAX_MESSAGE_PAIRS_PER_AGENT=10
+        MAX_MESSAGE_PAIRS_PER_AGENT=10,
     ))
 
     # Add some agents

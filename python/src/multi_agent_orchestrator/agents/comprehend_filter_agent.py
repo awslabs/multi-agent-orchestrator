@@ -85,18 +85,18 @@ class ComprehendFilterAgent(Agent):
                     issues.append(custom_issue)
 
             if issues:
-                Logger.logger.warning(f"Content filter issues detected: {'; '.join(issues)}")
+                Logger.warn(f"Content filter issues detected: {'; '.join(issues)}")
                 return None  # Return None to indicate content should not be processed further
 
             # If no issues, return the original input as a ConversationMessage
             return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
+                role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": input_text}]
             )
 
         except Exception as error:
-            Logger.logger.error(f"Error in ComprehendContentFilterAgent:{str(error)}")
-            raise
+            Logger.error(f"Error in ComprehendContentFilterAgent:{str(error)}")
+            raise error
 
     def add_custom_check(self, check: CheckFunction):
         self.custom_checks.append(check)

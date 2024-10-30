@@ -26,3 +26,4 @@ examples/local-demo/.env
 typescript/coverage/**/*
 
 .venv
+examples/chat-chainlit-app/venv

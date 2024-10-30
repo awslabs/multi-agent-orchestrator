@@ -26,7 +26,7 @@ export class UserInterfaceStack extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    const appPath = path.join(__dirname, "../user-interface");
+    const appPath = path.join(__dirname, "../ui");
     const buildPath = path.join(appPath, "dist");
 
     const websiteBucket = new s3.Bucket(this, "WebsiteBucket", {

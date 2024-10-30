@@ -15,16 +15,17 @@ def mock_logger(mocker):
 def test_logger_initialization():
     logger = Logger()
     assert isinstance(logger.config, OrchestratorConfig)
-    assert isinstance(logger.logger, logging.Logger)
+    assert isinstance(logger._logger, logging.Logger)
 
 def test_logger_initialization_with_custom_config():
     custom_config = OrchestratorConfig(**{'LOG_AGENT_CHAT': True, 'LOG_CLASSIFIER_CHAT': False})
+    print(custom_config)
     logger = Logger(config=custom_config)
     assert logger.config == custom_config
 
 def test_set_logger(mock_logger):
     Logger.set_logger(mock_logger)
-    assert Logger.logger == mock_logger
+    assert Logger._logger == mock_logger
 
 @pytest.mark.parametrize("log_method", ["info", "info", "error", "debug"])
 def test_log_methods(mock_logger, log_method):
