@@ -29,12 +29,13 @@ export interface BedrockLLMAgentOptions extends AgentOptions {
   retriever?: Retriever;
   toolConfig?: {
     tool: Tool[];
-    useToolHandler: (response: any, conversation: ConversationMessage[]) => void ;
+    useToolHandler: (response: any, conversation: ConversationMessage[]) => any ;
     toolMaxRecursions?: number;
   };
   customSystemPrompt?: {
     template: string, variables?: TemplateVariables
   };
+  client?: BedrockRuntimeClient;
 }
 
 /**
@@ -70,7 +71,7 @@ export class BedrockLLMAgent extends Agent {
 
   private toolConfig?: {
     tool: any[];
-    useToolHandler: (response: any, conversation: ConversationMessage[]) => void;
+    useToolHandler: (response: any, conversation: ConversationMessage[]) => any;
     toolMaxRecursions?: number;
   };
 
@@ -86,7 +87,7 @@ export class BedrockLLMAgent extends Agent {
   constructor(options: BedrockLLMAgentOptions) {
     super(options);
 
-    this.client = options.region
+    this.client = options.client ? options.client : options.region
       ? new BedrockRuntimeClient({ region: options.region })
       : new BedrockRuntimeClient();
 
@@ -118,14 +119,14 @@ export class BedrockLLMAgent extends Agent {
     - Ask for clarification if any part of the question or prompt is ambiguous.
     - Maintain a consistent, respectful, and engaging tone tailored to the human's communication style.
     - Seamlessly transition between topics as the human introduces new subjects.`
-    
+
     if (options.customSystemPrompt) {
       this.setSystemPrompt(
         options.customSystemPrompt.template,
         options.customSystemPrompt.variables
       );
     }
-    
+
   }
 
   /**
@@ -145,81 +146,87 @@ export class BedrockLLMAgent extends Agent {
     chatHistory: ConversationMessage[],
     additionalParams?: Record<string, string>
   ): Promise<ConversationMessage | AsyncIterable<any>> {
-    // Construct the user's message based on the provided inputText
-    const userMessage: ConversationMessage = {
-      role: ParticipantRole.USER,
-      content: [{ text: `${inputText}` }],
-    };
+    try {
 
-    // Combine the existing chat history with the user's message
-    const conversation: ConversationMessage[] = [
-      ...chatHistory,
-      userMessage,
-    ];
+      // Construct the user's message based on the provided inputText
+      const userMessage: ConversationMessage = {
+        role: ParticipantRole.USER,
+        content: [{ text: `${inputText}` }],
+      };
 
-    this.updateSystemPrompt();
+      // Combine the existing chat history with the user's message
+      const conversation: ConversationMessage[] = [
+        ...chatHistory,
+        userMessage,
+      ];
 
-    let systemPrompt = this.systemPrompt;
+      this.updateSystemPrompt();
 
-    // Update the system prompt with the latest history, agent descriptions, and custom variables
-    if (this.retriever) {
-      // retrieve from Vector store
-      const response = await this.retriever.retrieveAndCombineResults(inputText);
-      const contextPrompt =
-        "\nHere is the context to use to answer the user's question:\n" +
-        response;
-        systemPrompt = systemPrompt + contextPrompt;
-    }
+      let systemPrompt = this.systemPrompt;
 
-    // Prepare the command to converse with the Bedrock API
-    const converseCmd = {
-      modelId: this.modelId,
-      messages: conversation, //Include the updated conversation history
-      system: [{ text: systemPrompt }], 
-      inferenceConfig: {
-        maxTokens: this.inferenceConfig.maxTokens,
-        temperature: this.inferenceConfig.temperature,
-        topP: this.inferenceConfig.topP,
-        stopSequences: this.inferenceConfig.stopSequences,
-      },
-      guardrailConfig: this.guardrailConfig? this.guardrailConfig:undefined,
-      toolConfig: (this.toolConfig ? { tools:this.toolConfig.tool}:undefined)
-    };
-
-    if (this.toolConfig){
-      let continueWithTools = true;
-      let finalMessage:ConversationMessage = { role: ParticipantRole.USER, content:[]};
-      let maxRecursions = this.toolConfig.toolMaxRecursions || this.defaultMaxRecursions;
-
-      while (continueWithTools && maxRecursions > 0){
-        // send the conversation to Amazon Bedrock
-        const bedrockResponse = await this.handleSingleResponse(converseCmd);
-
-        // Append the model's response to the ongoing conversation
-        conversation.push(bedrockResponse);
-        
-        // process model response
-        if (bedrockResponse.content.some((content) => 'toolUse' in content)){
-          // forward everything to the tool use handler
-          await this.toolConfig.useToolHandler(bedrockResponse, conversation);
-        }
-        else {
-          continueWithTools = false;
-          finalMessage = bedrockResponse;
-        }
-        maxRecursions--;
-
-        converseCmd.messages = conversation;
-        
+      // Update the system prompt with the latest history, agent descriptions, and custom variables
+      if (this.retriever) {
+        // retrieve from Vector store
+        const response = await this.retriever.retrieveAndCombineResults(inputText);
+        const contextPrompt =
+          "\nHere is the context to use to answer the user's question:\n" +
+          response;
+          systemPrompt = systemPrompt + contextPrompt;
       }
-      return finalMessage;
-    }
-    else {
-      if (this.streaming) {
+
+      // Prepare the command to converse with the Bedrock API
+      const converseCmd = {
+        modelId: this.modelId,
+        messages: conversation, //Include the updated conversation history
+        system: [{ text: systemPrompt }],
+        inferenceConfig: {
+          maxTokens: this.inferenceConfig.maxTokens,
+          temperature: this.inferenceConfig.temperature,
+          topP: this.inferenceConfig.topP,
+          stopSequences: this.inferenceConfig.stopSequences,
+        },
+        guardrailConfig: this.guardrailConfig? this.guardrailConfig:undefined,
+        toolConfig: (this.toolConfig ? { tools:this.toolConfig.tool}:undefined)
+      };
+
+      if (this.streaming){
         return this.handleStreamingResponse(converseCmd);
       } else {
-        return this.handleSingleResponse(converseCmd);
+          let continueWithTools = false;
+          let finalMessage:ConversationMessage = { role: ParticipantRole.USER, content:[]};
+          let maxRecursions = this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
+
+          do{
+            // send the conversation to Amazon Bedrock
+            const bedrockResponse = await this.handleSingleResponse(converseCmd);
+
+            // Append the model's response to the ongoing conversation
+            conversation.push(bedrockResponse);
+
+            // process model response
+            if (bedrockResponse?.content?.some((content) => 'toolUse' in content)){
+              // forward everything to the tool use handler
+              if (!this.toolConfig){
+                throw new Error("Tool config is not defined");
+              }
+              const toolResponse = await this.toolConfig.useToolHandler(bedrockResponse, conversation);
+              continueWithTools = true;
+              converseCmd.messages.push(toolResponse);
+            }
+            else {
+              continueWithTools = false;
+              finalMessage = bedrockResponse;
+            }
+            maxRecursions--;
+
+            converseCmd.messages = conversation;
+
+          }while (continueWithTools && maxRecursions > 0)
+          return finalMessage;
       }
+    } catch (error) {
+      Logger.logger.error("Error processing request:", error.message);
+      throw `Error processing request: ${error.message}`;
     }
   }
 
@@ -233,28 +240,50 @@ export class BedrockLLMAgent extends Agent {
       }
       return response.output.message as ConversationMessage;
     } catch (error) {
-      Logger.logger.error("Error invoking Bedrock model:", error);
-      throw error;
+      Logger.logger.error("Error invoking Bedrock model:", error.message);
+      throw `Error invoking Bedrock model: ${error.message}`;
     }
   }
 
   private async *handleStreamingResponse(input: any): AsyncIterable<string> {
-    try {
-      const command = new ConverseStreamCommand(input);
-      const response = await this.client.send(command);
-      for await (const chunk of response.stream) {
-        const content = chunk.contentBlockDelta?.delta?.text;
-       if (chunk.contentBlockDelta && chunk.contentBlockDelta.delta && chunk.contentBlockDelta.delta.text) {
-        yield content;
-      }
+      let toolBlock:any = {toolUseId:'', input:{}, name:''};
+      let inputString = '';
+      let toolUse = false;
+      let recursions = this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
 
+      try {
+          do
+          {
+              const command = new ConverseStreamCommand(input);
+              const response = await this.client.send(command);
+              if (!response.stream) {
+                  throw new Error("No stream received from Bedrock model");
+              }
+              for await (const chunk of response.stream) {
+                  if (chunk.contentBlockDelta && chunk.contentBlockDelta.delta && chunk.contentBlockDelta.delta.text) {
+                      yield chunk.contentBlockDelta.delta.text;
+                  } else if (chunk.contentBlockStart?.start?.toolUse){
+                      toolBlock = chunk.contentBlockStart?.start?.toolUse
+                  } else if (chunk.contentBlockDelta?.delta?.toolUse){
+                      inputString += chunk.contentBlockDelta.delta.toolUse.input
+                  } else if (chunk.messageStop?.stopReason === 'tool_use'){
+                      toolBlock.input = JSON.parse(inputString);
+                      const message = {role:ParticipantRole.ASSISTANT, content:[{'toolUse':toolBlock}]}
+                      input.messages.push(message);
+                      const toolResponse = await this.toolConfig!.useToolHandler(message, input.messages);
+                      input.messages.push(toolResponse);
+                      toolUse = true;
+                  } else if (chunk.messageStop?.stopReason === 'end_turn') {
+                      toolUse=false;
+                  }
+              }
+          } while (toolUse &&  --recursions > 0)
+      } catch (error) {
+          Logger.logger.error("Error getting stream from Bedrock model:", error.message);
+          throw `Error getting stream from Bedrock model: ${error.message}`;
       }
-    } catch (error) {
-      Logger.logger.error("Error getting stream from Bedrock model:", error);
-      throw error;
-    }
   }
-  
+
 
   setSystemPrompt(template?: string, variables?: TemplateVariables): void {
     if (template) {
@@ -294,6 +323,4 @@ export class BedrockLLMAgent extends Agent {
       return match; // If no replacement found, leave the placeholder as is
     });
   }
-
-
 }

@@ -3,19 +3,22 @@ import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
 import { UserInterfaceStack } from "./user-interface-stack"
 import * as path from "path";
-import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins"; 
+import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins";
 import { LexAgentConstruct } from './lex-agent-construct';
-import { BedrockKbConstruct } from './bedrock-agent-construct';
+import { BedrockKnowledgeBase } from './knowledge-base-construct';
+import {BedrockKnowledgeBaseModels } from './constants';
+
 
 export class ChatDemoStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     const enableLexAgent = this.node.tryGetContext('enableLexAgent');
-    const enableAmazonBedrockAgent = this.node.tryGetContext('enableAmazonBedrockAgent');
 
     let lexAgent = null;
     let lexAgentConfig = {};
@@ -30,17 +33,35 @@ export class ChatDemoStack extends cdk.Stack {
       }
     }
 
-    let bedrockAgent = null;
-    let bedrockAgentConfig = {};
-    if (enableAmazonBedrockAgent === true) {
-      bedrockAgent = new BedrockKbConstruct(this, "BedrockKbAgent");
-      bedrockAgentConfig = {
-        agentId: bedrockAgent.bedrockAgent.agentId,
-        agentAliasId: bedrockAgent.bedrockAgent.aliasId,
-        name: bedrockAgent.bedrockAgent.name,
-        description: bedrockAgent.description,
-      }
-    }
+    const documentsBucket = new s3.Bucket(this, 'DocumentsBucket', {
+      enforceSSL:true,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    });
+
+    const assetsPath = path.join(__dirname, "../../../docs/src/content/docs/");
+    const assetDoc = s3deploy.Source.asset(assetsPath);
+
+    const assetsTsPath = path.join(__dirname, "../../../typescript/src/");
+    const assetTsDoc = s3deploy.Source.asset(assetsTsPath);
+
+    const assetsPyPath = path.join(__dirname, "../../../python/src/multi_agent_orchestrator/");
+    const assetPyDoc = s3deploy.Source.asset(assetsPyPath);
+
+
+    const knowledgeBase = new BedrockKnowledgeBase(this, 'MutiAgentOrchestratorDocKb', {
+      kbName:'Multi-agent-orchestrator-doc-kb',
+      assetFiles:[],
+      embeddingModel: BedrockKnowledgeBaseModels.TITAN_EMBED_TEXT_V1,
+    });
+
+    const maoFilesDeployment = new s3deploy.BucketDeployment(this, "DeployDocumentation", {
+      sources: [assetDoc, assetTsDoc, assetPyDoc],
+      destinationBucket: documentsBucket,
+    });
+
+    knowledgeBase.addS3Permissions(documentsBucket.bucketName);
+    knowledgeBase.createAndSyncDataSource(documentsBucket.bucketArn);
 
     const powerToolsTypeScriptLayer = lambda.LayerVersion.fromLayerVersionArn(
       this,
@@ -90,7 +111,7 @@ export class ChatDemoStack extends cdk.Stack {
           __dirname,
           "../lambda/multi-agent/index.ts"
         ),
-        runtime: lambda.Runtime.NODEJS_LATEST,
+        runtime: lambda.Runtime.NODEJS_20_X,
         role: basicLambdaRole,
         memorySize: 2048,
         timeout: cdk.Duration.minutes(5),
@@ -103,9 +124,9 @@ export class ChatDemoStack extends cdk.Stack {
           HISTORY_TABLE_TTL_DURATION: '3600',
           LEX_AGENT_ENABLED: enableLexAgent.toString(),
           LEX_AGENT_CONFIG: JSON.stringify(lexAgentConfig),
-          BEDROCK_AGENT_ENABLED: enableAmazonBedrockAgent.toString(),
-          BEDROCK_AGENT_CONFIG: JSON.stringify(bedrockAgentConfig),
-          LAMBDA_AGENTS: JSON.stringify([{description:"This is an Agent to use when you forgot about your own name",name:'find-my-name',functionName:pythonLambda.functionName, region:cdk.Aws.REGION}]),
+          KNOWLEDGE_BASE_ID: knowledgeBase.knowledgeBase.attrKnowledgeBaseId,
+          LAMBDA_AGENTS: JSON.stringify(
+            [{description:"This is an Agent to use when you forgot about your own name",name:'Find my name',functionName:pythonLambda.functionName, region:cdk.Aws.REGION}]),
         },
         bundling: {
           minify: false,
@@ -134,6 +155,23 @@ export class ChatDemoStack extends cdk.Stack {
         ],
       })
     );
+
+    multiAgentLambdaFunction.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        sid: 'AmazonBedrockKbPermission',
+        actions: [
+          "bedrock:Retrieve",
+          "bedrock:RetrieveAndGenerate"
+        ],
+        resources: [
+          `arn:aws:bedrock:${cdk.Aws.REGION}::foundation-model/*`,
+          `arn:${cdk.Aws.PARTITION}:bedrock:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:knowledge-base/${knowledgeBase.knowledgeBase.attrKnowledgeBaseId}`
+        ]
+      })
+    );
+
+
 
     const multiAgentLambdaFunctionUrl = multiAgentLambdaFunction.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.AWS_IAM,
@@ -171,24 +209,6 @@ export class ChatDemoStack extends cdk.Stack {
           resources: [
             `arn:aws:bedrock:${cdk.Aws.REGION}::foundation-model/*`,
             `arn:aws:lex:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:bot-alias/${lexAgent!.lexBotId}/${lexAgent!.lexBotAliasId}`
-          ],
-        })
-      );
-    }
-
-    if (enableAmazonBedrockAgent) {
-      multiAgentLambdaFunction.addToRolePolicy(
-        new iam.PolicyStatement({
-          effect: iam.Effect.ALLOW,
-          sid: 'AmazonBedrockKbPermission',
-          actions: [
-            "bedrock:GetFoundationModel",
-            "bedrock:InvokeAgent",
-          ],
-          resources: [
-            `arn:${cdk.Aws.PARTITION}:bedrock:${cdk.Aws.REGION}::foundation-model/*`,
-            `arn:${cdk.Aws.PARTITION}:bedrock:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:knowledge-base/${bedrockAgent!.knowledgeBaseId}`,
-            `arn:${cdk.Aws.PARTITION}:bedrock:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:agent-alias/${bedrockAgent!.bedrockAgent.agentId}/${bedrockAgent!.bedrockAgent.aliasId}`
           ],
         })
       );

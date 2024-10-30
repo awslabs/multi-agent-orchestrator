@@ -36,7 +36,7 @@ export class OpenAIAgent extends Agent {
     this.inferenceConfig = {
       maxTokens: options.inferenceConfig?.maxTokens ?? DEFAULT_MAX_TOKENS,
       temperature: options.inferenceConfig?.temperature,
-      topP: options.inferenceConfig?.topP,      
+      topP: options.inferenceConfig?.topP,
       stopSequences: options.inferenceConfig?.stopSequences,
     };
   }
@@ -49,8 +49,8 @@ export class OpenAIAgent extends Agent {
     chatHistory: ConversationMessage[],
     additionalParams?: Record<string, string>
   ): Promise<ConversationMessage | AsyncIterable<any>> {
-    
-   
+
+
     const messages = [
       ...chatHistory.map(msg => ({
         role: msg.role.toLowerCase() as OpenAI.Chat.ChatCompletionMessageParam['role'],
@@ -71,7 +71,7 @@ export class OpenAIAgent extends Agent {
       stop: stopSequences,
     };
 
-  
+
 
     if (this.streaming) {
       return this.handleStreamingResponse(requestOptions);
@@ -90,7 +90,7 @@ export class OpenAIAgent extends Agent {
       }
 
       const assistantMessage = chatCompletion.choices[0]?.message?.content;
-      
+
       if (typeof assistantMessage !== 'string') {
         throw new Error('Unexpected response format from OpenAI API');
       }
@@ -101,10 +101,7 @@ export class OpenAIAgent extends Agent {
       };
     } catch (error) {
       Logger.logger.error('Error in OpenAI API call:', error);
-      return {
-        role: ParticipantRole.ASSISTANT,
-        content: [{ text: 'I encountered an error while processing your request.' }],
-      };
+      throw error;
     }
   }
 
@@ -117,8 +114,8 @@ export class OpenAIAgent extends Agent {
       }
     }
   }
-  
 
 
-  
+
+
 }

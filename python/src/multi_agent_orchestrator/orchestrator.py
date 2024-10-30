@@ -14,15 +14,15 @@ from multi_agent_orchestrator.agents import (Agent,
                         BedrockLLMAgentOptions)
 from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
 
-DEFAULT_CONFIG=OrchestratorConfig()
-
 @dataclass
 class MultiAgentOrchestrator:
     def __init__(self,
-                 options: OrchestratorConfig = DEFAULT_CONFIG,
-                 storage: ChatStorage = InMemoryChatStorage(),
-                 classifier: Classifier = BedrockClassifier(options=BedrockClassifierOptions()),
-                 logger: Logger = None):
+                 options: Optional[OrchestratorConfig] = None,
+                 storage: Optional[ChatStorage] = None,
+                 classifier: Optional[Classifier] = None,
+                 logger: Optional[Logger] = None):
+
+        DEFAULT_CONFIG=OrchestratorConfig()
 
         if options is None:
             options = {}
@@ -41,7 +41,8 @@ class MultiAgentOrchestrator:
 
         self.logger = Logger(self.config, logger)
         self.agents: Dict[str, Agent] = {}
-        self.classifier: Classifier = classifier
+        self.storage = storage or InMemoryChatStorage()
+        self.classifier: Classifier = classifier or BedrockClassifier(options=BedrockClassifierOptions())
         self.execution_times: Dict[str, float] = {}
         self.default_agent: Agent = BedrockLLMAgent(
             options=BedrockLLMAgentOptions(
@@ -90,7 +91,6 @@ class MultiAgentOrchestrator:
         agent_chat_history = await self.storage.fetch_chat(user_id, session_id, selected_agent.id)
 
         self.logger.print_chat_history(agent_chat_history, selected_agent.id)
-        #self.logger.info(f"Routing intent '{user_input}' to {selected_agent.id} ...")
 
         response = await self.measure_execution_time(
             f"Agent {selected_agent.name} | Processing request",
@@ -109,9 +109,9 @@ class MultiAgentOrchestrator:
                             session_id: str,
                             additional_params: Dict[str, str] = {}) -> AgentResponse:
         self.execution_times.clear()
-        chat_history = await self.storage.fetch_all_chats(user_id, session_id) or []
 
         try:
+            chat_history = await self.storage.fetch_all_chats(user_id, session_id) or []
             classifier_result:ClassifierResult = await self.measure_execution_time(
                 "Classifying user intent",
                 lambda: self.classifier.classify(user_input, chat_history)
@@ -128,7 +128,9 @@ class MultiAgentOrchestrator:
                                               user_id,
                                               session_id,
                                               additional_params),
-                output=self.config.CLASSIFICATION_ERROR_MESSAGE,
+                output=self.config.CLASSIFICATION_ERROR_MESSAGE
+                 if self.config.CLASSIFICATION_ERROR_MESSAGE else
+                 str(error),
                 streaming=False
             )
 
@@ -143,7 +145,8 @@ class MultiAgentOrchestrator:
                                                    user_id,
                                                    session_id,
                                                    additional_params),
-                    output= self.config.NO_SELECTED_AGENT_MESSAGE,
+                    output= ConversationMessage(role=ParticipantRole.ASSISTANT.value,
+                                                content=[{'text': self.config.NO_SELECTED_AGENT_MESSAGE}]),
                     streaming=False
                 )
 
@@ -184,7 +187,7 @@ class MultiAgentOrchestrator:
             return AgentResponse(
                     metadata=metadata,
                     output=agent_response,
-                    streaming=False
+                    streaming=classifier_result.selected_agent.is_streaming_enabled()
                 )
 
         except Exception as error:
@@ -195,7 +198,8 @@ class MultiAgentOrchestrator:
                                                    user_id,
                                                    session_id,
                                                    additional_params),
-                    output= self.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE,
+                    output = self.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE \
+                        if self.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE else str(error),
                     streaming=False
                 )
 
@@ -205,13 +209,14 @@ class MultiAgentOrchestrator:
 
     def print_intent(self, user_input: str, intent_classifier_result: ClassifierResult) -> None:
         """Print the classified intent."""
-        Logger.log_header('Classified Intent')
-        Logger.logger.info(f"> Text: {user_input}")
-        Logger.logger.info(f"> Selected Agent: {intent_classifier_result.selected_agent.name \
+        self.logger.log_header('Classified Intent')
+        self.logger.info(f"> Text: {user_input}")
+        selected_agent_string = intent_classifier_result.selected_agent.name \
                                                 if intent_classifier_result.selected_agent \
-                                                    else 'No agent selected'}")
-        Logger.logger.info(f"> Confidence: {intent_classifier_result.confidence:.2f}")
-        Logger.logger.info('')
+                                                    else 'No agent selected'
+        self.logger.info(f"> Selected Agent: {selected_agent_string}")
+        self.logger.info(f"> Confidence: {intent_classifier_result.confidence:.2f}")
+        self.logger.info('')
 
     async def measure_execution_time(self, timer_name: str, fn):
         if not self.config.LOG_EXECUTION_TIMES:

@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SupportSimulator from '../components/SupportSimulator';
+---
+<Layout title="AI-Powered E-commerce Support Simulator">
+  <main class="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <SupportSimulator client:load />
+  </main>
+</Layout>
+
+<style>
+  main {
+    width: 100%;
+    min-height: 100vh;
+  }
+</style>

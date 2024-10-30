@@ -1,0 +1,16 @@
+---
+import ChatWindow from '../components/ChatWindow';
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width" />
+  <meta name="generator" content={Astro.generator} />
+  <title>Multi-Agent Orchestrator Demo</title>
+</head>
+<body class="bg-gradient-to-br from-slate-200 via-slate-100 to-white">
+  <!-- Removed the wrapping div -->
+  <ChatWindow client:load />
+</body>
+</html>

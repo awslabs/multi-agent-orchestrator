@@ -104,11 +104,13 @@ async def test_process_request_streaming(bedrock_llm_agent, mock_boto3_client):
     bedrock_llm_agent.streaming = True
     mock_stream_response = {
         "stream": [
+            {"messageStart": {"role": "assistant"}},
             {"contentBlockDelta": {"delta": {"text": "This "}}},
             {"contentBlockDelta": {"delta": {"text": "is "}}},
             {"contentBlockDelta": {"delta": {"text": "a "}}},
             {"contentBlockDelta": {"delta": {"text": "test "}}},
-            {"contentBlockDelta": {"delta": {"text": "response"}}}
+            {"contentBlockDelta": {"delta": {"text": "response"}}},
+            {"contentBlockStop"}
         ]
     }
     mock_boto3_client.return_value.converse_stream.return_value = mock_stream_response

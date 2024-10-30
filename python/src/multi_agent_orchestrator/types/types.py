@@ -63,10 +63,8 @@ class OrchestratorConfig:
     LOG_EXECUTION_TIMES: bool = False   # pylint: disable=invalid-name
     MAX_RETRIES: int = 3    # pylint: disable=invalid-name
     USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: bool = True   # pylint: disable=invalid-name
-    CLASSIFICATION_ERROR_MESSAGE: str = "I'm sorry, an error occurred while processing \
-        your request.Please try again later."   # pylint: disable=invalid-name
+    CLASSIFICATION_ERROR_MESSAGE: str = None
     NO_SELECTED_AGENT_MESSAGE: str = "I'm sorry, I couldn't determine how to handle your request.\
     Could you please rephrase it?"  # pylint: disable=invalid-name
-    GENERAL_ROUTING_ERROR_MSG_MESSAGE: str = "An error occurred while processing your request. \
-    Please try again later."    # pylint: disable=invalid-name
+    GENERAL_ROUTING_ERROR_MSG_MESSAGE: str = None
     MAX_MESSAGE_PAIRS_PER_AGENT: int = 100  # pylint: disable=invalid-name

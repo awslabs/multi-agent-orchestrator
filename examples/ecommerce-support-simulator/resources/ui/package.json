@@ -1,0 +1,31 @@
+{
+  "name": "ai-ecommerce-support-simulator",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.3",
+    "@astrojs/mdx": "^3.1.7",
+    "@astrojs/react": "^3.6.2",
+    "@astrojs/rss": "^4.0.7",
+    "@astrojs/sitemap": "^3.1.6",
+    "@aws-amplify/api": "^6.0.51",
+    "@aws-amplify/ui-react": "^6.5.2",
+    "astro": "^4.16.4",
+    "aws-amplify": "^6.6.3",
+    "lucide-react": "^0.446.0",
+    "react": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "typescript": "^5.6.2"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^5.1.1",
+    "tailwindcss": "^3.4.13"
+  }
+}

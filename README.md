@@ -1,4 +1,4 @@
-<h2 align="center">Multi-Agent Orchestrator&nbsp;<img alt="Static Badge" src="https://img.shields.io/badge/Beta-4e9bcd"></h2>
+<h2 align="center">Multi-Agent Orchestrator&nbsp;</h2>
 <p align="center">Flexible and powerful framework for managing multiple AI agents and handling complex conversations.</p>
 <p align="center">
   <a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
@@ -22,9 +22,9 @@
 
 ## What's the Multi-Agent Orchestrator ❓
 
-The Multi-Agent Orchestrator is a flexible framework for managing multiple AI agents and handling complex conversations. It intelligently routes queries and maintains context across interactions. 
+The Multi-Agent Orchestrator is a flexible framework for managing multiple AI agents and handling complex conversations. It intelligently routes queries and maintains context across interactions.
 
-The system offers pre-built components for quick deployment, while also allowing easy integration of custom agents and conversation messages storage solutions. 
+The system offers pre-built components for quick deployment, while also allowing easy integration of custom agents and conversation messages storage solutions.
 
 This adaptability makes it suitable for a wide range of applications, from simple chatbots to sophisticated AI systems, accommodating diverse requirements and scaling efficiently.
 
@@ -36,10 +36,10 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 
 <br /><br />
 
-1. The process begins with user input, which is analyzed by a Classifier. 
-2. The Classifier leverages both Agents' Characteristics and Agents' Conversation history to select the most appropriate agent for the task. 
+1. The process begins with user input, which is analyzed by a Classifier.
+2. The Classifier leverages both Agents' Characteristics and Agents' Conversation history to select the most appropriate agent for the task.
 3. Once an agent is selected, it processes the user input.
-4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user. 
+4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user.
 
 ## 💬 Demo App
 
@@ -56,7 +56,7 @@ In the screen recording below, we demonstrate an extended version of the demo ap
 - **Health Agent**: A Bedrock LLM Agent focused on addressing health-related queries
 
 Watch as the system seamlessly switches context between diverse topics, from booking flights to checking weather, solving math problems, and providing health information.
-Notice how the appropriate agent is selected for each query, maintaining coherence even with brief follow-up inputs. 
+Notice how the appropriate agent is selected for each query, maintaining coherence even with brief follow-up inputs.
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
@@ -74,6 +74,14 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 
   This article demonstrates how to build a multilingual chatbot using the Multi-Agent Orchestrator framework. The article explains how to use an **Amazon Lex** bot as an agent, along with 2 other new agents to make it work in many languages with just a few lines of code.
 
+- **[Beyond Auto-Replies: Building an AI-Powered E-commerce Support system](https://community.aws/content/2lq6cYYwTYGc7S3Zmz28xZoQNQj/beyond-auto-replies-building-an-ai-powered-e-commerce-support-system)**
+
+  This article demonstrates how to build an AI-driven multi-agent system for automated e-commerce customer email support. It covers the architecture and setup of specialized AI agents using the Multi-Agent Orchestrator framework, integrating automated processing with human-in-the-loop oversight. The guide explores email ingestion, intelligent routing, automated response generation, and human verification, providing a comprehensive approach to balancing AI efficiency with human expertise in customer support.
+
+
+- **[Speak Up, AI: Voicing Your Agents with Amazon Connect, Lex, and Bedrock](https://community.aws/content/2mt7CFG7xg4yw6GRHwH9akhg0oD/speak-up-ai-voicing-your-agents-with-amazon-connect-lex-and-bedrock)**
+
+  This article demonstrates how to build an AI customer call center. It covers the architecture and setup of specialiazed AI agents using the Multi-Agent Orchestrator framework interacting with voice via **Amazon Connect** and **Amazon Lex**.
 
 ### TypeScript Version
 
@@ -259,15 +267,19 @@ These examples showcase:
 3. The orchestrator's ability to route requests to the most appropriate agent based on the input.
 4. Handling of both streaming and non-streaming responses from different types of agents.
 
-📚 Featured Articles
-We're excited to share contributions that showcase the power and flexibility of the Multi-Agent Orchestrator. Check out this featured article:
-
-From 'Bonjour' to 'Boarding Pass': Multilingual AI Chatbot for Flight Reservations
-Create a global flight reservation chatbot in minutes! This tutorial walks you through building a multilingual chatbot using the Multi-Agent Orchestrator framework. Learn to effortlessly chain AI agents for instant language processing and booking across multiple languages. Transform complex, multi-step processes into a polyglot flight reservation system.
 
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/CONTRIBUTING.md) for more details.
+
+# Authors
+
+- [Corneliu Croitoru](https://www.linkedin.com/in/corneliucroitoru/)
+- [Anthony Bernabeu](https://www.linkedin.com/in/anthonybernabeu/)
+
+# Contributors
+[![contributors](https://contrib.rocks/image?repo=awslabs/multi-agent-orchestrator&max=2000)](https://github.com/awslabs/multi-agent-orchestrator/graphs/contributors)
+
 
 ## 📄 LICENSE
 

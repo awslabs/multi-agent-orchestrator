@@ -10,6 +10,7 @@ import { Logger } from "../utils/logger";
 export interface AmazonBedrockAgentOptions extends AgentOptions {
   agentId: string;        // The ID of the Amazon Bedrock agent.
   agentAliasId: string;   // The alias ID of the Amazon Bedrock agent.
+  client?: BedrockAgentRuntimeClient;  // Client for interacting with the Bedrock agent runtime.
 }
 
 
@@ -31,7 +32,7 @@ export class AmazonBedrockAgent extends Agent {
     super(options);
     this.agentId = options.agentId;
     this.agentAliasId = options.agentAliasId;
-    this.client = options.region
+    this.client = options.client ? options.client : options.region
     ? new BedrockAgentRuntimeClient({ region: options.region })
     : new BedrockAgentRuntimeClient();
   }
@@ -89,16 +90,7 @@ export class AmazonBedrockAgent extends Agent {
     } catch (err) {
       // Handle errors encountered while invoking the Amazon Bedrock agent
       Logger.logger.error(err);
-
-      // Return a default error message as a fallback response
-      return {
-        role: ParticipantRole.ASSISTANT,
-        content: [
-          {
-            text: "Sorry, I encountered an error while processing your request.",
-          },
-        ],
-      };
+      throw err;
     }
   }
 }

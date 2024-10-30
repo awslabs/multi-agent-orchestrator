@@ -49,11 +49,11 @@ class LexBotAgent(Agent):
             )
 
             return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
+                role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": concatenated_content or "No response from Lex bot."}]
             )
 
         except (BotoCoreError, ClientError) as error:
             Logger.error(f"Error processing request: {str(error)}")
-            raise
+            raise error
 

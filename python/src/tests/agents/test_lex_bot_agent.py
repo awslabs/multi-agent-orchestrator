@@ -50,7 +50,7 @@ async def test_process_request_success(lex_bot_agent, mock_lex_client):
     )
 
     assert isinstance(result, ConversationMessage)
-    assert result.role == ParticipantRole.ASSISTANT
+    assert result.role == ParticipantRole.ASSISTANT.value
     assert result.content == [{"text": "Hello How can I help?"}]
 
     mock_lex_client.recognize_text.assert_called_once_with(
@@ -71,7 +71,7 @@ async def test_process_request_no_response(lex_bot_agent, mock_lex_client):
     )
 
     assert isinstance(result, ConversationMessage)
-    assert result.role == ParticipantRole.ASSISTANT
+    assert result.role == ParticipantRole.ASSISTANT.value
     assert result.content == [{"text": "No response from Lex bot."}]
 
 @pytest.mark.asyncio

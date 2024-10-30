@@ -1,0 +1,24 @@
+{
+    "templates": [
+      {
+        "id": "default",
+        "name": "Select a template or write your own",
+        "content": ""
+      },
+      {
+        "id": "order_status",
+        "name": "Check Order Status",
+        "content": "Hello,\n\nI would like to check the status of my order #12345. Could you please provide me with an update?\n\nThank you,\n[Your Name]"
+      },
+      {
+        "id": "return_request",
+        "name": "Return Request",
+        "content": "Dear Support Team,\n\nI need to return an item from my recent order. Can you please help me with the return process?\n\nOrder Number: [Order Number]\nItem to Return: [Item Name/SKU]\nReason for Return: [Your Reason]\n\nThank you for your assistance.\n\nBest regards,\n[Your Name]"
+      },
+      {
+        "id": "product_inquiry",
+        "name": "Product Inquiry",
+        "content": "Hello,\n\nI have a question about the product [Product Name]. Can you provide more information about its [specific feature or specification]?\n\nAlso, is this product currently in stock?\n\nThank you for your help.\n\nBest,\n[Your Name]"
+      }
+    ]
+  }

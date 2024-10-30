@@ -1,6 +1,6 @@
 """This module implements an Amazon Bedrock agent that interacts with a runtime client.
 """
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 import os
 import boto3
@@ -15,6 +15,7 @@ class AmazonBedrockAgentOptions(AgentOptions):
     """Options for Amazon Bedrock Agent."""
     agent_id: str = None
     agent_alias_id: str = None
+    client: Optional[Any] = None
 
 
 class AmazonBedrockAgent(Agent):
@@ -33,8 +34,11 @@ class AmazonBedrockAgent(Agent):
         super().__init__(options)
         self.agent_id = options.agent_id
         self.agent_alias_id = options.agent_alias_id
-        self.client = boto3.client('bedrock-agent-runtime',
-                                   region_name=options.region or os.environ.get('AWS_REGION'))
+        if options.client:
+            self.client = options.client
+        else:
+            self.client = boto3.client('bedrock-agent-runtime',
+                                    region_name=options.region or os.environ.get('AWS_REGION'))
 
     async def process_request(
         self,
@@ -73,13 +77,10 @@ class AmazonBedrockAgent(Agent):
                     Logger.warn("Received a chunk event with no chunk data")
 
             return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
+                role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": completion}]
             )
 
         except (BotoCoreError, ClientError) as error:
             Logger.error(f"Error processing request: {str(error)}")
-            return ConversationMessage(
-                role=ParticipantRole.ASSISTANT,
-                content=[{"text": "Sorry, I encountered an error while processing your request."}]
-            )
+            raise error
