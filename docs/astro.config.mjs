@@ -105,13 +105,6 @@ export default defineConfig({
 				{
 					label: 'Cookbook',
 					items: [
-					  { 
-						label: 'Getting Started',
-						items: [
-						  { label: 'Overview', link: '/cookbook/overview' },
-						  { label: 'Local Development', link: '/cookbook/getting-started/local-development' }
-						]
-					  },
 					  {
 						label: 'Examples',
 						items: [
