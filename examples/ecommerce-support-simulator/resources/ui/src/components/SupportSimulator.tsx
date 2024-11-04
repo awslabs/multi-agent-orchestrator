@@ -272,13 +272,13 @@ const SupportSimulator = () => {
           <div className="w-full max-w-6xl bg-white rounded-2xl p-8 flex flex-col shadow-lg border border-gray-200">
             <div className="text-center mb-6">
               <h1 className="text-3xl font-bold text-blue-600 mb-4">
-                Multi-Agent Orchestrator Demo
+              AI-Powered E-commerce Support Simulator
               </h1>
               <p className="text-lg text-gray-700 mb-3">
-                Experience the power of intelligent routing and context management across multiple AI agents.
+              Experience the future of customer support with our multi-agent AI system.
               </p>
               <p className="text-md text-gray-600 italic mb-0">
-                Type "hello" or "bonjour" to see the available agents, or ask questions like "How do I use agents?"
+              Try asking "Where is my order?" or "I want to return an item" to see how our AI handles customer support inquiries!
               </p>
             </div>
   
