@@ -75,7 +75,7 @@ A demonstration of how AI agents and human support can work together in an e-com
 
 ### Agent Architecture
 
-![Agents](/multi-agent-orchestrator/ai_e-commerce_support_system.png)
+![Agents](/multi-agent-orchestrator/ai_e-commerce_support_system.jpg)
 
 The system employs three specialized agents:
 
