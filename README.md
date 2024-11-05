@@ -62,9 +62,31 @@ The demo highlights the system's ability to handle complex, multi-turn conversat
 
 ![](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/demo-app.gif?raw=true)
 
-## 🚀 Getting Started
+To quickly get a feel for the Multi-Agent Orchestrator, check out our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/). Additional code examples are available in both the documentation and the `examples` folder.
 
-Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
+## 🎯 Examples & Quick Start
+
+Get hands-on experience with the Multi-Agent Orchestrator through our diverse set of examples:
+
+- **Ready-to-run Scripts**: Start locally with our collection of standalone scripts in both Python and TypeScript.
+- **Demo Applications**: 
+  - [Chat Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/): 
+    - Explore multiple specialized agents handling various domains like travel, weather, math, and health
+  - [E-commerce Support Simulator](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/ecommerce-support-simulator/): Experience AI-powered customer support with:
+    - Automated response generation for common queries
+    - Intelligent routing of complex issues to human support
+    - Real-time chat and email-style communication
+    - Human-in-the-loop interactions for complex cases
+- **Sample Projects**: Explore our example implementations in the `examples` folder:
+  - [`chat-demo-app`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/chat-demo-app): Web-based chat interface with multiple specialized agents
+  - [`ecommerce-support-simulator`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/ecommerce-support-simulator): AI-powered customer support system
+  - [`chat-chainlit-app`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/chat-chainlit-app): Chat application built with Chainlit
+  - [`fast-api-streaming`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/fast-api-streaming): FastAPI implementation with streaming support
+  
+All examples are available in both Python and TypeScript implementations. Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
+
+[Previous sections remain the same...]
+
 
 ## 🌟 Use cases and implementations
 

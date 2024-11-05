@@ -75,7 +75,7 @@ A demonstration of how AI agents and human support can work together in an e-com
 - Production-ready AWS architecture
 - Mock data for realistic scenarios
 
-## 🏗️ System Architecture
+## 🏗️ Architecture
 
 ### Agent Architecture
 
