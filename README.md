@@ -85,8 +85,6 @@ Get hands-on experience with the Multi-Agent Orchestrator through our diverse se
   
 All examples are available in both Python and TypeScript implementations. Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
 
-[Previous sections remain the same...]
-
 
 ## 🌟 Use cases and implementations
 
