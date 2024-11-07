@@ -12,6 +12,7 @@ examples/chat-demo-app/bin/*.js
 !examples/lambda/url_rewrite/*.js
 examples/resources/ui/public/aws-exports.json
 examples/resources/ui/dist
+examples/text-2-structured-output/venv
 
 
 .DS_Store
