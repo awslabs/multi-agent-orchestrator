@@ -60,7 +60,6 @@ class BedrockLLMAgent(Agent):
 
         self.prompt_template: str = f"""You are a {self.name}.
         {self.description}
-        Provide helpful and accurate information based on your expertise.
         You will engage in an open-ended conversation,
         providing helpful and accurate information based on your expertise.
         The conversation will proceed as follows:
