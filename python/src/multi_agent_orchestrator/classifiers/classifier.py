@@ -39,7 +39,7 @@ Analyze the user's input and categorize it into one of the following agent types
 <agents>
 {{AGENT_DESCRIPTIONS}}
 </agents>
-If you are unable to select an agent put "unkwnown"
+If you are unable to select an agent put "unknown"
 
 Guidelines for classification:
 
@@ -77,7 +77,7 @@ userinput: What are the symptoms of the flu?
 selected_agent: agent-name
 confidence: 0.95
 
-2. Context switching example between a TechAgentand a BillingAgent:
+2. Context switching example between a TechAgent and a BillingAgent:
 Previous conversation:
 User: "How do I set up a wireless printer?"
 Assistant: [agent-a]: To set up a wireless printer, follow these steps:
