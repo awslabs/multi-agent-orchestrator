@@ -73,7 +73,7 @@ The Multi-Agent Orchestrator framwork supports multiple storage options:
 
 ##### Is there a way to check if the agents I've added to the orchestrator don't overlap?
 
-Agent overlapping can be an issue which may lead to incorrect routing. The framework provides a tool called [Agent Overlap Analysis](/multi-agent-orchestrator/advanced-features/agent-overlap) that allows you to gain insights about potential overlapping between agents.
+Agent overlapping can be an issue which may lead to incorrect routing. The framework provides a tool called [Agent Overlap Analysis](/multi-agent-orchestrator/cookbook/monitoring/agent-overlap) that allows you to gain insights about potential overlapping between agents.
 
 It's important to understand that routing to agents is done using a combination of user input, agent descriptions, and the conversation history of all agents. Therefore, crafting precise and distinct agent descriptions is crucial for optimal performance.
 
