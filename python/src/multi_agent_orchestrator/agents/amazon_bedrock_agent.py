@@ -59,12 +59,18 @@ class AmazonBedrockAgent(Agent):
         :param additional_params: Optional additional parameters as key-value pairs.
         :return: A ConversationMessage object containing the agent's response.
         """
+
+        session_state = {}
+        if (additional_params and 'sessionState' in additional_params):
+            session_state = additional_params['sessionState']
         try:
+            print(session_state)
             response = self.client.invoke_agent(
                 agentId=self.agent_id,
                 agentAliasId=self.agent_alias_id,
                 sessionId=session_id,
-                inputText=input_text
+                inputText=input_text,
+                sessionState=session_state
             )
 
             completion = ""
