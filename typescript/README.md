@@ -42,7 +42,7 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 
 ## 💬 Demo App
 
-To quickly get a feel for the Multi-Agent Orchestrator, we've provided a Demo App with a few basic agents. This interactive demo showcases the orchestrator's capabilities in a user-friendly interface. To learn more about setting up and running the demo app, please refer to our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/deployment/demo-web-app/) section.
+To quickly get a feel for the Multi-Agent Orchestrator, we've provided a Demo App with a few basic agents. This interactive demo showcases the orchestrator's capabilities in a user-friendly interface. To learn more about setting up and running the demo app, please refer to our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/) section.
 
 <br>
 
