@@ -45,7 +45,7 @@ To use the tool, you strictly apply the provided tool specification.
 """
 
 
-async def weather_tool_handler(response: ConversationMessage, conversation: List[Dict[str, Any]]):
+async def weather_tool_handler(response: ConversationMessage, conversation: List[Dict[str, Any]]) -> ConversationMessage:
     response_content_blocks = response.content
 
     # Initialize an empty list of tool results
@@ -64,11 +64,11 @@ async def weather_tool_handler(response: ConversationMessage, conversation: List
             tool_use_name = tool_use_block.get("name")
 
             if tool_use_name == "Weather_Tool":
-                response = await fetch_weather_data(tool_use_block["input"])
+                tool_response = await fetch_weather_data(tool_use_block["input"])
                 tool_results.append({
                     "toolResult": {
                         "toolUseId": tool_use_block["toolUseId"],
-                        "content": [{"json": {"result": response}}],
+                        "content": [{"json": {"result": tool_response}}],
                     }
                 })
 
@@ -77,8 +77,8 @@ async def weather_tool_handler(response: ConversationMessage, conversation: List
             role=ParticipantRole.USER.value,
             content=tool_results)
 
-    # Append the new message to the ongoing conversation
-    conversation.append(message)
+    return message
+
 
 async def fetch_weather_data(input_data):
     """

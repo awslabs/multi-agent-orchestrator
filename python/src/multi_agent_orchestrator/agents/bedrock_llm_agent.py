@@ -149,7 +149,8 @@ class BedrockLLMAgent(Agent):
                 conversation.append(bedrock_response)
 
                 if any('toolUse' in content for content in bedrock_response.content):
-                    await self.tool_config['useToolHandler'](bedrock_response, conversation)
+                    tool_response = await self.tool_config['useToolHandler'](bedrock_response, conversation)
+                    conversation.append(tool_response)
                 else:
                     continue_with_tools = False
                     final_message = bedrock_response
