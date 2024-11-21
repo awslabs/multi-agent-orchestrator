@@ -52,14 +52,15 @@ export class AmazonBedrockAgent extends Agent {
     userId: string,
     sessionId: string,
     chatHistory: ConversationMessage[],
-    additionalParams?: Record<string, string>
+    additionalParams?: Record<any, any>
   ): Promise<ConversationMessage> {
     // Construct the command to invoke the Amazon Bedrock agent with user input
     const command = new InvokeAgentCommand({
       agentId: this.agentId,
       agentAliasId: this.agentAliasId,
-      sessionId,
-      inputText
+      sessionId: sessionId,
+      inputText: inputText,
+      sessionState: additionalParams ? additionalParams.sessionState?  additionalParams.sessionState : undefined : undefined,
     });
 
     try {

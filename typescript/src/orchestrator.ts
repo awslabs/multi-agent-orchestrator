@@ -345,7 +345,7 @@ export class MultiAgentOrchestrator {
     userInput: string,
     userId: string,
     sessionId: string,
-    additionalParams: Record<string, string> = {}
+    additionalParams: Record<any, any> = {}
   ): Promise<AgentResponse> {
     this.executionTimes = new Map();
     let classifierResult: ClassifierResult;
