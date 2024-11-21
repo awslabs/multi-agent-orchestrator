@@ -20,3 +20,8 @@ export interface ChainResult {
   input: string;
   output: string;
 }
+
+export interface ChainAgentStep {
+  agent_id: string;
+  input: string;
+}

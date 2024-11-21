@@ -16,7 +16,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import axios from 'axios';
 import { Box, HStack, Input, Button, useToast, IconButton, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
-import { Agent } from '../types';
+import { Agent, ChainAgentStep } from '../types';
 
 interface AgentPositions {
   [key: string]: { x: number; y: number };
@@ -85,50 +85,31 @@ const ChainAgentsTab: React.FC = () => {
   const handleDuplicateAgent = useCallback((nodeId: string) => {
     const nodeToDuplicate = nodes.find(node => node.id === nodeId);
     if (nodeToDuplicate) {
+      const newNodeId = `${nodeToDuplicate.id}-copy-${Date.now()}`;
       const newNode: Node = {
-        ...nodeToDuplicate,
-        id: `${nodeToDuplicate.id}-copy-${Date.now()}`,
+        id: newNodeId,
+        data: { 
+          label: `${nodeToDuplicate.data.label} (Copy)`,
+          originalId: nodeToDuplicate.id // Store the original agent ID
+        },
         position: {
           x: nodeToDuplicate.position.x + 50,
           y: nodeToDuplicate.position.y + 50,
         },
+        type: 'customNode',
       };
       setNodes((nds) => [...nds, newNode]);
       
-      // Add the duplicated agent to the backend
-      const duplicateData = {
-        id: nodeToDuplicate.id,  // Send the original ID for duplication
-        name: `${nodeToDuplicate.data.label} (Copy)`,
-        description: nodeToDuplicate.data.description || '',
-        type: nodeToDuplicate.data.type || 'BedrockLLMAgent',  // Ensure this matches your backend expectation
-        model_id: nodeToDuplicate.data.model_id,
-        lambda_function_name: nodeToDuplicate.data.lambda_function_name,
-      };
-      
-      console.log("Sending duplicate request with data:", duplicateData);  // Add this for debugging
-      
-      axios.post('http://localhost:8000/agents', duplicateData)
-        .then((response) => {
-          console.log("Duplication response:", response.data);  // Add this for debugging
-          fetchAgents(); // Refresh the agents list
-          toast({
-            title: "Agent duplicated",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-        }).catch((error) => {
-          console.error('Error duplicating agent:', error.response ? error.response.data : error);
-          toast({
-            title: "Error duplicating agent",
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-          });
-        });
+      toast({
+        title: "Agent duplicated",
+        description: "A new node has been created that references the original agent.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
     }
     setContextMenu(null);
-  }, [nodes, setNodes, toast, fetchAgents]);
+  }, [nodes, setNodes, toast]);
 
   const handleDisconnectAgent = useCallback((nodeId: string) => {
     setEdges((eds) => eds.filter(
@@ -153,40 +134,45 @@ const ChainAgentsTab: React.FC = () => {
       });
       return;
     }
-  
+
     // Sort edges by source (to maintain order)
     const sortedEdges = [...edges].sort((a, b) => {
       return nodes.findIndex(n => n.id === a.source) - nodes.findIndex(n => n.id === b.source);
     });
-  
+
     // Create chain_agents array based on the sorted edges
-    const chainAgents = sortedEdges.map((edge, index) => ({
-      agent_id: edge.source,
-      input: index === 0 ? 'user_input' : 'previous_output'
-    }));
-  
+    const chainAgents: ChainAgentStep[] = sortedEdges.map((edge, index) => {
+      const sourceNode = nodes.find(node => node.id === edge.source);
+      const originalAgentId = sourceNode?.data.originalId || edge.source;
+      return {
+        agent_id: originalAgentId,
+        input: index === 0 ? 'user_input' : 'previous_output'
+      };
+    });
+
     // Add the last node if it's not a source in any edge
-    const lastNodeId = nodes[nodes.length - 1].id;
-    if (!sortedEdges.some(edge => edge.source === lastNodeId)) {
+    const lastNode = nodes[nodes.length - 1];
+    const lastNodeOriginalId = lastNode.data.originalId || lastNode.id;
+    if (!sortedEdges.some(edge => edge.source === lastNode.id)) {
       chainAgents.push({
-        agent_id: lastNodeId,
+        agent_id: lastNodeOriginalId,
         input: 'previous_output'
       });
     }
-  
+
     const agentPositions: AgentPositions = nodes.reduce((acc, node) => {
       acc[node.id] = node.position;
       return acc;
     }, {} as AgentPositions);
-  
+
     try {
-      await axios.post('http://localhost:8000/chain-agents', {
+      const response = await axios.post('http://localhost:8000/chain-agents', {
         name: chainAgentName,
         description: `Chain agent connecting ${chainAgents.length} agents`,
-        type: 'ChainAgent',
         chain_agents: chainAgents,
         agent_positions: agentPositions
       });
+      console.log("Chain agent creation response:", response.data);
       setChainAgentName('');
       fetchAgents();
       toast({
@@ -195,10 +181,17 @@ const ChainAgentsTab: React.FC = () => {
         duration: 3000,
         isClosable: true,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating chain agent:', error);
+      let errorMessage = "Unknown error occurred";
+      if (axios.isAxiosError(error) && error.response) {
+        errorMessage = error.response.data.detail || "Error occurred while creating chain agent";
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
       toast({
         title: "Error creating chain agent",
+        description: errorMessage,
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -233,6 +226,7 @@ const ChainAgentsTab: React.FC = () => {
         />
         <Handle type="target" position={Position.Top} />
         <div>{data.label}</div>
+        {data.originalId && <div style={{ fontSize: '0.8em', color: '#666' }}>(Original: {data.originalId})</div>}
         <Handle type="source" position={Position.Bottom} />
       </div>
     );

@@ -1,7 +1,7 @@
 [
   {
-    "id": "689ab8ce-688c-4d48-a6f6-5f4c27cdce1e",
-    "name": "Connect agents",
+    "id": "b41289db-3fd0-41a2-a5ac-c3cb001f1728",
+    "name": "testing-chain",
     "description": "Chain agent connecting 3 agents",
     "type": "ChainAgent",
     "chain_agents": [
@@ -14,14 +14,32 @@
         "input": "previous_output"
       },
       {
-        "agent_id": "66d07464-67ad-4d1d-b048-91c0869e528e",
+        "agent_id": "e46eef1ba7a72",
         "input": "previous_output"
       }
-    ]
+    ],
+    "agent_positions": {
+      "e46eef1ba7a72": {
+        "x": 711.863,
+        "y": -10.031000000000006
+      },
+      "beeae138-720b-4b00-bfb2-e46eef1ba7a7": {
+        "x": 250.0,
+        "y": 150.0
+      },
+      "browsing-agent": {
+        "x": 639.4452211221123,
+        "y": 99.19070858085809
+      },
+      "e46eef1ba7a72-copy-1729081337832": {
+        "x": 643.2409330030562,
+        "y": 186.95721345273483
+      }
+    }
   },
   {
-    "id": "ae9336cf-82b8-4f24-9edf-4a0e09804fad",
-    "name": "browser-summary",
+    "id": "c737da80-fde6-4f57-be3c-5bfb23c5db76",
+    "name": "chain-agent-to",
     "description": "Chain agent connecting 3 agents",
     "type": "ChainAgent",
     "chain_agents": [
@@ -34,9 +52,65 @@
         "input": "previous_output"
       },
       {
-        "agent_id": "ce097fc8-6739-409e-a16f-3efae4e7467c",
+        "agent_id": "e46eef1ba7a72",
         "input": "previous_output"
       }
-    ]
+    ],
+    "agent_positions": {
+      "e46eef1ba7a72": {
+        "x": 994.081706,
+        "y": 49.100538400000005
+      },
+      "beeae138-720b-4b00-bfb2-e46eef1ba7a7": {
+        "x": 680.0475519999998,
+        "y": 286.7068380636899
+      },
+      "browsing-agent": {
+        "x": 997.5697117347303,
+        "y": 142.37411909131927
+      },
+      "e46eef1ba7a72-copy-1730270777393": {
+        "x": 962.1821343422287,
+        "y": 243.54160114188744
+      }
+    }
+  },
+  {
+    "id": "be010666-2853-4443-b8ae-098b29ba5273",
+    "name": "chain-1",
+    "description": "Chain agent connecting 3 agents",
+    "type": "ChainAgent",
+    "chain_agents": [
+      {
+        "agent_id": "e46eef1ba7a72",
+        "input": "user_input"
+      },
+      {
+        "agent_id": "browsing-agent",
+        "input": "previous_output"
+      },
+      {
+        "agent_id": "e46eef1ba7a72",
+        "input": "previous_output"
+      }
+    ],
+    "agent_positions": {
+      "e46eef1ba7a72": {
+        "x": 1105.6252898000002,
+        "y": 12.8152762
+      },
+      "beeae138-720b-4b00-bfb2-e46eef1ba7a7": {
+        "x": 250.0,
+        "y": 150.0
+      },
+      "browsing-agent": {
+        "x": 1119.732577632336,
+        "y": 121.2281851278859
+      },
+      "e46eef1ba7a72-copy-1730270867402": {
+        "x": 1084.9757326345289,
+        "y": 221.6147395535827
+      }
+    }
   }
 ]
