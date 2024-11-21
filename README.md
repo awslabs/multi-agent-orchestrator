@@ -103,7 +103,7 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 
 - **[Speak Up, AI: Voicing Your Agents with Amazon Connect, Lex, and Bedrock](https://community.aws/content/2mt7CFG7xg4yw6GRHwH9akhg0oD/speak-up-ai-voicing-your-agents-with-amazon-connect-lex-and-bedrock)**
 
-  This article demonstrates how to build an AI customer call center. It covers the architecture and setup of specialiazed AI agents using the Multi-Agent Orchestrator framework interacting with voice via **Amazon Connect** and **Amazon Lex**.
+  This article demonstrates how to build an AI customer call center. It covers the architecture and setup of specialized AI agents using the Multi-Agent Orchestrator framework interacting with voice via **Amazon Connect** and **Amazon Lex**.
 
 ### TypeScript Version
 
