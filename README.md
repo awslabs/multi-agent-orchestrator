@@ -299,8 +299,13 @@ We welcome contributions! Please see our [Contributing Guide](https://raw.github
 - [Corneliu Croitoru](https://www.linkedin.com/in/corneliucroitoru/)
 - [Anthony Bernabeu](https://www.linkedin.com/in/anthonybernabeu/)
 
-# Contributors
+# 👥 Contributors
+
+Big shout out to our awesome contributors! Thank you for making this project better! 🌟 ⭐ 🚀
+
 [![contributors](https://contrib.rocks/image?repo=awslabs/multi-agent-orchestrator&max=2000)](https://github.com/awslabs/multi-agent-orchestrator/graphs/contributors)
+
+Please see our [contributing guide](./CONTRIBUTING.md) for guidelines on how to propose bugfixes and improvements.
 
 
 ## 📄 LICENSE
