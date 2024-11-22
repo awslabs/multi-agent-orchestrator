@@ -103,7 +103,7 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 
 - **[Speak Up, AI: Voicing Your Agents with Amazon Connect, Lex, and Bedrock](https://community.aws/content/2mt7CFG7xg4yw6GRHwH9akhg0oD/speak-up-ai-voicing-your-agents-with-amazon-connect-lex-and-bedrock)**
 
-  This article demonstrates how to build an AI customer call center. It covers the architecture and setup of specialiazed AI agents using the Multi-Agent Orchestrator framework interacting with voice via **Amazon Connect** and **Amazon Lex**.
+  This article demonstrates how to build an AI customer call center. It covers the architecture and setup of specialized AI agents using the Multi-Agent Orchestrator framework interacting with voice via **Amazon Connect** and **Amazon Lex**.
 
 ### TypeScript Version
 
@@ -299,8 +299,14 @@ We welcome contributions! Please see our [Contributing Guide](https://raw.github
 - [Corneliu Croitoru](https://www.linkedin.com/in/corneliucroitoru/)
 - [Anthony Bernabeu](https://www.linkedin.com/in/anthonybernabeu/)
 
-# Contributors
-[![contributors](https://contrib.rocks/image?repo=awslabs/multi-agent-orchestrator&max=2000)](https://github.com/awslabs/multi-agent-orchestrator/graphs/contributors)
+# 👥 Contributors
+
+Big shout out to our awesome contributors! Thank you for making this project better! 🌟 ⭐ 🚀
+
+[![contributors](https://contrib.rocks/image?repo=awslabs/multi-agent-orchestrator&max=2000&time=1700573333)](https://github.com/awslabs/multi-agent-orchestrator/graphs/contributors)
+
+
+Please see our [contributing guide](./CONTRIBUTING.md) for guidelines on how to propose bugfixes and improvements.
 
 
 ## 📄 LICENSE
