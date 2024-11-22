@@ -47,10 +47,11 @@ export default defineConfig({
 						items: [
 						  { label: 'Bedrock Classifier', link: '/classifiers/built-in/bedrock-classifier'},
 						  { label: 'Anthropic Classifier', link: '/classifiers/built-in/anthropic-classifier' },
+						  { label: 'OpenAI Classifier', link: '/classifiers/built-in/openai-classifier' },
 						]
 					  },
 					  { label: 'Custom Classifier', link: '/classifiers/custom-classifier' },
-					  
+
 					]
 				},
 				{
@@ -72,7 +73,7 @@ export default defineConfig({
 					  ]
 					},
 					{ label: 'Custom Agents', link: '/agents/custom-agents' },
-					
+
 				  ]
 				},
 				{
