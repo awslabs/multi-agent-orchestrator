@@ -1,6 +1,6 @@
 import { OpenAIClassifier, OpenAIClassifierOptions } from '../../src/classifiers/openAIClassifier';
 import OpenAI from 'openai';
-import { ConversationMessage, OPENAI_MODEL_ID_GPT_O_MINI, ParticipantRole } from "../../src/types";
+import { ConversationMessage, OPENAI_MODEL_ID_GPT_O_MINI } from "../../src/types";
 import { MockAgent } from '../mock/mockAgent';
 
 // Mock the OpenAI module
