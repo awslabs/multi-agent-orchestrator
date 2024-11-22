@@ -98,3 +98,68 @@ The OpenAIClassifier accepts the following configuration options:
   - `temperature` (optional): Controls randomness in output generation.
   - `top_p` (optional): Controls diversity of output generation.
   - `stop_sequences` (optional): A list of sequences that, when generated, will stop the generation process.
+
+## Customizing the System Prompt
+
+You can customize the system prompt used by the OpenAIClassifier:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    orchestrator.classifier.setSystemPrompt(
+      `
+      Custom prompt template with placeholders:
+      {{AGENT_DESCRIPTIONS}}
+      {{HISTORY}}
+      {{CUSTOM_PLACEHOLDER}}
+      `,
+      {
+        CUSTOM_PLACEHOLDER: "Value for custom placeholder"
+      }
+    );
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    orchestrator.classifier.set_system_prompt(
+        """
+        Custom prompt template with placeholders:
+        {{AGENT_DESCRIPTIONS}}
+        {{HISTORY}}
+        {{CUSTOM_PLACEHOLDER}}
+        """,
+        {
+            "CUSTOM_PLACEHOLDER": "Value for custom placeholder"
+        }
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+## Processing Requests
+
+The OpenAIClassifier processes requests using the `process_request` method, which is called internally by the orchestrator. This method:
+
+1. Prepares the user's message and conversation history.
+2. Constructs a request for the OpenAI API, including the system prompt and function calling configurations.
+3. Sends the request to the OpenAI API and processes the response.
+4. Returns a `ClassifierResult` containing the selected agent and confidence score.
+
+## Error Handling
+
+The OpenAIClassifier includes error handling to manage potential issues during the classification process. If an error occurs, it will log the error and raise an exception, which can be caught and handled by the orchestrator.
+
+## Best Practices
+
+1. **API Key Security**: Ensure your OpenAI API key is kept secure and not exposed in your codebase.
+2. **Model Selection**: Choose an appropriate model based on your use case and performance requirements.
+3. **Inference Configuration**: Experiment with different inference parameters to find the best balance between response quality and speed.
+4. **System Prompt**: Craft a clear and comprehensive system prompt to guide the model's classification process effectively.
+
+## Limitations
+
+- Requires an active OpenAI API key.
+- Classification quality depends on the chosen model and the quality of your system prompt and agent descriptions.
+- API usage is subject to OpenAI's pricing and rate limits.
+
+For more information on using and customizing the Multi-Agent Orchestrator, refer to the [Classifier Overview](/multi-agent-orchestrator/classifier/overview) and [Agents](/multi-agent-orchestrator/agents/overview) documentation.
