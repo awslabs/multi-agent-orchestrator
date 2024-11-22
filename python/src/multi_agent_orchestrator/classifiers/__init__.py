@@ -6,6 +6,7 @@ Code for Classifier.
 from .classifier import Classifier, ClassifierResult
 from .anthropic_classifier import AnthropicClassifier, AnthropicClassifierOptions
 from .bedrock_classifier import BedrockClassifier, BedrockClassifierOptions
+from .openai_classifier import OpenAIClassifier, OpenAIClassifierOptions
 
 __all__ = [
     "AnthropicClassifier",
@@ -14,4 +15,6 @@ __all__ = [
     "BedrockClassifierOptions",
     "Classifier",
     "ClassifierResult",
+    "OpenAIClassifier",
+    "OpenAIClassifierOptions",
 ]
