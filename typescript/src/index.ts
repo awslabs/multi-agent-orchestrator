@@ -12,6 +12,7 @@ export { AgentResponse } from './agents/agent';
 
 export { BedrockClassifier, BedrockClassifierOptions } from './classifiers/bedrockClassifier';
 export { AnthropicClassifier, AnthropicClassifierOptions } from './classifiers/anthropicClassifier';
+export { OpenAIClassifier, OpenAIClassifierOptions } from "./classifiers/openAIClassifier"
 
 export { Retriever } from './retrievers/retriever';
 export { AmazonKnowledgeBasesRetriever, AmazonKnowledgeBasesRetrieverOptions } from './retrievers/AmazonKBRetriever';

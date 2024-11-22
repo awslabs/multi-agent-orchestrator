@@ -1,0 +1,64 @@
+---
+title: OpenAI Classifier
+description: How to configure the OpenAI classifier
+---
+
+The OpenAI Classifier is a built-in classifier for the Multi-Agent Orchestrator that leverages OpenAI's language models for intent classification. It provides robust classification capabilities using OpenAI's state-of-the-art models like GPT-4o.
+
+The OpenAI Classifier extends the abstract `Classifier` class and uses the OpenAI API client to process requests and classify user intents.
+
+## Features
+
+- Utilizes OpenAI's advanced models (e.g., GPT-4) for intent classification
+- Configurable model selection and inference parameters
+- Supports custom system prompts and variables
+- Handles conversation history for context-aware classification
+
+### Basic Usage
+
+To use the OpenAIClassifier, you need to create an instance with your OpenAI API key and pass it to the Multi-Agent Orchestrator:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { OpenAIClassifier } from "multi-agent-orchestrator";
+    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+
+    const openaiClassifier = new OpenAIClassifier({
+      apiKey: 'your-openai-api-key'
+    });
+
+    const orchestrator = new MultiAgentOrchestrator({ classifier: openaiClassifier });
+    ```
+  </TabItem>
+</Tabs>
+
+### Custom Configuration
+
+You can customize the OpenAIClassifier by providing additional options:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const customOpenAIClassifier = new OpenAIClassifier({
+      apiKey: 'your-openai-api-key',
+      modelId: 'gpt-4o',
+      inferenceConfig: {
+        maxTokens: 500,
+        temperature: 0.7,
+        topP: 0.9,
+        stopSequences: ['']
+      }
+    });
+
+    const orchestrator = new MultiAgentOrchestrator({ classifier: customOpenAIClassifier });
+    ```
+  </TabItem>
+</Tabs>
+
+The OpenAIClassifier accepts the following configuration options:
+
+- `api_key` (required): Your OpenAI API key.
+- `model_id` (optional): The ID of the OpenAI model to use. Defaults to GPT-4 Turbo
