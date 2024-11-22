@@ -9,7 +9,7 @@ The OpenAI Classifier extends the abstract `Classifier` class and uses the OpenA
 
 ## Features
 
-- Utilizes OpenAI's advanced models (e.g., GPT-4) for intent classification
+- Utilizes OpenAI's advanced models (e.g., GPT-4o) for intent classification
 - Configurable model selection and inference parameters
 - Supports custom system prompts and variables
 - Handles conversation history for context-aware classification
@@ -31,6 +31,18 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     });
 
     const orchestrator = new MultiAgentOrchestrator({ classifier: openaiClassifier });
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.classifiers import OpenAIClassifier, OpenAIClassifierOptions
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    openai_classifier = OpenAIClassifier(OpenAIClassifierOptions(
+        api_key='your-openai-api-key'
+    ))
+
+    orchestrator = MultiAgentOrchestrator(classifier=openai_classifier)
     ```
   </TabItem>
 </Tabs>
@@ -56,9 +68,33 @@ You can customize the OpenAIClassifier by providing additional options:
     const orchestrator = new MultiAgentOrchestrator({ classifier: customOpenAIClassifier });
     ```
   </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.classifiers import OpenAIClassifier, OpenAIClassifierOptions
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    custom_openai_classifier = OpenAIClassifier(OpenAIClassifierOptions(
+        api_key='your-openai-api-key',
+        model_id='gpt-4o',
+        inference_config={
+            'max_tokens': 500,
+            'temperature': 0.7,
+            'top_p': 0.9,
+            'stop_sequences': ['']
+        }
+    ))
+
+    orchestrator = MultiAgentOrchestrator(classifier=custom_openai_classifier)
+    ```
+  </TabItem>
 </Tabs>
 
 The OpenAIClassifier accepts the following configuration options:
 
 - `api_key` (required): Your OpenAI API key.
-- `model_id` (optional): The ID of the OpenAI model to use. Defaults to GPT-4 Turbo
+- `model_id` (optional): The ID of the OpenAI model to use. Defaults to GPT-4 Turbo.
+- `inference_config` (optional): A dictionary containing inference configuration parameters:
+  - `max_tokens` (optional): The maximum number of tokens to generate. Defaults to 1000 if not specified.
+  - `temperature` (optional): Controls randomness in output generation.
+  - `top_p` (optional): Controls diversity of output generation.
+  - `stop_sequences` (optional): A list of sequences that, when generated, will stop the generation process.
