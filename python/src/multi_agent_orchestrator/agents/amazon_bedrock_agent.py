@@ -64,7 +64,6 @@ class AmazonBedrockAgent(Agent):
         if (additional_params and 'sessionState' in additional_params):
             session_state = additional_params['sessionState']
         try:
-            print(session_state)
             response = self.client.invoke_agent(
                 agentId=self.agent_id,
                 agentAliasId=self.agent_alias_id,
