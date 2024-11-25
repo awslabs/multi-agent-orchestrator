@@ -14,7 +14,7 @@ from multi_agent_orchestrator.utils.logger import Logger
 class ParallelAgentOptions(AgentOptions):
     def __init__(
         self,
-        agents: list[str],
+        agents: list[Agent],
         default_output: str = None,
         **kwargs,
     ):
@@ -36,7 +36,7 @@ class ParallelAgent(Agent):
 
     async def _get_llm_response(
         self,
-        agent: BedrockLLMAgent,
+        agent: Agent,
         input_text: str,
         user_id: str,
         session_id: str,
