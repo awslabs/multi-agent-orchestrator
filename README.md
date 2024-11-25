@@ -303,7 +303,7 @@ We welcome contributions! Please see our [Contributing Guide](https://raw.github
 
 Big shout out to our awesome contributors! Thank you for making this project better! 🌟 ⭐ 🚀
 
-[![contributors](https://contrib.rocks/image?repo=awslabs/multi-agent-orchestrator&max=2000&time=1700573333)](https://github.com/awslabs/multi-agent-orchestrator/graphs/contributors)
+[![contributors](https://contrib.rocks/image?repo=awslabs/multi-agent-orchestrator&max=2000)](https://github.com/awslabs/multi-agent-orchestrator/graphs/contributors)
 
 
 Please see our [contributing guide](./CONTRIBUTING.md) for guidelines on how to propose bugfixes and improvements.
