@@ -5,6 +5,7 @@ import { ChatStorage } from "./chatStorage";
 
 export class SqlChatStorage extends ChatStorage {
   private client: Client;
+  private initialized: Promise<void>;
 
   constructor(url: string, authToken?: string) {
     super();
@@ -12,7 +13,7 @@ export class SqlChatStorage extends ChatStorage {
       url,
       authToken,
     });
-    this.initializeDatabase();
+    this.initialized = this.initializeDatabase();
   }
 
   private async initializeDatabase() {
@@ -38,7 +39,7 @@ export class SqlChatStorage extends ChatStorage {
       `);
     } catch (error) {
       Logger.logger.error("Error initializing database:", error);
-      throw error;
+      throw new Error("Database initialization error");
     }
   }
 
@@ -189,5 +190,16 @@ export class SqlChatStorage extends ChatStorage {
       Logger.logger.error("Error fetching all chats:", error);
       throw error;
     }
+  }
+
+  async waitForInitialization() {
+    if (this.client.closed) {
+      throw new Error("Database connection closed");
+    }
+    await this.initialized;
+  }
+
+  close() {
+    this.client.close();
   }
 }

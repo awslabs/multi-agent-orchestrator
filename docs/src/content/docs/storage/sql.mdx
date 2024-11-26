@@ -35,16 +35,23 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 
     // For local SQLite database
     const localStorage = new SqlChatStorage('file:local.db');
+    await localStorage.waitForInitialization();
 
-    // For remote Turso database
+    // For remote database
     const remoteStorage = new SqlChatStorage(
-      'libsql://your-database-url.turso.io',
+      'libsql://your-database-url.example.com',
       'your-auth-token'
     );
+    await remoteStorage.waitForInitialization();
 
     const orchestrator = new MultiAgentOrchestrator({
       storage: localStorage // or remoteStorage
     });
+
+
+    // Close the database connections when done
+    await localStorage.close();
+    await remoteStorage.close();
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
@@ -117,14 +124,11 @@ ON conversations(user_id, session_id, agent_id);
 ## Best Practices
 
 - Use a single instance of SqlChatStorage throughout your application
-- For serverless environments, implement proper connection pooling
-- Implement proper error handling for database operations 
-- Consider implementing retry mechanisms for network issues
 - Regularly backup your database
 - Implement data cleanup strategies for old conversations
 - Monitor database size and performance
 - Keep your authentication tokens secure
-- Use environment variables for sensitive configurationxe
 - Implement proper access controls at the application level
+- Close the database connections when done
 
 SQL storage provides a robust and flexible solution for managing conversation history in the Multi-Agent Orchestrator System. It offers a good balance between simplicity and features, making it suitable for both development and production environments.
