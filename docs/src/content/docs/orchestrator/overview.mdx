@@ -49,6 +49,7 @@ The Orchestrator accepts an `OrchestratorConfig` object during initialization. A
    - `GENERAL_ROUTING_ERROR_MSG_MESSAGE`: Custom message for general routing errors.
 3. `logger`: Custom logger instance. If not provided, a default logger will be used.
 4. `classifier`: Custom classifier instance. If not provided, a `BedrockClassifier` will be used.
+5. `default_agent`: A default agent when the classifier could not determine the most suitable agent.
 
 ### Example with all options
 
@@ -107,7 +108,12 @@ Here's an example that demonstrates how to initialize the Orchestrator with all 
       ),
       storage=DynamoDBChatStorage(),
       classifier=CustomClassifier(),
-      logger=CustomLogger()
+      logger=CustomLogger(),
+      default_agent=BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Default Agent",
+        streaming=False,
+        description="This is the default agent that handles general queries and tasks.",
+      ))
     )
     ```
   </TabItem>
