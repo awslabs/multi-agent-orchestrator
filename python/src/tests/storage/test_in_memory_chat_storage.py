@@ -77,6 +77,23 @@ async def test_fetch_all_chats(storage):
     assert result[1].content == "Hello Agent 2"
 
 @pytest.mark.asyncio
+async def test_fetch_all_chats(storage):
+    user_id = "user1"
+    session_id = "session1"
+    agent1_id = "agent1"
+    agent2_id = "agent2"
+    message1 = ConversationMessage(role="user", content=[{'text':"Hello"}])
+    message2 = ConversationMessage(role="assistant", content=[{'text':"Hello Agent 2"}])
+
+    await storage.save_chat_message(user_id, session_id, agent1_id, message1)
+    await storage.save_chat_message(user_id, session_id, agent2_id, message2)
+
+    result = await storage.fetch_all_chats(user_id, session_id)
+    assert len(result) == 2
+    assert result[0].content == [{'text':"Hello"}]
+    assert result[1].content == [{'text':"[agent2] Hello Agent 2"}]
+
+@pytest.mark.asyncio
 async def test_trim_conversation(storage):
     user_id = "user1"
     session_id = "session1"
