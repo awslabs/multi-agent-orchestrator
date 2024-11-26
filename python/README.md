@@ -72,7 +72,7 @@ Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator
 
 
 
-### Installation
+### Core Installation
 
 ```bash
 # Optional: Set up a virtual environment
@@ -81,7 +81,7 @@ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 pip install multi-agent-orchestrator
 ```
 
-### Usage
+#### Default Usage
 
 Here's an equivalent Python example demonstrating the use of the Multi-Agent Orchestrator with a Bedrock LLM Agent and a Lex Bot Agent:
 
@@ -175,6 +175,19 @@ This example showcases:
 3. The orchestrator's ability to route requests to the most appropriate agent based on the input.
 4. Handling of both streaming and non-streaming responses from different types of agents.
 
+
+### Working with Anthropic or OpenAI
+If you want to use Anthropic or OpenAI for classifier and/or agents, make sure to install the multi-agent-orchestrator with the relevant extra feature.
+```bash
+pip install multi-agent-orchestrator[anthropic]
+pip install multi-agent-orchestrator[openai]
+```
+
+### Full package installation
+For a complete installation (including Anthropic and OpenAi):
+```bash
+pip install multi-agent-orchestrator[all]
+```
 
 ## 🤝 Contributing
 

@@ -9,7 +9,13 @@ from .amazon_bedrock_agent import AmazonBedrockAgent, AmazonBedrockAgentOptions
 from .comprehend_filter_agent import ComprehendFilterAgent, ComprehendFilterAgentOptions
 from .chain_agent import ChainAgent, ChainAgentOptions
 from .bedrock_translator_agent import BedrockTranslatorAgent, BedrockTranslatorAgentOptions
-from .anthropic_agent import AnthropicAgent, AnthropicAgentOptions
+
+try:
+    from .anthropic_agent import AnthropicAgent, AnthropicAgentOptions
+    _ANTHROPIC_AVAILABLE = True
+except ImportError:
+    _ANTHROPIC_AVAILABLE = False
+
 
 __all__ = [
     'Agent',
@@ -24,13 +30,17 @@ __all__ = [
     'LexBotAgent',
     'LexBotAgentOptions',
     'AmazonBedrockAgent',
-    'AmazonBedrockAgentOptions'
+    'AmazonBedrockAgentOptions',
     'ComprehendFilterAgent',
     'ComprehendFilterAgentOptions',
     'BedrockTranslatorAgent',
     'BedrockTranslatorAgentOptions',
     'ChainAgent',
     'ChainAgentOptions',
-    'AnthropicAgent',
-    'AnthropicAgentOptions'
 ]
+
+if _ANTHROPIC_AVAILABLE:
+    __all__.extend([
+        'AnthropicAgent',
+        'AnthropicAgentOptions'
+    ])

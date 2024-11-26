@@ -9,9 +9,7 @@ from multi_agent_orchestrator.classifiers import (Classifier,
                              BedrockClassifierOptions)
 from multi_agent_orchestrator.agents import (Agent,
                         AgentResponse,
-                        AgentProcessingResult,
-                        BedrockLLMAgent,
-                        BedrockLLMAgentOptions)
+                        AgentProcessingResult)
 from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
 
 @dataclass
@@ -20,7 +18,8 @@ class MultiAgentOrchestrator:
                  options: Optional[OrchestratorConfig] = None,
                  storage: Optional[ChatStorage] = None,
                  classifier: Optional[Classifier] = None,
-                 logger: Optional[Logger] = None):
+                 logger: Optional[Logger] = None,
+                 default_agent: Optional[Agent] = None):
 
         DEFAULT_CONFIG=OrchestratorConfig()
 
@@ -44,12 +43,7 @@ class MultiAgentOrchestrator:
         self.storage = storage or InMemoryChatStorage()
         self.classifier: Classifier = classifier or BedrockClassifier(options=BedrockClassifierOptions())
         self.execution_times: Dict[str, float] = {}
-        self.default_agent: Agent = BedrockLLMAgent(
-            options=BedrockLLMAgentOptions(
-                name="DEFAULT",
-                streaming=True,
-                description="A knowledgeable generalist capable of addressing a wide range of topics.",
-            ))
+        self.default_agent: Agent = default_agent
 
 
     def add_agent(self, agent: Agent):
@@ -135,7 +129,7 @@ class MultiAgentOrchestrator:
             )
 
         if not classifier_result.selected_agent:
-            if self.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED:
+            if self.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED and self.default_agent:
                 classifier_result = self.get_fallback_result()
                 self.logger.info("Using default agent as no agent was selected")
             else:
