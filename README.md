@@ -69,8 +69,8 @@ To quickly get a feel for the Multi-Agent Orchestrator, check out our [Demo App]
 Get hands-on experience with the Multi-Agent Orchestrator through our diverse set of examples:
 
 - **Ready-to-run Scripts**: Start locally with our collection of standalone scripts in both Python and TypeScript.
-- **Demo Applications**: 
-  - [Chat Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/): 
+- **Demo Applications**:
+  - [Chat Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/):
     - Explore multiple specialized agents handling various domains like travel, weather, math, and health
   - [E-commerce Support Simulator](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/ecommerce-support-simulator/): Experience AI-powered customer support with:
     - Automated response generation for common queries
@@ -83,8 +83,8 @@ Get hands-on experience with the Multi-Agent Orchestrator through our diverse se
   - [`chat-chainlit-app`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/chat-chainlit-app): Chat application built with Chainlit
   - [`fast-api-streaming`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/fast-api-streaming): FastAPI implementation with streaming support
   - [`text-2-structured-output`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/text-2-structured-output): Natural Language to Structured Data
-  
-  
+
+
 All examples are available in both Python and TypeScript implementations. Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
 
 
@@ -192,7 +192,7 @@ if (response.streaming == true) {
 
 ### Python Version
 
-#### Installation
+#### Core Installation
 
 ```bash
 # Optional: Set up a virtual environment
@@ -201,7 +201,7 @@ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 pip install multi-agent-orchestrator
 ```
 
-#### Usage
+#### Default Usage
 
 Here's an equivalent Python example demonstrating the use of the Multi-Agent Orchestrator with a Bedrock LLM Agent and a Lex Bot Agent:
 
@@ -289,6 +289,19 @@ These examples showcase:
 3. The orchestrator's ability to route requests to the most appropriate agent based on the input.
 4. Handling of both streaming and non-streaming responses from different types of agents.
 
+### Working with Anthropic or OpenAI
+If you want to use Anthropic or OpenAI for classifier and/or agents, make sure to install the multi-agent-orchestrator with the relevant extra feature.
+```bash
+pip install multi-agent-orchestrator[anthropic]
+pip install multi-agent-orchestrator[openai]
+```
+
+### Full package installation
+For a complete installation (including Anthropic and OpenAi):
+```bash
+pip install multi-agent-orchestrator[all]
+```
+
 
 ## 🤝 Contributing
 
@@ -303,7 +316,7 @@ We welcome contributions! Please see our [Contributing Guide](https://raw.github
 
 Big shout out to our awesome contributors! Thank you for making this project better! 🌟 ⭐ 🚀
 
-[![contributors](https://contrib.rocks/image?repo=awslabs/multi-agent-orchestrator&max=2000&time=1700573333)](https://github.com/awslabs/multi-agent-orchestrator/graphs/contributors)
+[![contributors](https://contrib.rocks/image?repo=awslabs/multi-agent-orchestrator&max=2000)](https://github.com/awslabs/multi-agent-orchestrator/graphs/contributors)
 
 
 Please see our [contributing guide](./CONTRIBUTING.md) for guidelines on how to propose bugfixes and improvements.

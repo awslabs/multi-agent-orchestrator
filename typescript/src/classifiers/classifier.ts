@@ -1,11 +1,7 @@
 import {
-  AgentTypes,
   ConversationMessage,
   TemplateVariables,
 } from "../types";
-import {
-  BedrockLLMAgent
-} from "../agents/bedrockLLMAgent";
 
 import { Agent } from "../agents/agent";
 
@@ -19,9 +15,7 @@ export interface ClassifierResult {
 }
 
 /**
- * IntentClassifier class extends BedrockAgent to provide specialized functionality
- * for classifying user intents, selecting appropriate agents, and generating
- * structured response.
+ * Abstract base class for all classifiers
  */
 export abstract class Classifier {
 
@@ -32,24 +26,14 @@ export abstract class Classifier {
   protected promptTemplate: string;
   protected systemPrompt: string;
   protected customVariables: TemplateVariables;
-  protected defaultAgent: Agent;
 
 
 
   /**
-   * Constructs a new IntentClassifier instance.
+   * Constructs a new Classifier instance.
    * @param options - Configuration options for the agent, inherited from AgentOptions.
    */
   constructor() {
-
-
-    this.defaultAgent = new BedrockLLMAgent({
-      name: AgentTypes.DEFAULT,
-      streaming: true,
-      description:
-        "A knowledgeable generalist capable of addressing a wide range of topics. This agent should be selected if no other specialized agent is a better fit.",
-    });
-
 
     this.agentDescriptions = "";
     this.history = "";

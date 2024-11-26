@@ -1,10 +1,6 @@
 import { AgentOverlapAnalyzer } from "./agentOverlapAnalyzer";
-import {
-  AgentTypes,
-} from "./types/index";
 import { Agent, AgentResponse } from "./agents/agent";
 import { ClassifierResult } from './classifiers/classifier';
-import { BedrockLLMAgent } from "./agents/bedrockLLMAgent";
 import { ChatStorage } from "./storage/chatStorage";
 import { InMemoryChatStorage } from "./storage/memoryChatStorage";
 import { AccumulatorTransform } from "./utils/helpers";
@@ -155,6 +151,7 @@ export interface OrchestratorOptions {
   config?: Partial<OrchestratorConfig>;
   logger?: any;
   classifier?: Classifier;
+  defaultAgent?: Agent;
 }
 
 export interface RequestMetadata {
@@ -231,12 +228,7 @@ export class MultiAgentOrchestrator {
     this.agents = {};
     this.classifier = options.classifier || new BedrockClassifier();
 
-    this.defaultAgent = new BedrockLLMAgent({
-      name: AgentTypes.DEFAULT,
-      streaming: true,
-      description:
-        "A knowledgeable generalist capable of addressing a wide range of topics. This agent should be selected if no other specialized agent is a better fit.",
-    });
+    this.defaultAgent = options.defaultAgent;
 
   }
 
@@ -370,7 +362,7 @@ export class MultiAgentOrchestrator {
     try {
       // Handle case where no agent was selected
       if (!classifierResult.selectedAgent) {
-        if (this.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED) {
+        if (this.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED && this.defaultAgent) {
           classifierResult = this.getFallbackResult();
           this.logger.info("Using default agent as no agent was selected");
         } else {
