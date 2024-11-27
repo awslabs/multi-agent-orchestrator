@@ -1,0 +1,134 @@
+---
+title: SQL Storage
+description: Using SQL databases (SQLite/Turso) for persistent conversation storage in the Multi-Agent Orchestrator System
+---
+
+SQL storage provides a flexible and reliable solution for storing conversation history in the Multi-Agent Orchestrator System. This implementation supports both local SQLite databases and remote Turso databases, making it suitable for various deployment scenarios from development to production.
+
+## Features
+
+- Persistent storage across application restarts
+- Support for both local and remote databases
+- Built-in connection pooling and retry mechanisms
+- Compatible with edge and serverless deployments
+- Transaction support for data consistency
+- Efficient indexing for quick data retrieval
+
+## When to Use SQL Storage
+
+- When you need a balance between simplicity and scalability
+- For applications requiring persistent storage without complex infrastructure
+- In both development and production environments
+- When working with edge or serverless deployments
+- When you need local-first development with remote deployment options
+
+## Implementation
+
+To use SQL storage in your Multi-Agent Orchestrator:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { SqlChatStorage, MultiAgentOrchestrator } from 'multi-agent-orchestrator';
+
+    // For local SQLite database
+    const localStorage = new SqlChatStorage('file:local.db');
+    await localStorage.waitForInitialization();
+
+    // For remote database
+    const remoteStorage = new SqlChatStorage(
+      'libsql://your-database-url.example.com',
+      'your-auth-token'
+    );
+    await remoteStorage.waitForInitialization();
+
+    const orchestrator = new MultiAgentOrchestrator({
+      storage: localStorage // or remoteStorage
+    });
+
+
+    // Close the database connections when done
+    await localStorage.close();
+    await remoteStorage.close();
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.storage import SqlChatStorage
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    # For local SQLite database
+    local_storage = SqlChatStorage('file:local.db')
+
+    # For remote Turso database
+    remote_storage = SqlChatStorage(
+      url='libsql://your-database-url.turso.io',
+      auth_token='your-auth-token'
+    )
+
+    orchestrator = MultiAgentOrchestrator(storage=local_storage)  # or remote_storage
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration
+
+### Local DB
+For local development, simply provide a file URL:
+```typescript
+const storage = new SqlChatStorage('file:local.db');
+```
+
+### Remote DB
+For production with Turso:
+1. Create a Turso database through their platform
+2. Obtain your database URL and authentication token
+3. Configure your storage:
+```typescript
+const storage = new SqlChatStorage(
+  'libsql://your-database-url.com',
+  'your-auth-token'
+);
+```
+
+## Database Schema
+
+The SQL storage implementation uses the following schema:
+
+```sql
+CREATE TABLE conversations (
+  user_id TEXT NOT NULL,
+  session_id TEXT NOT NULL,
+  agent_id TEXT NOT NULL,
+  message_index INTEGER NOT NULL,
+  role TEXT NOT NULL,
+  content TEXT NOT NULL,
+  timestamp INTEGER NOT NULL,
+  PRIMARY KEY (user_id, session_id, agent_id, message_index)
+);
+
+CREATE INDEX idx_conversations_lookup 
+ON conversations(user_id, session_id, agent_id);
+```
+
+## Considerations
+
+- Automatic table and index creation on initialization
+- Built-in transaction support for data consistency
+- Efficient query performance through proper indexing
+- Support for message history size limits
+- Automatic JSON serialization/deserialization of message content
+
+## Best Practices
+
+- Use a single instance of SqlChatStorage throughout your application
+- Regularly backup your database
+- Implement data cleanup strategies for old conversations
+- Monitor database size and performance
+- Keep your authentication tokens secure
+- Implement proper access controls at the application level
+- Close the database connections when done
+
+SQL storage provides a robust and flexible solution for managing conversation history in the Multi-Agent Orchestrator System. It offers a good balance between simplicity and features, making it suitable for both development and production environments.
