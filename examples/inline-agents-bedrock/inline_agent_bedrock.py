@@ -46,7 +46,7 @@ class BedrockInlineAgent(Agent):
                 },
                 "description": {
                     "type": "string",
-                    "description": "Description to instruct the agent how to solve the user request using available action groups"
+                    "description": "Description to instruct the agent how to solve the user request using available action groups and knowledge bases."
                 },
                 "user_request": {
                     "type": "string",
