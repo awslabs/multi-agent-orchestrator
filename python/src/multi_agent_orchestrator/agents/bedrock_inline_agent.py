@@ -1,7 +1,8 @@
 from typing import List, Dict, Any, Optional, Callable
 from dataclasses import dataclass, field
-import boto3
+import json
 import os
+import boto3
 from multi_agent_orchestrator.utils import conversation_to_dict, Logger
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import (ConversationMessage,
@@ -17,9 +18,7 @@ class BedrockInlineAgentOptions(AgentOptions):
     inference_config: Optional[Dict[str, Any]] = None
     client: Optional[Any] = None
     bedrock_agent_client: Optional[Any] = None
-    model_id: Optional[str] = None
     foundation_model: Optional[str] = None
-    region: Optional[str] = None
     action_groups_list: List[Dict[str, Any]] = field(default_factory=list)
     knowledge_bases: Optional[List[Dict[str, Any]]] = None
     custom_system_prompt: Optional[Dict[str, Any]] = None
@@ -181,11 +180,21 @@ to the human's communication style.
                 tool_use_block = content_block["toolUse"]
                 tool_use_name = tool_use_block.get("name")
                 if tool_use_name == "inline_agent_creation":
+
                     action_group_names = tool_use_block["input"].get('action_group_names', [])
                     kb_names = tool_use_block["input"].get('knowledge_bases','')
 
                     description = tool_use_block["input"].get('description', '')
                     user_request = tool_use_block["input"].get('user_request', '')
+
+                    self.log_debug("BedrockInlineAgent", 'Tool Handler Parameters', {
+                        'user_request':user_request,
+                        'action_group_names':action_group_names,
+                        'kb_names':kb_names,
+                        'description':description,
+                        'session_id':session_id
+                    })
+
 
                     # Fetch relevant action groups
                     action_groups = [
@@ -203,13 +212,17 @@ to the human's communication style.
                         kbs = [item for item in self.knowledge_bases
                               if item.get('knowledgeBaseId') in kb_names]
 
-                    Logger.info(f"Calling Agents for Bedrock with:\n")
-                    Logger.info(f"user input:{user_request}")
-                    Logger.info(f"Action Groups: {action_groups}\n")
-                    Logger.info(f"Knowledge Bases: {kbs}\n")
-                    Logger.info(f"Description: {description}\n")
+                    self.log_debug("BedrockInlineAgent", 'Action Group & Knowledge Base', {
+                        'action_groups':action_groups,
+                        'kbs':kbs
+                    })
 
-                    import uuid
+                    self.log_debug("BedrockInlineAgent", 'Invoking Inline Agent', {
+                        'foundationModel': self.foundation_model,
+                        'enableTrace': self.enableTrace,
+                        'sessionId':session_id
+                    })
+
                     inline_response = self.bedrock_agent_client.invoke_inline_agent(
                         actionGroups=action_groups,
                         knowledgeBases=kbs,
@@ -257,6 +270,8 @@ to the human's communication style.
             conversation = [*chat_history, user_message]
 
             self.update_system_prompt()
+
+            self.log_debug("BedrockInlineAgent", 'System Prompt', self.system_prompt)
 
             system_prompt = self.system_prompt
 
