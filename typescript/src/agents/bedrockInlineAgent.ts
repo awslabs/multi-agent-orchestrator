@@ -12,7 +12,7 @@ import {
     ParticipantRole,
     TemplateVariables,
   } from "../types";
-  
+
   export interface BedrockInlineAgentOptions extends AgentOptions {
     inferenceConfig?: {
       maxTokens?: number;
@@ -34,7 +34,7 @@ import {
     };
 
   }
-  
+
   export class BedrockInlineAgent extends Agent {
     /** Class-level constants */
     protected static readonly TOOL_INPUT_SCHEMA = {
@@ -63,7 +63,7 @@ import {
         required: ["action_group_names", "description", "user_request"]
       }
     };
-  
+
     protected static readonly KEYS_TO_REMOVE = [
       'actionGroupId',
       'actionGroupState',
@@ -72,7 +72,7 @@ import {
     ];
 
     protected static readonly TOOL_NAME = "inline_agent_creation";
-  
+
     /** Protected class members */
     protected client: BedrockRuntimeClient;
     protected bedrockAgentClient: BedrockAgentRuntimeClient;
@@ -93,14 +93,14 @@ import {
       useToolHandler: (response: ConversationMessage, conversation: ConversationMessage[], sessionId: string) => Promise<ConversationMessage>;
       toolMaxRecursions: number;
     };
-  
+
     private promptTemplate: string;
     private systemPrompt: string = '';
     private customVariables: TemplateVariables = {};
 
     constructor(options: BedrockInlineAgentOptions) {
       super(options);
-  
+
 
 
       // Initialize clients
@@ -109,18 +109,18 @@ import {
           ? new BedrockRuntimeClient({ region: options.region })
           : new BedrockRuntimeClient()
       );
-  
+
       this.bedrockAgentClient = options.bedrockAgentClient ?? (
         options.region
           ? new BedrockAgentRuntimeClient({ region: options.region })
           : new BedrockAgentRuntimeClient()
       );
-  
+
       // Set model IDs
       this.modelId = options.modelId ?? BEDROCK_MODEL_ID_CLAUDE_3_HAIKU;
       this.foundationModel = options.foundationModel ?? BEDROCK_MODEL_ID_CLAUDE_3_SONNET;
-  
-      this.enableTrace = options.enableTrace ?? false; 
+
+      this.enableTrace = options.enableTrace ?? false;
 
       // Set inference configuration
       this.inferenceConfig = options.inferenceConfig ?? {
@@ -129,11 +129,11 @@ import {
         topP: 0.9,
         stopSequences: []
       };
-  
+
       // Store action groups and knowledge bases
       this.actionGroupsList = options.actionGroupsList ?? [];
       this.knowledgeBases = options.knowledgeBases ?? [];
-  
+
       // Define inline agent tool configuration
       this.inlineAgentTool = [{
         toolSpec: {
@@ -142,14 +142,14 @@ import {
           inputSchema: BedrockInlineAgent.TOOL_INPUT_SCHEMA
         }
       }];
-  
+
       // Configure tool usage
       this.toolConfig = {
         tool: this.inlineAgentTool,
         useToolHandler: this.inlineAgentToolHandler.bind(this),
-        toolMaxRecursions: 1        
+        toolMaxRecursions: 1
       };
-  
+
       // Set prompt template
       this.promptTemplate = `You are a ${this.name}.
       ${this.description}
@@ -178,7 +178,7 @@ import {
       for (const actionGroup of this.actionGroupsList) {
         this.promptTemplate += `Action Group Name: ${actionGroup.actionGroupName ?? ''}\n`;
         this.promptTemplate += `Action Group Description: ${actionGroup.description ?? ''}\n`;
-        
+
       }
 
       this.promptTemplate += "</action_groups>\n";
@@ -190,7 +190,7 @@ import {
         this.promptTemplate += `Knowledge Base Description: ${kb.description ?? ''}\n`;
       }
 
-      this.promptTemplate += "</knowledge_bases>\n"; 
+      this.promptTemplate += "</knowledge_bases>\n";
 
 
       if (options.customSystemPrompt) {
@@ -200,26 +200,26 @@ import {
         );
       }
 
-   
+
 
     }
-  
+
     private async inlineAgentToolHandler(
       response: ConversationMessage,
       conversation: ConversationMessage[],
-      sessionId: string 
+      sessionId: string
     ): Promise<ConversationMessage> {
       const responseContentBlocks = response.content;
 
       if (!responseContentBlocks) {
         throw new Error("No content blocks in response");
       }
-  
+
       for (const contentBlock of responseContentBlocks) {
         if ("toolUse" in contentBlock) {
           const toolUseBlock = contentBlock.toolUse;
           const toolUseName = toolUseBlock?.name;
-  
+
           if (toolUseName === "inline_agent_creation") {
             // Get valid action group names from the tool use input
             const actionGroupNames = toolUseBlock.input?.action_group_names || [];
@@ -244,7 +244,7 @@ import {
                 // Only include description if it's not a child action group
                 ...(item.parentActionGroupSignature ? {} : { description: item.description })
               }));
-  
+
             const kbs = kbNames && this.knowledgeBases.length
             ? this.knowledgeBases.filter(item => kbNames.includes(item.knowledgeBaseId))
             : [];
@@ -260,7 +260,7 @@ import {
               sessionId
             });
 
-  
+
             const command = new InvokeInlineAgentCommand({
               actionGroups,
               knowledgeBases: kbs,
@@ -300,16 +300,16 @@ import {
           }
         }
       }
-  
+
       throw new Error("Tool use block not handled");
     }
-  
+
     async processRequest(
       inputText: string,
       userId: string,
       sessionId: string,
       chatHistory: ConversationMessage[],
-      additionalParams?: Record<string, string>
+      _additionalParams?: Record<string, string>
     ): Promise<ConversationMessage> {
       try {
         // Construct the user's message
@@ -317,12 +317,12 @@ import {
           role: ParticipantRole.USER,
           content: [{ text: inputText }]
         };
-    
+
         // Combine chat history with current message
         const conversation: ConversationMessage[] = [...chatHistory, userMessage];
-    
+
         this.updateSystemPrompt();
-    
+
 
         this.logDebug("BedrockInlineAgent", 'System Prompt', this.systemPrompt);
 
@@ -345,17 +345,17 @@ import {
 
         this.logDebug("BedrockInlineAgent", 'Bedrock Command', JSON.stringify(converseCmd));
 
-    
+
         // Call Bedrock's converse API
         const command = new ConverseCommand(converseCmd);
         const response = await this.client.send(command);
-    
+
         if (!response.output) {
           throw new Error("No output received from Bedrock model");
         }
-    
+
         const bedrockResponse = response.output.message as ConversationMessage;
-    
+
         // Check if tool use is required
         if (bedrockResponse.content) {  // Add null check
           for (const content of bedrockResponse.content) {
@@ -364,20 +364,20 @@ import {
             }
           }
         }
-    
+
         return bedrockResponse;
-    
+
       } catch (error: unknown) {  // Explicitly type error as unknown
         // Handle error with proper type checking
-        const errorMessage = error instanceof Error 
-          ? error.message 
+        const errorMessage = error instanceof Error
+          ? error.message
           : 'Unknown error occurred';
-          
+
         this.logger ? this.logger.error("Error processing request with Bedrock:", errorMessage) : undefined;
         throw new Error(`Error processing request with Bedrock: ${errorMessage}`);
       }
     }
-  
+
     setSystemPrompt(template?: string, variables?: TemplateVariables): void {
       if (template) {
         this.promptTemplate = template;
@@ -387,14 +387,14 @@ import {
       }
       this.updateSystemPrompt();
     }
-  
+
     private updateSystemPrompt(): void {
       const allVariables: TemplateVariables = {
         ...this.customVariables
       };
       this.systemPrompt = this.replaceplaceholders(this.promptTemplate, allVariables);
     }
-  
+
     private replaceplaceholders(template: string, variables: TemplateVariables): string {
       return template.replace(/{{(\w+)}}/g, (match, key) => {
         if (key in variables) {
