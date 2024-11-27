@@ -23,6 +23,7 @@ class BedrockInlineAgentOptions(AgentOptions):
     action_groups_list: List[Dict[str, Any]] = field(default_factory=list)
     knowledge_bases: Optional[List[Dict[str, Any]]] = None
     custom_system_prompt: Optional[Dict[str, Any]] = None
+    trace: Optional[bool] = False
 
 
 # BedrockInlineAgent Class
@@ -123,24 +124,45 @@ class BedrockInlineAgent(Agent):
 
         self.prompt_template: str = f"""You are a {self.name}.
         {self.description}
-        You will engage in an open-ended conversation,
-        providing helpful and accurate information based on your expertise.
-        The conversation will proceed as follows:
-        - The human may ask an initial question or provide a prompt on any topic.
-        - You will provide a relevant and informative response.
-        - The human may then follow up with additional questions or prompts related to your previous
-        response, allowing for a multi-turn dialogue on that topic.
-        - Or, the human may switch to a completely new and unrelated topic at any point.
-        - You will seamlessly shift your focus to the new topic, providing thoughtful and
-        coherent responses based on your broad knowledge base.
-        Throughout the conversation, you should aim to:
-        - Understand the context and intent behind each new question or prompt.
-        - Provide substantive and well-reasoned responses that directly address the query.
-        - Draw insights and connections from your extensive knowledge when appropriate.
-        - Ask for clarification if any part of the question or prompt is ambiguous.
-        - Maintain a consistent, respectful, and engaging tone tailored
-        to the human's communication style.
-        - Seamlessly transition between topics as the human introduces new subjects."""
+You will engage in an open-ended conversation,
+providing helpful and accurate information based on your expertise.
+The conversation will proceed as follows:
+- The human may ask an initial question or provide a prompt on any topic.
+- You will provide a relevant and informative response.
+- The human may then follow up with additional questions or prompts related to your previous
+response, allowing for a multi-turn dialogue on that topic.
+- Or, the human may switch to a completely new and unrelated topic at any point.
+- You will seamlessly shift your focus to the new topic, providing thoughtful and
+coherent responses based on your broad knowledge base.
+Throughout the conversation, you should aim to:
+- Understand the context and intent behind each new question or prompt.
+- Provide substantive and well-reasoned responses that directly address the query.
+- Draw insights and connections from your extensive knowledge when appropriate.
+- Ask for clarification if any part of the question or prompt is ambiguous.
+- Maintain a consistent, respectful, and engaging tone tailored
+to the human's communication style.
+- Seamlessly transition between topics as the human introduces new subjects.
+"""
+        self.prompt_template += "\n\nHere are the action groups that you can use to solve the customer request:\n"
+        self.prompt_template += "<action_groups>\n"
+        for action_group in self.action_groups_list:
+            self.prompt_template += f"Action Group Name: {action_group.get('actionGroupName')}\n"
+            self.prompt_template += f"Action Group Description: {action_group.get('description','')}\n"
+            self.prompt_template += f"Action Group ID: {action_group.get('actionGroupId','')}\n"
+            self.prompt_template += f"Action Group API Schema: {action_group.get('apiSchema','')}\n"
+            self.prompt_template += f"Action Group Executor: {action_group.get('actionGroupExecutor','')}\n"
+            self.prompt_template += f"Action Group State: {action_group.get('actionGroupState','')}\n"
+            self.prompt_template += f"Action Group Parent Action Group Signature: {action_group.get('parentActionGroupSignature','')}\n"
+            self.prompt_template += f"Action Group Agent ID: {action_group.get('agentId','')}\n"
+            self.prompt_template += f"Action Group Agent Version: {action_group.get('agentVersion','')}\n"
+        self.prompt_template += "</action_groups>\n"
+
+        self.prompt_template += "\n\nHere are the knwoledge bases that you can use to solve the customer request:\n"
+        self.prompt_template += "<knowledge_bases>\n"
+        for kb in self.knowledge_bases:
+            self.prompt_template += f"Knowledge Base ID: {kb['knowledgeBaseId']}\n"
+            self.prompt_template += f"Knowledge Base Description: {kb.get('description', '')}\n"
+        self.prompt_template += "</knowledge_bases>\n"
 
         self.system_prompt: str = ""
         self.custom_variables: TemplateVariables = {}
@@ -151,6 +173,8 @@ class BedrockInlineAgent(Agent):
                 options.custom_system_prompt.get('template'),
                 options.custom_system_prompt.get('variables')
             )
+
+        self.trace = options.trace
 
 
     async def inline_agent_tool_handler(self, session_id, response, conversation):
@@ -185,13 +209,19 @@ class BedrockInlineAgent(Agent):
                     kbs = []
                     if kb_names and self.knowledge_bases:
                         kbs = [item for item in self.knowledge_bases
-                              if item.get('knowledgeBaseId') == kb_names[0]]
+                              if item.get('knowledgeBaseId') in kb_names]
+
+                    Logger.info(f"Calling Agents for Bedrock with:\n")
+                    Logger.info(f"user input:{user_request}")
+                    Logger.info(f"Action Groups: {action_groups}\n")
+                    Logger.info(f"Knowledge Bases: {kbs}\n")
+                    Logger.info(f"Description: {description}\n")
 
                     import uuid
                     inline_response = self.bedrock_agent_client.invoke_inline_agent(
                         actionGroups=action_groups,
                         knowledgeBases=kbs,
-                        enableTrace=True,
+                        enableTrace=self.trace,
                         endSession=False,
                         foundationModel=self.foundation_model,
                         inputText=user_request,
@@ -202,7 +232,7 @@ class BedrockInlineAgent(Agent):
                     eventstream = inline_response.get('completion')
                     tool_results = []
                     for event in eventstream:
-                        print(event)
+                        Logger.info(event) if self.trace else None
                         if 'chunk' in event:
                             chunk = event['chunk']
                             if 'bytes' in chunk:
