@@ -228,15 +228,14 @@ import {
             const description = toolUseBlock.input?.description || '';
             const userRequest = toolUseBlock.input?.user_request || '';
 
-            if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
-              this.logger.info('Tool Handler Parameters:', {
-                userRequest,
-                actionGroupNames,
-                knowledgeBases: kbNames,
-                description,
-                sessionId
-              });
-            }
+
+            this.logDebug("BedrockInlineAgent", 'Tool Handler Parameters', {
+              userRequest,
+              actionGroupNames,
+              knowledgeBases: kbNames,
+              description,
+              sessionId
+            });
 
             const actionGroups = this.actionGroupsList
               .filter(item => actionGroupNames.includes(item.actionGroupName)) // Keep only requested action groups
@@ -251,20 +250,17 @@ import {
             ? this.knowledgeBases.filter(item => kbNames.includes(item.knowledgeBaseId))
             : [];
 
-            if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
-              this.logger.info('Prepared Resources', {
-                actionGroups,
-                knowledgeBases: kbs
-              });
-            }
+            this.logDebug("BedrockInlineAgent", 'Action Group & Knowledge Base', {
+              actionGroups,
+              knowledgeBases: kbs
+            });
 
-            if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
-              this.logger.info('Invoking Inline Agent', {
-                foundationModel: this.foundationModel,
-                enableTrace: this.enableTrace,
-                sessionId
-              });
-            }
+            this.logDebug("BedrockInlineAgent", 'Invoking Inline Agent', {
+              foundationModel: this.foundationModel,
+              enableTrace: this.enableTrace,
+              sessionId
+            });
+
   
             const command = new InvokeInlineAgentCommand({
               actionGroups,
@@ -328,15 +324,9 @@ import {
     
         this.updateSystemPrompt();
     
-        // Log prompt if debug trace is enabled
-        if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
-          this.logger.info('System Prompt', {
-            promptTemplate: this.promptTemplate,
-            systemPrompt: this.systemPrompt,
-            conversation: conversation
-          });
-        }
-    
+
+        this.logDebug("BedrockInlineAgent", 'System Prompt', this.systemPrompt);
+
         // Prepare the command to converse with the Bedrock API
         const converseCmd = {
           modelId: this.modelId,
@@ -353,12 +343,8 @@ import {
           },
         };
 
-        // Log the command if debug trace is enabled
-        if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
-          this.logger.info('Bedrock Command', {
-            command: converseCmd
-          });
-        }
+
+        this.logDebug("BedrockInlineAgent", 'Bedrock Command', JSON.stringify(converseCmd));
 
     
         // Call Bedrock's converse API

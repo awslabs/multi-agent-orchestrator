@@ -121,6 +121,22 @@ export abstract class Agent {
     return key;
   }
 
+  /**
+   * Logs debug information with class name and agent name prefix if debug tracing is enabled.
+   * @param message - The message to log
+   * @param data - Optional data to include with the log message
+   */
+  protected logDebug(className: string, message: string, data?: any): void {
+    if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
+      const prefix = `> ${className} \n> ${this.name} \n>`;
+      if (data) {
+        this.logger.info(`${prefix} ${message} \n>`, data);
+      } else {
+        this.logger.info(`${prefix} ${message} \n>`);
+      }
+    }
+  }
+
 /**
  * Abstract method to process a request.
  * This method must be implemented by all concrete agent classes.
