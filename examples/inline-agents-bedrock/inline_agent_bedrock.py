@@ -23,12 +23,13 @@ class BedrockInlineAgentOptions(AgentOptions):
     action_groups_list: List[Dict[str, Any]] = field(default_factory=list)
     knowledge_bases: Optional[List[Dict[str, Any]]] = None
     custom_system_prompt: Optional[Dict[str, Any]] = None
-    trace: Optional[bool] = False
+    enableTrace: Optional[bool] = False
 
 
 # BedrockInlineAgent Class
 class BedrockInlineAgent(Agent):
 
+    TOOL_NAME = 'inline_agent_creation'
     TOOL_INPUT_SCHEMA = {
         "json": {
             "type": "object",
@@ -45,18 +46,16 @@ class BedrockInlineAgent(Agent):
                 },
                 "description": {
                     "type": "string",
-                    "description": "Description to instruct the agent how to solve the user request using available action groups"
+                    "description": "Description to instruct the agent how to solve the user request using available action groups and knowledge bases."
                 },
                 "user_request": {
                     "type": "string",
                     "description": "The initial user request"
                 }
             },
-            "required": ["action_group_names", "description", "user_request"],
+            "required": ["action_group_names", "description", "user_request", "knowledge_bases"],
         }
     }
-
-    KEYS_TO_REMOVE = ['actionGroupId', 'actionGroupState', 'agentId', 'agentVersion']
 
     def __init__(self, options: BedrockInlineAgentOptions):
         super().__init__(options)
@@ -106,7 +105,7 @@ class BedrockInlineAgent(Agent):
         # Define inline agent tool configuration
         self.inline_agent_tool = [{
             "toolSpec": {
-                "name": "inline_agent_creation",
+                "name": BedrockInlineAgent.TOOL_NAME,
                 "description": "Create an inline agent with a list of action groups and knowledge bases",
                 "inputSchema": self.TOOL_INPUT_SCHEMA,
             }
@@ -119,7 +118,7 @@ class BedrockInlineAgent(Agent):
         self.tool_config = {
             'tool': self.inline_agent_tool,
             'toolMaxRecursions': 1,
-            'useToolHandler': self.use_tool_handler
+            'useToolHandler': self.use_tool_handler,
         }
 
         self.prompt_template: str = f"""You are a {self.name}.
@@ -148,13 +147,6 @@ to the human's communication style.
         for action_group in self.action_groups_list:
             self.prompt_template += f"Action Group Name: {action_group.get('actionGroupName')}\n"
             self.prompt_template += f"Action Group Description: {action_group.get('description','')}\n"
-            self.prompt_template += f"Action Group ID: {action_group.get('actionGroupId','')}\n"
-            self.prompt_template += f"Action Group API Schema: {action_group.get('apiSchema','')}\n"
-            self.prompt_template += f"Action Group Executor: {action_group.get('actionGroupExecutor','')}\n"
-            self.prompt_template += f"Action Group State: {action_group.get('actionGroupState','')}\n"
-            self.prompt_template += f"Action Group Parent Action Group Signature: {action_group.get('parentActionGroupSignature','')}\n"
-            self.prompt_template += f"Action Group Agent ID: {action_group.get('agentId','')}\n"
-            self.prompt_template += f"Action Group Agent Version: {action_group.get('agentVersion','')}\n"
         self.prompt_template += "</action_groups>\n"
 
         self.prompt_template += "\n\nHere are the knwoledge bases that you can use to solve the customer request:\n"
@@ -174,7 +166,7 @@ to the human's communication style.
                 options.custom_system_prompt.get('variables')
             )
 
-        self.trace = options.trace
+        self.enableTrace = options.enableTrace
 
 
     async def inline_agent_tool_handler(self, session_id, response, conversation):
@@ -201,9 +193,9 @@ to the human's communication style.
                         if item.get('actionGroupName') in action_group_names
                     ]
                     for entry in action_groups:
-                        for key in self.KEYS_TO_REMOVE:
-                            entry.pop(key, None)
-                        if 'parentActionGroupSignature' in entry:
+                        # remove description for AMAZON.CodeInterpreter
+                        if 'parentActionGroupSignature' in entry and \
+                        entry['parentActionGroupSignature'] == 'AMAZON.CodeInterpreter':
                             entry.pop('description', None)
 
                     kbs = []
@@ -221,7 +213,7 @@ to the human's communication style.
                     inline_response = self.bedrock_agent_client.invoke_inline_agent(
                         actionGroups=action_groups,
                         knowledgeBases=kbs,
-                        enableTrace=self.trace,
+                        enableTrace=self.enableTrace,
                         endSession=False,
                         foundationModel=self.foundation_model,
                         inputText=user_request,
@@ -232,7 +224,7 @@ to the human's communication style.
                     eventstream = inline_response.get('completion')
                     tool_results = []
                     for event in eventstream:
-                        Logger.info(event) if self.trace else None
+                        Logger.info(event) if self.enableTrace else None
                         if 'chunk' in event:
                             chunk = event['chunk']
                             if 'bytes' in chunk:
@@ -280,6 +272,11 @@ to the human's communication style.
             },
             'toolConfig': {
                     'tools': self.inline_agent_tool,
+                    "toolChoice": {
+                        "tool": {
+                            "name": BedrockInlineAgent.TOOL_NAME,
+                        },
+                    },
                 }
             }
             # Call Bedrock's converse API
