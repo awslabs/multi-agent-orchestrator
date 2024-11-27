@@ -179,8 +179,8 @@ This example showcases:
 ### Working with Anthropic or OpenAI
 If you want to use Anthropic or OpenAI for classifier and/or agents, make sure to install the multi-agent-orchestrator with the relevant extra feature.
 ```bash
-pip install multi-agent-orchestrator[anthropic]
-pip install multi-agent-orchestrator[openai]
+pip install "multi-agent-orchestrator[anthropic]"
+pip install "multi-agent-orchestrator[openai]"
 ```
 
 ### Full package installation
