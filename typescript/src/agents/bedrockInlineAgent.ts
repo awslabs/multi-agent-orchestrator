@@ -25,7 +25,7 @@ import {
     modelId?: string;
     foundationModel?: string;
     region?: string;
-    actionGroupsList: AgentActionGroup[];
+    actionGroupsList?: AgentActionGroup[];
     knowledgeBases?: KnowledgeBase[];
     enableTrace?: boolean;
     customSystemPrompt?: {
@@ -131,7 +131,7 @@ import {
       };
   
       // Store action groups and knowledge bases
-      this.actionGroupsList = options.actionGroupsList;
+      this.actionGroupsList = options.actionGroupsList ?? [];
       this.knowledgeBases = options.knowledgeBases ?? [];
   
       // Define inline agent tool configuration
