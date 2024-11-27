@@ -12,7 +12,6 @@ import {
     ParticipantRole,
     TemplateVariables,
   } from "../types";
-  import { Logger } from "../utils/logger";
   
   export interface BedrockInlineAgentOptions extends AgentOptions {
     inferenceConfig?: {
