@@ -190,10 +190,16 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
       description="Specializes in technology areas including software development, hardware, AI, \
       cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs \
       related to technology products and services.",
-      model_id="anthropic.claude-3-sonnet-20240229-v1:0",
       callbacks=BedrockLLMAgentCallbacks()
     ))
     orchestrator.add_agent(tech_agent)
+
+    health_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+      name="Health Agent",
+      description="Focuses on health and medical topics such as general wellness, nutrition, diseases, treatments, mental health, fitness, healthcare systems, and medical terminology or concepts.",
+      callbacks=BedrockLLMAgentCallbacks()
+    ))
+    orchestrator.add_agent(health_agent)
     ```
   </TabItem>
 </Tabs>
