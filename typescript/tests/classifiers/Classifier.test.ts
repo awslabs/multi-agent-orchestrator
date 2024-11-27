@@ -39,7 +39,7 @@ class MockClassifier extends Classifier {
       };
     }
     return {
-      selectedAgent: this.defaultAgent,
+      selectedAgent: null,
       confidence: 0.5
     };
   }
@@ -156,7 +156,7 @@ describe('Classifier', () => {
 
     test('should return default agent for non-specific input', async () => {
       const result = await classifier.classify('General question', []);
-      expect(result.selectedAgent).toBe(classifier['defaultAgent']);
+      expect(result.selectedAgent).toBe(null);
       expect(result.confidence).toBe(0.5);
     });
   });

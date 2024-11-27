@@ -3,7 +3,7 @@ import re
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 from multi_agent_orchestrator.types import ConversationMessage, AgentTypes, TemplateVariables
-from multi_agent_orchestrator.agents import Agent, BedrockLLMAgent, BedrockLLMAgentOptions
+from multi_agent_orchestrator.agents import Agent
 
 
 @dataclass
@@ -13,14 +13,6 @@ class ClassifierResult:
 
 class Classifier(ABC):
     def __init__(self):
-        self.default_agent = BedrockLLMAgent(
-            options=BedrockLLMAgentOptions(
-            name=AgentTypes.DEFAULT.value,
-            streaming=True,
-            description="A knowledgeable generalist capable of addressing a wide range of topics.\
-            This agent should be selected if no other specialized agent is a better fit."
-        ))
-
         self.agent_descriptions = ""
         self.history = ""
         self.custom_variables: TemplateVariables = {}
