@@ -2,6 +2,7 @@ from typing import Dict, List, Union, AsyncIterable, Optional, Any
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from multi_agent_orchestrator.types import ConversationMessage
+from multi_agent_orchestrator.utils import Logger
 
 @dataclass
 class AgentProcessingResult:
@@ -32,6 +33,9 @@ class AgentOptions:
     region: Optional[str] = None
     save_chat: bool = True
     callbacks: Optional[AgentCallbacks] = None
+    # Optional: Flag to enable/disable agent debug trace logging
+    # If true, the agent will log additional debug information
+    LOG_AGENT_DEBUG_TRACE: Optional[bool] = False
 
 
 class Agent(ABC):
@@ -41,6 +45,7 @@ class Agent(ABC):
         self.description = options.description
         self.save_chat = options.save_chat
         self.callbacks = options.callbacks if options.callbacks is not None else AgentCallbacks()
+        self.LOG_AGENT_DEBUG_TRACE = options.LOG_AGENT_DEBUG_TRACE if options.LOG_AGENT_DEBUG_TRACE is not None else False
 
     def is_streaming_enabled(self) -> bool:
         return False
@@ -63,3 +68,11 @@ class Agent(ABC):
         additional_params: Optional[Dict[str, str]] = None
     ) -> Union[ConversationMessage, AsyncIterable[any]]:
         pass
+
+    def log_debug(self, class_name, message, data=None):
+        if self.LOG_AGENT_DEBUG_TRACE:
+            prefix = f"> {class_name} \n> {self.name} \n>"
+            if data:
+                Logger.info(f"{prefix} {message} \n> {data}")
+            else:
+                Logger.info(f"{prefix} {message} \n>")
