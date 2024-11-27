@@ -1,8 +1,9 @@
 import {
     BedrockRuntimeClient,
-    BedrockAgentRuntimeClient,
     ConverseCommand,
   } from "@aws-sdk/client-bedrock-runtime";
+
+  import { BedrockAgentRuntimeClient, InvokeInlineAgentCommand, AgentActionGroup, KnowledgeBase } from "@aws-sdk/client-bedrock-agent-runtime";
   import { Agent, AgentOptions } from "./agent";
   import {
     BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
@@ -25,12 +26,14 @@ import {
     modelId?: string;
     foundationModel?: string;
     region?: string;
-    actionGroupsList: Record<string, any>[];
-    knowledgeBases?: Record<string, any>[];
+    actionGroupsList: AgentActionGroup[];
+    knowledgeBases?: KnowledgeBase[];
+    enableTrace?: boolean;
     customSystemPrompt?: {
       template?: string;
       variables?: TemplateVariables;
     };
+
   }
   
   export class BedrockInlineAgent extends Agent {
@@ -68,6 +71,8 @@ import {
       'agentId',
       'agentVersion'
     ];
+
+    protected static readonly TOOL_NAME = "inline_agent_creation";
   
     /** Protected class members */
     protected client: BedrockRuntimeClient;
@@ -80,22 +85,25 @@ import {
       topP?: number;
       stopSequences?: string[];
     };
-    protected actionGroupsList: Record<string, any>[];
-    protected knowledgeBases: Record<string, any>[];
+    protected actionGroupsList: AgentActionGroup[];
+    protected knowledgeBases: KnowledgeBase[];
+    protected enableTrace: boolean;
     protected inlineAgentTool: any[];
     protected toolConfig: {
       tool: any[];
-      useToolHandler: (response: ConversationMessage, conversation: ConversationMessage[]) => Promise<ConversationMessage>;
+      useToolHandler: (response: ConversationMessage, conversation: ConversationMessage[], sessionId: string) => Promise<ConversationMessage>;
       toolMaxRecursions: number;
     };
   
     private promptTemplate: string;
     private systemPrompt: string = '';
     private customVariables: TemplateVariables = {};
-  
+
     constructor(options: BedrockInlineAgentOptions) {
       super(options);
   
+
+
       // Initialize clients
       this.client = options.client ?? (
         options.region
@@ -113,6 +121,8 @@ import {
       this.modelId = options.modelId ?? BEDROCK_MODEL_ID_CLAUDE_3_HAIKU;
       this.foundationModel = options.foundationModel ?? BEDROCK_MODEL_ID_CLAUDE_3_SONNET;
   
+      this.enableTrace = options.enableTrace ?? false; 
+
       // Set inference configuration
       this.inferenceConfig = options.inferenceConfig ?? {
         maxTokens: 1000,
@@ -128,7 +138,7 @@ import {
       // Define inline agent tool configuration
       this.inlineAgentTool = [{
         toolSpec: {
-          name: "inline_agent_creation",
+          name: BedrockInlineAgent.TOOL_NAME,
           description: "Create an inline agent with a list of action groups and knowledge bases",
           inputSchema: BedrockInlineAgent.TOOL_INPUT_SCHEMA
         }
@@ -138,7 +148,7 @@ import {
       this.toolConfig = {
         tool: this.inlineAgentTool,
         useToolHandler: this.inlineAgentToolHandler.bind(this),
-        toolMaxRecursions: 1
+        toolMaxRecursions: 1        
       };
   
       // Set prompt template
@@ -162,21 +172,46 @@ import {
       - Maintain a consistent, respectful, and engaging tone tailored
       to the human's communication style.
       - Seamlessly transition between topics as the human introduces new subjects.`;
-  
+
+      this.promptTemplate += "\n\nHere are the action groups that you can use to solve the customer request:\n";
+      this.promptTemplate += "<action_groups>\n";
+
+      for (const actionGroup of this.actionGroupsList) {
+        this.promptTemplate += `Action Group Name: ${actionGroup.actionGroupName ?? ''}\n`;
+        this.promptTemplate += `Action Group Description: ${actionGroup.description ?? ''}\n`;
+        
+      }
+
+      this.promptTemplate += "</action_groups>\n";
+      this.promptTemplate += "\n\nHere are the knowledge bases that you can use to solve the customer request:\n";
+      this.promptTemplate += "<knowledge_bases>\n";
+
+      for (const kb of this.knowledgeBases) {
+        this.promptTemplate += `Knowledge Base ID: ${kb.knowledgeBaseId ?? ''}\n`;
+        this.promptTemplate += `Knowledge Base Description: ${kb.description ?? ''}\n`;
+      }
+
+      this.promptTemplate += "</knowledge_bases>\n"; 
+
+
       if (options.customSystemPrompt) {
         this.setSystemPrompt(
           options.customSystemPrompt.template,
           options.customSystemPrompt.variables
         );
       }
+
+   
+
     }
   
     private async inlineAgentToolHandler(
       response: ConversationMessage,
-      conversation: ConversationMessage[]
+      conversation: ConversationMessage[],
+      sessionId: string 
     ): Promise<ConversationMessage> {
       const responseContentBlocks = response.content;
-  
+
       if (!responseContentBlocks) {
         throw new Error("No content blocks in response");
       }
@@ -187,51 +222,85 @@ import {
           const toolUseName = toolUseBlock?.name;
   
           if (toolUseName === "inline_agent_creation") {
+            // Get valid action group names from the tool use input
             const actionGroupNames = toolUseBlock.input?.action_group_names || [];
             const kbNames = toolUseBlock.input?.knowledge_bases || '';
             const description = toolUseBlock.input?.description || '';
             const userRequest = toolUseBlock.input?.user_request || '';
-  
-            // Fetch relevant action groups
-            const actionGroups = this.actionGroupsList
-              .filter(item => actionGroupNames.includes(item.actionGroupName))
-              .map(item => {
-                const newItem = { ...item };
-                BedrockInlineAgent.KEYS_TO_REMOVE.forEach(key => delete newItem[key]);
-                if ('parentActionGroupSignature' in newItem) {
-                  delete newItem.description;
-                }
-                return newItem;
+
+            if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
+              this.logger.info('Tool Handler Parameters:', {
+                userRequest,
+                actionGroupNames,
+                knowledgeBases: kbNames,
+                description,
+                sessionId
               });
+            }
+
+            const actionGroups = this.actionGroupsList
+              .filter(item => actionGroupNames.includes(item.actionGroupName)) // Keep only requested action groups
+              .map(item => ({
+                actionGroupName: item.actionGroupName,
+                parentActionGroupSignature: item.parentActionGroupSignature,
+                // Only include description if it's not a child action group
+                ...(item.parentActionGroupSignature ? {} : { description: item.description })
+              }));
   
-            // Handle knowledge bases
             const kbs = kbNames && this.knowledgeBases.length
-              ? this.knowledgeBases.filter(item => item.knowledgeBaseId === kbNames[0])
-              : [];
+            ? this.knowledgeBases.filter(item => kbNames.includes(item.knowledgeBaseId))
+            : [];
+
+            if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
+              this.logger.info('Prepared Resources', {
+                actionGroups,
+                knowledgeBases: kbs
+              });
+            }
+
+            if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
+              this.logger.info('Invoking Inline Agent', {
+                foundationModel: this.foundationModel,
+                enableTrace: this.enableTrace,
+                sessionId
+              });
+            }
   
-            const inlineResponse = await this.bedrockAgentClient.invokeInlineAgent({
+            const command = new InvokeInlineAgentCommand({
               actionGroups,
               knowledgeBases: kbs,
-              enableTrace: true,
+              enableTrace: this.enableTrace,
               endSession: false,
               foundationModel: this.foundationModel,
               inputText: userRequest,
               instruction: description,
-              sessionId: 'session-3'
+              sessionId: sessionId
             });
-  
-            const eventstream = inlineResponse.completion;
-            const toolResults: string[] = [];
-  
-            for (const event of eventstream || []) {
-              if ('chunk' in event && event.chunk?.bytes) {
-                toolResults.push(new TextDecoder().decode(event.chunk.bytes));
+
+            let completion = "";
+            const response = await this.bedrockAgentClient.send(command);
+
+            // Process the response from the Amazon Bedrock agent
+            if (response.completion === undefined) {
+              throw new Error("Completion is undefined");
+            }
+
+            // Aggregate chunks of response data
+            for await (const chunkEvent of response.completion) {
+              if (chunkEvent.chunk) {
+                const chunk = chunkEvent.chunk;
+                const decodedResponse = new TextDecoder("utf-8").decode(chunk.bytes);
+                completion += decodedResponse;
+              } else if (this.enableTrace) {
+                // Log chunk event details if tracing is enabled
+                this.logger ? this.logger.info("Chunk Event Details:", JSON.stringify(chunkEvent, null, 2)) : undefined;
               }
             }
-  
+
+            // Return the completed response as a Message object
             return {
               role: ParticipantRole.ASSISTANT,
-              content: [{ text: toolResults.join('') }]
+              content: [{ text: completion }],
             };
           }
         }
@@ -259,6 +328,15 @@ import {
     
         this.updateSystemPrompt();
     
+        // Log prompt if debug trace is enabled
+        if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
+          this.logger.info('System Prompt', {
+            promptTemplate: this.promptTemplate,
+            systemPrompt: this.systemPrompt,
+            conversation: conversation
+          });
+        }
+    
         // Prepare the command to converse with the Bedrock API
         const converseCmd = {
           modelId: this.modelId,
@@ -266,9 +344,22 @@ import {
           system: [{ text: this.systemPrompt }],
           inferenceConfig: this.inferenceConfig,
           toolConfig: {
-            tools: this.inlineAgentTool
-          }
+            tools: this.inlineAgentTool,
+            toolChoice: {
+              tool: {
+                  name: BedrockInlineAgent.TOOL_NAME,
+              },
+          },
+          },
         };
+
+        // Log the command if debug trace is enabled
+        if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
+          this.logger.info('Bedrock Command', {
+            command: converseCmd
+          });
+        }
+
     
         // Call Bedrock's converse API
         const command = new ConverseCommand(converseCmd);
@@ -284,7 +375,7 @@ import {
         if (bedrockResponse.content) {  // Add null check
           for (const content of bedrockResponse.content) {
             if (content && typeof content === 'object' && 'toolUse' in content) {
-              return await this.toolConfig.useToolHandler(bedrockResponse, conversation);
+              return await this.toolConfig.useToolHandler(bedrockResponse, conversation, sessionId);
             }
           }
         }
@@ -297,7 +388,7 @@ import {
           ? error.message 
           : 'Unknown error occurred';
           
-        Logger.logger.error("Error processing request with Bedrock:", errorMessage);
+        this.logger ? this.logger.error("Error processing request with Bedrock:", errorMessage) : undefined;
         throw new Error(`Error processing request with Bedrock: ${errorMessage}`);
       }
     }
