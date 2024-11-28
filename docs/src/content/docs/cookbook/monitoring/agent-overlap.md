@@ -34,6 +34,12 @@ The `AgentOverlapAnalyzer` class is the core of this feature. Here's a breakdown
 
 ## Using Agent Overlap Analysis
 
+
+Install the framework
+
+```bash
+    npm install multi-agent-orchestrator
+```
 To use the Agent Overlap Analysis feature:
 
 ```typescript
