@@ -1,6 +1,7 @@
 import { ConversationMessage } from "../types";
 import { AccumulatorTransform } from "../utils/helpers";
 
+
 export interface AgentProcessingResult {
   // The original input provided by the user
   userInput: string;
@@ -50,6 +51,14 @@ export interface AgentOptions {
 
   // Optional: Determines whether to save the chat, defaults to true
   saveChat?: boolean;
+
+  // Optional: Logger instance
+  // If provided, the agent will use this logger for logging instead of the default console
+  logger?: any | Console;
+
+  // Optional: Flag to enable/disable agent debug trace logging
+  // If true, the agent will log additional debug information
+  LOG_AGENT_DEBUG_TRACE?: boolean;
 }
 
 /**
@@ -69,6 +78,14 @@ export abstract class Agent {
   /** Whether to save the chat or not. */
   saveChat: boolean;
 
+  // Optional logger instance
+  // If provided, the agent will use this logger for logging instead of the default console
+  logger: any | Console = console
+
+  // Flag to enable/disable agent debug trace logging
+  // If true, the agent will log additional debug information
+  LOG_AGENT_DEBUG_TRACE?: boolean;
+
   /**
    * Constructs a new Agent instance.
    * @param options - Configuration options for the agent.
@@ -78,6 +95,10 @@ export abstract class Agent {
     this.id = this.generateKeyFromName(options.name);
     this.description = options.description;
     this.saveChat = options.saveChat ?? true;  // Default to true if not provided
+
+    this.LOG_AGENT_DEBUG_TRACE = options.LOG_AGENT_DEBUG_TRACE ?? false;
+    this.logger = options.logger ?? (this.LOG_AGENT_DEBUG_TRACE ? console : { info: () => {}, warn: () => {}, error: () => {}, debug: () => {}, log: () => {} });
+
   }
 
   /**
@@ -98,6 +119,22 @@ export abstract class Agent {
       .replace(/\s+/g, "-")
       .toLowerCase();
     return key;
+  }
+
+  /**
+   * Logs debug information with class name and agent name prefix if debug tracing is enabled.
+   * @param message - The message to log
+   * @param data - Optional data to include with the log message
+   */
+  protected logDebug(className: string, message: string, data?: any): void {
+    if (this.LOG_AGENT_DEBUG_TRACE && this.logger) {
+      const prefix = `> ${className} \n> ${this.name} \n>`;
+      if (data) {
+        this.logger.info(`${prefix} ${message} \n>`, data);
+      } else {
+        this.logger.info(`${prefix} ${message} \n>`);
+      }
+    }
   }
 
 /**
