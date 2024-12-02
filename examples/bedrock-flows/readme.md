@@ -1,10 +1,11 @@
-## BedrockFlowsAgent examples
+## BedrockFlowsAgent example
 This example, in Python and Typescript, show how to integrate your Bedrock Flows into the multi-agent orchestrator.
+
 This is the flow we used for our testing.
 
 ### tech-agent-flow
 
-In this flow we connected an input node to a prompt node and the output of the prompt is connec to an output node.
+In this flow we connected an input node to a prompt node and the output of the prompt is connected to an output node.
 
 
 ![tech-agent-flow](./tech-agent-flow.png)
