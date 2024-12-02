@@ -16,12 +16,14 @@ The prompt node has 2 inputs:
 
 ![prompt-node-configuration](./prompt-config.png)
 
-Note: as of 2nd of December, 2024, Bedrock Flows does not offer a memory feature that would allow for a flow to keep track of previous interaction with it.
 
-In this example, we show you how to not only integrate your flow into the multi-agent orchestrator, but also, how to integrate your flow converation history into a flow for greater user experience and better results.
+📝 Note
 
+📅 As of December 2, 2024, Bedrock Flows does not include a memory feature to retain previous interactions.
 
+In this example, we demonstrate:
+- 1️⃣ How to integrate your flow into a multi-agent orchestrator.
+- 2️⃣ How to incorporate conversation history into your flow to provide a smoother user experience and generate more accurate results.
 
-
-
+🚀 Let's get started!
 
