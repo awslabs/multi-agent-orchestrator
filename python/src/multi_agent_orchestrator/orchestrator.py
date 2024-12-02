@@ -123,7 +123,7 @@ class MultiAgentOrchestrator:
             self.logger.error(f"Error during intent classification: {str(error)}")
             raise error
         
-    async def process_agent_response(self,
+    async def agent_process_request(self,
                                user_input: str,
                                user_id: str,
                                session_id: str,
@@ -192,7 +192,7 @@ class MultiAgentOrchestrator:
                     streaming=False
                 )
 
-            return await self.process_agent_response(
+            return await self.agent_process_request(
                 user_input, 
                 user_id,
                 session_id, 

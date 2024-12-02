@@ -360,7 +360,7 @@ export class MultiAgentOrchestrator {
     }
   }
   
-  async processAgentResponse(
+  async agentProcessRequest(
     userInput: string,
     userId: string,
     sessionId: string,
@@ -437,7 +437,7 @@ export class MultiAgentOrchestrator {
         };
       }
   
-      return await this.processAgentResponse(userInput, userId, sessionId, classifierResult, additionalParams);
+      return await this.agentProcessRequest(userInput, userId, sessionId, classifierResult, additionalParams);
     } catch (error) {
       return {
         metadata: this.createMetadata(null, userInput, userId, sessionId, additionalParams),
