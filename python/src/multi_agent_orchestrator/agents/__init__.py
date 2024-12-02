@@ -10,6 +10,7 @@ from .comprehend_filter_agent import ComprehendFilterAgent, ComprehendFilterAgen
 from .chain_agent import ChainAgent, ChainAgentOptions
 from .bedrock_translator_agent import BedrockTranslatorAgent, BedrockTranslatorAgentOptions
 from .bedrock_inline_agent import BedrockInlineAgent, BedrockInlineAgentOptions
+from .bedrock_flows_agent import BedrockFlowsAgent, BedrockFlowsAgentOptions
 
 try:
     from .anthropic_agent import AnthropicAgent, AnthropicAgentOptions
@@ -39,7 +40,9 @@ __all__ = [
     'ChainAgent',
     'ChainAgentOptions',
     'BedrockInlineAgent',
-    'BedrockInlineAgentOptions'
+    'BedrockInlineAgentOptions',
+    'BedrockFlowsAgent',
+    'BedrockFlowsAgentOptions'
 ]
 
 if _ANTHROPIC_AVAILABLE:
