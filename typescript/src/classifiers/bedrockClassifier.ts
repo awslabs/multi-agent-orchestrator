@@ -7,6 +7,7 @@ import {
   BedrockRuntimeClient,
   ContentBlock,
   ConverseCommand,
+  ToolConfiguration,
 } from "@aws-sdk/client-bedrock-runtime";
 
 import { Classifier, ClassifierResult } from "./classifier";
@@ -91,7 +92,7 @@ export class BedrockClassifier extends Classifier{
    */
   constructor(options: Partial<BedrockClassifierOptions> = {}) {
     super();
-    
+
     // Initialize default values or use provided options
     this.region = options.region || process.env.REGION;
     this.client = new BedrockRuntimeClient({region:this.region});
@@ -125,19 +126,26 @@ export class BedrockClassifier extends Classifier{
       content: [{ text: inputText }],
     };
 
+    const toolConfig: ToolConfiguration = {
+      tools: this.tools,
+    };
+
+    // ToolChoice is only supported by Anthropic Claude 3 models and by Mistral AI Mistral Large.
+    // https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ToolChoice.html
+    if (this.modelId.includes("anthropic") || this.modelId.includes("mistral-large")) {
+      toolConfig.toolChoice = {
+          tool: {
+              name: "analyzePrompt",
+          },
+      };
+    }
+
     // Prepare the command to converse with the Bedrock API
     const converseCmd = {
       modelId: this.modelId,
       messages: [userMessage],
       system: [{ text: this.systemPrompt }],
-      toolConfig: {
-        tools: this.tools,
-        toolChoice: {
-          tool: {
-            name: "analyzePrompt",
-          },
-        },
-      },
+      toolConfig: toolConfig,
       inferenceConfiguration: {
         maximumTokens: this.inferenceConfig.maxTokens,
         temperature: this.inferenceConfig.temperature,
@@ -163,7 +171,7 @@ export class BedrockClassifier extends Classifier{
               if (!toolUse) {
                 throw new Error("No tool use found in the response");
               }
-        
+
               if (!isClassifierToolInput(toolUse.input)) {
                 throw new Error("Tool input does not match expected structure");
               }
