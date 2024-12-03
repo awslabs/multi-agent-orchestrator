@@ -41,6 +41,15 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 3. Once an agent is selected, it processes the user input.
 4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user.
 
+
+✨✨✨
+
+**Looking for details on Amazon Bedrock’s multi-agent collaboration capability announced during Matt Garman's keynote at re:Invent 2024?**
+
+Visit the [Amazon Bedrock Agents](https://aws.amazon.com/bedrock/agents/) page to explore how multi-agent collaboration enables developers to build, deploy, and manage specialized agents designed for tackling complex workflows efficiently and accurately.
+
+✨✨✨
+
 ## 💬 Demo App
 
 To quickly get a feel for the Multi-Agent Orchestrator, we've provided a Demo App with a few basic agents. This interactive demo showcases the orchestrator's capabilities in a user-friendly interface. To learn more about setting up and running the demo app, please refer to our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/) section.
