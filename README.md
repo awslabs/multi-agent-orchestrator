@@ -123,8 +123,6 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 
   Learn how to scale **Amazon Bedrock Agents** beyond knowledge base limitations using the Multi-Agent Orchestrator framework and **InvokeInlineAgent API**. This article demonstrates dynamic agent creation and knowledge base selection for enterprise-scale AI applications.
 
-Here's the new section to add:
-
 - **[Supercharging Amazon Bedrock Flows](https://community.aws/content/2phMjQ0bqWMg4PBwejBs1uf4YQE/supercharging-amazon-bedrock-flows-with-aws-multi-agent-orchestrator)**
 
   Learn how to enhance **Amazon Bedrock Flows** with conversation memory and multi-flow orchestration using the Multi-Agent Orchestrator framework. This guide shows how to overcome Bedrock Flows' limitations to build more sophisticated AI workflows with persistent memory and intelligent routing between flows.
