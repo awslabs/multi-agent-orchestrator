@@ -11,10 +11,11 @@ from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, Orches
 from multi_agent_orchestrator.agents import (BedrockLLMAgent,
                         BedrockLLMAgentOptions,
                         AgentResponse,
+                        AnthropicAgent, AnthropicAgentOptions,
                         AgentCallbacks)
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 
-class BedrockLLMAgentCallbacks(AgentCallbacks):
+class LLMAgentCallbacks(AgentCallbacks):
     def on_llm_new_token(self, token: str) -> None:
         # handle response streaming here
         print(token, end='', flush=True)
@@ -74,21 +75,37 @@ if __name__ == "__main__":
             cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs \
             related to technology products and services.",
         model_id="anthropic.claude-3-sonnet-20240229-v1:0",
-        callbacks=BedrockLLMAgentCallbacks()
+        callbacks=LLMAgentCallbacks()
     ))
     orchestrator.add_agent(tech_agent)
 
-    # Add some agents
+    # Add a Anthropic weather agent with a tool
+    # weather_agent = AnthropicAgent(AnthropicAgentOptions(
+    #     api_key='api-key',
+    #     name="Weather Agent",
+    #     streaming=False,
+    #     description="Specialized agent for giving weather condition from a city.",
+    #     tool_config={
+    #         'tool': [tool.to_claude_format() for tool in weather_tool.weather_tools],
+    #         'toolMaxRecursions': 5,
+    #         'useToolHandler': weather_tool.anthropic_weather_tool_handler
+    #     },
+    #     callbacks=LLMAgentCallbacks()
+    # ))
+
+    # Add a Bedrock weather agent with a tool
     weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
         name="Weather Agent",
         streaming=False,
         description="Specialized agent for giving weather condition from a city.",
         tool_config={
-            'tool':weather_tool.weather_tool_description,
+            'tool': [tool.to_bedrock_format() for tool in weather_tool.weather_tools],
             'toolMaxRecursions': 5,
-            'useToolHandler': weather_tool.weather_tool_handler
+            'useToolHandler': weather_tool.bedrock_weather_tool_handler
         }
     ))
+
+
     weather_agent.set_system_prompt(weather_tool.weather_tool_prompt)
     orchestrator.add_agent(weather_agent)
 
