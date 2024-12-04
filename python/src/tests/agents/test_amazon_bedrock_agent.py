@@ -51,6 +51,8 @@ async def test_process_request_success(bedrock_agent):
         agentAliasId='test_agent_alias_id',
         sessionId='test_session',
         inputText='Test input',
+        enableTrace=False,
+        streamingConfigurations={},
         sessionState={}
     )
 

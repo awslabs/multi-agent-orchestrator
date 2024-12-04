@@ -20,6 +20,14 @@
 - 🌐 **Universal deployment** — Run anywhere - from AWS Lambda to your local environment or any cloud platform.
 - 📦 **Pre-built agents and classifiers** — A variety of ready-to-use agents and multiple classifier implementations available.
 
+✨✨✨
+
+**Looking for details on Amazon Bedrock’s multi-agent collaboration capability announced during Matt Garman's keynote at re:Invent 2024?**
+
+Visit the [Amazon Bedrock Agents](https://aws.amazon.com/bedrock/agents/) page to explore how multi-agent collaboration enables developers to build, deploy, and manage specialized agents designed for tackling complex workflows efficiently and accurately.
+
+✨✨✨
+
 ## What's the Multi-Agent Orchestrator ❓
 
 The Multi-Agent Orchestrator is a flexible framework for managing multiple AI agents and handling complex conversations. It intelligently routes queries and maintains context across interactions.
@@ -40,6 +48,9 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 2. The Classifier leverages both Agents' Characteristics and Agents' Conversation history to select the most appropriate agent for the task.
 3. Once an agent is selected, it processes the user input.
 4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user.
+
+
+
 
 ## 💬 Demo App
 
@@ -105,6 +116,16 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 - **[Speak Up, AI: Voicing Your Agents with Amazon Connect, Lex, and Bedrock](https://community.aws/content/2mt7CFG7xg4yw6GRHwH9akhg0oD/speak-up-ai-voicing-your-agents-with-amazon-connect-lex-and-bedrock)**
 
   This article demonstrates how to build an AI customer call center. It covers the architecture and setup of specialized AI agents using the Multi-Agent Orchestrator framework interacting with voice via **Amazon Connect** and **Amazon Lex**.
+
+  Here's the section to add under "Use cases and implementations":
+
+- **[Unlock Bedrock InvokeInlineAgent API's Hidden Potential](https://community.aws/content/2pTsHrYPqvAbJBl9ht1XxPOSPjR/unlock-bedrock-invokeinlineagent-api-s-hidden-potential-with-multi-agent-orchestrator)**
+
+  Learn how to scale **Amazon Bedrock Agents** beyond knowledge base limitations using the Multi-Agent Orchestrator framework and **InvokeInlineAgent API**. This article demonstrates dynamic agent creation and knowledge base selection for enterprise-scale AI applications.
+
+- **[Supercharging Amazon Bedrock Flows](https://community.aws/content/2phMjQ0bqWMg4PBwejBs1uf4YQE/supercharging-amazon-bedrock-flows-with-aws-multi-agent-orchestrator)**
+
+  Learn how to enhance **Amazon Bedrock Flows** with conversation memory and multi-flow orchestration using the Multi-Agent Orchestrator framework. This guide shows how to overcome Bedrock Flows' limitations to build more sophisticated AI workflows with persistent memory and intelligent routing between flows.
 
 ### TypeScript Version
 

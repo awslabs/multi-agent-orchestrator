@@ -70,7 +70,8 @@ export default defineConfig({
 						{ label: 'Chain Agent', link: '/agents/built-in/chain-agent' },
 						{ label: 'Comprehend Filter Agent', link: '/agents/built-in/comprehend-filter-agent' },
 						{ label: 'Amazon Bedrock Translator Agent', link: '/agents/built-in/bedrock-translator-agent' },
-						{ label: 'Amazon Bedrock Inline Agent', link: '/agents/built-in/bedrock-inline-agent' }
+						{ label: 'Amazon Bedrock Inline Agent', link: '/agents/built-in/bedrock-inline-agent' },
+						{ label: 'Bedrock Flows Agent', link: '/agents/built-in/bedrock-flows-agent' },
 					  ]
 					},
 					{ label: 'Custom Agents', link: '/agents/custom-agents' },

@@ -7,6 +7,7 @@ export { AnthropicAgent, AnthropicAgentOptions, AnthropicAgentOptionsWithAuth } 
 export { Agent, AgentOptions } from './agents/agent';
 export { Classifier, ClassifierResult } from './classifiers/classifier';
 export { ChainAgent, ChainAgentOptions } from './agents/chainAgent';
+export {BedrockFlowsAgent, BedrockFlowsAgentOptions} from './agents/bedrockFlowsAgent';
 
 export { AgentResponse } from './agents/agent';
 
