@@ -1,0 +1,199 @@
+---
+title: Tool overview
+description: A comprehensive guide to creating, configuring, and using tools within the Multi-Agent Orchestrator System framework
+---
+
+The Multi-Agent Orchestrator System offers flexible storage options for maintaining conversation history. This allows the system to preserve context across multiple interactions and enables agents to provide more coherent and contextually relevant responses.
+
+## Key Concepts
+
+### Platform Compatibility
+One of the system's most powerful features is its ability to seamlessly convert tools for use with different AI platforms:
+
+- Anthropic Claude
+- Amazon Bedrock
+- OpenAI
+
+## Implementing Your First Tool
+
+Let's walk through creating a weather information tool that demonstrates the system's key features. We'll build this example step-by-step, explaining each component's purpose and function.
+
+1. Let's create a `Tool` to fetch weather information for a city.
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // TypeScript implementation coming soon
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.utils import Tool
+
+    def get_weather(city:str):
+        """
+            Fetches weather data for the given city using the Open-Meteo API.
+            Returns the weather data or an error message if the request fails.
+
+            :param city:  The name of the city to get weather for
+            :return:  A formatted weather report for the specified city
+        """
+        return 'It is sunny!'
+
+    # Create a tool definition with clear name and description
+    weather_tool = [Tool(
+        name='get_weather',
+        description="Get the current weather for a given city. Expects city name as input.",
+        func=get_weather
+    )]
+    ```
+  </TabItem>
+</Tabs>
+
+## Integrating Tools with Agents
+
+After defining a tool, we need to integrate it with an agent. This process involves creating a handler that manages tool execution and response processing.
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // TypeScript implementation coming soon
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from typing import Any
+    import asyncio
+    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+    from multi_agent_orchestrator.utils.tool import Tool
+    from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+
+    async def bedrock_weather_tool_handler(
+        response: ConversationMessage,
+        conversation: list[dict[str, Any]]
+    ) -> ConversationMessage:
+        """
+        Handles tool execution requests from the agent and processes the results.
+
+        This handler:
+        1. Extracts tool use requests from the agent's response
+        2. Executes the requested tools with provided parameters
+        3. Formats the results for the agent to understand
+
+        Parameters:
+            response: The agent's response containing tool use requests
+            conversation: The current conversation history
+
+        Returns:
+            A formatted message containing tool execution results
+        """
+        response_content_blocks = response.content
+        tool_results = []
+
+        if not response_content_blocks:
+            raise ValueError("No content blocks in response")
+
+        for content_block in response_content_blocks:
+            # Handle regular text content if present
+            if "text" in content_block:
+                continue
+
+            # Process tool use requests
+            if "toolUse" in content_block:
+                tool_use_block = content_block["toolUse"]
+                tool_use_name = tool_use_block.get("name")
+
+                if tool_use_name == "get_weather":
+                    tool_response = get_weather(tool_use_block["input"].get('city'))
+                    tool_results.append({
+                        "toolResult": {
+                            "toolUseId": tool_use_block["toolUseId"],
+                            "content": [{"json": {"result": tool_response}}],
+                        }
+                    })
+
+        return ConversationMessage(
+            role=ParticipantRole.USER.value,
+            content=tool_results
+        )
+    ```
+  </TabItem>
+</Tabs>
+
+## Creating an Agent with Tool Support
+
+Now we'll create an agent that can use our weather tool. This involves configuring the agent with the tool and its handler.
+
+
+3. Now let's call our agent!
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    # Configure and create the agent with our weather tool
+    weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name='weather-agent',
+        description='Agent specialized in providing weather information for cities',
+        tool_config={
+            'tool': [tool.to_bedrock_format() for tool in weather_tool],
+            'toolMaxRecursions': 5,  # Maximum number of tool calls in one conversation
+            'useToolHandler': bedrock_weather_tool_handler
+        }
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+## Using the Weather Agent
+Here's how to interact with our newly created weather agent:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // TypeScript implementation coming soon
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    async def get_weather_info():
+        # Create a unique user and session ID for tracking conversations
+        user_id = 'user123'
+        session_id = 'session456'
+
+        # Send a weather query to the agent
+        response = await weather_agent.process_request(
+            "what's the weather in Paris?",
+            user_id,
+            session_id,
+            []  # Empty conversation history for this example
+        )
+
+        # Extract and print the response
+        print(response.content[0].get('text'))
+
+    # Run the async function
+    asyncio.run(get_weather_info())
+    ```
+  </TabItem>
+</Tabs>
+
+## Best Practices for Tool Implementation
+
+When creating tools for your Multi-Agent Orchestrator System, consider these guidelines:
+
+1. **Input Validation**: Always validate input parameters before processing them
+2. **Error Handling**: Implement comprehensive error handling to gracefully manage failures
+3. **Documentation**: Provide clear descriptions and examples in your tool documentation
+4. **Testing**: Create unit tests for your tools to ensure reliability
+5. **Security**: Implement appropriate security measures, especially for tools accessing external services
+
+
+## Next Steps
+
+To continue learning about Tools in the Multi-Agent Orchestrator System, head over to our [examples](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/tools) in Github

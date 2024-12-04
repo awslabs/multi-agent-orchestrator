@@ -106,6 +106,12 @@ export default defineConfig({
 					]
 				},
 				{
+					label: 'Tools',
+					items: [
+					  { label: 'Overview', link: '/tools/overview' },
+					]
+				},
+				{
 					label: 'Cookbook',
 					items: [
 					  {
