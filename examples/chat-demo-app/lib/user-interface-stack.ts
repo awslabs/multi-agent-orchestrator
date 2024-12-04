@@ -16,15 +16,18 @@ import * as cognitoIdentityPool from "@aws-cdk/aws-cognito-identitypool-alpha";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins";
-  
 
-export class UserInterfaceStack extends Construct {
+interface UserInterfaceProps extends cdk.StackProps{
+  multiAgentLambdaFunctionUrl:cdk.aws_lambda.FunctionUrl
+}
+
+export class UserInterfaceStack extends cdk.Stack {
     public distribution: cf.Distribution;
     public behaviorOptions: cf.AddBehaviorOptions;
     public authFunction: cf.experimental.EdgeFunction;
 
-  constructor(scope: Construct, id: string) {
-    super(scope, id);
+    constructor(scope: Construct, id: string, props?: UserInterfaceProps ) {
+      super(scope, id, props);
 
     const appPath = path.join(__dirname, "../ui");
     const buildPath = path.join(appPath, "dist");
@@ -242,6 +245,26 @@ export class UserInterfaceStack extends Construct {
       destinationBucket: websiteBucket,
       distribution,
     });
+
+    this.authFunction.addToRolePolicy(
+      new iam.PolicyStatement({
+        sid: "AllowInvokeFunctionUrl",
+        effect: iam.Effect.ALLOW,
+        actions: ["lambda:InvokeFunctionUrl"],
+        resources: [
+          props!.multiAgentLambdaFunctionUrl.functionArn,
+        ],
+        conditions: {
+          StringEquals: { "lambda:FunctionUrlAuthType": "AWS_IAM" },
+        },
+      })
+    );
+
+    this.distribution.addBehavior(
+      "/chat/*",
+      new cloudfront_origins.HttpOrigin(cdk.Fn.select(2, cdk.Fn.split("/", props!.multiAgentLambdaFunctionUrl.url))),
+      this.behaviorOptions
+    );
 
 
 
