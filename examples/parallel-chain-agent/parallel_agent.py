@@ -1,10 +1,10 @@
 import asyncio
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, AsyncIterable
 
 from multi_agent_orchestrator.agents import (
     Agent,
     AgentOptions,
-    BedrockLLMAgent,
 )
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils.logger import Logger
@@ -14,7 +14,7 @@ from multi_agent_orchestrator.utils.logger import Logger
 class ParallelAgentOptions(AgentOptions):
     def __init__(
         self,
-        agents: list[str],
+        agents: list[Agent],
         default_output: str = None,
         **kwargs,
     ):
@@ -25,30 +25,31 @@ class ParallelAgentOptions(AgentOptions):
 
 # Create a new custom agent that allows for parallel processing:
 class ParallelAgent(Agent):
-    def __init__(self, options: ParallelAgentOptions):
+    def __init__(self, options: ParallelAgentOptions, max_workers: int = 16):
         super().__init__(options)
         self.agents = options.agents
         self.default_output = (
             options.default_output or "No output generated from the ParallelAgent."
         )
+        self.max_workers = max_workers
         if len(self.agents) == 0:
             raise ValueError("ParallelAgent requires at least 1 agent to initiate!")
 
-    async def _get_llm_response(
+    def _get_agent_response(
         self,
-        agent: BedrockLLMAgent,
+        agent: Agent,
         input_text: str,
         user_id: str,
         session_id: str,
         chat_history: list[ConversationMessage],
         additional_params: dict[str, str] = None,
     ) -> str:
-        # Get response from LLM agent:
         final_response: ConversationMessage | AsyncIterable[Any]
-
         try:
-            response = await agent.process_request(
-                input_text, user_id, session_id, chat_history, additional_params
+            response = asyncio.run(
+                agent.process_request(
+                    input_text, user_id, session_id, chat_history, additional_params
+                )
             )
             if self.is_conversation_message(response):
                 if response.content and "text" in response.content[0]:
@@ -79,11 +80,11 @@ class ParallelAgent(Agent):
         chat_history: list[ConversationMessage],
         additional_params: dict[str, str] = None,
     ) -> ConversationMessage:
-        # Create tasks for all LLMs to run in parallel:
-        tasks = []
-        for agent in self.agents:
-            tasks.append(
-                self._get_llm_response(
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = []
+            for agent in self.agents:
+                future = executor.submit(
+                    self._get_agent_response,
                     agent,
                     input_text,
                     user_id,
@@ -91,10 +92,11 @@ class ParallelAgent(Agent):
                     chat_history,
                     additional_params,
                 )
-            )
-
-        # Run all tasks concurrently and wait for results:
-        responses = await asyncio.gather(*tasks)
+                futures.append(future)
+            responses = []
+            for future in as_completed(futures):
+                response = future.result()
+                responses.append(response)
 
         # Create dictionary of responses:
         response_dict = {
