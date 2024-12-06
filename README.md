@@ -122,15 +122,6 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
   Learn how to enhance **Amazon Bedrock Flows** with conversation memory and multi-flow orchestration using the Multi-Agent Orchestrator framework. This guide shows how to overcome Bedrock Flows' limitations to build more sophisticated AI workflows with persistent memory and intelligent routing between flows.
 
 
-✨✨✨
-
-**Looking for details on Amazon Bedrock’s multi-agent collaboration capability announced during Matt Garman's keynote at re:Invent 2024?**
-
-Visit the [Amazon Bedrock Agents](https://aws.amazon.com/bedrock/agents/) page to explore how multi-agent collaboration enables developers to build, deploy, and manage specialized agents designed for tackling complex workflows efficiently and accurately.
-
-✨✨✨
-
-
 ### TypeScript Version
 
 #### Installation
