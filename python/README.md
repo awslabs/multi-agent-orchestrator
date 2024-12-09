@@ -189,6 +189,60 @@ For a complete installation (including Anthropic and OpenAi):
 pip install multi-agent-orchestrator[all]
 ```
 
+## Building Locally
+
+This guide explains how to build and install the multi-agent-orchestrator package from source code.
+
+### Prerequisites
+
+- Python 3.11
+- pip package manager
+- Git (to clone the repository)
+
+### Building the Package
+
+1. Navigate to the Python package directory:
+   ```bash
+   cd python
+   ```
+
+2. Install the build dependencies:
+   ```bash
+   python -m pip install build
+   ```
+
+3. Build the package:
+   ```bash
+   python -m build
+   ```
+
+This process will create distribution files in the `python/dist` directory, including a wheel (`.whl`) file.
+
+### Installation
+
+1. Locate the current version number in `setup.cfg`.
+
+2. Install the built package using pip:
+   ```bash
+   pip install ./dist/multi_agent_orchestrator-<VERSION>-py3-none-any.whl
+   ```
+   Replace `<VERSION>` with the version number from `setup.cfg`.
+
+### Example
+
+If the version in `setup.cfg` is `1.2.3`, the installation command would be:
+```bash
+pip install ./dist/multi_agent_orchestrator-1.2.3-py3-none-any.whl
+```
+
+### Troubleshooting
+
+- If you encounter permission errors during installation, you may need to use `sudo` or activate a virtual environment.
+- Make sure you're in the correct directory when running the build and install commands.
+- Clean the `dist` directory before rebuilding if you encounter issues: `rm -rf python/dist/*`
+
+
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/CONTRIBUTING.md) for more details.
