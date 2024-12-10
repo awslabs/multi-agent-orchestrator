@@ -108,7 +108,7 @@ Assistant: [agent-name-b]: Certainly! Our refund policy allows for a full refund
 of purchase if you're not satisfied with our service. After 30 days, refunds are prorated based
 on the remaining time in your billing cycle. Is there a specific concern you have about our service?
 User: "I'm having trouble accessing my account"
-Assistant: [agenc-name-c]: I'm sorry to hear you're having trouble accessing your account.
+Assistant: [agent-name-c]: I'm sorry to hear you're having trouble accessing your account.
 Let's try to resolve this issue. Can you tell me what specific error message or problem
 you're encountering when trying to log in?
 User: "It says my password is incorrect, but I'm sure it's right"
