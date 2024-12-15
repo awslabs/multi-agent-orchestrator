@@ -1,9 +1,31 @@
-<h2 align="center">Multi-Agent Orchestrator&nbsp;<img alt="Static Badge" src="https://img.shields.io/badge/Beta-4e9bcd"></h2>
+<h2 align="center">Multi-Agent Orchestrator&nbsp;</h2>
 
 <p align="center">Flexible and powerful framework for managing multiple AI agents and handling complex conversations.</p>
 
+
 <p align="center">
-<a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
+  <a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
+  <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img alt="npm" src="https://img.shields.io/npm/v/multi-agent-orchestrator.svg?style=flat-square"></a>
+  <a href="https://awslabs.github.io/multi-agent-orchestrator/"><img alt="Documentation" src="https://img.shields.io/badge/docs-book-blue.svg?style=flat-square"></a>
+</p>
+
+<p align="center">
+  <!-- GitHub Stats -->
+  <img src="https://img.shields.io/github/stars/awslabs/multi-agent-orchestrator?style=social" alt="GitHub stars">
+  <img src="https://img.shields.io/github/forks/awslabs/multi-agent-orchestrator?style=social" alt="GitHub forks">
+  <img src="https://img.shields.io/github/watchers/awslabs/multi-agent-orchestrator?style=social" alt="GitHub watchers">
+</p>
+
+<p align="center">
+  <!-- Repository Info -->
+  <img src="https://img.shields.io/github/last-commit/awslabs/multi-agent-orchestrator" alt="Last Commit">
+  <img src="https://img.shields.io/github/issues/awslabs/multi-agent-orchestrator" alt="Issues">
+  <img src="https://img.shields.io/github/issues-pr/awslabs/multi-agent-orchestrator" alt="Pull Requests">
+</p>
+
+<p align="center">
+  <!-- Package Stats -->
+  <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img src="https://img.shields.io/npm/dm/multi-agent-orchestrator?label=npm%20downloads" alt="npm Monthly Downloads"></a>
 </p>
 
 ## 🔖 Features
