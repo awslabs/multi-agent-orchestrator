@@ -319,10 +319,21 @@ For a complete installation (including Anthropic and OpenAi):
 pip install "multi-agent-orchestrator[all]"
 ```
 
-
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/CONTRIBUTING.md) for more details.
+We welcome contributions to the Multi-Agent Orchestrator! If you have ideas, improvements, or new features to add, please:
+
+1. Check our [Contributing Guide](CONTRIBUTING.md) for guidelines
+2. Create a new [GitHub Issue](https://github.com/awslabs/multi-agent-orchestrator/issues)
+3. Submit a pull request
+
+Make sure to follow the existing project structure and include appropriate documentation for new features.
+
+### Thank You for Your Support! 🙏
+
+[![Star History Chart](https://api.star-history.com/svg?repos=awslabs/multi-agent-orchestrator&type=Date)](https://star-history.com/#awslabs/multi-agent-orchestrator&Date)
+
+🌟 **Stay Updated**: Star the repository to be notified about new features, improvements, and exciting developments in the Multi-Agent Orchestrator framework!
 
 # Authors
 
