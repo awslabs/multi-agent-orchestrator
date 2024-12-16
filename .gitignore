@@ -28,3 +28,5 @@ typescript/coverage/**/*
 
 .venv
 examples/chat-chainlit-app/venv
+
+*.env
