@@ -86,13 +86,8 @@ supervisor_agent = AnthropicAgent(AnthropicAgentOptions(
 
 supervisor = SupervisorMode(
     SupervisorModeOptions(
-        name="SupervisorAgent",
-        description="""You are a supervisor agent.
-You are responsible for managing the flow of the conversation.
-You are only allowed to manage the flow of the conversation.
-You are not allowed to answer questions about anything else""",
         supervisor=supervisor_agent,
-        agents=[airlines_agent, travel_agent, tech_agent, sales_agent, health_agent, claim_agent, weather_agent],
+        team=[airlines_agent, travel_agent, tech_agent, sales_agent, health_agent, claim_agent, weather_agent],
         storage=DynamoDbChatStorage(
             table_name=os.getenv('DYNAMODB_CHAT_HISTORY_TABLE_NAME', None),
             region='us-east-1'
