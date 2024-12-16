@@ -1,6 +1,6 @@
 from typing import Dict, List, Union, AsyncIterable, Optional, Any
 from dataclasses import dataclass
-import openai
+from openai import OpenAI
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import (
     ConversationMessage,
@@ -9,15 +9,20 @@ from multi_agent_orchestrator.types import (
     TemplateVariables
 )
 from multi_agent_orchestrator.utils import Logger
+from multi_agent_orchestrator.retrievers import Retriever
+
 
 
 @dataclass
 class OpenAIAgentOptions(AgentOptions):
-    api_key: str
+    api_key: str = None
     model: Optional[str] = None
     streaming: Optional[bool] = None
     inference_config: Optional[Dict[str, Any]] = None
     custom_system_prompt: Optional[Dict[str, Any]] = None
+    retriever: Optional[Retriever] = None
+    client: Optional[Any] = None
+
 
 
 class OpenAIAgent(Agent):
@@ -26,9 +31,16 @@ class OpenAIAgent(Agent):
         if not options.api_key:
             raise ValueError("OpenAI API key is required")
         
-        self.client = openai.OpenAI(api_key=options.api_key)
+        if options.client:
+            self.client = options.client
+        else:
+            self.client = OpenAI(api_key=options.api_key)
+
+                
         self.model = options.model or OPENAI_MODEL_ID_GPT_O_MINI
         self.streaming = options.streaming or False
+        self.retriever: Optional[Retriever] = options.retriever
+
 
         # Default inference configuration
         default_inference_config = {
@@ -72,7 +84,7 @@ class OpenAIAgent(Agent):
                 options.custom_system_prompt.get('variables')
             )
         
-        self.update_system_prompt()
+
 
     def is_streaming_enabled(self) -> bool:
         return self.streaming is True
@@ -86,14 +98,26 @@ class OpenAIAgent(Agent):
         additional_params: Optional[Dict[str, str]] = None
     ) -> Union[ConversationMessage, AsyncIterable[Any]]:
         try:
+
+            self.update_system_prompt()
+
+            system_prompt = self.system_prompt
+
+            if self.retriever:
+                response = await self.retriever.retrieve_and_combine_results(input_text)
+                context_prompt = "\nHere is the context to use to answer the user's question:\n" + response
+                system_prompt += context_prompt
+
+
             messages = [
-                {"role": "system", "content": self.system_prompt},
+                {"role": "system", "content": system_prompt},
                 *[{
                     "role": msg.role.lower(),
                     "content": msg.content[0].get('text', '') if msg.content else ''
                 } for msg in chat_history],
                 {"role": "user", "content": input_text}
             ]
+
 
             request_options = {
                 "model": self.model,
@@ -106,7 +130,7 @@ class OpenAIAgent(Agent):
             }
 
             if self.streaming:
-                return await self.handle_streaming_response(request_options)
+                return self.handle_streaming_response(request_options)
             else:
                 return await self.handle_single_response(request_options)
 
@@ -117,7 +141,7 @@ class OpenAIAgent(Agent):
     async def handle_single_response(self, request_options: Dict[str, Any]) -> ConversationMessage:
         try:
             request_options['stream'] = False
-            chat_completion = await self.client.chat.completions.create(**request_options)
+            chat_completion = self.client.chat.completions.create(**request_options)
 
             if not chat_completion.choices:
                 raise ValueError('No choices returned from OpenAI API')
@@ -136,13 +160,20 @@ class OpenAIAgent(Agent):
             Logger.error(f'Error in OpenAI API call: {str(error)}')
             raise error
 
-    async def handle_streaming_response(self, request_options: Dict[str, Any]) -> AsyncIterable[str]:
-        stream = await self.client.chat.completions.create(**request_options)
-        async for chunk in stream:
-            if content := chunk.choices[0].delta.content:
-                if self.callbacks:
-                    self.callbacks.on_llm_new_token(content)
-                yield content
+    async def handle_streaming_response(self, request_options: Dict[str, Any]) -> Any:
+        
+        try:
+            stream = self.client.chat.completions.create(**request_options)
+            
+            for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    if self.callbacks:
+                        self.callbacks.on_llm_new_token(chunk.choices[0].delta.content)
+                    yield chunk.choices[0].delta.content
+
+        except Exception as error:
+            Logger.error(f"Error getting stream from OpenAI model: {str(error)}")
+            raise error
 
     def set_system_prompt(self, 
                          template: Optional[str] = None,
