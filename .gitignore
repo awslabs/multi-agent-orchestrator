@@ -30,3 +30,4 @@ typescript/coverage/**/*
 examples/chat-chainlit-app/venv
 
 *.env
+*__pycache__
