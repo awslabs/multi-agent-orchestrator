@@ -6,12 +6,14 @@ from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils import Logger
 import os
+from typing import Any
 
 @dataclass
 class LexBotAgentOptions(AgentOptions):
     bot_id: str = None
     bot_alias_id: str = None
     locale_id: str = None
+    client: Optional[Any] = None
 
 class LexBotAgent(Agent):
     def __init__(self, options: LexBotAgentOptions):
@@ -20,7 +22,13 @@ class LexBotAgent(Agent):
             self.region = os.environ.get("AWS_REGION", 'us-east-1')
         else:
             self.region = options.region
-        self.lex_client = boto3.client('lexv2-runtime', region_name=self.region)
+
+        if options.client:
+            self.lex_client = options.client
+
+        else:
+            self.lex_client = boto3.client('lexv2-runtime', region_name=self.region)
+
         self.bot_id = options.bot_id
         self.bot_alias_id = options.bot_alias_id
         self.locale_id = options.locale_id
