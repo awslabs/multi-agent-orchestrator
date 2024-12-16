@@ -2,6 +2,8 @@ import { Agent, AgentOptions } from './agent';
 import { ConversationMessage, OPENAI_MODEL_ID_GPT_O_MINI, ParticipantRole, TemplateVariables } from '../types';
 import OpenAI from 'openai';
 import { Logger } from '../utils/logger';
+import { Retriever } from "../retrievers/retriever";
+
 
 export interface OpenAIAgentOptions extends AgentOptions {
   apiKey: string;
@@ -17,6 +19,8 @@ export interface OpenAIAgentOptions extends AgentOptions {
     template: string;
     variables?: TemplateVariables;
   };
+  retriever?: Retriever;
+
 }
 
 const DEFAULT_MAX_TOKENS = 1000;
@@ -34,6 +38,8 @@ export class OpenAIAgent extends Agent {
   private promptTemplate: string;
   private systemPrompt: string;
   private customVariables: TemplateVariables;
+  protected retriever?: Retriever;
+
 
   constructor(options: OpenAIAgentOptions) {
     super(options);
@@ -46,6 +52,9 @@ export class OpenAIAgent extends Agent {
       topP: options.inferenceConfig?.topP,
       stopSequences: options.inferenceConfig?.stopSequences,
     };
+
+    this.retriever = options.retriever ?? null;
+
 
     this.promptTemplate = `You are a ${this.name}. ${this.description} Provide helpful and accurate information based on your expertise.
     You will engage in an open-ended conversation, providing helpful and accurate information based on your expertise.
@@ -73,7 +82,6 @@ export class OpenAIAgent extends Agent {
       );
     }
 
-    this.updateSystemPrompt();
 
   }
 
@@ -86,9 +94,22 @@ export class OpenAIAgent extends Agent {
     additionalParams?: Record<string, string>
   ): Promise<ConversationMessage | AsyncIterable<any>> {
 
+    this.updateSystemPrompt();
+
+    let systemPrompt = this.systemPrompt;
+
+    if (this.retriever) {
+      // retrieve from Vector store
+      const response = await this.retriever.retrieveAndCombineResults(inputText);
+      const contextPrompt =
+        "\nHere is the context to use to answer the user's question:\n" +
+        response;
+        systemPrompt = systemPrompt + contextPrompt;
+    }
+
 
     const messages = [
-      { role: 'system', content: this.systemPrompt },
+      { role: 'system', content: systemPrompt },
       ...chatHistory.map(msg => ({
         role: msg.role.toLowerCase() as OpenAI.Chat.ChatCompletionMessageParam['role'],
         content: msg.content[0]?.text || ''
