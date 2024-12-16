@@ -20,12 +20,11 @@ To create a new `OpenAIAgent`, you need to provide an `OpenAIAgentOptions` objec
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-
 <Tabs syncKey="runtime">
   <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
 
 ```typescript
-import { OpenAIAgent } from './path-to-openai-agent';
+import { OpenAIAgent } from 'multi-agent-orchestrator';
 
 const agent = new OpenAIAgent({
   name: 'OpenAI Assistant',
@@ -39,29 +38,101 @@ const agent = new OpenAIAgent({
     topP: 0.9,
     stopSequences: ['Human:', 'AI:']
   },
-  systemPrompt: 'You are a helpful AI assistant specialized in answering questions about technology.'
+  customSystemPrompt: {
+    template: 'You are a helpful AI assistant specialized in {{DOMAIN}}',
+    variables: {
+      DOMAIN: 'technology'
+    }
+  }
 });
 ```
   </TabItem>
+  <TabItem label="Python"  icon="seti:python" color="yellow" >
 
+```python
+from multi_agent_orchestrator import OpenAIAgent, OpenAIAgentOptions
+
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',
+    description='A versatile AI assistant powered by OpenAI models',
+    api_key='your-openai-api-key',
+    model='gpt-3.5-turbo',
+    streaming=True,
+    inference_config={
+        'maxTokens': 500,
+        'temperature': 0.7,
+        'topP': 0.9,
+        'stopSequences': ['Human:', 'AI:']
+    },
+    custom_system_prompt={
+        'template': 'You are a helpful AI assistant specialized in {{DOMAIN}}',
+        'variables': {
+            'DOMAIN': 'technology'
+        }
+    }
+))
+```
+  </TabItem>
 </Tabs>
-
 
 ### OpenAIAgentOptions
 
-The `OpenAIAgentOptions` extends the base `AgentOptions` and includes the following properties:
+The `OpenAIAgentOptions` extends the base `AgentOptions` to provide configuration for the OpenAI agent:
 
-- `name` (required): A string representing the name of the agent.
-- `description` (required): A string describing the agent's capabilities and expertise.
-- `apiKey` (required): Your OpenAI API key.
-- `model` (optional): The OpenAI model to use. Defaults to `OPENAI_MODEL_ID_GPT_O_MINI`.
-- `streaming` (optional): Whether to use streaming responses. Defaults to `false`.
-- `inferenceConfig` (optional): An object to customize the inference behavior:
-  - `maxTokens` (optional): The maximum number of tokens to generate. Defaults to 1000.
-  - `temperature` (optional): Controls randomness in output generation.
-  - `topP` (optional): Controls diversity of output generation.
-  - `stopSequences` (optional): An array of sequences that, when generated, will stop the generation process.
-- `systemPrompt` (optional): A string representing the initial system prompt for the agent.
+<Tabs syncKey="runtime">
+<TabItem label="Typescript" icon="seti:typescript" color="blue">
+
+The TypeScript interface extends `AgentOptions` with the following fields:
+
+- `apiKey` (required): Your OpenAI API key for authentication.
+- `model` (optional): The OpenAI model identifier to use (e.g., 'gpt-4', 'gpt-3.5-turbo'). Defaults to `OPENAI_MODEL_ID_GPT_O_MINI`.
+- `streaming` (optional): Boolean flag to enable/disable streaming responses. Defaults to `false`.
+- `inferenceConfig` (optional): Configuration object for the model's inference behavior:
+```typescript
+{
+  maxTokens?: number;    // Maximum tokens to generate (default: 1000)
+  temperature?: number;  // Controls randomness (0-1)
+  topP?: number;        // Controls diversity via nucleus sampling
+  stopSequences?: string[];  // Sequences that stop generation
+}
+```
+- `customSystemPrompt` (optional): System prompt configuration:
+```typescript
+{
+  template: string;    // The prompt template string
+  variables?: {        // Key-value pairs for template variables
+    [key: string]: string | string[];
+  }
+}
+```
+
+</TabItem>
+<TabItem label="Python" icon="seti:python" color="yellow">
+
+The Python class extends `AgentOptions` with the following fields:
+
+- `api_key` (required): String containing your OpenAI API key for authentication.
+- `model` (Optional[str]): The OpenAI model identifier to use (e.g., 'gpt-4', 'gpt-3.5-turbo'). Defaults to `OPENAI_MODEL_ID_GPT_O_MINI`.
+- `streaming` (Optional[bool]): Flag to enable/disable streaming responses. Defaults to `False`.
+- `inference_config` (Optional[Dict[str, Any]]): Dictionary configuring the model's inference behavior:
+```python
+{
+  'maxTokens': int,      # Maximum tokens to generate (default: 1000)
+  'temperature': float,  # Controls randomness (0-1)
+  'topP': float,        # Controls diversity via nucleus sampling
+  'stopSequences': List[str]  # Sequences that stop generation
+}
+```
+- `custom_system_prompt` (Optional[Dict[str, Any]]): Dictionary configuring the system prompt:
+```python
+{
+  'template': str,      # The prompt template string
+  'variables': dict     # Key-value pairs for template variables
+}
+```
+
+</TabItem>
+</Tabs>
 
 ## Setting the System Prompt
 
@@ -75,15 +146,26 @@ You can set or update the system prompt for the OpenAIAgent in two ways:
 ```typescript
 const agent = new OpenAIAgent({
   // ... other options ...
-  systemPrompt: 'You are a helpful AI assistant specialized in answering questions about technology.'
+  customSystemPrompt: {
+    template: 'You are a helpful AI assistant specialized in answering questions about technology.'
+  }
 });
+```
+  </TabItem>
+  <TabItem label="Python"  icon="seti:python" color="yellow" >
+
+```python
+agent = OpenAIAgent(OpenAIAgentOptions(
+    # ... other options ...
+    custom_system_prompt={
+        'template': 'You are a helpful AI assistant specialized in answering questions about technology.'
+    }
+))
 ```
   </TabItem>
 </Tabs>
 
-
-
-2. Using the `setSystemPrompt` method after initialization:
+2. Using the `setSystemPrompt/set_system_prompt` method after initialization:
 
 <Tabs syncKey="runtime">
   <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
@@ -101,10 +183,24 @@ agent.setSystemPrompt(
 );
 ```
   </TabItem>
+  <TabItem label="Python"  icon="seti:python" color="yellow" >
+
+```python
+agent.set_system_prompt(
+    template="""You are an AI assistant specialized in {{DOMAIN}}.
+    Your main goal is to {{GOAL}}.
+    Always maintain a {{TONE}} tone in your responses.""",
+    variables={
+        "DOMAIN": "artificial intelligence",
+        "GOAL": "explain complex AI concepts in simple terms",
+        "TONE": "friendly and educational"
+    }
+)
+```
+  </TabItem>
 </Tabs>
 
-
-The `setSystemPrompt` method allows you to dynamically change the agent's behavior and focus without creating a new instance. You can use placeholders in the prompt template and provide values for them in the second argument.
+The `setSystemPrompt/set_system_prompt` method allows you to dynamically change the agent's behavior and focus without creating a new instance. You can use placeholders in the prompt template and provide values for them in the second argument.
 
 ## Usage
 
@@ -126,8 +222,22 @@ const response = await orchestrator.routeRequest(
 );
 ```
   </TabItem>
-</Tabs>
+  <TabItem label="Python"  icon="seti:python" color="yellow" >
 
+```python
+from multi_agent_orchestrator import MultiAgentOrchestrator
+
+orchestrator = MultiAgentOrchestrator()
+orchestrator.add_agent(agent)
+
+response = await orchestrator.route_request(
+    "What is the capital of France?",
+    "user123",
+    "session456"
+)
+```
+  </TabItem>
+</Tabs>
 
 ## Streaming Responses
 
@@ -150,10 +260,22 @@ if (Symbol.asyncIterator in streamingResponse) {
 }
 ```
   </TabItem>
+  <TabItem label="Python"  icon="seti:python" color="yellow" >
 
+```python
+streaming_response = await orchestrator.route_request(
+    "Tell me a long story about a brave knight",
+    "user123",
+    "session456"
+)
+
+# Check if the response is streaming
+if hasattr(streaming_response, '__aiter__'):
+    async for chunk in streaming_response:
+        print(chunk, end='', flush=True)  # Process each chunk of the response
+```
+  </TabItem>
 </Tabs>
-
-
 
 ## Best Practices
 
@@ -163,5 +285,15 @@ if (Symbol.asyncIterator in streamingResponse) {
 4. **Error Handling**: Implement additional error handling in your application to manage potential API failures gracefully.
 5. **Rate Limiting**: Be aware of OpenAI's rate limits and implement appropriate throttling if necessary.
 6. **System Prompts**: Craft clear and specific system prompts to guide the model's behavior and improve response quality for your use case.
+
+## Implementation Notes
+
+When implementing the OpenAIAgent in your application:
+
+- In Python, use snake_case naming conventions (e.g., `custom_system_prompt`, `set_system_prompt`)
+- In TypeScript, use camelCase naming conventions (e.g., `customSystemPrompt`, `setSystemPrompt`)
+- Both implementations support async/await patterns for handling responses
+- Both versions include callback support for streaming responses
+- Error handling patterns are consistent across both implementations
 
 By leveraging the OpenAIAgent, you can create sophisticated, context-aware AI agents capable of handling a wide range of tasks and interactions, all powered by OpenAI's state-of-the-art language models.
