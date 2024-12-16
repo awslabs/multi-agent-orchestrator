@@ -13,31 +13,71 @@ The `OpenAIAgent` is a powerful agent class in the Multi-Agent Orchestrator fram
 - Customizable inference configuration
 - Handles conversation history for context-aware responses
 - Customizable system prompts
+- Support for retrievers to enhance responses with additional context
 
 ## Creating an OpenAIAgent
 
-To create a new `OpenAIAgent`, you need to provide an `OpenAIAgentOptions` object. Here's an example of how to create an OpenAIAgent:
+### Minimal Example (Required Fields Only)
+
+Here's the simplest way to create an OpenAIAgent with just the required fields:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 
 ```typescript
 import { OpenAIAgent } from 'multi-agent-orchestrator';
 
 const agent = new OpenAIAgent({
+  name: 'OpenAI Assistant',  // Required
+  description: 'A versatile AI assistant', // Required
+  apiKey: 'your-openai-api-key' // Required
+});
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python" color="yellow">
+
+```python
+from multi_agent_orchestrator import OpenAIAgent, OpenAIAgentOptions
+
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',  # Required
+    description='A versatile AI assistant',  # Required
+    api_key='your-openai-api-key'  # Required
+))
+```
+  </TabItem>
+</Tabs>
+
+### Full Example with All Options
+
+Here's an example showing all available configuration options:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+
+```typescript
+import { OpenAIAgent } from 'multi-agent-orchestrator';
+
+const agent = new OpenAIAgent({
+  // Required fields
   name: 'OpenAI Assistant',
   description: 'A versatile AI assistant powered by OpenAI models',
   apiKey: 'your-openai-api-key',
+  
+  // Optional fields
   model: 'gpt-3.5-turbo',
   streaming: true,
+  retriever: customRetriever, // Custom retriever for additional context
+  
   inferenceConfig: {
     maxTokens: 500,
     temperature: 0.7,
     topP: 0.9,
     stopSequences: ['Human:', 'AI:']
   },
+  
   customSystemPrompt: {
     template: 'You are a helpful AI assistant specialized in {{DOMAIN}}',
     variables: {
@@ -47,23 +87,30 @@ const agent = new OpenAIAgent({
 });
 ```
   </TabItem>
-  <TabItem label="Python"  icon="seti:python" color="yellow" >
+  <TabItem label="Python" icon="seti:python" color="yellow">
 
 ```python
 from multi_agent_orchestrator import OpenAIAgent, OpenAIAgentOptions
 
 agent = OpenAIAgent(OpenAIAgentOptions(
+    # Required fields
     name='OpenAI Assistant',
     description='A versatile AI assistant powered by OpenAI models',
     api_key='your-openai-api-key',
+    
+    # Optional fields
     model='gpt-3.5-turbo',
     streaming=True,
+    client=custom_openai_client,  # Custom OpenAI client instance
+    retriever=custom_retriever,   # Custom retriever for additional context
+    
     inference_config={
         'maxTokens': 500,
         'temperature': 0.7,
         'topP': 0.9,
         'stopSequences': ['Human:', 'AI:']
     },
+    
     custom_system_prompt={
         'template': 'You are a helpful AI assistant specialized in {{DOMAIN}}',
         'variables': {
@@ -77,17 +124,21 @@ agent = OpenAIAgent(OpenAIAgentOptions(
 
 ### OpenAIAgentOptions
 
-The `OpenAIAgentOptions` extends the base `AgentOptions` to provide configuration for the OpenAI agent:
+The `OpenAIAgentOptions` extends the base `AgentOptions` with the following fields:
 
 <Tabs syncKey="runtime">
-<TabItem label="Typescript" icon="seti:typescript" color="blue">
+<TabItem label="TypeScript" icon="seti:typescript" color="blue">
 
-The TypeScript interface extends `AgentOptions` with the following fields:
+Required fields:
+- `name` (required): Name of the agent
+- `description` (required): Description of the agent's capabilities
+- `apiKey` (required): Your OpenAI API key for authentication
 
-- `apiKey` (required): Your OpenAI API key for authentication.
-- `model` (optional): The OpenAI model identifier to use (e.g., 'gpt-4', 'gpt-3.5-turbo'). Defaults to `OPENAI_MODEL_ID_GPT_O_MINI`.
-- `streaming` (optional): Boolean flag to enable/disable streaming responses. Defaults to `false`.
-- `inferenceConfig` (optional): Configuration object for the model's inference behavior:
+Optional fields:
+- `model` (optional): The OpenAI model identifier (e.g., 'gpt-4', 'gpt-3.5-turbo'). Defaults to `OPENAI_MODEL_ID_GPT_O_MINI`
+- `streaming` (optional): Boolean flag for streaming responses. Defaults to `false`
+- `retriever` (optional): Custom retriever instance for enhancing responses with additional context
+- `inferenceConfig` (optional): Configuration object for model inference:
 ```typescript
 {
   maxTokens?: number;    // Maximum tokens to generate (default: 1000)
@@ -109,12 +160,17 @@ The TypeScript interface extends `AgentOptions` with the following fields:
 </TabItem>
 <TabItem label="Python" icon="seti:python" color="yellow">
 
-The Python class extends `AgentOptions` with the following fields:
+Required fields:
+- `name` (required): Name of the agent
+- `description` (required): Description of the agent's capabilities
+- `api_key` (required): String containing your OpenAI API key for authentication
 
-- `api_key` (required): String containing your OpenAI API key for authentication.
-- `model` (Optional[str]): The OpenAI model identifier to use (e.g., 'gpt-4', 'gpt-3.5-turbo'). Defaults to `OPENAI_MODEL_ID_GPT_O_MINI`.
-- `streaming` (Optional[bool]): Flag to enable/disable streaming responses. Defaults to `False`.
-- `inference_config` (Optional[Dict[str, Any]]): Dictionary configuring the model's inference behavior:
+Optional fields:
+- `model` (Optional[str]): The OpenAI model identifier. Defaults to `OPENAI_MODEL_ID_GPT_O_MINI`
+- `streaming` (Optional[bool]): Flag for streaming responses. Defaults to `False`
+- `client` (Optional[Any]): Custom OpenAI client instance
+- `retriever` (Optional[Retriever]): Custom retriever instance for enhancing responses
+- `inference_config` (Optional[Dict[str, Any]]): Dictionary configuring model inference:
 ```python
 {
   'maxTokens': int,      # Maximum tokens to generate (default: 1000)
@@ -141,7 +197,7 @@ You can set or update the system prompt for the OpenAIAgent in two ways:
 1. During initialization:
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 
 ```typescript
 const agent = new OpenAIAgent({
@@ -152,7 +208,7 @@ const agent = new OpenAIAgent({
 });
 ```
   </TabItem>
-  <TabItem label="Python"  icon="seti:python" color="yellow" >
+  <TabItem label="Python" icon="seti:python" color="yellow">
 
 ```python
 agent = OpenAIAgent(OpenAIAgentOptions(
@@ -168,7 +224,7 @@ agent = OpenAIAgent(OpenAIAgentOptions(
 2. Using the `setSystemPrompt/set_system_prompt` method after initialization:
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 
 ```typescript
 agent.setSystemPrompt(
@@ -183,7 +239,7 @@ agent.setSystemPrompt(
 );
 ```
   </TabItem>
-  <TabItem label="Python"  icon="seti:python" color="yellow" >
+  <TabItem label="Python" icon="seti:python" color="yellow">
 
 ```python
 agent.set_system_prompt(
@@ -200,14 +256,82 @@ agent.set_system_prompt(
   </TabItem>
 </Tabs>
 
-The `setSystemPrompt/set_system_prompt` method allows you to dynamically change the agent's behavior and focus without creating a new instance. You can use placeholders in the prompt template and provide values for them in the second argument.
-
 ## Usage
 
-Once you've created an OpenAIAgent, you can add it to the Multi-Agent Orchestrator and use it to process requests:
+There are two ways to use the OpenAIAgent: directly or through the Multi-Agent Orchestrator.
+
+### Direct Agent Usage
+
+You can call the agent directly when you want to use a single agent without the orchestrator's routing capabilities:
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+
+```typescript
+import { OpenAIAgent, ClassifierResult } from 'multi-agent-orchestrator';
+
+const agent = new OpenAIAgent({
+  name: 'OpenAI Assistant',
+  description: 'A versatile AI assistant',
+  apiKey: 'your-openai-api-key'
+});
+
+// Create a classifier result for direct agent usage
+const classifierResult = {
+  selectedAgent: agent,
+  confidence: 1.0
+};
+
+// Call the agent directly
+const response = await orchestrator.agentProcessRequest(
+  "What is the capital of France?",
+  "user123",
+  "session456",
+  classifierResult,
+  {} // additional parameters (optional)
+);
+
+console.log(response.output); // Access the agent's response
+console.log(response.metadata); // Access metadata about the request
+console.log(response.streaming); // Check if response is streaming
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python" color="yellow">
+
+```python
+from multi_agent_orchestrator import OpenAIAgent, OpenAIAgentOptions, ClassifierResult
+
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',
+    description='A versatile AI assistant',
+    api_key='your-openai-api-key'
+))
+
+# Create a classifier result for direct agent usage
+classifier_result = ClassifierResult(selected_agent=agent, confidence=1.0)
+
+# Call the agent directly
+response = await orchestrator.agent_process_request(
+    "What is the capital of France?",
+    "user123",
+    "session456",
+    classifier_result,
+    {} # additional parameters (optional)
+)
+
+print(response.output)  # Access the agent's response
+print(response.metadata)  # Access metadata about the request
+print(response.streaming)  # Check if response is streaming
+```
+  </TabItem>
+</Tabs>
+
+### Using through the Orchestrator
+
+When you want to use the agent as part of a multi-agent system, add it to the Multi-Agent Orchestrator:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 
 ```typescript
 import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
@@ -215,14 +339,20 @@ import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
 const orchestrator = new MultiAgentOrchestrator();
 orchestrator.addAgent(agent);
 
+// The orchestrator will automatically handle agent selection and routing
 const response = await orchestrator.routeRequest(
   "What is the capital of France?",
   "user123",
-  "session456"
+  "session456",
+  {} // additional parameters (optional)
 );
+
+console.log(response.output); // Access the agent's response
+console.log(response.metadata); // Access metadata about the request
+console.log(response.streaming); // Check if response is streaming
 ```
   </TabItem>
-  <TabItem label="Python"  icon="seti:python" color="yellow" >
+  <TabItem label="Python" icon="seti:python" color="yellow">
 
 ```python
 from multi_agent_orchestrator import MultiAgentOrchestrator
@@ -230,21 +360,32 @@ from multi_agent_orchestrator import MultiAgentOrchestrator
 orchestrator = MultiAgentOrchestrator()
 orchestrator.add_agent(agent)
 
+# The orchestrator will automatically handle agent selection and routing
 response = await orchestrator.route_request(
     "What is the capital of France?",
     "user123",
-    "session456"
+    "session456",
+    {} # additional parameters (optional)
 )
+
+print(response.output)  # Access the agent's response
+print(response.metadata)  # Access metadata about the request
+print(response.streaming)  # Check if response is streaming
 ```
   </TabItem>
 </Tabs>
+
+The key differences between these approaches are:
+- Direct usage is simpler when you only need one agent
+- Orchestrator usage provides automatic agent selection and handles multiple agents
+- Both methods return an `AgentResponse` with the same structure
 
 ## Streaming Responses
 
 If you've enabled streaming (`streaming: true` in the options), the agent will return an AsyncIterable that you can use to process the response in chunks:
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 
 ```typescript
 const streamingResponse = await orchestrator.routeRequest(
@@ -260,7 +401,7 @@ if (Symbol.asyncIterator in streamingResponse) {
 }
 ```
   </TabItem>
-  <TabItem label="Python"  icon="seti:python" color="yellow" >
+  <TabItem label="Python" icon="seti:python" color="yellow">
 
 ```python
 streaming_response = await orchestrator.route_request(
@@ -273,6 +414,47 @@ streaming_response = await orchestrator.route_request(
 if hasattr(streaming_response, '__aiter__'):
     async for chunk in streaming_response:
         print(chunk, end='', flush=True)  # Process each chunk of the response
+```
+  </TabItem>
+</Tabs>
+
+## Using Retrievers
+
+The OpenAIAgent supports retrievers to enhance responses with additional context. Here's how to use a retriever:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+
+```typescript
+import { OpenAIAgent, CustomRetriever } from 'multi-agent-orchestrator';
+
+const retriever = new CustomRetriever({
+  // Retriever configuration
+});
+
+const agent = new OpenAIAgent({
+  name: 'OpenAI Assistant',
+  description: 'Context-aware AI assistant',
+  apiKey: 'your-openai-api-key',
+  retriever: retriever
+});
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python" color="yellow">
+
+```python
+from multi_agent_orchestrator import OpenAIAgent, OpenAIAgentOptions, CustomRetriever
+
+retriever = CustomRetriever(
+    # Retriever configuration
+)
+
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',
+    description='Context-aware AI assistant',
+    api_key='your-openai-api-key',
+    retriever=retriever
+))
 ```
   </TabItem>
 </Tabs>
