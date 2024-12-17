@@ -3,7 +3,7 @@ title: Tool overview
 description: A comprehensive guide to creating, configuring, and using tools within the Multi-Agent Orchestrator System framework
 ---
 
-The Multi-Agent Orchestrator System offers flexible storage options for maintaining conversation history. This allows the system to preserve context across multiple interactions and enables agents to provide more coherent and contextually relevant responses.
+The Multi-Agent Orchestrator System offers flexible tool solution.
 
 ## Key Concepts
 
@@ -12,7 +12,6 @@ One of the system's most powerful features is its ability to seamlessly convert 
 
 - Anthropic Claude
 - Amazon Bedrock
-- OpenAI
 
 ## Implementing Your First Tool
 
@@ -30,7 +29,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import Tool
+    from multi_agent_orchestrator.utils import Tools
 
     def get_weather(city:str):
         """
@@ -43,16 +42,16 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
         return 'It is sunny!'
 
     # Create a tool definition with clear name and description
-    weather_tool = [Tool(
+    weather_tools:Tools = Tools(tools=[Tool(
         name='get_weather',
         description="Get the current weather for a given city. Expects city name as input.",
         func=get_weather
-    )]
+    )])
     ```
   </TabItem>
 </Tabs>
 
-## Integrating Tools with Agents
+## Integrating Tools with Agents with a custom tool handler
 
 After defining a tool, we need to integrate it with an agent. This process involves creating a handler that manages tool execution and response processing.
 
@@ -67,7 +66,7 @@ After defining a tool, we need to integrate it with an agent. This process invol
     from typing import Any
     import asyncio
     from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
-    from multi_agent_orchestrator.utils.tool import Tool
+    from multi_agent_orchestrator.utils.tool import Tools
     from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 
     async def bedrock_weather_tool_handler(
@@ -110,7 +109,7 @@ After defining a tool, we need to integrate it with an agent. This process invol
                     tool_results.append({
                         "toolResult": {
                             "toolUseId": tool_use_block["toolUseId"],
-                            "content": [{"json": {"result": tool_response}}],
+                            "content": [{"text":tool_response}],
                         }
                     })
 
@@ -141,7 +140,7 @@ Now we'll create an agent that can use our weather tool. This involves configuri
         name='weather-agent',
         description='Agent specialized in providing weather information for cities',
         tool_config={
-            'tool': [tool.to_bedrock_format() for tool in weather_tool],
+            'tool': weather_tools,
             'toolMaxRecursions': 5,  # Maximum number of tool calls in one conversation
             'useToolHandler': bedrock_weather_tool_handler
         }
