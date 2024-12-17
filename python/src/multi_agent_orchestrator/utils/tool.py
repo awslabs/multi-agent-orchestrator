@@ -1,8 +1,9 @@
-from typing import Dict, Any, Optional, Callable, Type, get_type_hints, Union
+from typing import Any, Optional, Callable, Type, get_type_hints, Union
 import inspect
 from functools import wraps
 import re
 from dataclasses import dataclass
+from multi_agent_orchestrator.types import AgentProviderType, ConversationMessage, ParticipantRole
 
 @dataclass
 class PropertyDefinition:
@@ -10,11 +11,31 @@ class PropertyDefinition:
     description: str
     enum: Optional[list] = None
 
+@dataclass
+class ToolResult:
+    tool_use_id: str
+    content: Any
+
+    def to_anthropic_format(self) -> dict:
+        return {
+            "type": "tool_result",
+            "tool_use_id": self.tool_use_id,
+            "content": self.content
+        }
+
+    def to_bedrock_format(self) -> dict:
+        return {
+            "toolResult": {
+                "toolUseId": self.tool_use_id,
+                "content": [{"text": self.content}]
+            }
+        }
+
 class ToolBuilder:
     def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
-        self.properties: Dict[str, Dict[str, Any]] = {}
+        self.properties: dict[str, dict[str, Any]] = {}
         self.required: list[str] = []
 
     def add_property(self,
@@ -45,32 +66,29 @@ class Tool:
     def __init__(self,
                 name: str,
                 description: str,
-                properties: Optional[Dict[str, Dict[str, Any]]] = None,
+                properties: Optional[dict[str, dict[str, Any]]] = None,
                 required: Optional[list[str]] = None,
                 func: Optional[Callable] = None,
-                enum_values: Optional[Dict[str, list]] = None):
+                enum_values: Optional[dict[str, list]] = None):
 
         self.name = name
         self.func_description = description
         self.enum_values = enum_values or {}
 
-        if func:
-            # Extract properties from the function
-            self.properties = self._extract_properties(func)
-            self.required = list(self.properties.keys())
-            self.func = self._wrap_function(func)
-        else:
-            # Use provided properties
-            self.properties = properties or {}
-            self.required = required or list(self.properties.keys())
-            self.func = None
+        if not func:
+            raise ValueError("Function must be provided")
+
+        # Extract properties from the function if not passed
+        self.properties = properties or self._extract_properties(func)
+        self.required = required or list(self.properties.keys())
+        self.func = self._wrap_function(func)
 
         # Add enum values to properties if they exist
         for prop_name, enum_vals in self.enum_values.items():
             if prop_name in self.properties:
                 self.properties[prop_name]["enum"] = enum_vals
 
-    def _extract_properties(self, func: Callable) -> Dict[str, Dict[str, Any]]:
+    def _extract_properties(self, func: Callable) -> dict[str, dict[str, Any]]:
         """Extract properties from the function's signature and type hints"""
         # Get function's type hints and signature
         type_hints = get_type_hints(func)
@@ -128,17 +146,17 @@ class Tool:
         return wrapper
 
     @classmethod
-    def from_function(cls, name: str, description: str, func: Callable, enum_values: Optional[Dict[str, list]] = None) -> 'Tool':
+    def from_function(cls, name: str, description: str, func: Callable, enum_values: Optional[dict[str, list]] = None) -> 'Tool':
         """Create a Tool instance from a function"""
         return cls(name=name, description=description, func=func, enum_values=enum_values)
 
     @classmethod
-    def from_dict(cls, name: str, description: str, properties: Dict[str, Dict[str, Any]], required: Optional[list[str]] = None) -> 'Tool':
+    def from_dict(cls, name: str, description: str, properties: dict[str, dict[str, Any]], required: Optional[list[str]] = None) -> 'Tool':
         """Create a Tool instance from a dictionary of properties"""
         return cls(name=name, description=description, properties=properties, required=required)
 
     @classmethod
-    def from_property_definitions(cls, name: str, description: str, properties: Dict[str, PropertyDefinition]) -> 'Tool':
+    def from_property_definitions(cls, name: str, description: str, properties: dict[str, PropertyDefinition]) -> 'Tool':
         """Create a Tool instance from PropertyDefinition objects"""
         formatted_properties = {}
         for prop_name, prop_def in properties.items():
@@ -157,7 +175,7 @@ class Tool:
         """Create a ToolBuilder instance"""
         return ToolBuilder(name, description)
 
-    def to_claude_format(self) -> Dict[str, Any]:
+    def to_claude_format(self) -> dict[str, Any]:
         """Convert generic tool definition to Claude format"""
         return {
             "name": self.name,
@@ -169,7 +187,7 @@ class Tool:
             }
         }
 
-    def to_bedrock_format(self) -> Dict[str, Any]:
+    def to_bedrock_format(self) -> dict[str, Any]:
         """Convert generic tool definition to Bedrock format"""
         return {
             "toolSpec": {
@@ -185,7 +203,7 @@ class Tool:
             }
         }
 
-    def to_openai_format(self) -> Dict[str, Any]:
+    def to_openai_format(self) -> dict[str, Any]:
         """Convert generic tool definition to OpenAI format"""
         return {
             "type": "function",
@@ -200,3 +218,93 @@ class Tool:
                 }
             }
         }
+
+
+    def _get_tool_use_block(self, provider_type:AgentProviderType, block: dict) -> Union[dict, None]:
+        """Extract tool use block based on platform format."""
+        if provider_type == AgentProviderType.BEDROCK.value and "toolUse" in block:
+            return block["toolUse"]
+        elif provider_type ==  AgentProviderType.ANTHROPIC.value and block.type == "tool_use":
+            return block
+        return None
+
+
+class Tools:
+    def __init__(self, tools:list[Tool]):
+        self.tools:list[Tool] = tools
+
+    async def tool_handler(self, provider_type, response: Any, _conversation: list[dict[str, Any]]) -> Any:
+        if not response.content:
+            raise ValueError("No content blocks in response")
+
+        tool_results = []
+        content_blocks = response.content
+
+        for block in content_blocks:
+            # Determine if it's a tool use block based on platform
+            tool_use_block = self._get_tool_use_block(provider_type, block)
+            if not tool_use_block:
+                continue
+
+            tool_name = (
+                tool_use_block.get("name")
+                if  provider_type ==  AgentProviderType.BEDROCK.value
+                else tool_use_block.name
+            )
+
+            tool_id = (
+                tool_use_block.get("toolUseId")
+                if  provider_type ==  AgentProviderType.BEDROCK.value
+                else tool_use_block.id
+            )
+
+            # Get input based on platform
+            input_data = (
+                tool_use_block.get("input", {})
+                if  provider_type ==  AgentProviderType.BEDROCK.value
+                else tool_use_block.input
+            )
+
+            # Process the tool use
+            result = await self._process_tool(tool_name, input_data)
+
+            # Create tool result
+            tool_result = ToolResult(tool_id, result)
+
+            # Format according to platform
+            formatted_result = (
+                tool_result.to_bedrock_format()
+                if  self.provider_type ==  AgentProviderType.BEDROCK.value
+                else tool_result.to_anthropic_format()
+            )
+
+            tool_results.append(formatted_result)
+
+        # Create and return appropriate message format
+        if  provider_type ==  AgentProviderType.BEDROCK.value:
+            return ConversationMessage(
+                role=ParticipantRole.USER.value,
+                content=tool_results
+            )
+        else:
+            return {
+                'role': ParticipantRole.USER.value,
+                'content': tool_results
+            }
+
+    def _process_tool(self, tool_name, input_data):
+        try:
+            tool = next(tool for tool in self.tools if tool.name == tool_name)
+            return tool.func(**input_data)
+        except StopIteration:
+            return (f"Tool '{tool_name}' not found")
+
+    def to_claude_format(self) -> list[dict[str, Any]]:
+        """Convert all tools to Claude format"""
+        return [tool.to_claude_format() for tool in self.tools]
+
+    def to_bedrock_format(self) -> list[dict[str, Any]]:
+        """Convert all tools to Bedrock format"""
+        return [tool.to_bedrock_format() for tool in self.tools]
+
+

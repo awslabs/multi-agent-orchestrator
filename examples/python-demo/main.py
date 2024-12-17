@@ -14,6 +14,8 @@ from multi_agent_orchestrator.agents import (BedrockLLMAgent,
                         AnthropicAgent, AnthropicAgentOptions,
                         AgentCallbacks)
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
+from multi_agent_orchestrator.utils import Tools
 
 class LLMAgentCallbacks(AgentCallbacks):
     def on_llm_new_token(self, token: str) -> None:
@@ -79,27 +81,52 @@ if __name__ == "__main__":
     ))
     orchestrator.add_agent(tech_agent)
 
-    # Add a Anthropic weather agent with a tool
+    # Add a Anthropic weather agent with a tool in anthropic's tool format
     # weather_agent = AnthropicAgent(AnthropicAgentOptions(
     #     api_key='api-key',
     #     name="Weather Agent",
     #     streaming=False,
     #     description="Specialized agent for giving weather condition from a city.",
     #     tool_config={
-    #         'tool': [tool.to_claude_format() for tool in weather_tool.weather_tools],
+    #         'tool': [tool.to_claude_format() for tool in weather_tool.weather_tools.tools],
     #         'toolMaxRecursions': 5,
     #         'useToolHandler': weather_tool.anthropic_weather_tool_handler
     #     },
     #     callbacks=LLMAgentCallbacks()
     # ))
 
-    # Add a Bedrock weather agent with a tool
+    # Add an Anthropic weather agent with Tools class
+    # weather_agent = AnthropicAgent(AnthropicAgentOptions(
+    #     api_key='api-key',
+    #     name="Weather Agent",
+    #     streaming=True,
+    #     description="Specialized agent for giving weather condition from a city.",
+    #     tool_config={
+    #         'tool': weather_tool.weather_tools,
+    #         'toolMaxRecursions': 5,
+    #     },
+    #     callbacks=LLMAgentCallbacks()
+    # ))
+
+    # Add a Bedrock weather agent with Tools class
+    # weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+    #     name="Weather Agent",
+    #     streaming=False,
+    #     description="Specialized agent for giving weather condition from a city.",
+    #     tool_config={
+    #         'tool': weather_tool.weather_tools,
+    #         'toolMaxRecursions': 5,
+    #     },
+    #     callbacks=LLMAgentCallbacks(),
+    # ))
+
+    # Add a Bedrock weather agent with custom handler and bedrock's tool format
     weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
         name="Weather Agent",
         streaming=False,
         description="Specialized agent for giving weather condition from a city.",
         tool_config={
-            'tool': [tool.to_bedrock_format() for tool in weather_tool.weather_tools],
+            'tool': [tool.to_bedrock_format() for tool in weather_tool.weather_tools.tools],
             'toolMaxRecursions': 5,
             'useToolHandler': weather_tool.bedrock_weather_tool_handler
         }

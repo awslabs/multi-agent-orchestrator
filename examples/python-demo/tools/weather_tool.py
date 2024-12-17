@@ -2,7 +2,7 @@ import requests
 from requests.exceptions import RequestException
 from typing import List, Dict, Any
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.utils import Tool
+from multi_agent_orchestrator.utils import Tool, Tools
 import json
 
 async def fetch_weather_data(latitude:str, longitude:str):
@@ -18,22 +18,21 @@ async def fetch_weather_data(latitude:str, longitude:str):
     latitude = latitude
     longitude = longitude
     params = {"latitude": latitude, "longitude": longitude, "current_weather": True}
-
     try:
         response = requests.get(endpoint, params=params)
         weather_data = {"weather_data": response.json()}
         response.raise_for_status()
-        return weather_data
+        return json.dumps(weather_data)
     except RequestException as e:
-        return e.response.json()
+        return json.dumps(e.response.json())
     except Exception as e:
         return {"error": type(e), "message": str(e)}
 
 
-weather_tools:list[Tool] = [Tool(name="Weather_Tool",
+weather_tools:Tools = Tools(tools=[Tool(name="Weather_Tool",
                             description="Get the current weather for a given location, based on its WGS84 coordinates.",
                             func=fetch_weather_data
-                            )]
+                            )])
 
 weather_tool_prompt = """
 You are a weather assistant that provides current weather data for user-specified locations using only
@@ -77,7 +76,7 @@ async def anthropic_weather_tool_handler(response: Any, conversation: List[Dict[
                 tool_results.append({
                         "type": "tool_result",
                         "tool_use_id": id,
-                        "content": json.dumps(response)
+                        "content": response
                 })
 
     # Embed the tool results in a new user message
@@ -110,7 +109,7 @@ async def bedrock_weather_tool_handler(response: ConversationMessage, conversati
                 tool_results.append({
                     "toolResult": {
                         "toolUseId": tool_use_block["toolUseId"],
-                        "content": [{"json": {"result": tool_response}}],
+                        "content": [{"text": tool_response}],
                     }
                 })
 
