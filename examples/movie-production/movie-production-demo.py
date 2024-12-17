@@ -124,18 +124,6 @@ orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
 USER_ID = str(uuid.uuid4())
 SESSION_ID = str(uuid.uuid4())
 
-# while True:
-#     # Get user input
-#     user_input = input("\nYou: ").strip()
-
-#     if user_input.lower() == 'quit':
-#         print("Exiting the program. Goodbye!")
-#         sys.exit()
-
-#     # Run the async function
-#     if user_input is not None and user_input != '':
-#         asyncio.run(handle_request(orchestrator, user_input, USER_ID, SESSION_ID))
-
 # Input field for the report query
 movie_idea = st.text_area("Describe your movie idea in a few sentences:")
 genre = st.selectbox("Select the movie genre:",
