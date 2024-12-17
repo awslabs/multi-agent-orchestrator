@@ -1,5 +1,6 @@
 export { BedrockLLMAgent, BedrockLLMAgentOptions } from './agents/bedrockLLMAgent';
 export { AmazonBedrockAgent, AmazonBedrockAgentOptions } from './agents/amazonBedrockAgent';
+export { BedrockInlineAgent, BedrockInlineAgentOptions } from './agents/bedrockInlineAgent';
 export { LambdaAgent, LambdaAgentOptions } from './agents/lambdaAgent';
 export { LexBotAgent, LexBotAgentOptions } from './agents/lexBotAgent';
 export { OpenAIAgent, OpenAIAgentOptions } from './agents/openAIAgent';
