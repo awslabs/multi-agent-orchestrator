@@ -164,12 +164,12 @@ When communicating with other agents, including the User, please follow these gu
             if self.trace else None
         for agent in self.team:
             if agent.name == recipient:
-                agent_chat_history = await self.storage.fetch_chat(self.user_id, self.session_id, agent.id)
+                agent_chat_history = await self.storage.fetch_chat(self.user_id, self.session_id, agent.id) if agent.save_chat else []
                 response = await agent.process_request(content, self.user_id, self.session_id, agent_chat_history)
                 Logger.info(f"\n<<<<<===Supervisor received this response from {agent.name}:\n {response.content[0].get('text','')[:500]}...") \
                 if self.trace else None
-                await self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.USER.value, content=[{'text':content}]))
-                await self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text':f"{response.content[0].get('text', '')}"}]))
+                await self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.USER.value, content=[{'text':content}])) if agent.save_chat else None
+                await self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text':f"{response.content[0].get('text', '')}"}])) if agent.save_chat else None
                 return f"{agent.name}: {response.content[0].get('text')}"
         return "Agent not responding"
 
@@ -177,10 +177,10 @@ When communicating with other agents, including the User, please follow these gu
     def process_single_request(self, agent:Agent, message_content: str, user_id: str, session_id: str, chat_history: list[dict], additionalParameters: dict) -> 'str':
         Logger.info(f"\n===>>>>> Supervisor sending  {agent.name}: {message_content}")\
             if self.trace else None
-        agent_chat_history =  asyncio.run(self.storage.fetch_chat(self.user_id, self.session_id, agent.id))
+        agent_chat_history =  asyncio.run(self.storage.fetch_chat(self.user_id, self.session_id, agent.id)) if agent.save_chat else []
         response = asyncio.run(agent.process_request(message_content, user_id, session_id, agent_chat_history, additionalParameters))
-        asyncio.run(self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.USER.value, content=[{'text':message_content}])))
-        asyncio.run(self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text':f"{response.content[0].get('text', '')}"}])))
+        asyncio.run(self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.USER.value, content=[{'text':message_content}]))) if agent.save_chat else None
+        asyncio.run(self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text':f"{response.content[0].get('text', '')}"}]))) if agent.save_chat else None
         Logger.info(f"\n<<<<<===Supervisor received this response from {agent.name}:\n{response.content[0].get('text', '')[:500]}...")\
             if self.trace else None
         return f"{agent.name}: {response.content[0].get('text')}"
