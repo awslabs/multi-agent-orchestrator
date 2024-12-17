@@ -3,10 +3,9 @@ import streamlit as st
 load_dotenv()
 import os
 import uuid
-import sys
 import os
 import asyncio
-from  searchgoogle import search_google, tool_handler
+from  search_web import tool_handler
 from tool import Tool, ToolResult
 from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
 from multi_agent_orchestrator.agents import (
@@ -24,11 +23,9 @@ st.caption("Bring your movie ideas to life with the teams of script writing and 
 
 # Get Anthropic API key from user
 anthropic_api_key = st.text_input("Enter Anthropic API Key to access Claude Sonnet 3.5", type="password", value=os.getenv('ANTHROPIC_API_KEY', None))
-# Get SerpAPI key from the user
-serp_api_key = st.text_input("Enter Serp API Key for Search functionality", type="password", value=os.getenv('SERP_API_KEY', None))
 
-search_google_tool = Tool(name='search_google',
-                          description='Search Google for information',
+search_web_tool = Tool(name='search_web',
+                          description='Search Web for information',
                           properties={
                               'query': {
                                   'type': 'string',
@@ -59,14 +56,14 @@ suggest suitable actors for the main roles, considering their past performances 
 
 Your tasks consist of:
 1. Suggest 1-2 actors for each main role.
-2. Check actors' current status using search_google tool
+2. Check actors' current status using search_web tool
 3. Provide a brief explanation for each casting suggestion.
 4. Consider diversity and representation in your casting choices.
 5. Provide a final response with all the actors you suggest for the main roles
 """,
 
 tool_config={
-    'tool': [search_google_tool.to_claude_format()],
+    'tool': [search_web_tool.to_claude_format()],
     'toolMaxRecursions': 20,
     'useToolHandler': tool_handler
     },

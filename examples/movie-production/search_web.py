@@ -1,11 +1,9 @@
-import os
 import json
 from typing import Any
-import serpapi
 from tool import ToolResult
 from multi_agent_orchestrator.types import ParticipantRole
 
-api_key = os.getenv('SERP_API_KEY', None)
+from duckduckgo_search import DDGS
 
 async def tool_handler(response: Any, conversation: list[dict[str, Any]],) -> Any:
     if not response.content:
@@ -30,9 +28,8 @@ async def tool_handler(response: Any, conversation: list[dict[str, Any]],) -> An
         input_data = (tool_use_block.input)
 
         # Process the tool use
-        if (tool_name == "search_google"):
-            print(input_data)
-            result = search_google(input_data.get('query'))
+        if (tool_name == "search_web"):
+            result = search_web(input_data.get('query'))
         else:
             result = f"Unknown tool use name: {tool_name}"
 
@@ -50,9 +47,9 @@ async def tool_handler(response: Any, conversation: list[dict[str, Any]],) -> An
             'content': tool_results
         }
 
-def search_google(query: str, num_results: int = 2) -> str:
+def search_web(query: str, num_results: int = 2) -> str:
     """
-    Search Google using the Serpapi API. Returns the search results.
+    Search Web using the DuckDuckGo. Returns the search results.
 
     Args:
         query(str): The query to search for.
@@ -69,26 +66,12 @@ def search_google(query: str, num_results: int = 2) -> str:
     """
 
     try:
-        if not api_key:
-            return "Please provide an API key"
-        if not query:
-            return "Please provide a query to search for"
 
-        print(f"Searching Google for: {query}")
+        print(f"Searching DDG for: {query}")
 
-        params = {"q": query, "api_key": api_key, "num": num_results}
+        search = DDGS().text(query, max_results=num_results)
+        return ('\n'.join(result.get('body','') for result in search))
 
-        search = serpapi.GoogleSearch(params)
-        results = search.get_dict()
-
-        filtered_results = {
-            "search_results": results.get("organic_results", ""),
-            "recipes_results": results.get("recipes_results", ""),
-            "shopping_results": results.get("shopping_results", ""),
-            "knowledge_graph": results.get("knowledge_graph", ""),
-            "related_questions": results.get("related_questions", ""),
-        }
-        return json.dumps(filtered_results)
 
     except Exception as e:
         print(f"Error searching for the query {query}: {e}")
