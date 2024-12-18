@@ -29,23 +29,9 @@ class SupervisorAgentOptions(AgentOptions):
 
 class SupervisorAgent(Agent):
 
-    supervisor_tools:list[Tool] = [Tool(name="send_message_to_single_agent",
-                             description = 'Send a message to a single agent.',
-                             properties={
-                                "recipient": {
-                                    "type": "string",
-                                    "description": "The name of the agent to send the message to.",
-                                },
-                                "content": {
-                                    "type": "string",
-                                    "description": "The content of the message to send.",
-                                },
-                            },
-                            required=["recipient", "content"]
-    ),
-    Tool(
-        name='send_message_to_multiple_agents',
-        description='Send a message to a multiple agents in parallel.',
+    supervisor_tools:list[Tool] = [Tool(
+        name='send_messages',
+        description='Send a message to a one or multiple agents in parallel.',
         properties={
                 "messages": {
                 "type": "array",
@@ -158,57 +144,70 @@ When communicating with other agents, including the User, please follow these gu
             Logger.debug(f"Supervisor {self.supervisor.__class__} is not supported")
             raise RuntimeError("Supervisor must be a BedrockLLMAgent or AnthropicAgent")
 
-    async def send_message(self, recipient:str, content:str):
-        Logger.info(f"\n===>>>>> Supervisor sending message to {recipient}: {content}")\
-            if self.trace else None
-        for agent in self.team:
-            if agent.name == recipient:
-                agent_chat_history = await self.storage.fetch_chat(self.user_id, self.session_id, agent.id) if agent.save_chat else []
-                response = await agent.process_request(content, self.user_id, self.session_id, agent_chat_history)
-                Logger.info(f"\n<<<<<===Supervisor received this response from {agent.name}:\n {response.content[0].get('text','')[:500]}...") \
-                if self.trace else None
-                await self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.USER.value, content=[{'text':content}])) if agent.save_chat else None
-                await self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text':f"{response.content[0].get('text', '')}"}])) if agent.save_chat else None
-                return f"{agent.name}: {response.content[0].get('text')}"
-        return "Agent not responding"
 
-
-    def process_single_request(self, agent:Agent, message_content: str, user_id: str, session_id: str, chat_history: list[dict], additionalParameters: dict) -> 'str':
-        Logger.info(f"\n===>>>>> Supervisor sending  {agent.name}: {message_content}")\
+    def send_message(self, agent:Agent, content: str, user_id: str, session_id: str, additionalParameters: dict) -> 'str':
+        Logger.info(f"\n===>>>>> Supervisor sending  {agent.name}: {content}")\
             if self.trace else None
-        agent_chat_history =  asyncio.run(self.storage.fetch_chat(self.user_id, self.session_id, agent.id)) if agent.save_chat else []
-        response = asyncio.run(agent.process_request(message_content, user_id, session_id, agent_chat_history, additionalParameters))
-        asyncio.run(self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.USER.value, content=[{'text':message_content}]))) if agent.save_chat else None
-        asyncio.run(self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text':f"{response.content[0].get('text', '')}"}]))) if agent.save_chat else None
-        Logger.info(f"\n<<<<<===Supervisor received this response from {agent.name}:\n{response.content[0].get('text', '')[:500]}...")\
+        agent_chat_history =  asyncio.run(self.storage.fetch_chat(user_id, session_id, agent.id)) if agent.save_chat else []
+        response = asyncio.run(agent.process_request(content, user_id, session_id, agent_chat_history, additionalParameters))
+        asyncio.run (self.storage.save_chat_message(user_id, session_id, agent.id, ConversationMessage(role=ParticipantRole.USER.value, content=[{'text':content}]))) if agent.save_chat else None
+        asyncio.run(self.storage.save_chat_message(user_id, session_id, agent.id, ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text':f"{response.content[0].get('text', '')}"}]))) if agent.save_chat else None
+        Logger.info(f"\n<<<<<===Supervisor received this response from {agent.name}:\n{response.content[0].get('text','')[:500]}...") \
             if self.trace else None
         return f"{agent.name}: {response.content[0].get('text')}"
 
-    async def send_message_to_multiple_agents(self, messages: list[dict[str, str]]):
+    # async def send_messages(self, messages: list[dict[str, str]]):
+    #     """Process all messages for all agents in parallel."""
+    #     with ThreadPoolExecutor(max_workers=5) as executor:
+    #         futures = []
+    #         for agent in self.team:
+    #             for message in messages:
+    #                 if agent.name == message.get('recipient'):
+    #                     future = executor.submit(
+    #                         self.send_message,
+    #                         agent,
+    #                         message.get('content'),
+    #                         self.user_id,
+    #                         self.session_id,
+    #                         {}
+    #                     )
+    #                     futures.append(future)
+    #         responses = []
+
+    #         for future in as_completed(futures):
+    #             response = future.result()
+    #             responses.append(response)
+
+    #         # Wait for all tasks to complete
+    #         return ''.join(response for response in responses)
+
+
+    async def send_messages(self, messages: list[dict[str, str]]):
         """Process all messages for all agents in parallel."""
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            futures = []
-            for agent in self.team:
-                for message in messages:
-                    if agent.name == message.get('recipient'):
-                        future = executor.submit(
-                            self.process_single_request,
+        tasks = []
+
+        # Create tasks for each matching agent/message pair
+        for agent in self.team:
+            for message in messages:
+                if agent.name == message.get('recipient'):
+                    # Wrap the entire send_message call in to_thread
+                    task = asyncio.create_task(
+                        asyncio.to_thread(
+                            self.send_message,
                             agent,
                             message.get('content'),
                             self.user_id,
                             self.session_id,
-                            [],
                             {}
                         )
-                        futures.append(future)
-            responses = []
+                    )
+                    tasks.append(task)
 
-            for future in as_completed(futures):
-                response = future.result()
-                responses.append(response)
-
-            # Wait for all tasks to complete
-            return ''.join(response for response in responses)
+        # Gather and wait for all tasks to complete
+        if tasks:
+            responses = await asyncio.gather(*tasks)
+            return ''.join(responses)
+        return ''
 
 
     async def get_current_date(self):
@@ -279,13 +278,8 @@ When communicating with other agents, including the User, please follow these gu
 
     async def _process_tool(self, tool_name: str, input_data: dict) -> Any:
         """Process tool use based on tool name."""
-        if tool_name == "send_message_to_single_agent":
-            return await self.send_message(
-                input_data.get('recipient'),
-                input_data.get('content')
-            )
-        elif tool_name == "send_message_to_multiple_agents":
-            return await self.send_message_to_multiple_agents(
+        if tool_name == "send_messages":
+            return await self.send_messages(
                 input_data.get('messages')
             )
         elif tool_name == "get_current_date":
