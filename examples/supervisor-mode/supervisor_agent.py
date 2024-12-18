@@ -15,7 +15,7 @@ class SupervisorType(Enum):
     BEDROCK = "BEDROCK"
     ANTHROPIC = "ANTHROPIC"
 
-class SupervisorModeOptions(AgentOptions):
+class SupervisorAgentOptions(AgentOptions):
     def __init__(
         self,
         supervisor:Agent,
@@ -24,14 +24,16 @@ class SupervisorModeOptions(AgentOptions):
         trace: Optional[bool] = None,
         **kwargs,
     ):
-        super().__init__(name=supervisor.name, description=supervisor.description, **kwargs)
+        kwargs['name'] = supervisor.name
+        kwargs['description'] = supervisor.description
+        super().__init__(**kwargs)
         self.supervisor:Union[AnthropicAgent,BedrockLLMAgent] = supervisor
         self.team: list[Agent] = team
         self.storage = storage or InMemoryChatStorage()
         self.trace = trace or False
 
 
-class SupervisorMode(Agent):
+class SupervisorAgent(Agent):
 
     supervisor_tools:list[Tool] = [Tool(name="send_message_to_single_agent",
                              description = 'Send a message to a single agent.',
@@ -81,14 +83,14 @@ class SupervisorMode(Agent):
     )]
 
 
-    def __init__(self, options: SupervisorModeOptions):
+    def __init__(self, options: SupervisorAgentOptions):
         super().__init__(options)
         self.supervisor:Union[AnthropicAgent,BedrockLLMAgent]  = options.supervisor
         self.team = options.team
         self.supervisor_type =  SupervisorType.BEDROCK.value if isinstance(self.supervisor, BedrockLLMAgent) else SupervisorType.ANTHROPIC.value
         if not self.supervisor.tool_config:
             self.supervisor.tool_config = {
-                'tool': [tool.to_bedrock_format() if self.supervisor_type == SupervisorType.BEDROCK.value else tool.to_claude_format() for tool in SupervisorMode.supervisor_tools],
+                'tool': [tool.to_bedrock_format() if self.supervisor_type == SupervisorType.BEDROCK.value else tool.to_claude_format() for tool in SupervisorAgent.supervisor_tools],
                 'toolMaxRecursions': 40,
                 'useToolHandler': self.supervisor_tool_handler
             }
@@ -101,7 +103,7 @@ class SupervisorMode(Agent):
         self.trace = options.trace
 
 
-        tools_str = ",".join(f"{tool.name}:{tool.func_description}" for tool in SupervisorMode.supervisor_tools)
+        tools_str = ",".join(f"{tool.name}:{tool.func_description}" for tool in SupervisorAgent.supervisor_tools)
         agent_list_str = "\n".join(
             f"{agent.name}: {agent.description}"
             for agent in self.team
@@ -308,15 +310,18 @@ When communicating with other agents, including the User, please follow these gu
         self.user_id = user_id
         self.session_id = session_id
 
+        # fetch history from all agents (including supervisor)
         agents_history = await self.storage.fetch_all_chats(user_id, session_id)
         agents_memory = ''.join(
             f"{user_msg.role}:{user_msg.content[0].get('text','')}\n"
             f"{asst_msg.role}:{asst_msg.content[0].get('text','')}\n"
             for user_msg, asst_msg in zip(agents_history[::2], agents_history[1::2])
-            if self.id not in asst_msg.content[0].get('text', '')
+            if self.id not in asst_msg.content[0].get('text', '') # removing supervisor history from agents_memory (already part of chat_history)
         )
 
+        # update prompt with agents memory
         self.supervisor.set_system_prompt(self.prompt_template.replace('{AGENTS_MEMORY}', agents_memory))
+        # call the supervisor
         response = await self.supervisor.process_request(input_text, user_id, session_id, chat_history, additional_params)
         return response
 

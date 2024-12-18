@@ -13,7 +13,7 @@ from typing import Any
 import sys, asyncio, uuid
 import os
 from weather_tool import weather_tool_description, weather_tool_handler, weather_tool_prompt
-from supervisor_mode import SupervisorMode, SupervisorModeOptions
+from supervisor_agent import SupervisorAgent, SupervisorAgentOptions
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -84,8 +84,8 @@ supervisor_agent = AnthropicAgent(AnthropicAgentOptions(
 # ))
 
 
-supervisor = SupervisorMode(
-    SupervisorModeOptions(
+supervisor = SupervisorAgent(
+    SupervisorAgentOptions(
         supervisor=supervisor_agent,
         team=[airlines_agent, travel_agent, tech_agent, sales_agent, health_agent, claim_agent, weather_agent],
         storage=DynamoDbChatStorage(
