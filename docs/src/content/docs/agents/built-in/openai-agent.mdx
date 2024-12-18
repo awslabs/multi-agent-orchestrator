@@ -13,6 +13,8 @@ The `OpenAIAgent` is a powerful agent class in the Multi-Agent Orchestrator fram
 - Customizable inference configuration
 - Handles conversation history for context-aware responses
 - Customizable system prompts
+- Optional integration with retrieval systems for enhanced context (Typescript only)
+- Support for Tool use within the conversation flow (Typescript only)
 
 ## Creating an OpenAIAgent
 
@@ -39,7 +41,41 @@ const agent = new OpenAIAgent({
     topP: 0.9,
     stopSequences: ['Human:', 'AI:']
   },
-  systemPrompt: 'You are a helpful AI assistant specialized in answering questions about technology.'
+  systemPrompt: 'You are a helpful AI assistant specialized in answering questions about technology.',
+  toolConfig: {
+      tool: {
+        type: 'function',
+        function: {
+            name: "Weather_Tool",
+            description: "Get the current weather for a given location, based on its WGS84 coordinates.",
+            parameters: {
+                additionalProperties: false,
+                type: "object",
+                properties: {
+                    latitude: {
+                        type: "string",
+                        description: "Geographical WGS84 latitude of the location.",
+                    },
+                    longitude: {
+                        type: "string",
+                        description: "Geographical WGS84 longitude of the location.",
+                    },
+                },
+                required: ["latitude", "longitude"],
+            },
+            strict: true,
+        },
+    },
+      useToolHandler: (response, conversation) => {
+        //process tool response
+         return {
+                role: 'tool' as const,
+                tool_call_id: id,
+                content: JSON.stringify(response),
+            };
+      },
+      toolMaxRecursions: 5,
+    },
 });
 ```
   </TabItem>
@@ -62,6 +98,7 @@ The `OpenAIAgentOptions` extends the base `AgentOptions` and includes the follow
   - `topP` (optional): Controls diversity of output generation.
   - `stopSequences` (optional): An array of sequences that, when generated, will stop the generation process.
 - `systemPrompt` (optional): A string representing the initial system prompt for the agent.
+- `toolConfig` (optional): Defines tools the agent can use and how to handle their responses.
 
 ## Setting the System Prompt
 
