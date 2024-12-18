@@ -1,5 +1,6 @@
 
 from typing import Optional, Any, AsyncIterable, Union
+from dataclasses import dataclass, field
 from enum import Enum
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import asyncio
@@ -15,23 +16,16 @@ class SupervisorType(Enum):
     BEDROCK = "BEDROCK"
     ANTHROPIC = "ANTHROPIC"
 
+@dataclass
 class SupervisorAgentOptions(AgentOptions):
-    def __init__(
-        self,
-        supervisor:Agent,
-        team: list[Agent],
-        storage: Optional[ChatStorage] = None,
-        trace: Optional[bool] = None,
-        **kwargs,
-    ):
-        kwargs['name'] = supervisor.name
-        kwargs['description'] = supervisor.description
-        super().__init__(**kwargs)
-        self.supervisor:Union[AnthropicAgent,BedrockLLMAgent] = supervisor
-        self.team: list[Agent] = team
-        self.storage = storage or InMemoryChatStorage()
-        self.trace = trace or False
+    supervisor:Agent = None
+    team: list[Agent] = field(default_factory=list)
+    storage: Optional[ChatStorage] = None
+    trace: Optional[bool] = None
 
+    # Hide inherited fields
+    name: str = field(init=False)
+    description: str = field(init=False)
 
 class SupervisorAgent(Agent):
 
@@ -84,8 +78,11 @@ class SupervisorAgent(Agent):
 
 
     def __init__(self, options: SupervisorAgentOptions):
+        options.name = options.supervisor.name
+        options.description = options.supervisor.description
         super().__init__(options)
         self.supervisor:Union[AnthropicAgent,BedrockLLMAgent]  = options.supervisor
+
         self.team = options.team
         self.supervisor_type =  SupervisorType.BEDROCK.value if isinstance(self.supervisor, BedrockLLMAgent) else SupervisorType.ANTHROPIC.value
         if not self.supervisor.tool_config:
@@ -99,7 +96,7 @@ class SupervisorAgent(Agent):
 
         self.user_id = ''
         self.session_id = ''
-        self.storage = options.storage
+        self.storage = options.storage or InMemoryChatStorage()
         self.trace = options.trace
 
 
