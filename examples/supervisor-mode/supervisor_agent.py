@@ -28,6 +28,29 @@ class SupervisorAgentOptions(AgentOptions):
     description: str = field(init=False)
 
 class SupervisorAgent(Agent):
+    """
+    SupervisorAgent class.
+
+    This class represents a supervisor agent that interacts with other agents in an environment. It inherits from the Agent class.
+
+    Attributes:
+        supervisor_tools (list[Tool]): List of tools available to the supervisor agent.
+        team (list[Agent]): List of agents in the environment.
+        supervisor_type (str): Type of supervisor agent (BEDROCK or ANTHROPIC).
+        user_id (str): User ID.
+        session_id (str): Session ID.
+        storage (ChatStorage): Chat storage for storing conversation history.
+        trace (bool): Flag indicating whether to enable tracing.
+
+    Methods:
+        __init__(self, options: SupervisorAgentOptions): Initializes a SupervisorAgent instance.
+        send_message(self, agent: Agent, content: str, user_id: str, session_id: str, additionalParameters: dict) -> str: Sends a message to an agent.
+        send_messages(self, messages: list[dict[str, str]]) -> str: Sends messages to multiple agents in parallel.
+        get_current_date(self) -> str: Gets the current date.
+        supervisor_tool_handler(self, response: Any, conversation: list[dict[str, Any]]) -> Any: Handles the response from a tool.
+        _process_tool(self, tool_name: str, input_data: dict) -> Any: Processes a tool based on its name.
+        process_request(self, input_text: str, user_id: str, session_id: str, chat_history: list[ConversationMessage], additional_params: Optional[dict[str, str]] = None) -> Union[ConversationMessage, AsyncIterable[Any]]: Processes a user request.
+"""
 
     supervisor_tools:list[Tool] = [Tool(
         name='send_messages',
