@@ -1,7 +1,12 @@
 ## 🎬 AI Movie Production Agent
 This Streamlit app is an AI-powered movie production assistant that helps bring your movie ideas to life using Claude 3 on Amazon BedrocK. It automates the process of script writing and casting, allowing you to create compelling movie concepts with ease.
+### streamlit app
+Here is a screenshot of the streamlit app. You can describe your movie, select a movie genre, audience and duration and hit `Develop Movie Concept`
 
 ![image](./movie-production.png)
+
+After a few seconds you should have a your movie ready! 🍿 🎬
+
 ![image](./movie-production-result.png)
 
 ### Features
