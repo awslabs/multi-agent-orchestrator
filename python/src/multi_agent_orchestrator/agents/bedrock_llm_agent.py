@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, AsyncIterable, Optional, Union
+from typing import Any, AsyncIterable, Optional, Union
 from dataclasses import dataclass
 import re
 import json
@@ -8,19 +8,20 @@ from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import (ConversationMessage,
                        ParticipantRole,
                        BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
-                       TemplateVariables)
-from multi_agent_orchestrator.utils import conversation_to_dict, Logger
+                       TemplateVariables,
+                       AgentProviderType)
+from multi_agent_orchestrator.utils import conversation_to_dict, Logger, Tools
 from multi_agent_orchestrator.retrievers import Retriever
 
 
 @dataclass
 class BedrockLLMAgentOptions(AgentOptions):
     streaming: Optional[bool] = None
-    inference_config: Optional[Dict[str, Any]] = None
-    guardrail_config: Optional[Dict[str, str]] = None
+    inference_config: Optional[dict[str, Any]] = None
+    guardrail_config: Optional[dict[str, str]] = None
     retriever: Optional[Retriever] = None
-    tool_config: Optional[Dict[str, Any]] = None
-    custom_system_prompt: Optional[Dict[str, Any]] = None
+    tool_config: Optional[Union[dict[str, Any], Tools]] = None
+    custom_system_prompt: Optional[dict[str, Any]] = None
     client: Optional[Any] = None
 
 
@@ -40,7 +41,7 @@ class BedrockLLMAgent(Agent):
 
         self.model_id: str = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_HAIKU
         self.streaming: bool = options.streaming
-        self.inference_config: Dict[str, Any]
+        self.inference_config: dict[str, Any]
 
         default_inference_config = {
             'maxTokens': 1000,
@@ -54,9 +55,9 @@ class BedrockLLMAgent(Agent):
         else:
             self.inference_config = default_inference_config
 
-        self.guardrail_config: Optional[Dict[str, str]] = options.guardrail_config or {}
+        self.guardrail_config: Optional[dict[str, str]] = options.guardrail_config or {}
         self.retriever: Optional[Retriever] = options.retriever
-        self.tool_config: Optional[Dict[str, Any]] = options.tool_config
+        self.tool_config: Optional[dict[str, Any]] = options.tool_config
 
         self.prompt_template: str = f"""You are a {self.name}.
         {self.description}
@@ -97,8 +98,8 @@ class BedrockLLMAgent(Agent):
         input_text: str,
         user_id: str,
         session_id: str,
-        chat_history: List[ConversationMessage],
-        additional_params: Optional[Dict[str, str]] = None
+        chat_history: list[ConversationMessage],
+        additional_params: Optional[dict[str, str]] = None
     ) -> Union[ConversationMessage, AsyncIterable[Any]]:
 
         user_message = ConversationMessage(
@@ -133,7 +134,9 @@ class BedrockLLMAgent(Agent):
             converse_cmd["guardrailConfig"] = self.guardrail_config
 
         if self.tool_config:
-            converse_cmd["toolConfig"] = {'tools': self.tool_config["tool"]}
+            converse_cmd["toolConfig"] = {
+                'tools': self.tool_config["tool"] if not isinstance(self.tool_config["tool"], Tools) else self.tool_config["tool"].to_bedrock_format()
+            }
 
         if self.tool_config:
             continue_with_tools = True
@@ -149,7 +152,13 @@ class BedrockLLMAgent(Agent):
                 conversation.append(bedrock_response)
 
                 if any('toolUse' in content for content in bedrock_response.content):
-                    tool_response = await self.tool_config['useToolHandler'](bedrock_response, conversation)
+                    if 'useToolHandler' in self.tool_config:
+                        # user is handling the tool blocks itself
+                        tool_response = await self.tool_config['useToolHandler'](bedrock_response, conversation)
+                    else:
+                        tools:Tools = self.tool_config["tool"]
+                        # no handler has been provided, we can use the default implementation
+                        tool_response = await tools.tool_handler(AgentProviderType.BEDROCK.value, bedrock_response, conversation)
                     conversation.append(tool_response)
                 else:
                     continue_with_tools = False
@@ -165,7 +174,7 @@ class BedrockLLMAgent(Agent):
 
         return await self.handle_single_response(converse_cmd)
 
-    async def handle_single_response(self, converse_input: Dict[str, Any]) -> ConversationMessage:
+    async def handle_single_response(self, converse_input: dict[str, Any]) -> ConversationMessage:
         try:
             response = self.client.converse(**converse_input)
             if 'output' not in response:
@@ -178,7 +187,7 @@ class BedrockLLMAgent(Agent):
             Logger.error(f"Error invoking Bedrock model:{str(error)}")
             raise error
 
-    async def handle_streaming_response(self, converse_input: Dict[str, Any]) -> ConversationMessage:
+    async def handle_streaming_response(self, converse_input: dict[str, Any]) -> ConversationMessage:
         try:
             response = self.client.converse_stream(**converse_input)
 
