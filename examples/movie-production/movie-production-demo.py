@@ -1,28 +1,23 @@
-from dotenv import load_dotenv
-import streamlit as st
-load_dotenv()
-import os
 import uuid
-import os
 import asyncio
+import streamlit as st
+import os
 from  search_web import tool_handler
-from tool import Tool, ToolResult
+from tool import Tool
 from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
 from multi_agent_orchestrator.agents import (
-    AnthropicAgent,  AnthropicAgentOptions,
-    AgentResponse
+    AgentResponse,
+    BedrockLLMAgent,
+    BedrockLLMAgentOptions
 )
 from multi_agent_orchestrator.types import ConversationMessage
 from multi_agent_orchestrator.classifiers import ClassifierResult
-from supervisor import SupervisorMode, SupervisorModeOptions
+from supervisor_agent import SupervisorAgent, SupervisorAgentOptions
 
 # Set up the Streamlit app
 st.title("AI Movie Production Demo 🎬")
 st.caption("Bring your movie ideas to life with the teams of script writing and casting AI agents")
 
-
-# Get Anthropic API key from user
-anthropic_api_key = st.text_input("Enter Anthropic API Key to access Claude Sonnet 3.5", type="password", value=os.getenv('ANTHROPIC_API_KEY', None))
 
 search_web_tool = Tool(name='search_web',
                           description='Search Web for information',
@@ -34,8 +29,8 @@ search_web_tool = Tool(name='search_web',
                           },
                           required=['query'])
 
-script_writer_agent = AnthropicAgent(AnthropicAgentOptions(
-    api_key=os.getenv('ANTHROPIC_API_KEY', None),
+script_writer_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+    model_id='us.anthropic.claude-3-sonnet-20240229-v1:0',
     name="ScriptWriterAgent",
     description="""\
 You are an expert screenplay writer. Given a movie idea and genre,
@@ -47,8 +42,8 @@ Your tasks consist of:
 3. Ensure the script aligns with the specified genre and target audience
 """))
 
-casting_director_agent = AnthropicAgent(AnthropicAgentOptions(
-    api_key=os.getenv('ANTHROPIC_API_KEY', None),
+casting_director_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+    model_id='anthropic.claude-3-haiku-20240307-v1:0',
     name="CastingDirectorAgent",
     description="""\
 You are a talented casting director. Given a script outline and character descriptions,\
@@ -63,15 +58,15 @@ Your tasks consist of:
 """,
 
 tool_config={
-    'tool': [search_web_tool.to_claude_format()],
+    'tool': [search_web_tool.to_bedrock_format()],
     'toolMaxRecursions': 20,
     'useToolHandler': tool_handler
     },
     save_chat=False
 ))
 
-movie_producer_supervisor = AnthropicAgent(AnthropicAgentOptions(
-    api_key=os.getenv('ANTHROPIC_API_KEY', None),
+movie_producer_supervisor = BedrockLLMAgent(BedrockLLMAgentOptions(
+    model_id='us.anthropic.claude-3-5-sonnet-20241022-v2:0',
     name='MovieProducerAgent',
     description="""
 Experienced movie producer overseeing script and casting.
@@ -85,7 +80,7 @@ Your tasks consist of:
 """,
 ))
 
-supervisor = SupervisorMode(SupervisorModeOptions(
+supervisor = SupervisorAgent(SupervisorAgentOptions(
     supervisor=movie_producer_supervisor,
     team=[script_writer_agent, casting_director_agent],
     trace=True
