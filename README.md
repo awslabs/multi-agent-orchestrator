@@ -23,12 +23,24 @@
   <img src="https://img.shields.io/github/issues-pr/awslabs/multi-agent-orchestrator" alt="Pull Requests">
 </p>
 
+
 <p align="center">
   <!-- Package Stats -->
   <a href="https://pypi.org/project/multi-agent-orchestrator/"><img src="https://img.shields.io/pypi/dm/multi-agent-orchestrator?label=pypi%20downloads" alt="PyPI Monthly Downloads"></a>
   <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img src="https://img.shields.io/npm/dm/multi-agent-orchestrator?label=npm%20downloads" alt="npm Monthly Downloads"></a>
 </p>
 
+<h2 align="center">🔄 Project Status</h2>
+
+<p align="center">
+  <!-- Project Status -->
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/📋%20Todo-13-green?style=flat" alt="Todo"></a>
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/👀%20In%20Review-5-orange?style=flat" alt="In Review"></a>
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/📅%20Planned-0-blue?style=flat" alt="Planned"></a>
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/🚧%20In%20Progress-2-yellow?style=flat" alt="In Progress"></a>
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/✅%20Done-2-purple?style=flat" alt="Done"></a>
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/🚀%20Released-0-brightgreen?style=flat" alt="Released"></a>
+</p>
 
 ## 🔖 Features
 
