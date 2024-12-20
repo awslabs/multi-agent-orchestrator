@@ -61,9 +61,9 @@ if _ANTHROPIC_AVAILABLE:
         'AnthropicAgentOptions'
     ])
 
-print(_OPENAI_AVAILABLE)
-#if _OPENAI_AVAILABLE:
-__all__.extend([
-        'OpenAIAgent',
-        'OpenAIAgentOptions'
-    ])
+
+if _OPENAI_AVAILABLE:
+    __all__.extend([
+            'OpenAIAgent',
+            'OpenAIAgentOptions'
+        ])
