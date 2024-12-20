@@ -10,11 +10,14 @@ BEDROCK_MODEL_ID_LLAMA_3_70B = "meta.llama3-70b-instruct-v1:0"
 OPENAI_MODEL_ID_GPT_O_MINI = "gpt-4o-mini"
 ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20240620"
 
+class AgentProviderType(Enum):
+    BEDROCK = "BEDROCK"
+    ANTHROPIC = "ANTHROPIC"
+
+
 class AgentTypes(Enum):
     DEFAULT = "Common Knowledge"
     CLASSIFIER = "classifier"
-
-
 
 class ToolInput(TypedDict):
     userinput: str
