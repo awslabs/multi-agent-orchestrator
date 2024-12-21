@@ -18,6 +18,16 @@ try:
 except ImportError:
     _ANTHROPIC_AVAILABLE = False
 
+from .openai_agent import OpenAIAgent, OpenAIAgentOptions
+
+
+try:
+    from .openai_agent import OpenAIAgent, OpenAIAgentOptions
+    _OPENAI_AVAILABLE = True
+except ImportError:
+    print(ImportError)
+    _OPENAI_AVAILABLE = False    
+
 
 __all__ = [
     'Agent',
@@ -50,3 +60,10 @@ if _ANTHROPIC_AVAILABLE:
         'AnthropicAgent',
         'AnthropicAgentOptions'
     ])
+
+
+if _OPENAI_AVAILABLE:
+    __all__.extend([
+            'OpenAIAgent',
+            'OpenAIAgentOptions'
+        ])
