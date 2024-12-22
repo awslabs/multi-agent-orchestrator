@@ -115,7 +115,7 @@ export abstract class Agent {
   private generateKeyFromName(name: string): string {
     // Remove special characters and replace spaces with hyphens
     const key = name
-      .replace(/[^a-zA-Z\s-]/g, "")
+      .replace(/[^a-zA-Z0-9\s-]/g, "")
       .replace(/\s+/g, "-")
       .toLowerCase();
     return key;
