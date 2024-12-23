@@ -75,7 +75,7 @@ Follow these steps to deploy the demo chat web application:
 
 6. **Deploy the Application**:
    ```bash
-   cdk deploy
+   cdk deploy --all
    ```
 
 7. **Create a user in Amazon Cognito user pool**:

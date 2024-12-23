@@ -77,7 +77,7 @@ Follow these steps to deploy the demo chat web application:
 6. **Deploy the Application**:
    ```
    export AWS_DEFAULT_REGION=us-east-1
-   cdk deploy
+   cdk deploy --all
    ```
 
 7. **Confirm Deployment**:
