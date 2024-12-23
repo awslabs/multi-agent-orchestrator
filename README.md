@@ -338,18 +338,44 @@ These examples showcase:
 3. The orchestrator's ability to route requests to the most appropriate agent based on the input.
 4. Handling of both streaming and non-streaming responses from different types of agents.
 
-### Working with Anthropic or OpenAI
-If you want to use Anthropic or OpenAI for classifier and/or agents, make sure to install the multi-agent-orchestrator with the relevant extra feature.
-```bash
-pip install "multi-agent-orchestrator[anthropic]"
-pip install "multi-agent-orchestrator[openai]"
-```
 
-### Full package installation
-For a complete installation (including Anthropic and OpenAi):
-```bash
+### Modular Installation Options
+
+The Multi-Agent Orchestrator is designed with a modular architecture, allowing you to install only the components you need while ensuring you always get the core functionality.
+
+#### Installation Options
+
+**1. AWS Integration**:
+
+  ```bash
+   pip install "multi-agent-orchestrator[aws]"
+  ```
+Includes core orchestration functionality with comprehensive AWS service integrations (`BedrockLLMAgent`, `AmazonBedrockAgent`, `LambdaAgent`, etc.)   
+
+**2. Anthropic Integration**:
+
+  ```bash
+pip install "multi-agent-orchestrator[anthropic]"
+  ```
+
+**3. OpenAI Integration**:
+
+  ```bash
+pip install "multi-agent-orchestrator[openai]"
+  ```
+
+Adds OpenAI's GPT models for agents and classification, along with core packages.
+
+**4. Full Installation**:
+
+  ```bash
 pip install "multi-agent-orchestrator[all]"
-```
+  ```
+
+Includes all optional dependencies for maximum flexibility. 
+
+Curious about how to use these installation options? Our comprehensive documentation provides:
+
 
 ## 🤝 Contributing
 

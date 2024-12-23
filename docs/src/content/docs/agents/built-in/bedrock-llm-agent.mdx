@@ -23,6 +23,13 @@ This agent can handle a wide range of processing tasks, making it suitable for d
 
 By default, the **Bedrock LLM Agent** uses the `anthropic.claude-3-haiku-20240307-v1:0` model.
 
+### Python Package
+
+If you haven't already installed the AWS-related dependencies, make sure to install them:
+
+```bash
+pip install "multi-agent-orchestrator[aws]"
+```
 
 **1. Minimal Configuration**
 
@@ -596,14 +603,40 @@ Choose the approach that best fits your needs:
 
 ### Option Explanations
 
-- `name` and `description`: Required fields to identify and describe the agent's purpose
-- `modelId`/`model_id`: Specifies the LLM model to use (e.g., Claude 3 Sonnet)
-- `region`: AWS region for the Bedrock service
-- `streaming`: Enables streaming responses for real-time output
-- `inferenceConfig`/`inference_config`: Fine-tunes the model's output characteristics
-- `guardrailConfig`/`guardrail_config`: Applies predefined guardrails to the model's responses
-- `retriever`: Integrates a retrieval system for enhanced context
-- `toolConfig`/`tool_config`: Defines tools the agent can use and how to handle their responses
-- `customSystemPrompt`/`custom_system_prompt`: Defines the agent's system prompt and behavior, with optional variables for dynamic content
-- `client`: Optional custom Bedrock client for specialized configurations
+<Tabs syncKey="runtime">
+
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+
+| Parameter | Description | Required/Optional |
+|------------|-------------|-------------------|
+| `name` | Identifies the agent within the system | **Required** |
+| `description` | Describes the agent's purpose and capabilities | **Required** |
+| `modelId` | Specifies the LLM model to use (e.g., Claude 3 Sonnet) | Optional |
+| `region` | AWS region for the Bedrock service | Optional |
+| `streaming` | Enables streaming responses for real-time output | Optional |
+| `inferenceConfig` | Fine-tunes the model's output characteristics | Optional |
+| `guardrailConfig` | Applies predefined guardrails to the model's responses | Optional |
+| `retriever` | Integrates a retrieval system for enhanced context | Optional |
+| `toolConfig` | Defines tools the agent can use and how to handle their responses | Optional |
+| `customSystemPrompt` | Defines the agent's system prompt and behavior, with optional variables for dynamic content | Optional |
+| `client` | Optional custom Bedrock client for specialized configurations | Optional |
+
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+| Parameter | Description | Required/Optional |
+|--------|-------------|-------------------|
+| `name` | Identifies the agent within the system | **Required** |
+| `description` | Describes the agent's purpose and capabilities | **Required** |
+| `model_id` | Specifies the LLM model to use (e.g., Claude 3 Sonnet) | Optional |
+| `region` | AWS region for the Bedrock service | Optional |
+| `streaming` | Enables streaming responses for real-time output | Optional |
+| `inference_config` | Fine-tunes the model's output characteristics | Optional |
+| `guardrail_config` | Applies predefined guardrails to the model's responses | Optional |
+| `retriever` | Integrates a retrieval system for enhanced context | Optional |
+| `tool_config` | Defines tools the agent can use and how to handle their responses | Optional |
+| `custom_system_prompt` | Defines the agent's system prompt and behavior, with optional variables for dynamic content | Optional |
+| `client` | Optional custom Bedrock client for specialized configurations | Optional |
+
+  </TabItem>
+</Tabs>
 
