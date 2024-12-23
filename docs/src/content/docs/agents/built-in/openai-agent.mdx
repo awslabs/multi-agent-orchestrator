@@ -1,121 +1,482 @@
 ---
 title: Open AI Agent
-description: Documentation Open AI Agent
+description: Documentation for the OpenAI Agent
 ---
 
-The `OpenAIAgent` is a powerful agent class in the Multi-Agent Orchestrator framework that integrates with OpenAI's Chat Completion API. This agent allows you to leverage OpenAI's language models, such as GPT-3.5 and GPT-4, for various natural language processing tasks.
+The `OpenAIAgent` is a powerful agent class in the Multi-Agent Orchestrator framework that integrates with OpenAI's Chat Completion API. This agent allows you to leverage OpenAI's language models for various natural language processing tasks.
 
 ## Key Features
 
 - Integration with OpenAI's Chat Completion API
-- Support for multiple OpenAI models
+- Support for multiple OpenAI models (e.g., GPT-4, GPT-3.5)
 - Streaming and non-streaming response options
 - Customizable inference configuration
-- Handles conversation history for context-aware responses
-- Customizable system prompts
+- Conversation history handling for context-aware responses
+- Customizable system prompts with variable support
+- Support for retrievers to enhance responses with additional context
+- Flexible initialization with API key or custom client
+
+## Configuration Options
+
+The `OpenAIAgentOptions` extends the base `AgentOptions` with the following fields:
+
+### Required Fields
+- `name`: Name of the agent
+- `description`: Description of the agent's capabilities
+- Authentication (one of the following is required):
+  - `apiKey`: Your OpenAI API key
+  - `client`: Custom OpenAI client instance
+
+### Optional Fields
+- `model`: OpenAI model identifier (e.g., 'gpt-4', 'gpt-3.5-turbo'). Defaults to `OPENAI_MODEL_ID_GPT_O_MINI`
+- `streaming`: Enable streaming responses. Defaults to `false`
+- `retriever`: Custom retriever instance for enhancing responses with additional context
+- `inferenceConfig`: Configuration for model inference:
+  - `maxTokens`: Maximum tokens to generate (default: 1000)
+  - `temperature`: Controls randomness (0-1)
+  - `topP`: Controls diversity via nucleus sampling
+  - `stopSequences`: Sequences that stop generation
+- `customSystemPrompt`: System prompt configuration:
+  - `template`: Template string with optional variable placeholders
+  - `variables`: Key-value pairs for template variables
 
 ## Creating an OpenAIAgent
 
-To create a new `OpenAIAgent`, you need to provide an `OpenAIAgentOptions` object. Here's an example of how to create an OpenAIAgent:
+Here are various examples showing different ways to create and configure an OpenAIAgent:
+
+### Basic Examples
+
+**1. Minimal Configuration**
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
-import { OpenAIAgent } from './path-to-openai-agent';
-
 const agent = new OpenAIAgent({
   name: 'OpenAI Assistant',
-  description: 'A versatile AI assistant powered by OpenAI models',
+  description: 'A versatile AI assistant',
+  apiKey: 'your-openai-api-key'
+});
+
+</TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',
+    description='A versatile AI assistant',
+    api_key='your-openai-api-key'
+))
+```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+**2. Using Custom Client**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+import OpenAI from 'openai';
+const customClient = new OpenAI({ apiKey: 'your-openai-api-key' });
+const agent = new OpenAIAgent({
+name: 'OpenAI Assistant',
+description: 'A versatile AI assistant',
+client: customClient
+});
+
+</TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+from openai import OpenAI
+
+custom_client = OpenAI(api_key='your-openai-api-key')
+
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',
+    description='A versatile AI assistant',
+    client=custom_client
+))
+```
+</TabItem>
+</Tabs>
+
+
+<hr/>
+
+**3. Custom Model and Streaming**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new OpenAIAgent({
+  name: 'OpenAI Assistant',
+  description: 'A streaming-enabled assistant',
   apiKey: 'your-openai-api-key',
-  model: 'gpt-3.5-turbo',
-  streaming: true,
+  model: 'gpt-4',
+  streaming: true
+});
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',
+    description='A streaming-enabled assistant',
+    api_key='your-openai-api-key',
+    model='gpt-4',
+    streaming=True
+))
+```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+
+**4. With Inference Configuration**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new OpenAIAgent({
+  name: 'OpenAI Assistant',
+  description: 'An assistant with custom inference settings',
+  apiKey: 'your-openai-api-key',
   inferenceConfig: {
     maxTokens: 500,
     temperature: 0.7,
     topP: 0.9,
     stopSequences: ['Human:', 'AI:']
-  },
-  systemPrompt: 'You are a helpful AI assistant specialized in answering questions about technology.'
+  }
 });
 ```
   </TabItem>
-
+  <TabItem label="Python" icon="seti:python">
+```python
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',
+    description='An assistant with custom inference settings',
+    api_key='your-openai-api-key',
+    inference_config={
+        'maxTokens': 500,
+        'temperature': 0.7,
+        'topP': 0.9,
+        'stopSequences': ['Human:', 'AI:']
+    }
+))
+```
+  </TabItem>
 </Tabs>
 
+<hr/>
 
-### OpenAIAgentOptions
-
-The `OpenAIAgentOptions` extends the base `AgentOptions` and includes the following properties:
-
-- `name` (required): A string representing the name of the agent.
-- `description` (required): A string describing the agent's capabilities and expertise.
-- `apiKey` (required): Your OpenAI API key.
-- `model` (optional): The OpenAI model to use. Defaults to `OPENAI_MODEL_ID_GPT_O_MINI`.
-- `streaming` (optional): Whether to use streaming responses. Defaults to `false`.
-- `inferenceConfig` (optional): An object to customize the inference behavior:
-  - `maxTokens` (optional): The maximum number of tokens to generate. Defaults to 1000.
-  - `temperature` (optional): Controls randomness in output generation.
-  - `topP` (optional): Controls diversity of output generation.
-  - `stopSequences` (optional): An array of sequences that, when generated, will stop the generation process.
-- `systemPrompt` (optional): A string representing the initial system prompt for the agent.
-
-## Setting the System Prompt
-
-You can set or update the system prompt for the OpenAIAgent in two ways:
-
-1. During initialization:
+**5. With Simple System Prompt**
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
 const agent = new OpenAIAgent({
-  // ... other options ...
-  systemPrompt: 'You are a helpful AI assistant specialized in answering questions about technology.'
+  name: 'OpenAI Assistant',
+  description: 'An assistant with custom prompt',
+  apiKey: 'your-openai-api-key',
+  customSystemPrompt: {
+    template: 'You are a helpful AI assistant focused on technical support.'
+  }
 });
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',
+    description='An assistant with custom prompt',
+    api_key='your-openai-api-key',
+    custom_system_prompt={
+        'template': 'You are a helpful AI assistant focused on technical support.'
+    }
+))
 ```
   </TabItem>
 </Tabs>
 
+<hr/>
 
-
-2. Using the `setSystemPrompt` method after initialization:
+**6. With System Prompt Variables**
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
-agent.setSystemPrompt(
-  `You are an AI assistant specialized in {{DOMAIN}}.
-   Your main goal is to {{GOAL}}.
-   Always maintain a {{TONE}} tone in your responses.`,
-  {
-    DOMAIN: "artificial intelligence",
-    GOAL: "explain complex AI concepts in simple terms",
-    TONE: "friendly and educational"
+const agent = new OpenAIAgent({
+  name: 'OpenAI Assistant',
+  description: 'An assistant with variable prompt',
+  apiKey: 'your-openai-api-key',
+  customSystemPrompt: {
+    template: 'You are an AI assistant specialized in {{DOMAIN}}. Always use a {{TONE}} tone.',
+    variables: {
+      DOMAIN: 'customer support',
+      TONE: 'friendly and helpful'
+    }
   }
+});
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',
+    description='An assistant with variable prompt',
+    api_key='your-openai-api-key',
+    custom_system_prompt={
+        'template': 'You are an AI assistant specialized in {{DOMAIN}}. Always use a {{TONE}} tone.',
+        'variables': {
+            'DOMAIN': 'customer support',
+            'TONE': 'friendly and helpful'
+        }
+    }
+))
+```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+**7. With Custom Retriever**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const retriever = new CustomRetriever({
+  // Retriever configuration
+});
+const agent = new OpenAIAgent({
+name: 'OpenAI Assistant',
+description: 'An assistant with retriever',
+apiKey: 'your-openai-api-key',
+retriever: retriever
+});
+
+</TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+retriever = CustomRetriever(
+    # Retriever configuration
+)
+
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',
+    description='An assistant with retriever',
+    api_key='your-openai-api-key',
+    retriever=retriever
+))
+```
+</TabItem>
+</Tabs>
+
+<hr/>
+
+**8. Combining Multiple Options**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new OpenAIAgent({
+  name: 'OpenAI Assistant',
+  description: 'An assistant with multiple options',
+  apiKey: 'your-openai-api-key',
+  model: 'gpt-4',
+  streaming: true,
+  inferenceConfig: {
+    maxTokens: 500,
+    temperature: 0.7
+  },
+  customSystemPrompt: {
+    template: 'You are an AI assistant specialized in {{DOMAIN}}.',
+    variables: {
+      DOMAIN: 'technical support'
+    }
+  }
+});
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+agent = OpenAIAgent(OpenAIAgentOptions(
+    name='OpenAI Assistant',
+    description='An assistant with multiple options',
+    api_key='your-openai-api-key',
+    model='gpt-4',
+    streaming=True,
+    inference_config={
+        'maxTokens': 500,
+        'temperature': 0.7
+    },
+    custom_system_prompt={
+        'template': 'You are an AI assistant specialized in {{DOMAIN}}.',
+        'variables': {
+            'DOMAIN': 'technical support'
+        }
+    }
+))
+```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+**9. Complete Example with All Options**
+
+Here's a comprehensive example showing all available configuration options:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+import { OpenAIAgent } from 'multi-agent-orchestrator';
+
+const agent = new OpenAIAgent({
+  // Required fields
+  name: 'Advanced OpenAI Assistant',
+  description: 'A fully configured AI assistant powered by OpenAI models',
+  apiKey: 'your-openai-api-key',
+  
+  // Optional fields
+  model: 'gpt-4',  // Choose OpenAI model
+  streaming: true, // Enable streaming responses
+  retriever: customRetriever, // Custom retriever for additional context
+  
+  // Inference configuration
+  inferenceConfig: {
+    maxTokens: 500,      // Maximum tokens to generate
+    temperature: 0.7,    // Control randomness (0-1)
+    topP: 0.9,          // Control diversity via nucleus sampling
+    stopSequences: ['Human:', 'AI:']  // Sequences that stop generation
+  },
+  
+  // Custom system prompt with variables
+  customSystemPrompt: {
+    template: `You are an AI assistant specialized in {{DOMAIN}}.
+              Your core competencies:
+              {{SKILLS}}
+              
+              Communication style:
+              - Maintain a {{TONE}} tone
+              - Focus on {{FOCUS}}
+              - Prioritize {{PRIORITY}}`,
+    variables: {
+      DOMAIN: 'scientific research',
+      SKILLS: [
+        '- Advanced data analysis',
+        '- Statistical methodology',
+        '- Research design',
+        '- Technical writing'
+      ],
+      TONE: 'professional and academic',
+      FOCUS: 'accuracy and clarity',
+      PRIORITY: 'evidence-based insights'
+    }
+  }
+});
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+from multi_agent_orchestrator import OpenAIAgent, OpenAIAgentOptions
+
+agent = OpenAIAgent(OpenAIAgentOptions(
+    # Required fields
+    name='Advanced OpenAI Assistant',
+    description='A fully configured AI assistant powered by OpenAI models',
+    api_key='your-openai-api-key',
+    
+    # Optional fields
+    model='gpt-4',         # Choose OpenAI model
+    streaming=True,        # Enable streaming responses
+    retriever=custom_retriever,  # Custom retriever for additional context
+    
+    # Inference configuration
+    inference_config={
+        'maxTokens': 500,     # Maximum tokens to generate
+        'temperature': 0.7,   # Control randomness (0-1)
+        'topP': 0.9,         # Control diversity via nucleus sampling
+        'stopSequences': ['Human:', 'AI:']  # Sequences that stop generation
+    },
+    
+    # Custom system prompt with variables
+    custom_system_prompt={
+        'template': """You are an AI assistant specialized in {{DOMAIN}}.
+                      Your core competencies:
+                      {{SKILLS}}
+                      
+                      Communication style:
+                      - Maintain a {{TONE}} tone
+                      - Focus on {{FOCUS}}
+                      - Prioritize {{PRIORITY}}""",
+        'variables': {
+            'DOMAIN': 'scientific research',
+            'SKILLS': [
+                '- Advanced data analysis',
+                '- Statistical methodology',
+                '- Research design',
+                '- Technical writing'
+            ],
+            'TONE': 'professional and academic',
+            'FOCUS': 'accuracy and clarity',
+            'PRIORITY': 'evidence-based insights'
+        }
+    }
+))
+```
+  </TabItem>
+</Tabs>
+
+## Using the OpenAIAgent
+
+There are two ways to use the OpenAIAgent: directly or through the Multi-Agent Orchestrator.
+
+### Direct Usage
+
+Call the agent directly when you want to use a single agent without orchestrator routing:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const classifierResult = {
+  selectedAgent: agent,
+  confidence: 1.0
+};
+
+const response = await orchestrator.agentProcessRequest(
+  "What is the capital of France?",
+  "user123",
+  "session456",
+  classifierResult
 );
 ```
   </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+classifier_result = ClassifierResult(selected_agent=agent, confidence=1.0)
+
+response = await orchestrator.agent_process_request(
+    "What is the capital of France?",
+    "user123",
+    "session456",
+    classifier_result
+)
+```
+  </TabItem>
 </Tabs>
 
+### Using with the Orchestrator
 
-The `setSystemPrompt` method allows you to dynamically change the agent's behavior and focus without creating a new instance. You can use placeholders in the prompt template and provide values for them in the second argument.
-
-## Usage
-
-Once you've created an OpenAIAgent, you can add it to the Multi-Agent Orchestrator and use it to process requests:
+Add the agent to Multi-Agent Orchestrator for use in a multi-agent system:
 
 <Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
-import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
-
 const orchestrator = new MultiAgentOrchestrator();
 orchestrator.addAgent(agent);
 
@@ -126,42 +487,17 @@ const response = await orchestrator.routeRequest(
 );
 ```
   </TabItem>
-</Tabs>
+  <TabItem label="Python" icon="seti:python">
+```python
+orchestrator = MultiAgentOrchestrator()
+orchestrator.add_agent(agent)
 
-
-## Streaming Responses
-
-If you've enabled streaming (`streaming: true` in the options), the agent will return an AsyncIterable that you can use to process the response in chunks:
-
-<Tabs syncKey="runtime">
-  <TabItem label="Typescript"  icon="seti:typescript" color="blue" >
-
-```typescript
-const streamingResponse = await orchestrator.routeRequest(
-  "Tell me a long story about a brave knight",
-  "user123",
-  "session456"
-);
-
-if (Symbol.asyncIterator in streamingResponse) {
-  for await (const chunk of streamingResponse) {
-    console.log(chunk); // Process each chunk of the response
-  }
-}
+response = await orchestrator.route_request(
+    "What is the capital of France?",
+    "user123",
+    "session456"
+)
 ```
   </TabItem>
-
 </Tabs>
 
-
-
-## Best Practices
-
-1. **API Key Security**: Ensure your OpenAI API key is kept secure and not exposed in your codebase.
-2. **Model Selection**: Choose an appropriate model based on your use case and performance requirements.
-3. **Inference Configuration**: Experiment with different inference parameters to find the best balance between response quality and speed.
-4. **Error Handling**: Implement additional error handling in your application to manage potential API failures gracefully.
-5. **Rate Limiting**: Be aware of OpenAI's rate limits and implement appropriate throttling if necessary.
-6. **System Prompts**: Craft clear and specific system prompts to guide the model's behavior and improve response quality for your use case.
-
-By leveraging the OpenAIAgent, you can create sophisticated, context-aware AI agents capable of handling a wide range of tasks and interactions, all powered by OpenAI's state-of-the-art language models.

@@ -101,7 +101,7 @@ Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator
 # Optional: Set up a virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-pip install multi-agent-orchestrator
+pip install multi-agent-orchestrator[aws]
 ```
 
 #### Default Usage

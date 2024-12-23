@@ -3,14 +3,17 @@ from dataclasses import dataclass, fields, asdict, replace
 import time
 from multi_agent_orchestrator.utils.logger import Logger
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, OrchestratorConfig
-from multi_agent_orchestrator.classifiers import (Classifier,
-                             ClassifierResult,
-                             BedrockClassifier,
-                             BedrockClassifierOptions)
+from multi_agent_orchestrator.classifiers import Classifier,ClassifierResult
 from multi_agent_orchestrator.agents import (Agent,
                         AgentResponse,
                         AgentProcessingResult)
-from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
+from multi_agent_orchestrator.storage import ChatStorage
+from multi_agent_orchestrator.storage import InMemoryChatStorage
+try:
+    from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
+    _BEDROCK_AVAILABLE = True
+except ImportError:
+    _BEDROCK_AVAILABLE = False
 
 @dataclass
 class MultiAgentOrchestrator:
@@ -41,7 +44,14 @@ class MultiAgentOrchestrator:
         self.logger = Logger(self.config, logger)
         self.agents: Dict[str, Agent] = {}
         self.storage = storage or InMemoryChatStorage()
-        self.classifier: Classifier = classifier or BedrockClassifier(options=BedrockClassifierOptions())
+
+        if classifier:
+            self.classifier = classifier
+        elif _BEDROCK_AVAILABLE:
+            self.classifier = BedrockClassifier(options=BedrockClassifierOptions())
+        else:
+            raise ValueError("No classifier provided and BedrockClassifier is not available. Please provide a classifier.")
+   
         self.execution_times: Dict[str, float] = {}
         self.default_agent: Agent = default_agent
 
