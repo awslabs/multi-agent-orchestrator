@@ -160,16 +160,24 @@ class OpenAIAgent(Agent):
             Logger.error(f'Error in OpenAI API call: {str(error)}')
             raise error
 
-    async def handle_streaming_response(self, request_options: Dict[str, Any]) -> Any:
-        
+    async def handle_streaming_response(self, request_options: Dict[str, Any]) -> AsyncIterable[Any]:
         try:
             stream = self.client.chat.completions.create(**request_options)
+            accumulated_message = []
             
             for chunk in stream:
                 if chunk.choices[0].delta.content:
+                    chunk_content = chunk.choices[0].delta.content
+                    accumulated_message.append(chunk_content)
                     if self.callbacks:
-                        self.callbacks.on_llm_new_token(chunk.choices[0].delta.content)
-                    yield chunk.choices[0].delta.content
+                        self.callbacks.on_llm_new_token(chunk_content)
+                    yield chunk_content
+
+            # Store the complete message in the instance for later access if needed
+            self._last_complete_message = ConversationMessage(
+                role=ParticipantRole.ASSISTANT.value,
+                content=[{"text": ''.join(accumulated_message)}]
+            )
 
         except Exception as error:
             Logger.error(f"Error getting stream from OpenAI model: {str(error)}")

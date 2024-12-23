@@ -2,7 +2,12 @@
 Code for Classifier.
 """
 from .classifier import Classifier, ClassifierResult
-from .bedrock_classifier import BedrockClassifier, BedrockClassifierOptions
+
+try:
+    from .bedrock_classifier import BedrockClassifier, BedrockClassifierOptions
+    _AWS_AVAILABLE = True
+except Exception as e:
+    _AWS_AVAILABLE = False
 
 try:
     from .anthropic_classifier import AnthropicClassifier, AnthropicClassifierOptions
@@ -16,14 +21,16 @@ try:
 except Exception as e:
     _OPENAI_AVAILABLE = False
 
-
-
 __all__ = [
     "Classifier",
     "ClassifierResult",
-    "BedrockClassifier",
-    "BedrockClassifierOptions"
 ]
+
+if _AWS_AVAILABLE:
+    __all__.extend([
+        "BedrockClassifier",
+        "BedrockClassifierOptions"
+    ])
 
 if _ANTHROPIC_AVAILABLE:
     __all__.extend([
