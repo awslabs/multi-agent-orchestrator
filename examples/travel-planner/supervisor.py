@@ -19,14 +19,14 @@ class SupervisorModeOptions(AgentOptions):
     def __init__(
         self,
         supervisor:Agent,
-        agents: list[Agent],
+        team: list[Agent],
         storage: Optional[ChatStorage] = None,
         trace: Optional[bool] = None,
         **kwargs,
     ):
-        super().__init__(**kwargs)
+        super().__init__(name=supervisor.name, description=supervisor.description, **kwargs)
         self.supervisor:Union[AnthropicAgent,BedrockLLMAgent] = supervisor
-        self.agents: list[Agent] = agents
+        self.team: list[Agent] = team
         self.storage = storage or InMemoryChatStorage()
         self.trace = trace or False
 
@@ -84,8 +84,7 @@ class SupervisorMode(Agent):
     def __init__(self, options: SupervisorModeOptions):
         super().__init__(options)
         self.supervisor:Union[AnthropicAgent,BedrockLLMAgent]  = options.supervisor
-        self.agents = options.agents
-        self.agents_discussion = ''
+        self.team = options.team
         self.supervisor_type =  SupervisorType.BEDROCK.value if isinstance(self.supervisor, BedrockLLMAgent) else SupervisorType.ANTHROPIC.value
         if not self.supervisor.tool_config:
             self.supervisor.tool_config = {
@@ -105,10 +104,12 @@ class SupervisorMode(Agent):
         tools_str = ",".join(f"{tool.name}:{tool.func_description}" for tool in SupervisorMode.supervisor_tools)
         agent_list_str = "\n".join(
             f"{agent.name}: {agent.description}"
-            for agent in self.agents
+            for agent in self.team
         )
+
         self.prompt_template: str = f"""\n
-You are a SupervisorAgent in a multi-agent system. Your primary role is to manage the flow of conversation between a user and multiple specialized agents.
+You are a {self.name}.
+{self.description}
 
 You can interact with the following agents in this environment using the tools:
 <agents>
@@ -161,14 +162,14 @@ When communicating with other agents, including the User, please follow these gu
     async def send_message(self, recipient:str, content:str):
         Logger.info(f"\n===>>>>> Supervisor sending message to {recipient}: {content}")\
             if self.trace else None
-        for agent in self.agents:
+        for agent in self.team:
             if agent.name == recipient:
-                agent_chat_history = await self.storage.fetch_chat(self.user_id, self.session_id, agent.id)
+                agent_chat_history = await self.storage.fetch_chat(self.user_id, self.session_id, agent.id) if agent.save_chat else []
                 response = await agent.process_request(content, self.user_id, self.session_id, agent_chat_history)
-                Logger.info(f"\n<<<<<===Supervisor received this response from {agent.name}:\n {response.content[0].get('text','')[:200]}...") \
+                Logger.info(f"\n<<<<<===Supervisor received this response from {agent.name}:\n {response.content[0].get('text','')[:500]}...") \
                 if self.trace else None
-                await self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.USER.value, content=[{'text':content}]))
-                await self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text':f"{response.content[0].get('text', '')}"}]))
+                await self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.USER.value, content=[{'text':content}])) if agent.save_chat else None
+                await self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text':f"{response.content[0].get('text', '')}"}])) if agent.save_chat else None
                 return f"{agent.name}: {response.content[0].get('text')}"
         return "Agent not responding"
 
@@ -176,11 +177,11 @@ When communicating with other agents, including the User, please follow these gu
     def process_single_request(self, agent:Agent, message_content: str, user_id: str, session_id: str, chat_history: list[dict], additionalParameters: dict) -> 'str':
         Logger.info(f"\n===>>>>> Supervisor sending  {agent.name}: {message_content}")\
             if self.trace else None
-        agent_chat_history =  asyncio.run(self.storage.fetch_chat(self.user_id, self.session_id, agent.id))
+        agent_chat_history =  asyncio.run(self.storage.fetch_chat(self.user_id, self.session_id, agent.id)) if agent.save_chat else []
         response = asyncio.run(agent.process_request(message_content, user_id, session_id, agent_chat_history, additionalParameters))
-        asyncio.run(self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.USER.value, content=[{'text':message_content}])))
-        asyncio.run(self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text':f"{response.content[0].get('text', '')}"}])))
-        Logger.info(f"\n<<<<<===Supervisor received this response from {agent.name}:\n{response.content[0].get('text', '')[:200]}...")\
+        asyncio.run(self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.USER.value, content=[{'text':message_content}]))) if agent.save_chat else None
+        asyncio.run(self.storage.save_chat_message(self.user_id, self.session_id, agent.id, ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text':f"{response.content[0].get('text', '')}"}]))) if agent.save_chat else None
+        Logger.info(f"\n<<<<<===Supervisor received this response from {agent.name}:\n{response.content[0].get('text', '')[:500]}...")\
             if self.trace else None
         return f"{agent.name}: {response.content[0].get('text')}"
 
@@ -188,7 +189,7 @@ When communicating with other agents, including the User, please follow these gu
         """Process all messages for all agents in parallel."""
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = []
-            for agent in self.agents:
+            for agent in self.team:
                 for message in messages:
                     if agent.name == message.get('recipient'):
                         future = executor.submit(
@@ -312,7 +313,7 @@ When communicating with other agents, including the User, please follow these gu
             f"{user_msg.role}:{user_msg.content[0].get('text','')}\n"
             f"{asst_msg.role}:{asst_msg.content[0].get('text','')}\n"
             for user_msg, asst_msg in zip(agents_history[::2], agents_history[1::2])
-            if 'supervisor' not in asst_msg.content[0].get('text', '')
+            if self.id not in asst_msg.content[0].get('text', '')
         )
 
         self.supervisor.set_system_prompt(self.prompt_template.replace('{AGENTS_MEMORY}', agents_memory))
