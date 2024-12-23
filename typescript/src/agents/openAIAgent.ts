@@ -4,9 +4,17 @@ import OpenAI from 'openai';
 import { Logger } from '../utils/logger';
 import { Retriever } from "../retrievers/retriever";
 
+type WithApiKey = {
+  apiKey: string;
+  client?: never;
+};
+
+type WithClient = {
+  client: OpenAI;
+  apiKey?: never;
+};
 
 export interface OpenAIAgentOptions extends AgentOptions {
-  apiKey: string;
   model?: string;
   streaming?: boolean;
   inferenceConfig?: {
@@ -23,10 +31,12 @@ export interface OpenAIAgentOptions extends AgentOptions {
 
 }
 
+export type OpenAIAgentOptionsWithAuth = OpenAIAgentOptions & (WithApiKey | WithClient);
+
 const DEFAULT_MAX_TOKENS = 1000;
 
 export class OpenAIAgent extends Agent {
-  private openai: OpenAI;
+  private client: OpenAI;
   private model: string;
   private streaming: boolean;
   private inferenceConfig: {
@@ -41,9 +51,20 @@ export class OpenAIAgent extends Agent {
   protected retriever?: Retriever;
 
 
-  constructor(options: OpenAIAgentOptions) {
+  constructor(options: OpenAIAgentOptionsWithAuth) {
+
     super(options);
-    this.openai = new OpenAI({ apiKey: options.apiKey });
+
+    if (!options.apiKey && !options.client) {
+      throw new Error("OpenAI API key or OpenAI client is required");
+    }
+    if (options.client) {
+      this.client = options.client;
+    } else {
+      if (!options.apiKey) throw new Error("OpenAI API key is required");
+      this.client = new OpenAI({ apiKey: options.apiKey });
+    }
+
     this.model = options.model ?? OPENAI_MODEL_ID_GPT_O_MINI;
     this.streaming = options.streaming ?? false;
     this.inferenceConfig = {
@@ -117,8 +138,6 @@ export class OpenAIAgent extends Agent {
       { role: 'user' as const, content: inputText }
     ] as OpenAI.Chat.ChatCompletionMessageParam[];
 
-    console.log("messages="+JSON.stringify(messages))
-
     const { maxTokens, temperature, topP, stopSequences } = this.inferenceConfig;
 
     const requestOptions: OpenAI.Chat.ChatCompletionCreateParams = {
@@ -170,8 +189,7 @@ export class OpenAIAgent extends Agent {
   private async handleSingleResponse(input: any): Promise<ConversationMessage> {
     try {
       const nonStreamingOptions = { ...input, stream: false };
-      const chatCompletion = await this.openai.chat.completions.create(nonStreamingOptions);
-
+      const chatCompletion = await this.client.chat.completions.create(nonStreamingOptions);
       if (!chatCompletion.choices || chatCompletion.choices.length === 0) {
         throw new Error('No choices returned from OpenAI API');
       }
@@ -193,7 +211,7 @@ export class OpenAIAgent extends Agent {
   }
 
   private async *handleStreamingResponse(options: OpenAI.Chat.ChatCompletionCreateParams): AsyncIterable<string> {
-    const stream = await this.openai.chat.completions.create({ ...options, stream: true });
+    const stream = await this.client.chat.completions.create({ ...options, stream: true });
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content;
       if (content) {

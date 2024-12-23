@@ -128,9 +128,10 @@ class OpenAIAgent(Agent):
                 "stop": self.inference_config.get('stopSequences'),
                 "stream": self.streaming
             }
-
+            print("****")
+            print(self.streaming)
             if self.streaming:
-                return self.handle_streaming_response(request_options)
+                return await self.handle_streaming_response(request_options)
             else:
                 return await self.handle_single_response(request_options)
 
@@ -171,7 +172,7 @@ class OpenAIAgent(Agent):
                     accumulated_message.append(chunk_content)
                     if self.callbacks:
                         self.callbacks.on_llm_new_token(chunk_content)
-                    yield chunk_content
+                    #yield chunk_content
 
             # Store the complete message in the instance for later access if needed
             self._last_complete_message = ConversationMessage(
