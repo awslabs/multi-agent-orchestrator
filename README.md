@@ -374,12 +374,6 @@ pip install "multi-agent-orchestrator[all]"
 
 Includes all optional dependencies for maximum flexibility. 
 
-Curious about how to use these installation options? Our comprehensive documentation provides:
-
-
-Here's the updated version, including the **Ideas** category:
-
----
 
 ### 🙌 **We Want to Hear From You!**
 
