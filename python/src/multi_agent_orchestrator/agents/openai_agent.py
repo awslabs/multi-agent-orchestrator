@@ -175,7 +175,7 @@ class OpenAIAgent(Agent):
                     #yield chunk_content
 
             # Store the complete message in the instance for later access if needed
-            self._last_complete_message = ConversationMessage(
+            return ConversationMessage(
                 role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": ''.join(accumulated_message)}]
             )
