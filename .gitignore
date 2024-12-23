@@ -31,3 +31,6 @@ examples/chat-chainlit-app/venv
 
 *.env
 *__pycache__
+
+git-release-notes.genai.mjs
+
