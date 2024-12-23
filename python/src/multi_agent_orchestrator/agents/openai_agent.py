@@ -128,8 +128,6 @@ class OpenAIAgent(Agent):
                 "stop": self.inference_config.get('stopSequences'),
                 "stream": self.streaming
             }
-            print("****")
-            print(self.streaming)
             if self.streaming:
                 return await self.handle_streaming_response(request_options)
             else:
