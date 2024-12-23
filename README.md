@@ -377,6 +377,22 @@ Includes all optional dependencies for maximum flexibility.
 Curious about how to use these installation options? Our comprehensive documentation provides:
 
 
+Here's the updated version, including the **Ideas** category:
+
+---
+
+### 🙌 **We Want to Hear From You!**
+
+Have something to share, discuss, or brainstorm? We’d love to connect with you and hear about your journey with the **Multi-Agent Orchestrator framework**. Here’s how you can get involved:
+
+- **🙌 Show & Tell**: Got a success story, cool project, or creative implementation? Share it with us in the [**Show and Tell**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/show-and-tell) section. Your work might inspire the entire community! 🎉
+
+- **💬 General Discussion**: Have questions, feedback, or suggestions? Join the conversation in our [**General Discussions**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/general) section. It’s the perfect place to connect with other users and contributors.
+
+- **💡 Ideas**: Thinking of a new feature or improvement? Share your thoughts in the [**Ideas**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/ideas) section. We’re always open to exploring innovative ways to make the orchestrator even better!
+
+Let’s collaborate, learn from each other, and build something incredible together! 🚀
+
 ## 🤝 Contributing
 
 We welcome contributions to the Multi-Agent Orchestrator! If you have ideas, improvements, or new features to add, please:
