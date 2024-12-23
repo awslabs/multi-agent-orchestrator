@@ -159,7 +159,7 @@ class OpenAIAgent(Agent):
             Logger.error(f'Error in OpenAI API call: {str(error)}')
             raise error
 
-    async def handle_streaming_response(self, request_options: Dict[str, Any]) -> AsyncIterable[Any]:
+    async def handle_streaming_response(self, request_options: Dict[str, Any]) -> ConversationMessage:
         try:
             stream = self.client.chat.completions.create(**request_options)
             accumulated_message = []
