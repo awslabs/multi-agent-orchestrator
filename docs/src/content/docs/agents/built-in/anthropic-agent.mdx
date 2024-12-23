@@ -20,102 +20,480 @@ This agent can handle a wide range of processing tasks, making it suitable for d
 
 ## Creating a AnthropicAgent
 
-By default, the **AnthropicAgent** uses the `claude-3-5-sonnet-20240620 model`.
+Here are various examples showing different ways to create and configure an AnthropicAgent:
 
-### Basic Example
+### Basic Examples
 
-To create a new **Anthropic Agent** with only the required parameters, use the following code:
+**1. Minimal Configuration**
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
+
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
-    ```typescript
-    import { AnthropicAgent } from 'multi-agent-orchestrator';
 
-    const agent = new AnthropicAgent({
-      name: 'Tech Agent',
-      description: 'Specializes in technology areas including software development, \
-      hardware, AI, cybersecurity, blockchain, cloud computing, \
-      emerging tech innovations,and pricing/costs related to \
-      technology products and services.',
-      apiKey: 'your-anthropic-api-key-here'
-    });
-    ```
+```typescript
+const agent = new AnthropicAgent({
+  name: 'Anthropic Assistant',
+  description: 'A versatile AI assistant',
+  apiKey: 'your-anthropic-api-key'
+});
+```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-    ```python
-
-    ```
+```python
+agent = AnthropicAgent(AnthropicAgentOptions(
+    name='Anthropic Assistant',
+    description='A versatile AI assistant',
+    api_key='your-anthropic-api-key'
+))
+```
   </TabItem>
 </Tabs>
 
-In this basic example, only the `name`, `description` and `apiKey` are provided, which are the only required parameters for creating a AnthropicAgent.
+<hr/>
 
-### Advanced Example
-
-For more complex use cases, you can create a **Anthropic Agent** with all available options. All parameters except `name`, `description` and `apiKey` or `client` are optional:
+**2. Using Custom Client**
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
-    ```typescript
-    import { AnthropicAgent, AnthropicAgentOptions, ParticipantRole } from 'multi-agent-orchestrator';
-    import { Retriever } from '../retrievers/retriever';
+```typescript
+import { Anthropic } from '@anthropic-ai/sdk';
+const customClient = new Anthropic({ apiKey: 'your-anthropic-api-key' });
+const agent = new AnthropicAgent({
+name: 'Anthropic Assistant',
+description: 'A versatile AI assistant',
+client: customClient
+});
+```
+</TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+from anthropic import Anthropic
 
-    const options: AnthropicAgentOptions = {
-      name: 'My Advanced Anthropic Agent',
-      description: 'A versatile agent for complex NLP tasks',
-      apiKey: 'your-anthropic-api-key-here',
-      modelId: 'claude-3-opus-20240229',
-      streaming: true,
-      inferenceConfig: {
-        maxTokens: 1000,
-        temperature: 0.7,
-        topP: 0.9,
-        stopSequences: ['Human:', 'AI:']
-      },
-      retriever: new Retriever(), // Assuming you have a Retriever class implemented
-      toolConfig: {
-        tool: [
-          {
-            name: "Weather_Tool",
-            description: "Get the current weather for a given location, based on its WGS84 coordinates.",
-            input_schema: {
-                type: "object",
-                properties: {
-                    latitude: {
-                        type: "string",
-                        description: "Geographical WGS84 latitude of the location.",
-                    },
-                    longitude: {
-                        type: "string",
-                        description: "Geographical WGS84 longitude of the location.",
-                    },
-                },
-                required: ["latitude", "longitude"],
-            }
-          }
-        ],
-        useToolHandler: (response, conversation) => {
-          // Process tool response
-          // Return processed response
-          return {role: ParticipantRole.USER, content: {
-                    "type": "tool_result",
-                    "tool_use_id": "tool_user_id",
-                    "content": "Response from the tool"
-                }}
-        }
-      }
-    };
+custom_client = Anthropic(api_key='your-anthropic-api-key')
 
-    const agent = new AnthropicAgent(options);
-    ```
+agent = AnthropicAgent(AnthropicAgentOptions(
+    name='Anthropic Assistant',
+    description='A versatile AI assistant',
+    client=custom_client
+))
+```
+</TabItem>
+</Tabs>
+
+
+<hr/>
+
+**3. Custom Model and Streaming**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new AnthropicAgent({
+  name: 'Anthropic Assistant',
+  description: 'A streaming-enabled assistant',
+  apiKey: 'your-anthropic-api-key',
+  modelId: 'claude-3-opus-20240229',
+  streaming: true
+});
+```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
-    ```python
-
-    ```
+```python
+agent = AnthropicAgent(AnthropicAgentOptions(
+    name='Anthropic Assistant',
+    description='A streaming-enabled assistant',
+    api_key='your-anthropic-api-key',
+    model_id='claude-3-opus-20240229',
+    streaming=True
+))
+```
   </TabItem>
+</Tabs>
+
+<hr/>
+
+**4. With Inference Configuration**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new AnthropicAgent({
+  name: 'Anthropic Assistant',
+  description: 'An assistant with custom inference settings',
+  apiKey: 'your-anthropic-api-key',
+  inferenceConfig: {
+    maxTokens: 500,
+    temperature: 0.7,
+    topP: 0.9,
+    stopSequences: ['Human:', 'AI:']
+  }
+});
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+agent = AnthropicAgent(AnthropicAgentOptions(
+    name='Anthropic Assistant',
+    description='An assistant with custom inference settings',
+    api_key='your-anthropic-api-key',
+    inference_config={
+        'maxTokens': 500,
+        'temperature': 0.7,
+        'topP': 0.9,
+        'stopSequences': ['Human:', 'AI:']
+    }
+))
+```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+**5. With Simple System Prompt**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new AnthropicAgent({
+  name: 'Anthropic Assistant',
+  description: 'An assistant with custom prompt',
+  apiKey: 'your-anthropic-api-key',
+  customSystemPrompt: {
+    template: 'You are a helpful AI assistant focused on technical support.'
+  }
+});
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+agent = AnthropicAgent(AnthropicAgentOptions(
+    name='Anthropic Assistant',
+    description='An assistant with custom prompt',
+    api_key='your-anthropic-api-key',
+    custom_system_prompt={
+        'template': 'You are a helpful AI assistant focused on technical support.'
+    }
+))
+```
+  </TabItem>
+</Tabs>
+<hr/>
+
+**6. With System Prompt Variables**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new AnthropicAgent({
+  name: 'Anthropic Assistant',
+  description: 'An assistant with variable prompt',
+  apiKey: 'your-anthropic-api-key',
+  customSystemPrompt: {
+    template: 'You are an AI assistant specialized in {{DOMAIN}}. Always use a {{TONE}} tone.',
+    variables: {
+      DOMAIN: 'customer support',
+      TONE: 'friendly and helpful'
+    }
+  }
+});
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+agent = AnthropicAgent(AnthropicAgentOptions(
+    name='Anthropic Assistant',
+    description='An assistant with variable prompt',
+    api_key='your-anthropic-api-key',
+    custom_system_prompt={
+        'template': 'You are an AI assistant specialized in {{DOMAIN}}. Always use a {{TONE}} tone.',
+        'variables': {
+            'DOMAIN': 'customer support',
+            'TONE': 'friendly and helpful'
+        }
+    }
+))
+```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+**7. With Custom Retriever**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const retriever = new CustomRetriever({
+  // Retriever configuration
+});
+const agent = new AnthropicAgent({
+name: 'Anthropic Assistant',
+description: 'An assistant with retriever',
+apiKey: 'your-anthropic-api-key',
+retriever: retriever
+});
+```
+
+</TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+retriever = CustomRetriever(
+    # Retriever configuration
+)
+
+agent = AnthropicAgent(AnthropicAgentOptions(
+    name='Anthropic Assistant',
+    description='An assistant with retriever',
+    api_key='your-anthropic-api-key',
+    retriever=retriever
+))
+```
+</TabItem>
+</Tabs>
+
+<hr/>
+
+**8. With Tool Configuration**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new AnthropicAgent({
+  name: 'Anthropic Assistant',
+  description: 'An assistant with tool support',
+  apiKey: 'your-anthropic-api-key',
+  toolConfig: {
+    tool: [
+      {
+        name: "Weather_Tool",
+        description: "Get current weather data",
+        input_schema: {
+          type: "object",
+          properties: {
+            location: {
+              type: "string",
+              description: "City name",
+            }
+          },
+          required: ["location"]
+        }
+      }
+    ],
+    useToolHandler: (response, conversation) => {
+      return {
+        role: ParticipantRole.USER,
+        content: {
+          "type": "tool_result",
+          "tool_use_id": "weather_tool",
+          "content": "Current weather data for the location"
+        }
+      }
+    }
+  }
+});
+```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+```python
+agent = AnthropicAgent(AnthropicAgentOptions(
+    name='Anthropic Assistant',
+    description='An assistant with tool support',
+    api_key='your-anthropic-api-key',
+    tool_config={
+        'tool': [{
+            'name': 'Weather_Tool',
+            'description': 'Get current weather data',
+            'input_schema': {
+                'type': 'object',
+                'properties': {
+                    'location': {
+                        'type': 'string',
+                        'description': 'City name'
+                    }
+                },
+                'required': ['location']
+            }
+        }],
+        'useToolHandler': lambda response, conversation: {
+            'role': ParticipantRole.USER.value,
+            'content': {
+                'type': 'tool_result',
+                'tool_use_id': 'weather_tool',
+                'content': 'Current weather data for the location'
+            }
+        }
+    }
+))
+```
+  </TabItem>
+</Tabs>
+<hr/>
+
+**9. Complete Example with All Options**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+import { AnthropicAgent } from 'multi-agent-orchestrator';
+
+const agent = new AnthropicAgent({
+  // Required fields
+  name: 'Advanced Anthropic Assistant',
+  description: 'A fully configured AI assistant powered by Anthropic models',
+  apiKey: 'your-anthropic-api-key',
+  
+  // Optional fields
+  modelId: 'claude-3-opus-20240229',  // Choose Anthropic model
+  streaming: true, // Enable streaming responses
+  retriever: customRetriever, // Custom retriever for additional context
+  
+  // Inference configuration
+  inferenceConfig: {
+    maxTokens: 500,      // Maximum tokens to generate
+    temperature: 0.7,    // Control randomness (0-1)
+    topP: 0.9,          // Control diversity via nucleus sampling
+    stopSequences: ['Human:', 'AI:']  // Sequences that stop generation
+  },
+  
+  // Tool configuration
+  toolConfig: {
+    tool: [{
+      name: "Weather_Tool",
+      description: "Get the current weather for a given location",
+      input_schema: {
+        type: "object",
+        properties: {
+          latitude: {
+            type: "string",
+            description: "Geographical WGS84 latitude"
+          },
+          longitude: {
+            type: "string",
+            description: "Geographical WGS84 longitude"
+          }
+        },
+        required: ["latitude", "longitude"]
+      }
+    }],
+    useToolHandler: (response, conversation) => ({
+      role: ParticipantRole.USER,
+      content: {
+        type: "tool_result",
+        tool_use_id: "tool_user_id",
+        content: "Response from the tool"
+      }
+    })
+  },
+  
+  // Custom system prompt with variables
+  customSystemPrompt: {
+    template: `You are an AI assistant specialized in {{DOMAIN}}.
+              Your core competencies:
+              {{SKILLS}}
+              
+              Communication style:
+              - Maintain a {{TONE}} tone
+              - Focus on {{FOCUS}}
+              - Prioritize {{PRIORITY}}`,
+    variables: {
+      DOMAIN: 'scientific research',
+      SKILLS: [
+        '- Advanced data analysis',
+        '- Statistical methodology',
+        '- Research design',
+        '- Technical writing'
+      ],
+      TONE: 'professional and academic',
+      FOCUS: 'accuracy and clarity',
+      PRIORITY: 'evidence-based insights'
+    }
+  }
+});
+```
+
+</TabItem>
+  <TabItem label="Python" icon="seti:python">
+
+```python
+
+from multi_agent_orchestrator import AnthropicAgent, AnthropicAgentOptions
+from multi_agent_orchestrator.types import ParticipantRole
+agent = AnthropicAgent(AnthropicAgentOptions(
+# Required fields
+name='Advanced Anthropic Assistant',
+description='A fully configured AI assistant powered by Anthropic models',
+api_key='your-anthropic-api-key',
+# Optional fields
+model_id='claude-3-opus-20240229',  # Choose Anthropic model
+streaming=True,        # Enable streaming responses
+retriever=custom_retriever,  # Custom retriever for additional context
+
+# Inference configuration
+inference_config={
+    'maxTokens': 500,     # Maximum tokens to generate
+    'temperature': 0.7,   # Control randomness (0-1)
+    'topP': 0.9,         # Control diversity via nucleus sampling
+    'stopSequences': ['Human:', 'AI:']  # Sequences that stop generation
+},
+
+# Tool configuration
+tool_config={
+    'tool': [{
+        'name': 'Weather_Tool',
+        'description': 'Get the current weather for a given location',
+        'input_schema': {
+            'type': 'object',
+            'properties': {
+                'latitude': {
+                    'type': 'string',
+                    'description': 'Geographical WGS84 latitude'
+                },
+                'longitude': {
+                    'type': 'string',
+                    'description': 'Geographical WGS84 longitude'
+                }
+            },
+            'required': ['latitude', 'longitude']
+        }
+    }],
+    'useToolHandler': lambda response, conversation: {
+        'role': ParticipantRole.USER.value,
+        'content': {
+            'type': 'tool_result',
+            'tool_use_id': 'tool_user_id',
+            'content': 'Response from the tool'
+        }
+    }
+},
+
+# Custom system prompt with variables
+custom_system_prompt={
+    'template': """You are an AI assistant specialized in {{DOMAIN}}.
+                  Your core competencies:
+                  {{SKILLS}}
+                  
+                  Communication style:
+                  - Maintain a {{TONE}} tone
+                  - Focus on {{FOCUS}}
+                  - Prioritize {{PRIORITY}}""",
+    'variables': {
+        'DOMAIN': 'scientific research',
+        'SKILLS': [
+            '- Advanced data analysis',
+            '- Statistical methodology',
+            '- Research design',
+            '- Technical writing'
+        ],
+        'TONE': 'professional and academic',
+        'FOCUS': 'accuracy and clarity',
+        'PRIORITY': 'evidence-based insights'
+    }
+}
+))
+```
+</TabItem>
 </Tabs>
 
 ### Option Explanations
