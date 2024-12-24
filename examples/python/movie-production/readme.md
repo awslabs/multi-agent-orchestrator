@@ -1,12 +1,11 @@
 ## 🎬 AI Movie Production Agent
-This Streamlit app is an AI-powered movie production assistant that helps bring your movie ideas to life using Claude 3 on Amazon BedrocK. It automates the process of script writing and casting, allowing you to create compelling movie concepts with ease.
-### streamlit app
-Here is a screenshot of the streamlit app. You can describe your movie, select a movie genre, audience and duration and hit `Develop Movie Concept`
+This Streamlit app is an AI-powered movie production assistant that helps bring your movie ideas to life using Claude 3 on Amazon Bedrock. It automates the process of script writing and casting, allowing you to create compelling movie concepts with ease.
 
+### Streamlit App
+Here is a screenshot of the streamlit app. You can describe your movie, select a movie genre, audience and duration and hit `Develop Movie Concept`
 ![image](./movie-production.png)
 
-After a few seconds you should have a your movie ready! 🍿 🎬
-
+After a few seconds you should have your movie ready! 🍿 🎬
 ![image](./movie-production-result.png)
 
 ### Features
@@ -14,25 +13,9 @@ After a few seconds you should have a your movie ready! 🍿 🎬
 - Suggests suitable actors for main roles, considering their past performances and current availability
 - Provides a concise movie concept overview
 
-### How to get Started?
+### How to Get Started?
 
-1. Clone the GitHub repository
-
-```bash
-git clone https://github.com/awslabs/multi-agent-orchestrator.git
-```
-2. Install the required dependencies:
-
-```bash
-cd examples/movie-production
-pip install -r requirements.txt
-```
-3. Get your AWS Credentials
-
-4. Run the Streamlit App
-```bash
-streamlit run movie-production-demo.py
-```
+Check out the [demos README](../README.md) for installation and setup instructions.
 
 ### How it Works?
 
