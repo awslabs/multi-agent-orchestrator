@@ -1,18 +1,18 @@
 # AWS Multi-Agent Orchestrator Demos
 
-This Streamlit application showcases various demos powered by the AWS Multi-Agent Orchestrator framework, demonstrating how multiple AI agents can collaborate to solve complex tasks using Amazon Bedrock.
+This Streamlit application demonstrates the capabilities of the AWS Multi-Agent Orchestrator framework by showcasing how specialized AI agents can collaborate to solve complex tasks using Amazon Bedrock and Anthropic's Claude models.
 
 ## 🎯 Current Demos
 
 ### 🎬 [AI Movie Production](../movie-production/README.md)
 **Requirements**: AWS Account with Amazon Bedrock access (Claude models enabled)
 
-Transform your movie ideas into detailed concepts with this AI-powered production assistant. Simply describe your movie idea, choose a genre and target audience, and the system will generate a complete script outline and suggest suitable actors for main roles based on real-time casting research. Powered by a team of specialized AI agents using Claude 3 on Amazon Bedrock.
+Bring your movie ideas to life with this AI-powered production assistant. Describe your movie concept, select a genre and target audience, and let the system create a comprehensive script outline and recommend actors for the main roles based on real-time research.
 
 ### ✈️ [AI Travel Planner](../travel-planner/README.md)
 **Requirements**: Anthropic API Key
 
-Create personalized travel itineraries with this AI-powered travel assistant. Input your destination and duration, and the system will research attractions, accommodations, and activities in real-time, crafting a detailed day-by-day itinerary tailored to your preferences. Built using specialized research and planning agents powered by Amazon Bedrock.
+Enter your destination and travel duration, and the system will research attractions, accommodations, and activities in real-time to create a personalized, day-by-day itinerary based on your preferences.
 
 ## 🚀 Getting Started
 
@@ -30,20 +30,9 @@ Create personalized travel itineraries with this AI-powered travel assistant. In
 1. Clone the repository:
 ```bash
 git clone https://github.com/awslabs/multi-agent-orchestrator.git
-```
-
-2. Navigate to the demos directory:
-```bash
 cd examples/python
 python -m venv venv
 source venv/bin/activate # On Windows use `venv\Scripts\activate`
-```
-
-3. Install the required dependencies:
-```bash
-# For running all demos through main app
-python -m venv venv_main
-source venv/bin/activate # On Windows use `venv_main\Scripts\activate`
 pip install -r requirements.txt
 ```
 
@@ -55,25 +44,38 @@ pip install -r requirements.txt
 streamlit run main-app.py
 ```
 
-## 💡 How It Works
+## 🎮 Featured Demos
 
-The application uses the Multi-Agent Orchestrator framework to coordinate multiple specialized AI agents powered by Amazon Bedrock. Each demo showcases different aspects of agent collaboration:
-- **Movie Production**: Demonstrates creative collaboration between script writing and casting agents
-- **Travel Planning**: Shows how research and planning agents can work together to create personalized travel experiences
+### 🎬 AI Movie Production Studio
+**Prerequisite**: AWS Account with Amazon Bedrock access (Claude models enabled)
 
-Each agent is powered by Claude 3 on Amazon Bedrock and can communicate with other agents through a supervisor agent that orchestrates the entire process.
+Transform your movie ideas into detailed scripts and cast lists! Our AI agents collaborate:
+- **ScriptWriter** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3 Sonnet): Creates compelling story outlines
+- **CastingDirector** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3 Haiku): Researches and suggests perfect casting choices
+- **MovieProducer** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3.5 Sonnet): Coordinates the entire creative process
+- All coordinated by a  [**Custom BedrockLLMAgent Agent**](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent)  - Supervisor Agent
+
+### ✈️ AI Travel Planner
+**Prerequisite**: Anthropic API Key
+
+Your personal travel assistant powered by AI! Experience collaboration between:
+- **ResearcherAgent** ([AnthropicAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/anthropic-agent) with Claude 3 Haiku): Performs real-time destination research
+- **PlannerAgent** ([AnthropicAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/anthropic-agent) with Claude 3 Sonnet): Creates personalized day-by-day itineraries
+- Coordinated by a [**SupervisorMode**](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/supervisor-agent) using the Planner as supervisor
 
 ## 🛠️ Technologies Used
-- AWS Multi-Agent Orchestrator
-- Amazon Bedrock
-- Claude 3 (Anthropic)
-- Streamlit
-- Python
+- Streamlit for UI
+- AWS Multi-Agent Orchestrator for multi-agent collaboration
+- Amazon Bedrock for deploying Claude models
+- Anthropic's Claude models for AI reasoning
+- Python for backend scripting
 
 ## 📚 Documentation
 
-For more information about the Multi-Agent Orchestrator framework and its capabilities, visit our [documentation](https://awslabs.github.io/multi-agent-orchestrator/).
+
+Learn more about the AWS Multi-Agent Orchestrator framework, including its features and technical details, by visiting the official [documentation](https://awslabs.github.io/multi-agent-orchestrator/).
+
 
 ## 🤝 Contributing
 
-We welcome contributions! Please feel free to submit a Pull Request.
+If you want to create a new demo to be included in this global Streamlit demo application, contributions are welcome! Please fork the repository, create a new branch with your changes, and submit a Pull Request for review
