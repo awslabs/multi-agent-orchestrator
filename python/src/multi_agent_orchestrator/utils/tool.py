@@ -31,37 +31,6 @@ class ToolResult:
             }
         }
 
-class ToolBuilder:
-    def __init__(self, name: str, description: str):
-        self.name = name
-        self.description = description
-        self.properties: dict[str, dict[str, Any]] = {}
-        self.required: list[str] = []
-
-    def add_property(self,
-                    name: str,
-                    type: str = "string",
-                    description: str = "",
-                    required: bool = True,
-                    enum: Optional[list] = None) -> 'ToolBuilder':
-        self.properties[name] = {
-            "type": type,
-            "description": description
-        }
-        if enum:
-            self.properties[name]["enum"] = enum
-        if required:
-            self.required.append(name)
-        return self
-
-    def build(self) -> 'Tool':
-        return Tool.from_dict(
-            name=self.name,
-            description=self.description,
-            properties=self.properties,
-            required=self.required
-        )
-
 class Tool:
     def __init__(self,
                 name: str,
@@ -153,36 +122,6 @@ class Tool:
                 return await result
             return result
         return wrapper
-
-    @classmethod
-    def from_function(cls, name: str, description: str, func: Callable, enum_values: Optional[dict[str, list]] = None) -> 'Tool':
-        """Create a Tool instance from a function"""
-        return cls(name=name, description=description, func=func, enum_values=enum_values)
-
-    @classmethod
-    def from_dict(cls, name: str, description: str, properties: dict[str, dict[str, Any]], required: Optional[list[str]] = None) -> 'Tool':
-        """Create a Tool instance from a dictionary of properties"""
-        return cls(name=name, description=description, properties=properties, required=required)
-
-    @classmethod
-    def from_property_definitions(cls, name: str, description: str, properties: dict[str, PropertyDefinition]) -> 'Tool':
-        """Create a Tool instance from PropertyDefinition objects"""
-        formatted_properties = {}
-        for prop_name, prop_def in properties.items():
-            prop_dict = {
-                "type": prop_def.type,
-                "description": prop_def.description
-            }
-            if prop_def.enum:
-                prop_dict["enum"] = prop_def.enum
-            formatted_properties[prop_name] = prop_dict
-
-        return cls(name=name, description=description, properties=formatted_properties)
-
-    @classmethod
-    def builder(cls, name: str, description: str) -> ToolBuilder:
-        """Create a ToolBuilder instance"""
-        return ToolBuilder(name, description)
 
     def to_claude_format(self) -> dict[str, Any]:
         """Convert generic tool definition to Claude format"""
