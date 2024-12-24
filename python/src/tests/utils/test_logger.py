@@ -19,7 +19,6 @@ def test_logger_initialization():
 
 def test_logger_initialization_with_custom_config():
     custom_config = OrchestratorConfig(**{'LOG_AGENT_CHAT': True, 'LOG_CLASSIFIER_CHAT': False})
-    print(custom_config)
     logger = Logger(config=custom_config)
     assert logger.config == custom_config
 
