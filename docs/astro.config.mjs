@@ -75,6 +75,7 @@ export default defineConfig({
 					  ]
 					},
 					{ label: 'Custom Agents', link: '/agents/custom-agents' },
+					{ label: 'Tools for Agents', link: '/agents/tools' },
 
 				  ]
 				},
@@ -103,12 +104,6 @@ export default defineConfig({
 						]
 					},
 					  { label: 'Custom Retriever', link: '/retrievers/custom-retriever' },
-					]
-				},
-				{
-					label: 'Tools',
-					items: [
-					  { label: 'Overview', link: '/tools/overview' },
 					]
 				},
 				{
