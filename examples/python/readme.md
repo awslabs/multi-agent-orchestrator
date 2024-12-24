@@ -2,6 +2,8 @@
 
 This Streamlit application demonstrates the capabilities of the AWS Multi-Agent Orchestrator framework by showcasing how specialized AI agents can collaborate to solve complex tasks using Amazon Bedrock and Anthropic's Claude models.
 
+![Demo app](./img/screenshot.png)
+
 ## 🎯 Current Demos
 
 ### 🎬 [AI Movie Production](../movie-production/README.md)
@@ -13,6 +15,8 @@ Bring your movie ideas to life with this AI-powered production assistant. Descri
 **Requirements**: Anthropic API Key
 
 Enter your destination and travel duration, and the system will research attractions, accommodations, and activities in real-time to create a personalized, day-by-day itinerary based on your preferences.
+
+
 
 ## 🚀 Getting Started
 
