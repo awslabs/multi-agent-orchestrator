@@ -1,0 +1,7 @@
+# Core dependencies for the main demo app
+streamlit
+duckduckgo-search
+multi-agent-orchestrator[aws]
+multi-agent-orchestrator[anthropic]
+python-dotenv
+boto3
