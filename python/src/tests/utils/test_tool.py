@@ -402,3 +402,72 @@ def test_tool_with_enums():
             }
         }
     }
+
+
+def test_tool_with_properties():
+    tool = Tool(
+        name="weather_tool",
+        func=tool_with_enums,
+        description="Fetches weather data for the given latitude and longitude using the Open-Meteo API.\nReturns the weather data or an error message if the request fails.",
+        properties={
+            "latitude": {
+                "type": "string",
+                "description": "the latitude of the location"
+            },
+            "longitude": {
+                "type": "string",
+                "description": "the longitude of the location"
+            },
+            "units": {
+                "type": "string",
+                "description": "the units of the weather data",
+            }
+        },
+        enum_values={"units": ["celsius", "fahrenheit"]}
+    )
+
+    assert tool.enum_values == {"units": ["celsius", "fahrenheit"]}
+    print(tool.properties)
+    assert tool.properties == {
+        "latitude": {
+            "type": "string",
+            "description": "the latitude of the location"
+        },
+        "longitude": {
+            "type": "string",
+            "description": "the longitude of the location"
+        },
+        "units": {
+            "type": "string",
+            "description": "the units of the weather data",
+            "enum": ["celsius", "fahrenheit"]
+        }
+    }
+
+    assert tool.to_bedrock_format() == {
+        'toolSpec': {
+            'name': 'weather_tool',
+            'description': 'Fetches weather data for the given latitude and longitude using the Open-Meteo API.\nReturns the weather data or an error message if the request fails.',
+            'inputSchema': {
+                'json': {
+                    'type': 'object',
+                    'properties': {
+                        'latitude': {
+                            'description': 'the latitude of the location',
+                            'type': 'string'
+                        },
+                        'longitude': {
+                            'description': 'the longitude of the location',
+                            'type': 'string'
+                        },
+                        'units': {
+                            'description': 'the units of the weather data',
+                            'enum': ['celsius', 'fahrenheit'],
+                            'type': 'string'
+                        }
+                    },
+                    'required': ['latitude', 'longitude', 'units']
+                }
+            }
+        }
+    }
