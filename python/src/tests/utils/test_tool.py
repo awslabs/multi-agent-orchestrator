@@ -314,8 +314,6 @@ def test_tools_format():
         }
     ]
 
-
-
     tools_claude_format = tools.to_claude_format()
     assert tools_claude_format == [
         {
@@ -351,3 +349,56 @@ def test_tools_format():
             }
         }
     ]
+
+
+def tool_with_enums(latitude:str, longitude:str, units:str):
+    """
+    Fetches weather data for the given latitude and longitude using the Open-Meteo API.
+    Returns the weather data or an error message if the request fails.
+
+    :param latitude: the latitude of the location
+
+    :param longitude: the longitude of the location
+
+    :param units: the units of the weather data
+
+    :return: The weather data or an error message.
+    """
+
+    return f'Weather data for {latitude}, {longitude} in {units}'
+
+def test_tool_with_enums():
+    tool = Tool(
+        name="weather_tool",
+        func=tool_with_enums,
+        enum_values={"units": ["celsius", "fahrenheit"]}
+    )
+
+    assert tool.enum_values == {"units": ["celsius", "fahrenheit"]}
+    assert tool.to_bedrock_format() == {
+        'toolSpec': {
+            'name': 'weather_tool',
+            'description': 'Fetches weather data for the given latitude and longitude using the Open-Meteo API.\nReturns the weather data or an error message if the request fails.',
+            'inputSchema': {
+                'json': {
+                    'type': 'object',
+                    'properties': {
+                        'latitude': {
+                            'description': 'the latitude of the location',
+                            'type': 'string'
+                        },
+                        'longitude': {
+                            'description': 'the longitude of the location',
+                            'type': 'string'
+                        },
+                        'units': {
+                            'description': 'the units of the weather data',
+                            'enum': ['celsius', 'fahrenheit'],
+                            'type': 'string'
+                        }
+                    },
+                    'required': ['latitude', 'longitude', 'units']
+                }
+            }
+        }
+    }
