@@ -180,4 +180,49 @@ When creating a new agent, you can specify various options using the `AgentOptio
   </TabItem>
 </Tabs>
 
+### Direct Agent Usage
+
+When you have a single agent use case, you can bypass the orchestrator and call the agent directly. This approach leverages the power of the Multi Agent Orchestrator framework while focusing on a single agent scenario:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // Initialize the agent
+    const agent = new BedrockLLMAgent({
+      name: "custom-agent",
+      description: "Handles specific tasks"
+    });
+
+    // Call the agent directly
+    const response = await agent.agentProcessRequest(
+      userInput,
+      userId,
+      sessionId,
+      chatHistory,
+      { param1: "value1" }
+    );
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    # Initialize the agent
+    agent = BedrockLLMAgent(
+        name="custom-agent",
+        description="Handles specific tasks"
+    )
+
+    # Call the agent directly
+    response = await agent.agent_process_request(
+        input_text=user_input,
+        user_id=user_id,
+        session_id=session_id,
+        chat_history=chat_history,
+        additional_params={"param1": "value1"}
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+This approach is useful for single agent scenarios where you don't need orchestration but want to leverage the powerful capabilities of the Multi Agent Orchestrator framework.
+
 These options allow you to customize various aspects of the agent's behavior and configuration.

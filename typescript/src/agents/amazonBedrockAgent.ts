@@ -1,4 +1,4 @@
-import { BedrockAgentRuntimeClient, InvokeAgentCommand } from "@aws-sdk/client-bedrock-agent-runtime";
+import { BedrockAgentRuntimeClient, InvokeAgentCommand, InvokeAgentCommandOutput } from "@aws-sdk/client-bedrock-agent-runtime";
 import { ConversationMessage, ParticipantRole } from "../types";
 import { Agent, AgentOptions } from "./agent";
 import { Logger } from "../utils/logger";
@@ -11,6 +11,8 @@ export interface AmazonBedrockAgentOptions extends AgentOptions {
   agentId: string;        // The ID of the Amazon Bedrock agent.
   agentAliasId: string;   // The alias ID of the Amazon Bedrock agent.
   client?: BedrockAgentRuntimeClient;  // Client for interacting with the Bedrock agent runtime.
+  enableTrace?: boolean;  // Flag to enable tracing of Agent
+  streaming?: boolean;    // Flag to enable streaming of responses.
 }
 
 
@@ -22,6 +24,8 @@ export class AmazonBedrockAgent extends Agent {
   private agentId: string;                    // The ID of the Amazon Bedrock agent.
   private agentAliasId: string;               // The alias ID of the Amazon Bedrock agent.
   private client: BedrockAgentRuntimeClient;  // Client for interacting with the Bedrock agent runtime.
+  private enableTrace: boolean;// Flag to enable tracing of Agent
+  private streaming: boolean;    // Flag to enable streaming of responses.
 
   /**
    * Constructs an instance of AmazonBedrockAgent with the specified options.
@@ -35,6 +39,22 @@ export class AmazonBedrockAgent extends Agent {
     this.client = options.client ? options.client : options.region
     ? new BedrockAgentRuntimeClient({ region: options.region })
     : new BedrockAgentRuntimeClient();
+    this.enableTrace = options.enableTrace || false;
+    this.streaming = options.streaming || false;
+  }
+
+  private async *handleStreamingResponse(response: InvokeAgentCommandOutput): AsyncIterable<string> {
+    for await (const chunkEvent of response.completion) {
+      if (chunkEvent.chunk) {
+        const chunk = chunkEvent.chunk;
+        const decodedResponse = new TextDecoder("utf-8").decode(chunk.bytes);
+        yield decodedResponse;
+      } else if (chunkEvent.trace){
+        if (this.enableTrace){
+          Logger.logger.info("Trace:", JSON.stringify(chunkEvent.trace));
+        }
+      }
+    }
   }
 
   /**
@@ -53,7 +73,7 @@ export class AmazonBedrockAgent extends Agent {
     sessionId: string,
     chatHistory: ConversationMessage[],
     additionalParams?: Record<any, any>
-  ): Promise<ConversationMessage> {
+  ): Promise<ConversationMessage | AsyncIterable<any>> {
     // Construct the command to invoke the Amazon Bedrock agent with user input
     const command = new InvokeAgentCommand({
       agentId: this.agentId,
@@ -61,6 +81,10 @@ export class AmazonBedrockAgent extends Agent {
       sessionId: sessionId,
       inputText: inputText,
       sessionState: additionalParams ? additionalParams.sessionState?  additionalParams.sessionState : undefined : undefined,
+      enableTrace: this.enableTrace,
+      streamingConfigurations: {
+        streamFinalResponse: this.streaming,
+      }
     });
 
     try {
@@ -72,14 +96,20 @@ export class AmazonBedrockAgent extends Agent {
         throw new Error("Completion is undefined");
       }
 
-      // Aggregate chunks of response data
-      for await (const chunkEvent of response.completion) {
-        if (chunkEvent.chunk) {
-          const chunk = chunkEvent.chunk;
-          const decodedResponse = new TextDecoder("utf-8").decode(chunk.bytes);
-          completion += decodedResponse;
-        } else {
-          Logger.logger.warn("Received a chunk event with no chunk data");
+      if (this.streaming){
+        return this.handleStreamingResponse(response);
+      } else {
+        // Aggregate chunks of response data
+        for await (const chunkEvent of response.completion) {
+          if (chunkEvent.chunk) {
+            const chunk = chunkEvent.chunk;
+            const decodedResponse = new TextDecoder("utf-8").decode(chunk.bytes);
+            completion += decodedResponse;
+          } else if (chunkEvent.trace) {
+            if (this.enableTrace){
+              Logger.logger.info("Trace:", JSON.stringify(chunkEvent.trace));
+            }
+          }
         }
       }
 

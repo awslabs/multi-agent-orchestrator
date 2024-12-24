@@ -190,7 +190,7 @@ export interface AnthropicAgentOptions extends AgentOptions {
 
           if (toolUseBlocks.length > 0) {
             // Append current response to the conversation
-            messages.push({role:'assistant', content:response.content});
+            messages.push({role: ParticipantRole.ASSISTANT, content:response.content});
             if (!this.toolConfig){
               throw new Error("No tools available for tool use");
             }

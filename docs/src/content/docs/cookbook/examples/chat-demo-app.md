@@ -55,9 +55,12 @@ Follow these steps to deploy the demo chat web application:
    ```
 
 4. **Bootstrap AWS CDK** (if you haven't used CDK in this AWS account/region before):
+
    ```
-   cdk bootstrap
+   cdk bootstrap aws://123456789012/us-east-1
    ```
+   replace `123456789012` with your account id.
+   This chat-demo application is using the default [BedrockClassifier](http://localhost:4321/multi-agent-orchestrator/classifiers/built-in/bedrock-classifier#basic-usage) with Claude 3.5 Sonnet v1. Make sure to use a region where this model is available. If you plan on using a region different from us-east-1 (e.g us-west-2), make sure to also bootstrap us-east-1 region as well as the CDK stack also deploys infra in this region (lambda@edge function).
 
 5. **Review and Customize the Stack** (optional):
    Open `chat-demo-app/cdk.json` and review the configuration. You can customize aspects of the deployment by enabling or disabling additional agents.
@@ -73,7 +76,8 @@ Follow these steps to deploy the demo chat web application:
 
 6. **Deploy the Application**:
    ```
-   cdk deploy
+   export AWS_DEFAULT_REGION=us-east-1
+   cdk deploy --all
    ```
 
 7. **Confirm Deployment**:

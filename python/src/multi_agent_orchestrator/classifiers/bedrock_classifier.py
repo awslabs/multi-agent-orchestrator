@@ -76,18 +76,24 @@ class BedrockClassifier(Classifier):
             content=[{"text": input_text}]
         )
 
+        toolConfig = {
+            "tools": self.tools,
+        }
+
+        # ToolChoice is only supported by Anthropic Claude 3 models and by Mistral AI Mistral Large.
+        # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ToolChoice.html
+        if "anthropic" in self.model_id or 'mistral-large' in self.model_id:
+            toolConfig['toolChoice'] = {
+                "tool": {
+                    "name": "analyzePrompt",
+                },
+            }
+
         converse_cmd = {
             "modelId": self.model_id,
             "messages": [user_message.__dict__],
             "system": [{"text": self.system_prompt}],
-            "toolConfig": {
-                "tools": self.tools,
-                "toolChoice": {
-                    "tool": {
-                        "name": "analyzePrompt",
-                    },
-                },
-            },
+            "toolConfig": toolConfig,
             "inferenceConfig": {
                 "maxTokens": self.inference_config['maxTokens'],
                 "temperature": self.inference_config['temperature'],

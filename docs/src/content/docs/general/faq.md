@@ -62,7 +62,7 @@ Yes, the system is designed for seamless deployment as an AWS Lambda function. F
 
 ##### What storage options are available for conversation history?
 
-The Multi-Agent Orchestrator framwork supports multiple storage options:
+The Multi-Agent Orchestrator framework supports multiple storage options:
 - [In-Memory storage](/multi-agent-orchestrator/storage/in-memory): Default option, great for development and testing.
 - [DynamoDB storage](/multi-agent-orchestrator/storage/dynamodb): For persistent storage in production environments.
 - [Custom storage](/multi-agent-orchestrator/storage/custom): Developers can implement their own storage solutions by extending the `ChatStorage` class.

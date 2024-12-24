@@ -93,8 +93,8 @@ class AnthropicAgent(Agent):
 
         if options.custom_system_prompt:
             self.set_system_prompt(
-                options.custom_system_prompt.template,
-                options.custom_system_prompt.variables
+                options.custom_system_prompt.get('template'),
+                options.custom_system_prompt.get('variables')
             )
 
     def is_streaming_enabled(self) -> bool:

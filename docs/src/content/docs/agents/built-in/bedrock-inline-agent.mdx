@@ -1,0 +1,236 @@
+---
+title: Bedrock Inline Agent
+description: Documentation for the BedrockInlineAgent in the Multi-Agent Orchestrator
+---
+
+## Overview
+
+The **Bedrock Inline Agent** represents a powerful new approach to dynamic agent creation. At its core, it leverages [Amazon Bedrock's Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html) and its tool capabilities to interact with foundation models and orchestrate agent creation. Through a specialized tool, it intelligently analyzes user requests and selects the most relevant action groups and knowledge bases from your available resources.
+
+Once the optimal [Action Groups](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-action-create.html) and/or [Knowledge Bases](https://aws.amazon.com/bedrock/knowledge-bases/) are identified, the agent uses the [InvokeInlineAgent API](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-create-inline.html) to dynamically create purpose-specific Agents for Amazon Bedrock. This eliminates the need to pre-configure static agent combinations - instead, agents are created on-demand with precisely the capabilities needed for each specific request.
+
+This architecture removes practical limits on the number of action groups and knowledge bases you can maintain. Whether you have dozens or hundreds of different action groups and knowledge bases, the agent can efficiently select and combine just the ones needed for each query. This enables sophisticated use cases that would be impractical with traditional static agent configurations.
+
+## Key Features
+
+- Dynamic agent creation through InvokeInlineAgent API
+- Tool-based selection of action groups and knowledge bases
+- Support for multiple foundation models
+- Customizable inference configuration
+- Enhanced debug logging capabilities
+- Support for custom logging implementations
+
+## Creating a BedrockInlineAgent
+
+### Python Package
+
+If you haven't already installed the AWS-related dependencies, make sure to install them:
+
+```bash
+pip install "multi-agent-orchestrator[aws]"
+```
+
+### Basic Example 
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { BedrockInlineAgent } from 'multi-agent-orchestrator';
+    import { CustomLogger } from './logger';
+
+    const actionGroups = [
+      {
+        actionGroupName: "OrderManagement",
+        description: "Handles order-related operations like status checks and updates"
+      },
+      {
+        actionGroupName: "InventoryLookup",
+        description: "Checks product availability and stock levels"
+      }
+    ];
+
+    const knowledgeBases = [
+      {
+        knowledgeBaseId: "KB001",
+        description: "Product catalog and specifications"
+      }
+    ];
+
+    const agent = new BedrockInlineAgent({
+      name: 'Inline Agent Creator for Agents for Amazon Bedrock',
+      description: 'Specialized in creating Agent to solve customer request dynamically. You are provided with a list of Action groups and Knowledge bases which can help you in answering customer request',
+      actionGroupsList: actionGroups,
+      knowledgeBases: knowledgeBases,
+      region: "us-east-1",
+      LOG_AGENT_DEBUG_TRACE: true,
+      inferenceConfig: {
+        maxTokens: 500,
+        temperature: 0.5,
+        topP: 0.9
+      }
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import BedrockInlineAgent, BedrockInlineAgentOptions
+    from custom_logger import CustomLogger
+
+    action_groups = [
+      {
+        "actionGroupName": "OrderManagement",
+        "description": "Handles order-related operations like status checks and updates"
+      },
+      {
+        "actionGroupName": "InventoryLookup",
+        "description": "Checks product availability and stock levels"
+      }
+    ]
+
+    knowledge_bases = [
+      {
+        "knowledgeBaseId": "KB001",
+        "description": "Product catalog and specifications"
+      }
+    ]
+
+    agent = BedrockInlineAgent(BedrockInlineAgentOptions(
+        name='Inline Agent Creator for Agents for Amazon Bedrock',
+        description='Specialized in creating Agent to solve customer request dynamically. You are provided with a list of Action groups and Knowledge bases which can help you in answering customer request',
+        action_groups_list=action_groups,
+        knowledge_bases=knowledge_bases,
+        region="us-east-1",
+        LOG_AGENT_DEBUG_TRACE=True,
+        inference_config={
+            'maxTokens': 500,
+            'temperature': 0.5,
+            'topP': 0.9
+        }
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+## Debug Logging
+
+### LOG_AGENT_DEBUG_TRACE
+
+When enabled, this flag activates detailed debug logging that helps you understand the agent's operation. Example output:
+
+```text
+> BedrockInlineAgent 
+> Inline Agent Creator for Agents for Amazon Bedrock 
+> System Prompt 
+> You are a Inline Agent Creator for Agents for Amazon Bedrock...
+
+> BedrockInlineAgent 
+> Inline Agent Creator for Agents for Amazon Bedrock 
+> Tool Handler Parameters 
+> {
+  userRequest: 'Please execute...',
+  actionGroupNames: ['CodeInterpreterAction'],
+  knowledgeBases: [],
+  description: 'To solve this request...',
+  sessionId: 'session-456'
+}
+
+> BedrockInlineAgent 
+> Inline Agent Creator for Agents for Amazon Bedrock 
+> Action Group & Knowledge Base 
+> {
+  actionGroups: [
+    {
+      actionGroupName: 'CodeInterpreterAction',
+      parentActionGroupSignature: 'AMAZON.CodeInterpreter'
+    }
+  ],
+  knowledgeBases: []
+}
+```
+
+### Custom Logger Implementation
+
+You can provide your own logger implementation to customize log formatting and handling. Here's an example:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    export class CustomLogger {
+      private static instance: CustomLogger;
+
+      private constructor() {}
+
+      static getInstance(): CustomLogger {
+        if (!CustomLogger.instance) {
+          CustomLogger.instance = new CustomLogger();
+        }
+        return CustomLogger.instance;
+      }
+
+      info(message: string, ...args: any[]): void {
+        console.info(">>: " + message, ...args);
+      }
+
+      warn(message: string, ...args: any[]): void {
+        console.warn(">>: " + message, ...args);
+      }
+
+      error(message: string, ...args: any[]): void {
+        console.error(">>: " + message, ...args);
+      }
+
+      debug(message: string, ...args: any[]): void {
+        console.debug(">>: " + message, ...args);
+      }
+
+      log(message: string, ...args: any[]): void {
+        console.log(">>: " + message, ...args);
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    class CustomLogger:
+        _instance = None
+
+        def __new__(cls):
+            if cls._instance is None:
+                cls._instance = super(CustomLogger, cls).__new__(cls)
+            return cls._instance
+
+        @classmethod
+        def get_instance(cls):
+            if cls._instance is None:
+                cls._instance = CustomLogger()
+            return cls._instance
+
+        def info(self, message: str, *args):
+            print(f">>: {message}", *args)
+
+        def warn(self, message: str, *args):
+            print(f">>: [WARNING] {message}", *args)
+
+        def error(self, message: str, *args):
+            print(f">>: [ERROR] {message}", *args)
+
+        def debug(self, message: str, *args):
+            print(f">>: [DEBUG] {message}", *args)
+
+        def log(self, message: str, *args):
+            print(f">>: {message}", *args)
+    ```
+  </TabItem>
+</Tabs>
+
+## Sample Code
+
+You can find sample code for using the BedrockInlineAgent in both TypeScript and Python:
+
+- [TypeScript Sample](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-inline-agents/typescript)
+- [Python Sample](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-inline-agents/python)
+
+
+The BedrockInlineAgent represents a significant advancement in agent flexibility and efficiency, enabling truly dynamic, context-aware responses while optimizing resource usage.

@@ -147,6 +147,50 @@ When deciding between different classifiers, consider:
 
 By thoroughly testing and debugging your chosen Classifier, you can ensure accurate intent classification and efficient query routing in your Multi-Agent Orchestrator.
 
+## Direct Classifier Access
+
+### With Context Management
+Test the classifier with full conversation history handling:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const response = await orchestrator.classifyRequest(userInput, userId, sessionId);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    response = await orchestrator.classify_request(user_input, user_id, session_id)
+    ```
+  </TabItem>
+</Tabs>
+
+This method:
+- Retrieves conversation history automatically
+- Maintains context across test calls
+- Ideal for end-to-end testing
+
+### Without Context
+Test raw classification without conversation history:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const response = await orchestrator.classifier.classify(userInput, []);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    response = await orchestrator.classifier.classify(user_input, [])
+    ```
+  </TabItem>
+</Tabs>
+
+Best for:
+- Prompt tuning
+- Single-input validation
+- Classification unit tests
+
 ---
 
 For more detailed information on each classifier, refer to the [BedrockClassifier](/multi-agent-orchestrator/classifiers/built-in/bedrock-classifier) and [AnthropicClassifier](/classifiers/built-in/anthropic-classifier) documentation pages.

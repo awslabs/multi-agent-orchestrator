@@ -1,0 +1,141 @@
+---
+title: Amazon Bedrock Flows Agent
+description: Documentation for the BedrockFlowsAgent in the Multi-Agent Orchestrator
+---
+
+## Overview
+
+The **Bedrock Flows Agent** is a specialized agent class in the Multi-Agent Orchestrator that integrates directly with [Amazon Bedrock Flows](https://aws.amazon.com/bedrock/flows/).
+This integration enables you to orchestrate your Bedrock Flows alongside other agent types (Bedrock Agent, Lex, Bedrock API...), providing a unified and flexible approach to agents orchestration.
+
+## Key Features
+
+- Support for cross-region Bedrock Flows invocation
+- Support for multiple flow input output type via flow input/output encoder/decoder callbacks
+
+## Creating a BedrockFlowsAgent
+
+### Python Package
+
+If you haven't already installed the AWS-related dependencies, make sure to install them:
+
+```bash
+pip install "multi-agent-orchestrator[aws]"
+```
+
+### Basic Example
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { BedrockFlowsAgent } from 'multi-agent-orchestrator';
+
+    const techFlowAgent = new BedrockFlowsAgent({
+      name: 'tech-flow-agent',
+      description: 'Specialized in AWS services',
+      flowIdentifier: 'AEXAMPLID',
+      flowAliasIdentifier: 'AEXAMPLEALIASID',
+      enableTrace:true
+    });
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import BedrockFlowsAgent, BedrockFlowsAgentOptions
+
+    tech_flow_agent = BedrockFlowsAgent(BedrockFlowsAgentOptions(
+        name="tech-flow-agent",
+        description="Specializes in handling tech questions about AWS services",
+        flowIdentifier='AEXAMPLID',
+        flowAliasIdentifier='AEXAMPLEALIASID',
+        enableTrace=True
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+### Flow Input Encoder callback
+
+Amazon [Bedrock Flows Input](https://docs.aws.amazon.com/bedrock/latest/userguide/flows-nodes.html) supports multiple type of document output:
+- String
+- Number
+- Boolean
+- Object
+- Array
+
+In the default definition of the BedrockFlowsAgent, the output document type is a string.
+If you need to send an object, array, number or a boolean to your Flow input, you can use the flow input callback to transform the input payload based on your needs.
+
+Here are an example for TS and python:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+
+// implementation of the custom flowInputEncoder callback
+const flowInputEncoder = (
+    agent: Agent,
+    input: string,
+    kwargs: {
+        userId?: string,
+        sessionId?: string,
+        chatHistory?: any[],
+        [key: string]: any  // This allows any additional properties
+      }
+) => {
+      if (agent.name == 'tech-flow-agent'){
+          return {
+            "question":input,
+          };
+      } else {
+          return input
+      }
+}
+
+// passing flowInputEncoder to our BedrockFlowsAgent
+const techFlowAgent = new BedrockFlowsAgent({
+      name: 'tech-flow-agent',
+      description: 'Specialized in AWS services',
+      flowIdentifier: 'AEXAMPLID',
+      flowAliasIdentifier: 'AEXAMPLEALIASID',
+      flowInputEncoder: flowInputEncoder
+      enableTrace:true
+    });
+
+
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+  # implementation of the custom flowInputEncoder callback
+  def flow_input_encoder(agent:Agent, input: str, **kwargs) -> Any:
+      if agent.name == 'tech-flow-agent':
+        # return a dict
+        return {
+          "question": input
+        }
+      else:
+          return input #input as string
+
+  # passing flowInputEncoder to our BedrockFlowsAgent
+    tech_flow_agent = BedrockFlowsAgent(BedrockFlowsAgentOptions(
+        name="tech-flow-agent",
+        description="Specializes in handling tech questions about AWS services",
+        flowIdentifier='AEXAMPLID',
+        flowAliasIdentifier='AEXAMPLEALIASID',
+        flow_input_encoder=flow_input_encoder,
+        enableTrace=True
+    ))
+      ```
+  </TabItem>
+</Tabs>
+
+## Sample Code
+
+You can find sample code for using the BedrockFlowsAgent in both TypeScript and Python:
+
+- [TypeScript Sample](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-flows/typescript)
+- [Python Sample](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-flows/python)
+

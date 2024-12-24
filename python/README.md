@@ -1,9 +1,32 @@
-<h2 align="center">Multi-Agent Orchestrator&nbsp;<img alt="Static Badge" src="https://img.shields.io/badge/Beta-4e9bcd"></h2>
+<h2 align="center">Multi-Agent Orchestrator&nbsp;</h2>
 
 <p align="center">Flexible and powerful framework for managing multiple AI agents and handling complex conversations.</p>
 
+
 <p align="center">
-<a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
+  <a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
+  <a href="https://pypi.org/project/multi-agent-orchestrator/"><img alt="PyPI" src="https://img.shields.io/pypi/v/multi-agent-orchestrator.svg?style=flat-square"></a>
+  <a href="https://awslabs.github.io/multi-agent-orchestrator/"><img alt="Documentation" src="https://img.shields.io/badge/docs-book-blue.svg?style=flat-square"></a>
+</p>
+
+<p align="center">
+  <!-- GitHub Stats -->
+  <img src="https://img.shields.io/github/stars/awslabs/multi-agent-orchestrator?style=social" alt="GitHub stars">
+  <img src="https://img.shields.io/github/forks/awslabs/multi-agent-orchestrator?style=social" alt="GitHub forks">
+  <img src="https://img.shields.io/github/watchers/awslabs/multi-agent-orchestrator?style=social" alt="GitHub watchers">
+</p>
+
+<p align="center">
+  <!-- Repository Info -->
+  <img src="https://img.shields.io/github/last-commit/awslabs/multi-agent-orchestrator" alt="Last Commit">
+  <img src="https://img.shields.io/github/issues/awslabs/multi-agent-orchestrator" alt="Issues">
+  <img src="https://img.shields.io/github/issues-pr/awslabs/multi-agent-orchestrator" alt="Pull Requests">
+</p>
+
+<p align="center">
+  <!-- Package Stats -->
+  <a href="https://pypi.org/project/multi-agent-orchestrator/"><img src="https://img.shields.io/pypi/dm/multi-agent-orchestrator?label=pypi%20downloads" alt="PyPI Monthly Downloads"></a>
+  
 </p>
 
 ## 🔖 Features
@@ -78,7 +101,7 @@ Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator
 # Optional: Set up a virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-pip install multi-agent-orchestrator
+pip install multi-agent-orchestrator[aws]
 ```
 
 #### Default Usage
@@ -179,8 +202,8 @@ This example showcases:
 ### Working with Anthropic or OpenAI
 If you want to use Anthropic or OpenAI for classifier and/or agents, make sure to install the multi-agent-orchestrator with the relevant extra feature.
 ```bash
-pip install multi-agent-orchestrator[anthropic]
-pip install multi-agent-orchestrator[openai]
+pip install "multi-agent-orchestrator[anthropic]"
+pip install "multi-agent-orchestrator[openai]"
 ```
 
 ### Full package installation
@@ -188,6 +211,60 @@ For a complete installation (including Anthropic and OpenAi):
 ```bash
 pip install multi-agent-orchestrator[all]
 ```
+
+## Building Locally
+
+This guide explains how to build and install the multi-agent-orchestrator package from source code.
+
+### Prerequisites
+
+- Python 3.11
+- pip package manager
+- Git (to clone the repository)
+
+### Building the Package
+
+1. Navigate to the Python package directory:
+   ```bash
+   cd python
+   ```
+
+2. Install the build dependencies:
+   ```bash
+   python -m pip install build
+   ```
+
+3. Build the package:
+   ```bash
+   python -m build
+   ```
+
+This process will create distribution files in the `python/dist` directory, including a wheel (`.whl`) file.
+
+### Installation
+
+1. Locate the current version number in `setup.cfg`.
+
+2. Install the built package using pip:
+   ```bash
+   pip install ./dist/multi_agent_orchestrator-<VERSION>-py3-none-any.whl
+   ```
+   Replace `<VERSION>` with the version number from `setup.cfg`.
+
+### Example
+
+If the version in `setup.cfg` is `1.2.3`, the installation command would be:
+```bash
+pip install ./dist/multi_agent_orchestrator-1.2.3-py3-none-any.whl
+```
+
+### Troubleshooting
+
+- If you encounter permission errors during installation, you may need to use `sudo` or activate a virtual environment.
+- Make sure you're in the correct directory when running the build and install commands.
+- Clean the `dist` directory before rebuilding if you encounter issues: `rm -rf python/dist/*`
+
+
 
 ## 🤝 Contributing
 
