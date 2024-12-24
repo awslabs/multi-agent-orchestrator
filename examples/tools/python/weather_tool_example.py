@@ -5,7 +5,7 @@ from multi_agent_orchestrator.agents import (
     AnthropicAgent, AnthropicAgentOptions,
     Agent
     )
-from multi_agent_orchestrator.utils.tool import Tool
+from multi_agent_orchestrator.utils.tool import Tools, Tool
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 
 def get_weather(city:str):
@@ -19,16 +19,16 @@ def get_weather(city:str):
     return f'It is sunny in {city}!'
 
 # Create a tool definition with clear name and description
-weather_tool_with_func = [Tool(
+weather_tool_with_func:Tools = Tools(tools=[Tool(
     name='get_weather',
     description="Get the current weather for a given city. Expects city name as input.",
     func=get_weather
-)]
+)])
 
-weather_tool_with_properties = [
-     Tool(
-         name='get_weather',
+weather_tool_with_properties:Tools = Tools(tools=[Tool(
+        name='get_weather',
         description="Get the current weather for a given city. Expects city name as input.",
+        func=get_weather,
         properties={
             "city": {
                 "type": "string",
@@ -36,8 +36,7 @@ weather_tool_with_properties = [
             }
         },
         required=["city"]
-     )
-]
+     )])
 
 
 async def bedrock_weather_tool_handler(
@@ -129,7 +128,7 @@ weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     name='weather-agent',
     description='Agent specialized in providing weather information for cities',
     tool_config={
-        'tool': [tool.to_bedrock_format() for tool in weather_tool_with_func],
+        'tool': weather_tool_with_func.to_bedrock_format(),
         'toolMaxRecursions': 5,  # Maximum number of tool calls in one conversation
         'useToolHandler': bedrock_weather_tool_handler
     }
@@ -159,9 +158,23 @@ weather_agent = AnthropicAgent(AnthropicAgentOptions(
     name='weather-agent',
     description='Agent specialized in providing weather information for cities',
     tool_config={
-        'tool': [tool.to_claude_format() for tool in weather_tool_with_properties],
+        'tool': weather_tool_with_properties.to_claude_format(),
         'toolMaxRecursions': 5,  # Maximum number of tool calls in one conversation
         'useToolHandler': anthropic_weather_tool_handler
+    }
+))
+
+# Run the async function
+asyncio.run(get_weather_info(weather_agent))
+
+
+# with default Tools hanlder
+weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+    name='weather-agent',
+    description='Agent specialized in providing weather information for cities',
+    tool_config={
+        'tool': weather_tool_with_properties,
+        'toolMaxRecursions': 5,  # Maximum number of tool calls in one conversation
     }
 ))
 
