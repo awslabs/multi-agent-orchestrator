@@ -1,4 +1,4 @@
-from typing import Any, Optional, Callable, Type, get_type_hints, Union
+from typing import Any, Optional, Callable, get_type_hints, Union
 import inspect
 from functools import wraps
 import re
@@ -65,14 +65,23 @@ class ToolBuilder:
 class Tool:
     def __init__(self,
                 name: str,
-                description: str,
+                description: Optional[str] = None,
                 properties: Optional[dict[str, dict[str, Any]]] = None,
                 required: Optional[list[str]] = None,
                 func: Optional[Callable] = None,
                 enum_values: Optional[dict[str, list]] = None):
 
         self.name = name
-        self.func_description = description
+        # Extract docstring if description not provided
+        if description is None:
+            docstring = inspect.getdoc(func)
+            if docstring:
+                # Get the first paragraph of the docstring (before any parameter descriptions)
+                self.func_description = docstring.split('\n\n')[0].strip()
+            else:
+                self.func_description = f"Function to {name}"
+        else:
+            self.func_description = description
         self.enum_values = enum_values or {}
 
         if not func:
@@ -219,16 +228,6 @@ class Tool:
             }
         }
 
-
-    def _get_tool_use_block(self, provider_type:AgentProviderType, block: dict) -> Union[dict, None]:
-        """Extract tool use block based on platform format."""
-        if provider_type == AgentProviderType.BEDROCK.value and "toolUse" in block:
-            return block["toolUse"]
-        elif provider_type ==  AgentProviderType.ANTHROPIC.value and block.type == "tool_use":
-            return block
-        return None
-
-
 class Tools:
     def __init__(self, tools:list[Tool]):
         self.tools:list[Tool] = tools
@@ -274,7 +273,7 @@ class Tools:
             # Format according to platform
             formatted_result = (
                 tool_result.to_bedrock_format()
-                if  self.provider_type ==  AgentProviderType.BEDROCK.value
+                if  provider_type ==  AgentProviderType.BEDROCK.value
                 else tool_result.to_anthropic_format()
             )
 
@@ -291,6 +290,14 @@ class Tools:
                 'role': ParticipantRole.USER.value,
                 'content': tool_results
             }
+
+    def _get_tool_use_block(self, provider_type:AgentProviderType, block: dict) -> Union[dict, None]:
+        """Extract tool use block based on platform format."""
+        if provider_type == AgentProviderType.BEDROCK.value and "toolUse" in block:
+            return block["toolUse"]
+        elif provider_type ==  AgentProviderType.ANTHROPIC.value and block.type == "tool_use":
+            return block
+        return None
 
     def _process_tool(self, tool_name, input_data):
         try:
