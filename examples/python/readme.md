@@ -53,7 +53,7 @@ Transform your movie ideas into detailed scripts and cast lists! Our AI agents c
 - **ScriptWriter** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3 Sonnet): Creates compelling story outlines
 - **CastingDirector** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3 Haiku): Researches and suggests perfect casting choices
 - **MovieProducer** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3.5 Sonnet): Coordinates the entire creative process
-- All coordinated by a  [**Custom BedrockLLMAgent Agent**](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent)  - Supervisor Agent
+- All coordinated by a  [**Custom Agent**](https://awslabs.github.io/multi-agent-orchestrator/agents/custom-agents)  as Supervisor Agent
 
 ### ✈️ AI Travel Planner
 **Prerequisite**: Anthropic API Key
@@ -61,7 +61,7 @@ Transform your movie ideas into detailed scripts and cast lists! Our AI agents c
 Your personal travel assistant powered by AI! Experience collaboration between:
 - **ResearcherAgent** ([AnthropicAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/anthropic-agent) with Claude 3 Haiku): Performs real-time destination research
 - **PlannerAgent** ([AnthropicAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/anthropic-agent) with Claude 3 Sonnet): Creates personalized day-by-day itineraries
-- Coordinated by a [**SupervisorMode**](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/supervisor-agent) using the Planner as supervisor
+- Coordinated by a [**Custom Agent**](https://awslabs.github.io/multi-agent-orchestrator/agents/custom-agents) as Supervisor Agent
 
 ## 🛠️ Technologies Used
 - Streamlit for UI
