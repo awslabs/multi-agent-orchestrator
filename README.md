@@ -241,7 +241,6 @@ if (response.streaming == true) {
 
 ### Python Version
 
-#### Core Installation
 
 ```bash
 # Optional: Set up a virtual environment
