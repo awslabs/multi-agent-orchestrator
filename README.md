@@ -106,6 +106,9 @@ Get hands-on experience with the Multi-Agent Orchestrator through our diverse se
 
 - **Ready-to-run Scripts**: Start locally with our collection of standalone scripts in both Python and TypeScript.
 - **Demo Applications**:
+  - [Streamlit Global Demo](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/python): A single Streamlit application showcasing multiple demos, including:
+    - AI Movie Production Studio
+    - AI Travel Planner
   - [Chat Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/):
     - Explore multiple specialized agents handling various domains like travel, weather, math, and health
   - [E-commerce Support Simulator](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/ecommerce-support-simulator/): Experience AI-powered customer support with:
