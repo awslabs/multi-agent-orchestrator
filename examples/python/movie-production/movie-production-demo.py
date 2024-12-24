@@ -30,7 +30,14 @@ def test_aws_connection():
 
 # Set up the Streamlit app
 st.title("AI Movie Production Demo 🎬")
-st.caption("Bring your movie ideas to life with AI Movie Production by collaborating with AI agents powered by Anthropic's Claude for script writing and casting.")
+st.caption("""
+Bring your movie ideas to life with AI Movie Production by collaborating with AI agents powered by Anthropic's Claude for script writing and casting.
+
+To learn more about the agents used in this demo visit [this link](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/python/movie-production).
+
+           """)
+
+st.caption("")
 
 # Check AWS connection
 if not test_aws_connection():
