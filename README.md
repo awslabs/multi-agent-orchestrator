@@ -1,5 +1,5 @@
 <h2 align="center">Multi-Agent Orchestrator&nbsp;</h2>
-<p align="center">Flexible and powerful framework for managing multiple AI agents and handling complex conversations.</p>
+<p align="center">Flexible, lightweight open-source framework for orchestrating multiple AI agents to handle complex conversations.</p>
 
 
 <p align="center">
