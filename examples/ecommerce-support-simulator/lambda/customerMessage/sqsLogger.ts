@@ -34,6 +34,8 @@ export class SQSLogger {
     }
   }
 
+  
+
   private formatMessage(...args: any[]): string {
     return args.map(arg => 
       typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
