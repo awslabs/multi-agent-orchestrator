@@ -1,5 +1,7 @@
 <h2 align="center">Multi-Agent Orchestrator&nbsp;</h2>
 <p align="center">Flexible and powerful framework for managing multiple AI agents and handling complex conversations.</p>
+
+
 <p align="center">
   <a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
   <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img alt="npm" src="https://img.shields.io/npm/v/multi-agent-orchestrator.svg?style=flat-square"></a>
@@ -7,8 +9,38 @@
   <a href="https://awslabs.github.io/multi-agent-orchestrator/"><img alt="Documentation" src="https://img.shields.io/badge/docs-book-blue.svg?style=flat-square"></a>
 </p>
 
+<p align="center">
+  <!-- GitHub Stats -->
+  <img src="https://img.shields.io/github/stars/awslabs/multi-agent-orchestrator?style=social" alt="GitHub stars">
+  <img src="https://img.shields.io/github/forks/awslabs/multi-agent-orchestrator?style=social" alt="GitHub forks">
+  <img src="https://img.shields.io/github/watchers/awslabs/multi-agent-orchestrator?style=social" alt="GitHub watchers">
+</p>
+
+<p align="center">
+  <!-- Repository Info -->
+  <img src="https://img.shields.io/github/last-commit/awslabs/multi-agent-orchestrator" alt="Last Commit">
+  <img src="https://img.shields.io/github/issues/awslabs/multi-agent-orchestrator" alt="Issues">
+  <img src="https://img.shields.io/github/issues-pr/awslabs/multi-agent-orchestrator" alt="Pull Requests">
+</p>
 
 
+<p align="center">
+  <!-- Package Stats -->
+  <a href="https://pypi.org/project/multi-agent-orchestrator/"><img src="https://img.shields.io/pypi/dm/multi-agent-orchestrator?label=pypi%20downloads" alt="PyPI Monthly Downloads"></a>
+  <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img src="https://img.shields.io/npm/dm/multi-agent-orchestrator?label=npm%20downloads" alt="npm Monthly Downloads"></a>
+</p>
+
+<h2 align="center">🔄 Project Status</h2>
+
+<p align="center">
+  <!-- Project Status -->
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/📋%20Todo-13-green?style=flat" alt="Todo"></a>
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/👀%20In%20Review-5-orange?style=flat" alt="In Review"></a>
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/📅%20Planned-0-blue?style=flat" alt="Planned"></a>
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/🚧%20In%20Progress-2-yellow?style=flat" alt="In Progress"></a>
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/✅%20Done-2-purple?style=flat" alt="Done"></a>
+  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/🚀%20Released-0-brightgreen?style=flat" alt="Released"></a>
+</p>
 
 ## 🔖 Features
 
@@ -20,13 +52,6 @@
 - 🌐 **Universal deployment** — Run anywhere - from AWS Lambda to your local environment or any cloud platform.
 - 📦 **Pre-built agents and classifiers** — A variety of ready-to-use agents and multiple classifier implementations available.
 
-✨✨✨
-
-**Looking for details on Amazon Bedrock’s multi-agent collaboration capability announced during Matt Garman's keynote at re:Invent 2024?**
-
-Visit the [Amazon Bedrock Agents](https://aws.amazon.com/bedrock/agents/) page to explore how multi-agent collaboration enables developers to build, deploy, and manage specialized agents designed for tackling complex workflows efficiently and accurately.
-
-✨✨✨
 
 ## What's the Multi-Agent Orchestrator ❓
 
@@ -95,6 +120,7 @@ Get hands-on experience with the Multi-Agent Orchestrator through our diverse se
   - [`fast-api-streaming`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/fast-api-streaming): FastAPI implementation with streaming support
   - [`text-2-structured-output`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/text-2-structured-output): Natural Language to Structured Data
   - [`bedrock-inline-agents`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-inline-agents): Bedrock Inline Agents sample
+  - [`bedrock-prompt-routing`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-prompt-routing): Bedrock Prompt Routing sample code for `BedrockClassifier`and `BedrockLLMAgent`
 
 
 All examples are available in both Python and TypeScript implementations. Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
@@ -126,6 +152,7 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 - **[Supercharging Amazon Bedrock Flows](https://community.aws/content/2phMjQ0bqWMg4PBwejBs1uf4YQE/supercharging-amazon-bedrock-flows-with-aws-multi-agent-orchestrator)**
 
   Learn how to enhance **Amazon Bedrock Flows** with conversation memory and multi-flow orchestration using the Multi-Agent Orchestrator framework. This guide shows how to overcome Bedrock Flows' limitations to build more sophisticated AI workflows with persistent memory and intelligent routing between flows.
+
 
 ### TypeScript Version
 
@@ -220,7 +247,7 @@ if (response.streaming == true) {
 # Optional: Set up a virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-pip install multi-agent-orchestrator
+pip install multi-agent-orchestrator[aws]
 ```
 
 #### Default Usage
@@ -311,23 +338,70 @@ These examples showcase:
 3. The orchestrator's ability to route requests to the most appropriate agent based on the input.
 4. Handling of both streaming and non-streaming responses from different types of agents.
 
-### Working with Anthropic or OpenAI
-If you want to use Anthropic or OpenAI for classifier and/or agents, make sure to install the multi-agent-orchestrator with the relevant extra feature.
-```bash
+
+### Modular Installation Options
+
+The Multi-Agent Orchestrator is designed with a modular architecture, allowing you to install only the components you need while ensuring you always get the core functionality.
+
+#### Installation Options
+
+**1. AWS Integration**:
+
+  ```bash
+   pip install "multi-agent-orchestrator[aws]"
+  ```
+Includes core orchestration functionality with comprehensive AWS service integrations (`BedrockLLMAgent`, `AmazonBedrockAgent`, `LambdaAgent`, etc.)   
+
+**2. Anthropic Integration**:
+
+  ```bash
 pip install "multi-agent-orchestrator[anthropic]"
+  ```
+
+**3. OpenAI Integration**:
+
+  ```bash
 pip install "multi-agent-orchestrator[openai]"
-```
+  ```
 
-### Full package installation
-For a complete installation (including Anthropic and OpenAi):
-```bash
+Adds OpenAI's GPT models for agents and classification, along with core packages.
+
+**4. Full Installation**:
+
+  ```bash
 pip install "multi-agent-orchestrator[all]"
-```
+  ```
 
+Includes all optional dependencies for maximum flexibility. 
+
+
+### 🙌 **We Want to Hear From You!**
+
+Have something to share, discuss, or brainstorm? We’d love to connect with you and hear about your journey with the **Multi-Agent Orchestrator framework**. Here’s how you can get involved:
+
+- **🙌 Show & Tell**: Got a success story, cool project, or creative implementation? Share it with us in the [**Show and Tell**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/show-and-tell) section. Your work might inspire the entire community! 🎉
+
+- **💬 General Discussion**: Have questions, feedback, or suggestions? Join the conversation in our [**General Discussions**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/general) section. It’s the perfect place to connect with other users and contributors.
+
+- **💡 Ideas**: Thinking of a new feature or improvement? Share your thoughts in the [**Ideas**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/ideas) section. We’re always open to exploring innovative ways to make the orchestrator even better!
+
+Let’s collaborate, learn from each other, and build something incredible together! 🚀
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/CONTRIBUTING.md) for more details.
+We welcome contributions to the Multi-Agent Orchestrator! If you have ideas, improvements, or new features to add, please:
+
+1. Check our [Contributing Guide](CONTRIBUTING.md) for guidelines
+2. Create a new [GitHub Issue](https://github.com/awslabs/multi-agent-orchestrator/issues)
+3. Submit a pull request
+
+Make sure to follow the existing project structure and include appropriate documentation for new features.
+
+### Thank You for Your Support! 🙏
+
+[![Star History Chart](https://api.star-history.com/svg?repos=awslabs/multi-agent-orchestrator&type=Date)](https://star-history.com/#awslabs/multi-agent-orchestrator&Date)
+
+🌟 **Stay Updated**: Star the repository to be notified about new features, improvements, and exciting developments in the Multi-Agent Orchestrator framework!
 
 # Authors
 

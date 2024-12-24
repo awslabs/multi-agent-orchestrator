@@ -456,13 +456,9 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
     });   
     
 
-    // Output the AppSync API URL and API Key
-    new cdk.CfnOutput(this, "GraphQLApiUrl", {
-      value: api.graphqlUrl,
+    new cdk.CfnOutput(this, "CloudfrontDomainName", {
+      value: distribution.domainName
     });
 
-    new cdk.CfnOutput(this, "GraphQLApiKey", {
-      value: api.apiKey || "",
-    });
   }
 }

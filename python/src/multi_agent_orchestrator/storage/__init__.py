@@ -1,10 +1,23 @@
+"""
+Storage implementations for chat history.
+"""
 from .chat_storage import ChatStorage
 from .in_memory_chat_storage import InMemoryChatStorage
-from .dynamodb_chat_storage import DynamoDbChatStorage
 
+_AWS_AVAILABLE = False
+
+try:
+    from .dynamodb_chat_storage import DynamoDbChatStorage
+    _AWS_AVAILABLE = True
+except ImportError:
+    _AWS_AVAILABLE = False
 
 __all__ = [
-    'ChatStorage', 
+    'ChatStorage',
     'InMemoryChatStorage',
-    'DynamoDbChatStorage'
 ]
+
+if _AWS_AVAILABLE:
+    __all__.extend([
+        'DynamoDbChatStorage'
+    ])
