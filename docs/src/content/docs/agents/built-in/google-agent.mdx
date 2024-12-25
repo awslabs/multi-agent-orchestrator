@@ -44,14 +44,6 @@ The `GoogleAIAgentOptions` class, which extends the base `AgentOptions`, provide
 
 ## Creating a GoogleAIAgent
 
-### Python Package
-
-If you haven't installed the Google AI related dependencies, install them via:
-
-```bash
-pip install "multi-agent-orchestrator[googleai]"
-```
-
 Here are several examples demonstrating different ways to create and configure a `GoogleAIAgent`:
 
 ### Basic Examples
@@ -68,15 +60,6 @@ const agent = new GoogleAIAgent({
     description: 'A versatile AI assistant',
     apiKey: 'your-google-ai-api-key'
 });
-```
-</TabItem>
-  <TabItem label="Python" icon="seti:python">
-```python
-agent = GoogleAIAgent(GoogleAIAgentOptions(
-    name='Google AI Assistant',
-    description='A versatile AI assistant',
-    api_key='your-google-ai-api-key'
-))
 ```
   </TabItem>
 </Tabs>
@@ -97,20 +80,7 @@ const agent = new GoogleAIAgent({
     client: customClient
 });
 ```
-</TabItem>
-  <TabItem label="Python" icon="seti:python">
-```python
-import google.generativeai as genai
-
-custom_client = genai.GenerativeModel(model_name="gemini-pro", api_key='your-google-ai-api-key')
-
-agent = GoogleAIAgent(GoogleAIAgentOptions(
-    name='Google AI Assistant',
-    description='A versatile AI assistant',
-    client=custom_client
-))
-```
-</TabItem>
+  </TabItem>
 </Tabs>
 
 
@@ -128,17 +98,6 @@ const agent = new GoogleAIAgent({
   model: 'gemini-pro',
   streaming: true
 });
-```
-</TabItem>
-  <TabItem label="Python" icon="seti:python">
-```python
-agent = GoogleAIAgent(GoogleAIAgentOptions(
-    name='Google AI Assistant',
-    description='A streaming-enabled assistant',
-    api_key='your-google-ai-api-key',
-    model='gemini-pro',
-    streaming=True
-))
 ```
   </TabItem>
 </Tabs>
@@ -164,21 +123,6 @@ const agent = new GoogleAIAgent({
 });
 ```
   </TabItem>
-  <TabItem label="Python" icon="seti:python">
-```python
-agent = GoogleAIAgent(GoogleAIAgentOptions(
-    name='Google AI Assistant',
-    description='An assistant with custom inference settings',
-    api_key='your-google-ai-api-key',
-    inference_config={
-        'maxOutputTokens': 500,
-        'temperature': 0.7,
-        'topP': 0.9,
-        'stopSequences': ['Human:', 'AI:']
-    }
-))
-```
-  </TabItem>
 </Tabs>
 
 <hr/>
@@ -196,18 +140,6 @@ const agent = new GoogleAIAgent({
     template: 'You are a helpful AI assistant focused on technical support.'
   }
 });
-```
-</TabItem>
-  <TabItem label="Python" icon="seti:python">
-```python
-agent = GoogleAIAgent(GoogleAIAgentOptions(
-    name='Google AI Assistant',
-    description='An assistant with custom prompt',
-    api_key='your-google-ai-api-key',
-    custom_system_prompt={
-        'template': 'You are a helpful AI assistant focused on technical support.'
-    }
-))
 ```
   </TabItem>
 </Tabs>
@@ -232,22 +164,6 @@ const agent = new GoogleAIAgent({
   }
 });
 ```
-</TabItem>
-  <TabItem label="Python" icon="seti:python">
-```python
-agent = GoogleAIAgent(GoogleAIAgentOptions(
-    name='Google AI Assistant',
-    description='An assistant with variable prompt',
-    api_key='your-google-ai-api-key',
-    custom_system_prompt={
-        'template': 'You are an AI assistant specialized in {{DOMAIN}}. Always use a {{TONE}} tone.',
-        'variables': {
-            'DOMAIN': 'customer support',
-            'TONE': 'friendly and helpful'
-        }
-    }
-))
-```
   </TabItem>
 </Tabs>
 
@@ -268,21 +184,7 @@ const agent = new GoogleAIAgent({
     retriever: retriever
 });
 ```
-</TabItem>
-  <TabItem label="Python" icon="seti:python">
-```python
-retriever = CustomRetriever(
-    # Retriever configuration
-)
-
-agent = GoogleAIAgent(GoogleAIAgentOptions(
-    name='Google AI Assistant',
-    description='An assistant with retriever',
-    api_key='your-google-ai-api-key',
-    retriever=retriever
-))
-```
-</TabItem>
+  </TabItem>
 </Tabs>
 <hr/>
 
@@ -308,27 +210,6 @@ const agent = new GoogleAIAgent({
     }
   }
 });
-```
-</TabItem>
-  <TabItem label="Python" icon="seti:python">
-```python
-agent = GoogleAIAgent(GoogleAIAgentOptions(
-    name='Google AI Assistant',
-    description='An assistant with multiple options',
-    api_key='your-google-ai-api-key',
-    model='gemini-pro',
-    streaming=True,
-    inference_config={
-        'maxOutputTokens': 500,
-        'temperature': 0.7
-    },
-    custom_system_prompt={
-        'template': 'You are an AI assistant specialized in {{DOMAIN}}.',
-        'variables': {
-            'DOMAIN': 'technical support'
-        }
-    }
-))
 ```
   </TabItem>
 </Tabs>
@@ -388,55 +269,6 @@ const agent = new GoogleAIAgent({
 });
 ```
 </TabItem>
-  <TabItem label="Python" icon="seti:python">
-```python
-from multi_agent_orchestrator import GoogleAIAgent, GoogleAIAgentOptions
-
-agent = GoogleAIAgent(GoogleAIAgentOptions(
-    # Required fields
-    name='Advanced Google AI Assistant',
-    description='A fully configured AI assistant powered by Google Gemini',
-    api_key='your-google-ai-api-key',
-
-    # Optional fields
-    model='gemini-pro',         # Choose Google Gemini model
-    streaming=True,            # Enable streaming responses
-    retriever=custom_retriever,    # Custom retriever for additional context
-
-    # Inference configuration
-    inference_config={
-        'maxOutputTokens': 500,     # Maximum tokens to generate
-        'temperature': 0.7,       # Control randomness (0-1)
-        'topP': 0.9,              # Control diversity via nucleus sampling
-        'stopSequences': ['Human:', 'AI:']  # Sequences that stop generation
-    },
-
-    # Custom system prompt with variables
-    custom_system_prompt={
-        'template': """You are an AI assistant specialized in {{DOMAIN}}.
-                      Your core competencies:
-                      {{SKILLS}}
-
-                      Communication style:
-                      - Maintain a {{TONE}} tone
-                      - Focus on {{FOCUS}}
-                      - Prioritize {{PRIORITY}}""",
-        'variables': {
-            'DOMAIN': 'scientific research',
-            'SKILLS': [
-                '- Advanced data analysis',
-                '- Statistical methodology',
-                '- Research design',
-                '- Technical writing'
-            ],
-            'TONE': 'professional and academic',
-            'FOCUS': 'accuracy and clarity',
-            'PRIORITY': 'evidence-based insights'
-        }
-    }
-))
-```
-  </TabItem>
 </Tabs>
 
 ## Using the GoogleAIAgent
@@ -463,18 +295,6 @@ const response = await orchestrator.agentProcessRequest(
 );
 ```
 </TabItem>
-  <TabItem label="Python" icon="seti:python">
-```python
-classifier_result = ClassifierResult(selected_agent=agent, confidence=1.0)
-
-response = await orchestrator.agent_process_request(
-    "What is the capital of France?",
-    "user123",
-    "session456",
-    classifier_result
-)
-```
-</TabItem>
 </Tabs>
 
 ### Using with the Orchestrator
@@ -492,18 +312,6 @@ const response = await orchestrator.routeRequest(
     "user123",
     "session456"
 );
-```
-</TabItem>
-  <TabItem label="Python" icon="seti:python">
-```python
-orchestrator = MultiAgentOrchestrator()
-orchestrator.add_agent(agent)
-
-response = await orchestrator.route_request(
-    "What is the capital of France?",
-    "user123",
-    "session456"
-)
 ```
 </TabItem>
 </Tabs>
