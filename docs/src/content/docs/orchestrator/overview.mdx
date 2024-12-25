@@ -213,12 +213,136 @@ Let's break down each function:
 
 Each of these functions plays a crucial role in configuring and operating the Multi-Agent Orchestrator. By using them effectively, you can create a flexible, powerful system capable of handling a wide range of user requests across multiple domains.
 
-These functions allow you to configure the orchestrator, manage agents, and process user requests. For more detailed information on each function, please refer to the [API Reference](/multi-agent-orchestrator/api-reference) section.
+These functions allow you to configure the orchestrator, manage agents, and process user requests.
+
+
+
+#### Function Examples
+
+
+Here are practical examples of how to use each function:
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+  import { MultiAgentOrchestrator, BedrockLLMAgent, AnthropicClassifier } from "multi-agent-orchestrator";
+  const orchestrator = new MultiAgentOrchestrator();
+
+  // 1. addAgent Example
+  const techAgent = new BedrockLLMAgent({
+    name: "Tech Agent",
+    description: "Handles technical questions about programming and software",
+    streaming: true
+  });
+  orchestrator.addAgent(techAgent);
+
+  // 2. getDefaultAgent Example
+  const currentDefault = orchestrator.getDefaultAgent();
+  console.log(`Current default agent: ${currentDefault.name}`);
+
+  // 3. setDefaultAgent Example
+  const customDefault = new BedrockLLMAgent({
+    name: "Custom Default",
+    description: "Handles general queries with specialized knowledge"
+  });
+  orchestrator.setDefaultAgent(customDefault);
+
+  // 4. setClassifier Example
+  const customClassifier = new AnthropicClassifier({
+    apiKey: 'your-api-key',
+    modelId: 'claude-3-sonnet-20240229'
+  });
+  orchestrator.setClassifier(customClassifier);
+
+  // 5. getAllAgents Example
+  const agents = orchestrator.getAllAgents();
+  console.log("Available agents:");
+  Object.entries(agents).forEach(([id, info]) => {
+    console.log(`${id}: ${info.name} - ${info.description}`);
+  });
+
+  // 6. routeRequest Example
+  async function handleUserQuery() {
+    const response = await orchestrator.routeRequest(
+      "How do I optimize a Python script?",
+      "user123",
+      "session456",
+      { priority: "high" }  // Additional parameters
+    );
+
+    if (response.streaming) {
+      for await (const chunk of response.output) {
+        process.stdout.write(chunk);
+      }
+    } else {
+      console.log(response.output);
+    }
+  }
+```
+</TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+    from multi_agent_orchestrator.classifiers import AnthropicClassifier, AnthropicClassifierOptions
+    import asyncio
+    orchestrator = MultiAgentOrchestrator()
+
+# 1. add_agent Example
+tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+    name="Tech Agent",
+    description="Handles technical questions about programming and software",
+    streaming=True
+))
+orchestrator.add_agent(tech_agent)
+
+# 2. get_default_agent Example
+current_default = orchestrator.get_default_agent()
+print(f"Current default agent: {current_default.name}")
+
+# 3. set_default_agent Example
+custom_default = BedrockLLMAgent(BedrockLLMAgentOptions(
+    name="Custom Default",
+    description="Handles general queries with specialized knowledge"
+))
+orchestrator.set_default_agent(custom_default)
+
+# 4. set_classifier Example
+custom_classifier = AnthropicClassifier(AnthropicClassifierOptions(
+    api_key='your-api-key',
+    model_id='claude-3-sonnet-20240229'
+))
+orchestrator.set_classifier(custom_classifier)
+
+# 5. get_all_agents Example
+agents = orchestrator.get_all_agents()
+print("Available agents:")
+for agent_id, info in agents.items():
+    print(f"{agent_id}: {info['name']} - {info['description']}")
+
+# 6. route_request Example
+async def handle_user_query():
+    response = await orchestrator.route_request(
+        "How do I optimize a Python script?",
+        "user123",
+        "session456",
+        {"priority": "high"}  # Additional parameters
+    )
+
+    if response.streaming:
+        async for chunk in response.output:
+            print(chunk, end='', flush=True)
+    else:
+        print(response.output)
+
+# Run the example
+asyncio.run(handle_user_query())
+```
+</TabItem>
+</Tabs>
 
 ### Agent Selection and Default Behavior
 
 When a user sends a request to the Multi-Agent Orchestrator, the system attempts to classify the intent and select an appropriate agent to handle the request. However, there are cases where no specific agent is selected.
-
 
 #### When No Agent is Selected
 
