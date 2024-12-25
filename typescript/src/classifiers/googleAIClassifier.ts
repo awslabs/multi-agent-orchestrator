@@ -1,8 +1,8 @@
 import { GenerativeModel, GoogleGenerativeAI, SchemaType, type Tool } from "@google/generative-ai";
-import { type ConversationMessage } from "multi-agent-orchestrator";
-import { isClassifierToolInput } from "multi-agent-orchestrator";
-import { Logger } from "multi-agent-orchestrator";
-import { Classifier, type ClassifierResult } from "multi-agent-orchestrator";
+import { type ConversationMessage } from "../types";
+import { isClassifierToolInput } from "../utils/helpers";
+import { Logger } from "../utils/logger";
+import { Classifier, type ClassifierResult } from "./classifier"
 
 const GOOGLE_GENERATIVE_AI_MODEL_ID = 'gemini-pro';
 

@@ -1,7 +1,7 @@
-import { Agent, type AgentOptions } from 'multi-agent-orchestrator';
-import { type ConversationMessage, ParticipantRole } from 'multi-agent-orchestrator';
-import { GenerativeModel, GoogleGenerativeAI } from '@google/generative-ai';
-import { Logger } from 'multi-agent-orchestrator';
+import { Agent, type AgentOptions } from "./agent";;
+import { type ConversationMessage, ParticipantRole } from "../types";
+import { GenerativeModel, GoogleGenerativeAI } from "@google/generative-ai";
+import { Logger } from "../utils/logger";
 
 export interface GoogleAIAgentOptions extends AgentOptions {
   apiKey: string;
