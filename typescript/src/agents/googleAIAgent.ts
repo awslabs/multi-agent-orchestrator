@@ -45,7 +45,7 @@ export class GoogleAIAgent extends Agent {
       stopSequences: options.inferenceConfig?.stopSequences,
     };
   }
-
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   async processRequest(
     inputText: string,
     userId: string,

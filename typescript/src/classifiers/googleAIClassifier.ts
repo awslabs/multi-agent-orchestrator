@@ -64,7 +64,7 @@ export class GoogleAIClassifier extends Classifier {
       }],
     }];
   }
-
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   async processRequest(
     inputText: string,
     chatHistory: ConversationMessage[]
