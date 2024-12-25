@@ -198,7 +198,7 @@ Let's break down each function:
 
 4. **setClassifier**
    - **What it does**: Sets a new classifier for the orchestrator.
-   - **Why use it**: This function allows you to change how the orchestrator determines which agent should handle each request. You might use it to implement a custom classification strategy or to use a different machine learning model for intent classification.
+   - **Why use it**: When you want to use a different classifier than the default [BedrockClassifier](/multi-agent-orchestrator/classifiers/built-in/bedrock-classifier/), either by using another built-in classifier (like the [AnthropicClassifier](/multi-agent-orchestrator/classifiers/built-in/anthropic-classifier/) or [OpenAIClassifier](/multi-agent-orchestrator/classifiers/built-in/openai-classifier/)) or by implementing your own [custom classifier](/multi-agent-orchestrator/classifiers/custom-classifier/).
    - **Example use case**: Implementing a domain-specific classifier that's more accurate for your particular use case than the default classifier.
 
 5. **getAllAgents**
