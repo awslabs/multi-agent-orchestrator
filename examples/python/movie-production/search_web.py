@@ -1,4 +1,3 @@
-from typing import Any
 from multi_agent_orchestrator.utils.logger import Logger
 from duckduckgo_search import DDGS
 
