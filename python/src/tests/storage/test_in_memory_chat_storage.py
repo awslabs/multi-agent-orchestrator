@@ -1,6 +1,5 @@
 import pytest
-from typing import List, Dict
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from multi_agent_orchestrator.types import ConversationMessage, TimestampedMessage
 from multi_agent_orchestrator.storage import InMemoryChatStorage
 from multi_agent_orchestrator.utils import Logger
@@ -127,3 +126,40 @@ def test_remove_timestamps():
     assert result[0].role == "user"
     assert result[0].content == "Hello"
     assert not hasattr(result[0], 'timestamp')
+
+
+@pytest.mark.asyncio
+async def test_save_chat_messages(storage):
+    """
+    Testing saving multiple ConversationMessage at once
+    """
+    user_id = "user1"
+    session_id = "session1"
+    agent_id = "agent1"
+    messages = [ConversationMessage(role="user", content="Hello"), ConversationMessage(role="assistant", content='Hello from assistant')]
+
+    result = await storage.save_chat_messages(user_id, session_id, agent_id, messages)
+
+    assert len(result) == 2
+    assert result[0].role == "user"
+    assert result[0].content == "Hello"
+    assert result[1].role == "assistant"
+    assert result[1].content == "Hello from assistant"
+
+@pytest.mark.asyncio
+async def test_save_chat_messages_timestamp(storage):
+    """
+    Testing saving multiple TimestampedMessage at once
+    """
+    user_id = "user1"
+    session_id = "session1"
+    agent_id = "agent1"
+    messages = [TimestampedMessage(role="user", content="Hello"), TimestampedMessage(role="assistant", content='Hello from assistant')]
+
+    result = await storage.save_chat_messages(user_id, session_id, agent_id, messages)
+
+    assert len(result) == 2
+    assert result[0].role == "user"
+    assert result[0].content == "Hello"
+    assert result[1].role == "assistant"
+    assert result[1].content == "Hello from assistant"

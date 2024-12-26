@@ -1,8 +1,6 @@
 import pytest
-import time
 from moto import mock_aws
 import boto3
-from typing import List, Dict
 from decimal import Decimal
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, TimestampedMessage
 from multi_agent_orchestrator.storage import DynamoDbChatStorage
@@ -114,3 +112,64 @@ async def test_trim_conversation(chat_storage):
     assert fetched_messages[0].role == ParticipantRole.USER.value
     assert fetched_messages[1].content == [{'text': 'Message 4'}]
     assert fetched_messages[1].role == ParticipantRole.ASSISTANT.value
+
+@pytest.mark.asyncio
+async def test_save_and_fetch_chat_messages(chat_storage):
+    """
+    Testing saving multiple ConversationMessage at once
+    """
+    messages = []
+    for i in range(5):
+        if i % 2 == 0:
+            message = ConversationMessage(role=ParticipantRole.USER.value, content=[{'text': f'Message {i}'}])
+        else:
+            message = ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text': f'Message {i}'}])
+        messages.append(message)
+
+    await chat_storage.save_chat_messages('user1', 'session1', 'agent1', messages)
+    user_id = 'user1'
+    session_id = 'session1'
+    agent_id = 'agent1'
+    fetched_messages = await chat_storage.fetch_chat(user_id, session_id, agent_id)
+    assert len(fetched_messages) == 5
+    assert fetched_messages[0].content == [{'text': 'Message 0'}]
+    assert fetched_messages[0].role == ParticipantRole.USER.value
+    assert fetched_messages[1].content == [{'text': 'Message 1'}]
+    assert fetched_messages[1].role == ParticipantRole.ASSISTANT.value
+    assert fetched_messages[2].content == [{'text': 'Message 2'}]
+    assert fetched_messages[2].role == ParticipantRole.USER.value
+    assert fetched_messages[3].content == [{'text': 'Message 3'}]
+    assert fetched_messages[3].role == ParticipantRole.ASSISTANT.value
+    assert fetched_messages[4].content == [{'text': 'Message 4'}]
+    assert fetched_messages[4].role == ParticipantRole.USER.value
+
+
+@pytest.mark.asyncio
+async def test_save_and_fetch_chat_messages_timestamp(chat_storage):
+    """
+    Testing saving multiple ConversationMessage at once
+    """
+    messages = []
+    for i in range(5):
+        if i % 2 == 0:
+            message = TimestampedMessage(role=ParticipantRole.USER.value, content=[{'text': f'Message {i}'}])
+        else:
+            message = TimestampedMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text': f'Message {i}'}])
+        messages.append(message)
+
+    await chat_storage.save_chat_messages('user1', 'session1', 'agent1', messages)
+    user_id = 'user1'
+    session_id = 'session1'
+    agent_id = 'agent1'
+    fetched_messages = await chat_storage.fetch_chat(user_id, session_id, agent_id)
+    assert len(fetched_messages) == 5
+    assert fetched_messages[0].content == [{'text': 'Message 0'}]
+    assert fetched_messages[0].role == ParticipantRole.USER.value
+    assert fetched_messages[1].content == [{'text': 'Message 1'}]
+    assert fetched_messages[1].role == ParticipantRole.ASSISTANT.value
+    assert fetched_messages[2].content == [{'text': 'Message 2'}]
+    assert fetched_messages[2].role == ParticipantRole.USER.value
+    assert fetched_messages[3].content == [{'text': 'Message 3'}]
+    assert fetched_messages[3].role == ParticipantRole.ASSISTANT.value
+    assert fetched_messages[4].content == [{'text': 'Message 4'}]
+    assert fetched_messages[4].role == ParticipantRole.USER.value
