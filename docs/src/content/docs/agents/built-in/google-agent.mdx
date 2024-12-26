@@ -1,0 +1,317 @@
+```markdown
+---
+title: Google AI Agent
+description: Documentation for the Google AI Agent
+---
+
+The `GoogleAIAgent` is a versatile agent class within the Multi-Agent Orchestrator framework, designed to integrate with Google's Gemini API. This agent empowers you to harness Google's advanced language models for a wide range of natural language processing tasks.
+
+## Key Features
+
+- Integration with Google's Gemini API
+- Support for various Gemini models
+- Streaming and non-streaming response options
+- Customizable inference configuration
+- Conversation history management for context-aware interactions
+- Flexible system prompt customization with variable support
+- Support for retrievers to enrich responses with external knowledge
+- Flexible initialization using API key or custom client
+
+## Configuration Options
+
+The `GoogleAIAgentOptions` class, which extends the base `AgentOptions`, provides the following configuration fields:
+
+### Required Fields
+
+- `name`: The agent's name.
+- `description`: A description of the agent's capabilities.
+- Authentication (choose one):
+  - `apiKey`: Your Google Gemini API key.
+  - `client`: A custom Google Gemini client instance.
+
+### Optional Fields
+- `model`: Google Gemini model identifier (e.g., 'gemini-pro'). Defaults to `GOOGLE_MODEL_ID_GEMINI_PRO`.
+- `streaming`: Enables streaming responses. Defaults to `false`.
+- `retriever`: A custom retriever instance for providing additional context.
+- `inferenceConfig`: Configuration for model inference:
+  - `maxOutputTokens`: Maximum tokens to generate (default: 1000).
+  - `temperature`: Controls randomness (0-1).
+  - `topP`: Controls diversity via nucleus sampling.
+  - `stopSequences`: Sequences that stop generation.
+- `customSystemPrompt`: System prompt configuration:
+  - `template`: Template string with optional variable placeholders.
+  - `variables`: Key-value pairs for template variables.
+
+## Creating a GoogleAIAgent
+
+Here are several examples demonstrating different ways to create and configure a `GoogleAIAgent`:
+
+### Basic Examples
+
+**1. Minimal Configuration**
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new GoogleAIAgent({
+    name: 'Google AI Assistant',
+    description: 'A versatile AI assistant',
+    apiKey: 'your-google-ai-api-key'
+});
+```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+**2. Using Custom Client**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+import { GoogleGenerativeAI } from '@google/generative-ai';
+const customClient = new GoogleGenerativeAI('your-google-ai-api-key');
+
+const agent = new GoogleAIAgent({
+    name: 'Google AI Assistant',
+    description: 'A versatile AI assistant',
+    client: customClient
+});
+```
+  </TabItem>
+</Tabs>
+
+
+<hr/>
+
+**3. Custom Model and Streaming**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new GoogleAIAgent({
+  name: 'Google AI Assistant',
+  description: 'A streaming-enabled assistant',
+  apiKey: 'your-google-ai-api-key',
+  model: 'gemini-pro',
+  streaming: true
+});
+```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+
+**4. With Inference Configuration**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new GoogleAIAgent({
+  name: 'Google AI Assistant',
+  description: 'An assistant with custom inference settings',
+  apiKey: 'your-google-ai-api-key',
+  inferenceConfig: {
+    maxOutputTokens: 500,
+    temperature: 0.7,
+    topP: 0.9,
+    stopSequences: ['Human:', 'AI:']
+  }
+});
+```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+**5. With Simple System Prompt**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new GoogleAIAgent({
+  name: 'Google AI Assistant',
+  description: 'An assistant with custom prompt',
+  apiKey: 'your-google-ai-api-key',
+  customSystemPrompt: {
+    template: 'You are a helpful AI assistant focused on technical support.'
+  }
+});
+```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+**6. With System Prompt Variables**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new GoogleAIAgent({
+  name: 'Google AI Assistant',
+  description: 'An assistant with variable prompt',
+  apiKey: 'your-google-ai-api-key',
+  customSystemPrompt: {
+    template: 'You are an AI assistant specialized in {{DOMAIN}}. Always use a {{TONE}} tone.',
+    variables: {
+      DOMAIN: 'customer support',
+      TONE: 'friendly and helpful'
+    }
+  }
+});
+```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+**7. With Custom Retriever**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const retriever = new CustomRetriever({
+  // Retriever configuration
+});
+const agent = new GoogleAIAgent({
+    name: 'Google AI Assistant',
+    description: 'An assistant with retriever',
+    apiKey: 'your-google-ai-api-key',
+    retriever: retriever
+});
+```
+  </TabItem>
+</Tabs>
+<hr/>
+
+**8. Combining Multiple Options**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const agent = new GoogleAIAgent({
+  name: 'Google AI Assistant',
+  description: 'An assistant with multiple options',
+  apiKey: 'your-google-ai-api-key',
+  model: 'gemini-pro',
+  streaming: true,
+  inferenceConfig: {
+    maxOutputTokens: 500,
+    temperature: 0.7
+  },
+  customSystemPrompt: {
+    template: 'You are an AI assistant specialized in {{DOMAIN}}.',
+    variables: {
+      DOMAIN: 'technical support'
+    }
+  }
+});
+```
+  </TabItem>
+</Tabs>
+<hr/>
+
+**9. Complete Example with All Options**
+
+Here's a comprehensive example demonstrating all available configuration options:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+import { GoogleAIAgent } from 'multi-agent-orchestrator';
+
+const agent = new GoogleAIAgent({
+    // Required fields
+    name: 'Advanced Google AI Assistant',
+    description: 'A fully configured AI assistant powered by Google Gemini',
+    apiKey: 'your-google-ai-api-key',
+
+    // Optional fields
+    model: 'gemini-pro',  // Choose Google Gemini model
+    streaming: true,      // Enable streaming responses
+    retriever: customRetriever,  // Custom retriever for additional context
+
+    // Inference configuration
+    inferenceConfig: {
+        maxOutputTokens: 500,   // Maximum tokens to generate
+        temperature: 0.7,     // Control randomness (0-1)
+        topP: 0.9,            // Control diversity via nucleus sampling
+        stopSequences: ['Human:', 'AI:'] // Sequences that stop generation
+    },
+
+    // Custom system prompt with variables
+    customSystemPrompt: {
+        template: `You are an AI assistant specialized in {{DOMAIN}}.
+                  Your core competencies:
+                  {{SKILLS}}
+
+                  Communication style:
+                  - Maintain a {{TONE}} tone
+                  - Focus on {{FOCUS}}
+                  - Prioritize {{PRIORITY}}`,
+        variables: {
+            DOMAIN: 'scientific research',
+            SKILLS: [
+                '- Advanced data analysis',
+                '- Statistical methodology',
+                '- Research design',
+                '- Technical writing'
+            ],
+            TONE: 'professional and academic',
+            FOCUS: 'accuracy and clarity',
+            PRIORITY: 'evidence-based insights'
+        }
+    }
+});
+```
+</TabItem>
+</Tabs>
+
+## Using the GoogleAIAgent
+
+You can use the `GoogleAIAgent` either directly or within the Multi-Agent Orchestrator framework.
+
+### Direct Usage
+
+Call the agent directly when you need to use a single agent without orchestrator routing:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const classifierResult = {
+    selectedAgent: agent,
+    confidence: 1.0
+};
+
+const response = await orchestrator.agentProcessRequest(
+    "What is the capital of France?",
+    "user123",
+    "session456",
+    classifierResult
+);
+```
+</TabItem>
+</Tabs>
+
+### Using with the Orchestrator
+
+Add the agent to the Multi-Agent Orchestrator for use in a multi-agent system:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+```typescript
+const orchestrator = new MultiAgentOrchestrator();
+orchestrator.addAgent(agent);
+
+const response = await orchestrator.routeRequest(
+    "What is the capital of France?",
+    "user123",
+    "session456"
+);
+```
+</TabItem>
+</Tabs>
