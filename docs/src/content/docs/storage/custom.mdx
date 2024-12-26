@@ -9,7 +9,7 @@ The Multi-Agent Orchestrator System provides flexibility in how conversation dat
 
 The `ChatStorage` class defines the interface for all storage solutions in the system. It includes three main methods and two helper methods:
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem} from '@astrojs/starlight/components';
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -124,6 +124,18 @@ To create a custom storage solution, follow these steps:
 3. Utilize the helper methods `isConsecutiveMessage` and `trimConversation` in your implementation.
 4. Add any additional methods or properties specific to your storage solution.
 
+<hr/>
+> **Important**
+> When implementing `fetchAllChats`, concatenate the agent ID with the message text in the response when the role is ASSISTANT:
+
+```text
+ASSISTANT: [agent-a] Response from agent A
+USER: Some user input  
+ASSISTANT: [agent-b] Response from agent B
+```
+<hr/>
+
+
 Here's an example of a simple custom storage solution using an in-memory dictionary:
 
 <Tabs syncKey="runtime">
@@ -132,52 +144,63 @@ Here's an example of a simple custom storage solution using an in-memory diction
     import { ChatStorage, ConversationMessage } from 'multi-agent-orchestrator';
 
     class SimpleInMemoryStorage extends ChatStorage {
-      private storage: { [key: string]: ConversationMessage[] } = {};
+    private storage: { [key: string]: ConversationMessage[] } = {};
 
-      async saveChatMessage(
-        userId: string,
-        sessionId: string,
-        agentId: string,
-        newMessage: ConversationMessage,
-        maxHistorySize?: number
-      ): Promise<ConversationMessage[]> {
-        const key = `${userId}:${sessionId}:${agentId}`;
-        if (!this.storage[key]) {
-          this.storage[key] = [];
-        }
-        
-        if (!this.isConsecutiveMessage(this.storage[key], newMessage)) {
-          this.storage[key].push(newMessage);
-        }
-        
-        this.storage[key] = this.trimConversation(this.storage[key], maxHistorySize);
-        return this.storage[key];
+    async saveChatMessage(
+      userId: string,
+      sessionId: string,
+      agentId: string,
+      newMessage: ConversationMessage,
+      maxHistorySize?: number
+    ): Promise<ConversationMessage[]> {
+      const key = `${userId}:${sessionId}:${agentId}`;
+      if (!this.storage[key]) {
+        this.storage[key] = [];
       }
-
-      async fetchChat(
-        userId: string,
-        sessionId: string,
-        agentId: string,
-        maxHistorySize?: number
-      ): Promise<ConversationMessage[]> {
-        const key = `${userId}:${sessionId}:${agentId}`;
-        const conversation = this.storage[key] || [];
-        return this.trimConversation(conversation, maxHistorySize);
+      
+      if (!this.isConsecutiveMessage(this.storage[key], newMessage)) {
+        this.storage[key].push(newMessage);
       }
+      
+      this.storage[key] = this.trimConversation(this.storage[key], maxHistorySize);
+      return this.storage[key];
+    }
 
-      async fetchAllChats(
-        userId: string,
-        sessionId: string
-      ): Promise<ConversationMessage[]> {
-        const allMessages: ConversationMessage[] = [];
-        for (const key in this.storage) {
-          if (key.startsWith(`${userId}:${sessionId}`)) {
-            allMessages.push(...this.storage[key]);
+    async fetchChat(
+      userId: string,
+      sessionId: string,
+      agentId: string,
+      maxHistorySize?: number
+    ): Promise<ConversationMessage[]> {
+      const key = `${userId}:${sessionId}:${agentId}`;
+      const conversation = this.storage[key] || [];
+      return this.trimConversation(conversation, maxHistorySize);
+    }
+
+    async fetchAllChats(
+      userId: string,
+      sessionId: string
+    ): Promise<ConversationMessage[]> {
+      const allMessages: ConversationMessage[] = [];
+      for (const key in this.storage) {
+        if (key.startsWith(`${userId}:${sessionId}`)) {
+          const agentId = key.split(':')[2];
+          for (const message of this.storage[key]) {
+            const newContent = message.content ? [...message.content] : [];
+            if (newContent.length > 0 && message.role === ParticipantRole.ASSISTANT) {
+              newContent[0] = { text: `[${agentId}] ${newContent[0].text}` };
+            }
+            allMessages.push({
+              ...message,
+              content: newContent
+            });
           }
         }
-        return allMessages;
       }
+      return allMessages;
     }
+  }
+
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
@@ -187,50 +210,61 @@ Here's an example of a simple custom storage solution using an in-memory diction
     from multi_agent_orchestrator.types import ConversationMessage
 
     class SimpleInMemoryStorage(ChatStorage):
-        def __init__(self):
-            self.storage: Dict[str, List[ConversationMessage]] = {}
+    def __init__(self):
+        self.storage: Dict[str, List[ConversationMessage]] = {}
 
-        async def save_chat_message(
-            self,
-            user_id: str,
-            session_id: str,
-            agent_id: str,
-            new_message: ConversationMessage,
-            max_history_size: Optional[int] = None
-        ) -> List[ConversationMessage]:
-            key = f"{user_id}:{session_id}:{agent_id}"
-            if key not in self.storage:
-                self.storage[key] = []
-            
-            if not self.is_consecutive_message(self.storage[key], new_message):
-                self.storage[key].append(new_message)
-            
-            self.storage[key] = self.trim_conversation(self.storage[key], max_history_size)
-            return self.storage[key]
+    async def save_chat_message(
+        self,
+        user_id: str,
+        session_id: str,
+        agent_id: str,
+        new_message: ConversationMessage,
+        max_history_size: Optional[int] = None
+    ) -> List[ConversationMessage]:
+        key = f"{user_id}:{session_id}:{agent_id}"
+        if key not in self.storage:
+            self.storage[key] = []
+        
+        if not self.is_consecutive_message(self.storage[key], new_message):
+            self.storage[key].append(new_message)
+        
+        self.storage[key] = self.trim_conversation(self.storage[key], max_history_size)
+        return self.storage[key]
 
-        async def fetch_chat(
-            self,
-            user_id: str,
-            session_id: str,
-            agent_id: str,
-            max_history_size: Optional[int] = None
-        ) -> List[ConversationMessage]:
-            key = f"{user_id}:{session_id}:{agent_id}"
-            conversation = self.storage.get(key, [])
-            return self.trim_conversation(conversation, max_history_size)
+    async def fetch_chat(
+        self,
+        user_id: str,
+        session_id: str,
+        agent_id: str,
+        max_history_size: Optional[int] = None
+    ) -> List[ConversationMessage]:
+        key = f"{user_id}:{session_id}:{agent_id}"
+        conversation = self.storage.get(key, [])
+        return self.trim_conversation(conversation, max_history_size)
 
-        async def fetch_all_chats(
-            self,
-            user_id: str,
-            session_id: str
-        ) -> List[ConversationMessage]:
-            all_messages = []
-            prefix = f"{user_id}:{session_id}"
-            for key, messages in self.storage.items():
-                if key.startswith(prefix):
-                    all_messages.extend(messages)
-            return sorted(all_messages, key=lambda m: getattr(m, 'timestamp', 0))
-    ```
+    async def fetch_all_chats(
+        self,
+        user_id: str,
+        session_id: str
+    ) -> List[ConversationMessage]:
+        all_messages = []
+        prefix = f"{user_id}:{session_id}"
+        for key, messages in self.storage.items():
+            if key.startswith(prefix):
+                agent_id = key.split(':')[2]
+                for message in messages:
+                    new_content = message.content if message.content else []
+                    if len(new_content) > 0 and message.role == ParticipantRole.ASSISTANT:
+                        new_content[0] = {'text': f"[{agent_id}] {new_content[0]['text']}"}
+                    all_messages.append(
+                        ConversationMessage(
+                            role=message.role,
+                            content=new_content
+                        )
+                    )
+        return sorted(all_messages, key=lambda m: getattr(m, 'timestamp', 0))
+```
+
   </TabItem>
 </Tabs>
 
