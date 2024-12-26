@@ -1,0 +1,305 @@
+---
+title: Supervisor Agent
+description: Documentation for the SupervisorAgent in the Multi-Agent Orchestrator System
+---
+
+The `SupervisorAgent` is a specialized agent class in the Multi-Agent Orchestrator System that orchestrates interactions between multiple agents. It acts as a coordinator, managing communication, task delegation, and response aggregation between a team of agents while maintaining conversation history.
+
+## Key Features
+
+- Parallel processing of messages across multiple agents
+- Integrated conversation history management
+- Support for custom tools and agent teams
+- Configurable logging and tracing
+- Intelligent task delegation and response aggregation
+- Compatible with BedrockLLMAgent and AnthropicAgent as supervisors
+
+## Creating a SupervisorAgent
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // TypeScript implementation coming soon
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.agents import BedrockLLMAgent, SupervisorAgent
+    from multi_agent_orchestrator.storage import DynamoDBChatStorage
+
+    # Create supervisor
+    supervisor = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Team Supervisor",
+        description="Coordinates team of specialized agents"
+    ))
+
+    # Create team members
+    tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Tech Expert",
+        description="Handles technical queries"
+    ))
+
+    support_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Support Agent",
+        description="Handles customer support issues"
+    ))
+
+    # Create SupervisorAgent
+    supervisor_agent = SupervisorAgent(SupervisorAgentOptions(
+        supervisor=supervisor,
+        team=[tech_agent, support_agent],
+        storage=DynamoDBChatStorage(),
+        trace=True
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration Options
+
+The `SupervisorAgentOptions` defines the configuration parameters for creating a SupervisorAgent:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // TypeScript implementation coming soon
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    @dataclass
+    class SupervisorAgentOptions(AgentOptions):
+        supervisor: Agent  # The agent that acts as a supervisor
+        team: list[Agent]  # Team of agents that can help in resolving tasks
+        storage: Optional[ChatStorage]  # Memory storage for the team
+        trace: Optional[bool]  # Enable tracing/logging
+        extra_tools: Optional[Union[Tools, list[Tool]]]  # Additional tools for supervisor
+    ```
+  </TabItem>
+</Tabs>
+
+### Required Parameters
+- `supervisor`: Must be either a BedrockLLMAgent or AnthropicAgent instance
+- `team`: List of agents that will be coordinated by the supervisor
+
+### Optional Parameters
+- `storage`: Custom storage implementation for conversation history (defaults to InMemoryChatStorage)
+- `trace`: Enable detailed logging of agent interactions
+- `extraTools`/`extra_tools`: Additional tools to be made available to the supervisor
+
+## Built-in Tools
+
+### send_messages Tool
+
+The SupervisorAgent includes a built-in tool for parallel message processing:
+
+```json
+{
+    "name": "send_messages",
+    "description": "Send messages to multiple agents in parallel.",
+    "properties": {
+        "messages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "recipient": {
+                        "type": "string",
+                        "description": "Agent name to send message to."
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "Message content."
+                    }
+                },
+                "required": ["recipient", "content"]
+            },
+            "description": "Array of messages for different agents.",
+            "minItems": 1
+        }
+    }
+}
+```
+
+## Memory Management
+
+The SupervisorAgent uses a configurable storage system for maintaining conversation history:
+
+- Default storage: InMemoryChatStorage
+- Supports any ChatStorage implementation
+- Maintains separate histories for each agent
+- Efficiently formats and retrieves conversations for context
+
+## Adding Custom Tools
+
+You can extend the SupervisorAgent's capabilities with custom tools:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // TypeScript implementation coming soon
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.utils import Tool, Tools
+
+    custom_tools = [
+        Tool(
+            name="analyze_sentiment",
+            description="Analyze message sentiment",
+            properties={
+                "text": {
+                    "type": "string",
+                    "description": "Text to analyze"
+                }
+            },
+            required=["text"],
+            func=analyze_sentiment
+        )
+    ]
+
+    supervisor_agent = SupervisorAgent(SupervisorAgentOptions(
+        supervisor=supervisor,
+        team=[tech_agent, billing_agent],
+        extra_tools=custom_tools
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+## Communication Guidelines
+
+The SupervisorAgent follows specific guidelines for agent communication:
+
+1. **Response Handling**
+   - Aggregates responses from all relevant agents
+   - Maintains original agent responses without summarization
+   - Provides final answers only when all necessary responses are received
+
+2. **Agent Interaction**
+   - Optimizes for parallel processing when possible
+   - Maintains agent isolation (agents are unaware of each other)
+   - Keeps inter-agent communications concise
+
+3. **Context Management**
+   - Provides full context when necessary
+   - Reuses previous responses when appropriate
+   - Maintains efficient conversation history
+
+4. **Input Processing**
+   - Forwards simple inputs directly to relevant agents
+   - Extracts all relevant data before creating action plans
+   - Never assumes parameter values
+
+## Complete Example
+
+Here's a complete example showing how to use the SupervisorAgent in a typical scenario:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // TypeScript implementation coming soon
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from multi_agent_orchestrator.agents import (
+        SupervisorAgent,
+        BedrockLLMAgent,
+        SupervisorAgentOptions
+    )
+    from multi_agent_orchestrator.storage import DynamoDBChatStorage
+    from multi_agent_orchestrator.utils import Tools, Tool
+
+    # Create orchestrator
+    orchestrator = MultiAgentOrchestrator()
+
+    # Create supervisor and team
+    supervisor = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Team Lead",
+        description="Coordinates specialized team members"
+    ))
+
+    tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Tech Support",
+        description="Handles technical issues"
+    ))
+
+    billing_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Billing Expert",
+        description="Handles billing and payment queries"
+    ))
+
+    # Create custom tools
+    custom_tools = [
+        Tool(
+            name="analyze_sentiment",
+            description="Analyze message sentiment",
+            properties={
+                "text": {
+                    "type": "string",
+                    "description": "Text to analyze"
+                }
+            },
+            required=["text"],
+            func=analyze_sentiment
+        )
+    ]
+
+    # Create and add supervisor agent
+    supervisor_agent = SupervisorAgent(SupervisorAgentOptions(
+        supervisor=supervisor,
+        team=[tech_agent, billing_agent],
+        storage=DynamoDBChatStorage(),
+        trace=True,
+        extra_tools=custom_tools
+    ))
+
+    orchestrator.add_agent(supervisor_agent)
+
+    # Process request
+    response = await orchestrator.route_request(
+        "I'm having issues with my bill and the mobile app",
+        "user123",
+        "session456"
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+## Best Practices
+
+1. **Agent Team Composition**
+   - Choose specialized agents with clear, distinct roles
+   - Ensure agent descriptions are detailed and non-overlapping
+   - Consider communication patterns when selecting team size
+
+2. **Storage Configuration**
+   - Use persistent storage (e.g., DynamoDBChatStorage) for production
+   - Consider memory usage with large conversation histories
+   - Implement appropriate cleanup strategies
+
+3. **Tool Management**
+   - Add custom tools through extraTools/extra_tools parameter
+   - Keep tool functions focused and well-documented
+   - Consider performance impact of tool complexity
+
+4. **Performance Optimization**
+   - Enable parallel processing where appropriate
+   - Monitor and adjust team size based on requirements
+   - Use tracing to identify bottlenecks
+
+## Limitations
+
+- Supervisor must be either BedrockLLMAgent or AnthropicAgent
+- Tool configurations on supervisor agent are managed by SupervisorAgent
+- May require significant memory for large conversation histories
+- Performance depends on slowest agent in parallel operations
+
+---
+
+By leveraging the SupervisorAgent, you can create sophisticated multi-agent systems with coordinated responses, maintained context, and efficient parallel processing. The agent's flexible architecture allows for customization while providing robust built-in capabilities for common coordination tasks.
