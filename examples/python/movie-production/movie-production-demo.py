@@ -1,9 +1,7 @@
 import uuid
 import asyncio
 import streamlit as st
-import os
 import boto3
-from botocore.exceptions import NoRegionError, NoCredentialsError, PartialCredentialsError
 from search_web import search_web
 from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
 from multi_agent_orchestrator.agents import (
