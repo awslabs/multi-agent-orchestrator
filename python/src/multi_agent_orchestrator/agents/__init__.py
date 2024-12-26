@@ -3,6 +3,7 @@ Code for Agents.
 """
 from .agent import Agent, AgentOptions, AgentCallbacks, AgentProcessingResult, AgentResponse
 
+
 try:
     from .lambda_agent import LambdaAgent, LambdaAgentOptions
     from .bedrock_llm_agent import BedrockLLMAgent, BedrockLLMAgentOptions
@@ -12,7 +13,7 @@ try:
     from .bedrock_translator_agent import BedrockTranslatorAgent, BedrockTranslatorAgentOptions
     from .chain_agent import ChainAgent, ChainAgentOptions
     from .bedrock_inline_agent import BedrockInlineAgent, BedrockInlineAgentOptions
-    from .bedrock_flows_agent import BedrockFlowsAgent, BedrockFlowsAgentOptions   
+    from .bedrock_flows_agent import BedrockFlowsAgent, BedrockFlowsAgentOptions
     _AWS_AVAILABLE = True
 except ImportError:
     _AWS_AVAILABLE = False
@@ -27,14 +28,19 @@ try:
     from .openai_agent import OpenAIAgent, OpenAIAgentOptions
     _OPENAI_AVAILABLE = True
 except ImportError:
-    _OPENAI_AVAILABLE = False    
+    _OPENAI_AVAILABLE = False
+
+from .supervisor_agent import SupervisorAgent, SupervisorAgentOptions
+
 
 __all__ = [
     'Agent',
     'AgentOptions',
     'AgentCallbacks',
     'AgentProcessingResult',
-    'AgentResponse'
+    'AgentResponse',
+    'SupervisorAgent',
+    'SupervisorAgentOptions'
     ]
 
 
@@ -58,7 +64,7 @@ if _AWS_AVAILABLE :
         'BedrockInlineAgentOptions',
         'BedrockFlowsAgent',
         'BedrockFlowsAgentOptions'
-    ]) 
+    ])
 
 
 if _ANTHROPIC_AVAILABLE:
