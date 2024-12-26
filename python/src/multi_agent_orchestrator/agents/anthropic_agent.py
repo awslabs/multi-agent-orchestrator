@@ -67,7 +67,7 @@ class AnthropicAgent(Agent):
             self.inference_config = default_inference_config
 
         self.retriever = options.retriever
-        self.tool_config = options.tool_config
+        self.tool_config: Optional[dict[str, Any]] = options.tool_config
 
         self.prompt_template: str = f"""You are a {self.name}.
         {self.description}
