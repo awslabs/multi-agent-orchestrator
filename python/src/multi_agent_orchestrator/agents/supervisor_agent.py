@@ -155,8 +155,6 @@ When communicating with other agents, including the User, please follow these gu
 """
         self.supervisor.set_system_prompt(self.prompt_template)
 
-        print(self.supervisor.prompt_template)
-
     def send_message(
         self,
         agent: Agent,
@@ -174,6 +172,8 @@ When communicating with other agents, including the User, please follow these gu
                 asyncio.run(self.storage.fetch_chat(user_id, session_id, agent.id))
                 if agent.save_chat else []
             )
+
+            print(agent_chat_history)
 
             user_message = TimestampedMessage(
                 role=ParticipantRole.USER.value,
@@ -263,7 +263,7 @@ When communicating with other agents, including the User, please follow these gu
             self.supervisor.set_system_prompt(
                 self.prompt_template.replace('{AGENTS_MEMORY}', agents_memory)
             )
-            print(self.supervisor.prompt_template)
+
             return await self.supervisor.process_request(
                 input_text, user_id, session_id, chat_history, additional_params
             )
