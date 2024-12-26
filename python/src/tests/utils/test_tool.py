@@ -427,7 +427,6 @@ def test_tool_with_properties():
     )
 
     assert tool.enum_values == {"units": ["celsius", "fahrenheit"]}
-    print(tool.properties)
     assert tool.properties == {
         "latitude": {
             "type": "string",
