@@ -146,7 +146,7 @@ The `Tools` class manages multiple tool definitions and handles tool execution d
         streaming=True,
         description="Specialized agent for giving weather condition from a city.",
         tool_config={
-            'tool': [tool.to_bedrock_format() for tool in tools.tools],
+            'tool': tools,
             'toolMaxRecursions': 5,
         },
     ))
@@ -220,7 +220,7 @@ Here is an example of how you can add Tools to your Agent
         name='weather-agent',
         description='Agent specialized in providing weather information for cities',
         tool_config={
-            'tool': weather_tool_with_func.to_bedrock_format(),
+            'tool': weather_tools,
             'toolMaxRecursions': 5,  # Maximum number of tool calls in one conversation
         }
     ))
@@ -303,7 +303,7 @@ When you need more control over tool execution, you can implement a custom handl
         name='weather-agent',
         description='Agent specialized in providing weather information for cities',
         tool_config={
-            'tool': weather_tool_with_func.to_bedrock_format(),
+            'tool': weather_tools.to_bedrock_format(),
             'toolMaxRecursions': 5,  # Maximum number of tool calls in one conversation
             'useToolHandler': bedrock_weather_tool_handler
         }
