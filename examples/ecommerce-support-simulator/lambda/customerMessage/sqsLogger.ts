@@ -34,6 +34,8 @@ export class SQSLogger {
     }
   }
 
+
+
   private formatMessage(...args: any[]): string {
     return args.map(arg => 
       typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
@@ -42,7 +44,6 @@ export class SQSLogger {
 
   log(...args: any[]): void {
     const message = this.formatMessage(...args);
-    console.log("sendToSQS message="+JSON.stringify(message))
     this.sendToSQS(message);
   }
 

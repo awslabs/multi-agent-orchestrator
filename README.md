@@ -1,5 +1,5 @@
 <h2 align="center">Multi-Agent Orchestrator&nbsp;</h2>
-<p align="center">Flexible and powerful framework for managing multiple AI agents and handling complex conversations.</p>
+<p align="center">Flexible, lightweight open-source framework for orchestrating multiple AI agents to handle complex conversations.</p>
 
 
 <p align="center">
@@ -106,6 +106,9 @@ Get hands-on experience with the Multi-Agent Orchestrator through our diverse se
 
 - **Ready-to-run Scripts**: Start locally with our collection of standalone scripts in both Python and TypeScript.
 - **Demo Applications**:
+  - [Streamlit Global Demo](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/python): A single Streamlit application showcasing multiple demos, including:
+    - AI Movie Production Studio
+    - AI Travel Planner
   - [Chat Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/):
     - Explore multiple specialized agents handling various domains like travel, weather, math, and health
   - [E-commerce Support Simulator](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/ecommerce-support-simulator/): Experience AI-powered customer support with:
@@ -241,13 +244,12 @@ if (response.streaming == true) {
 
 ### Python Version
 
-#### Core Installation
 
 ```bash
 # Optional: Set up a virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-pip install multi-agent-orchestrator
+pip install multi-agent-orchestrator[aws]
 ```
 
 #### Default Usage
@@ -338,18 +340,54 @@ These examples showcase:
 3. The orchestrator's ability to route requests to the most appropriate agent based on the input.
 4. Handling of both streaming and non-streaming responses from different types of agents.
 
-### Working with Anthropic or OpenAI
-If you want to use Anthropic or OpenAI for classifier and/or agents, make sure to install the multi-agent-orchestrator with the relevant extra feature.
-```bash
-pip install "multi-agent-orchestrator[anthropic]"
-pip install "multi-agent-orchestrator[openai]"
-```
 
-### Full package installation
-For a complete installation (including Anthropic and OpenAi):
-```bash
+### Modular Installation Options
+
+The Multi-Agent Orchestrator is designed with a modular architecture, allowing you to install only the components you need while ensuring you always get the core functionality.
+
+#### Installation Options
+
+**1. AWS Integration**:
+
+  ```bash
+   pip install "multi-agent-orchestrator[aws]"
+  ```
+Includes core orchestration functionality with comprehensive AWS service integrations (`BedrockLLMAgent`, `AmazonBedrockAgent`, `LambdaAgent`, etc.)   
+
+**2. Anthropic Integration**:
+
+  ```bash
+pip install "multi-agent-orchestrator[anthropic]"
+  ```
+
+**3. OpenAI Integration**:
+
+  ```bash
+pip install "multi-agent-orchestrator[openai]"
+  ```
+
+Adds OpenAI's GPT models for agents and classification, along with core packages.
+
+**4. Full Installation**:
+
+  ```bash
 pip install "multi-agent-orchestrator[all]"
-```
+  ```
+
+Includes all optional dependencies for maximum flexibility. 
+
+
+### 🙌 **We Want to Hear From You!**
+
+Have something to share, discuss, or brainstorm? We’d love to connect with you and hear about your journey with the **Multi-Agent Orchestrator framework**. Here’s how you can get involved:
+
+- **🙌 Show & Tell**: Got a success story, cool project, or creative implementation? Share it with us in the [**Show and Tell**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/show-and-tell) section. Your work might inspire the entire community! 🎉
+
+- **💬 General Discussion**: Have questions, feedback, or suggestions? Join the conversation in our [**General Discussions**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/general) section. It’s the perfect place to connect with other users and contributors.
+
+- **💡 Ideas**: Thinking of a new feature or improvement? Share your thoughts in the [**Ideas**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/ideas) section. We’re always open to exploring innovative ways to make the orchestrator even better!
+
+Let’s collaborate, learn from each other, and build something incredible together! 🚀
 
 ## 🤝 Contributing
 

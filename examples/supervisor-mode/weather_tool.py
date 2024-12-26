@@ -1,6 +1,6 @@
 import requests
 from requests.exceptions import RequestException
-from typing import List, Dict, Any
+from typing import Any
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 
 
@@ -45,7 +45,7 @@ To use the tool, you strictly apply the provided tool specification.
 """
 
 
-async def weather_tool_handler(response: ConversationMessage, conversation: List[Dict[str, Any]]) -> ConversationMessage:
+async def weather_tool_handler(response: ConversationMessage, conversation: list[dict[str, Any]]) -> ConversationMessage:
     response_content_blocks = response.content
 
     # Initialize an empty list of tool results

@@ -6,10 +6,10 @@ from anthropic import AsyncAnthropic, Anthropic
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import (ConversationMessage,
                        ParticipantRole,
-                       TemplateVariables)
-from multi_agent_orchestrator.utils import conversation_to_dict, Logger
+                       TemplateVariables,
+                       AgentProviderType)
+from multi_agent_orchestrator.utils import Logger, Tools
 from multi_agent_orchestrator.retrievers import Retriever
-
 
 @dataclass
 class AnthropicAgentOptions(AgentOptions):
@@ -19,7 +19,7 @@ class AnthropicAgentOptions(AgentOptions):
     streaming: Optional[bool] = False
     inference_config: Optional[Dict[str, Any]] = None
     retriever: Optional[Retriever] = None
-    tool_config: Optional[Dict[str, Any]] = None
+    tool_config: Optional[Union[dict[str, Any], Tools]] = None
     custom_system_prompt: Optional[Dict[str, Any]] = None
 
 
@@ -67,7 +67,7 @@ class AnthropicAgent(Agent):
             self.inference_config = default_inference_config
 
         self.retriever = options.retriever
-        self.tool_config = options.tool_config
+        self.tool_config: Optional[dict[str, Any]] = options.tool_config
 
         self.prompt_template: str = f"""You are a {self.name}.
         {self.description}
@@ -133,10 +133,12 @@ class AnthropicAgent(Agent):
 
         try:
             if self.tool_config:
-                input['tools'] = self.tool_config["tool"]
+                tools = self.tool_config["tool"] if not isinstance(self.tool_config["tool"], Tools) else self.tool_config["tool"].to_claude_format()
+
+                input['tools'] = tools
                 final_message = ''
                 tool_use = True
-                recursions = self.tool_config.get('toolMaxRecursions') if self.tool_config  else self.default_max_recursions
+                recursions = self.tool_config.get('toolMaxRecursions', self.default_max_recursions)
 
                 while tool_use and recursions > 0:
                     if self.streaming:
@@ -148,9 +150,16 @@ class AnthropicAgent(Agent):
 
                     if tool_use_blocks:
                         input['messages'].append({"role": "assistant", "content": response.content})
-                        if not self.tool_config or not self.tool_config.get('useToolHandler'):
+                        if not self.tool_config:
                             raise ValueError("No tools available for tool use")
-                        tool_response = await self.tool_config['useToolHandler'](response, input['messages'])
+
+                        if self.tool_config.get('useToolHandler'):
+                            # user is handling the tool blocks itself
+                            tool_response = await self.tool_config['useToolHandler'](response, input['messages'])
+                        else:
+                            tools:Tools = self.tool_config["tool"]
+                            # no handler has been provided, we can use the default implementation
+                            tool_response = await tools.tool_handler(AgentProviderType.ANTHROPIC.value, response, messages)
                         input['messages'].append(tool_response)
                         tool_use = True
                     else:
