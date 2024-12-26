@@ -1,0 +1,336 @@
+---
+title: Tools System
+description: Documentation for the Tools system in the Multi-Agent Orchestrator
+---
+
+The Tools system in the Multi-Agent Orchestrator provides a flexible framework for defining, building, and managing tools that agents can use.
+It consists of three main classes: `Tool`, `ToolBuilder`, and `Tools`, which work together to enable tool-based interactions in the orchestrator.
+
+## Key Features
+
+- Support for multiple AI provider formats: Claude, Bedrock, OpenAI (coming soon)
+- Automatic function signature parsing
+- Type hint conversion to JSON schema
+- Flexible tool definition methods
+- Async/sync function handling
+- Built-in tool result formatting
+
+## Tool Class
+
+The `Tool` class is the core component that represents a single tool definition. It can be created in multiple ways and supports various formats for different AI providers.
+
+### Creating a Tool
+
+There are several ways to create a tool:
+
+1. **Using the Constructor**:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+      ```typescript
+      // TypeScript implementation coming soon
+      ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.utils import Tool
+
+    def get_weather(location: str, units: str = "celsius") -> str:
+        """Get weather information for a location.
+
+        :param location: The city name to get weather for
+        :param units: Temperature units (celsius/fahrenheit)
+        """
+        return f'It is sunny in {city} with 30 {units}!'
+
+    tool = Tool(
+        name="weather_tool",
+        description="Get current weather information",
+        properties = {
+            "location": {
+                "type": "string",
+                "description": "The city name to get weather for"
+            },
+            "units": {
+                "type": "string",
+                "description": "the units of the weather data",
+            }
+        },
+        func=get_weather,
+        enum_values={"units": ["celsius", "fahrenheit"]}
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+
+2. **Using the docstring**:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+      ```typescript
+      // TypeScript implementation coming soon
+      ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.utils import Tool
+
+    def get_weather(location: str, units: str = "celsius") -> str:
+        """Get weather information for a location.
+
+        :param location: The city name to get weather for
+        :param units: Temperature units (celsius/fahrenheit)
+        """
+        return f'It is sunny in {city} with 30 {units}!'
+
+    tool = Tool(
+        name="weather_tool",
+        func=get_weather,
+        enum_values={"units": ["celsius", "fahrenheit"]}
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+
+### Format Conversion
+
+The Tool class can output its definition in different formats for various AI providers:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    tool = Tool(
+        name="weather_tool",
+        description="Get current weather information",
+        func=get_weather,
+        enum_values={"units": ["celsius", "fahrenheit"]}
+    )
+
+    # For Claude
+    claude_format = tool.to_claude_format()
+
+    # For Bedrock
+    bedrock_format = tool.to_bedrock_format()
+
+    # For OpenAI
+    openai_format = tool.to_openai_format()
+    ```
+  </TabItem>
+</Tabs>
+
+
+## Tools Class
+
+The `Tools` class manages multiple tool definitions and handles tool execution during agent interactions. It provides a unified interface for tool processing across different AI providers.
+
+### Creating and Using Tools
+
+<Tabs syncKey="runtime">
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.utils import Tools, Tool
+
+    # Define your tools
+    weather_tool = Tool("weather", "Get weather info", get_weather)
+
+    # Create Tools instance
+    tools = Tools([weather_tool])
+
+    # Format tool with an agent
+    weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Weather Agent",
+        streaming=True,
+        description="Specialized agent for giving weather condition from a city.",
+        tool_config={
+            'tool': [tool.to_bedrock_format() for tool in tools.tools],
+            'toolMaxRecursions': 5,
+        },
+    ))
+
+    # Use Tools class with an agent
+    weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="Weather Agent",
+        streaming=True,
+        description="Specialized agent for giving weather condition from a city.",
+        tool_config={
+            'tool': Tools([weather_tool]),
+            'toolMaxRecursions': 5,
+        },
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+By using Tools, the logic of parsing the tool response from the Agent is hanlded directly by the class.
+
+
+## Using a Tool with an Agent
+
+### 1. **Definition**
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // TypeScript implementation coming soon
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.utils import Tools, Tool
+
+    def get_weather(city:str):
+        """
+            Fetches weather data for the given city using the Open-Meteo API.
+            Returns the weather data or an error message if the request fails.
+
+            :param city:  The name of the city to get weather for
+            :return:  A formatted weather report for the specified city
+        """
+        return f'It is sunny in {city}!'
+
+    # Create a tool definition with name and description
+    weather_tools:Tools = Tools(tools=[Tool(
+        name='get_weather',
+        func=get_weather
+    )])
+    ```
+  </TabItem>
+</Tabs>
+
+### 2. **Adding Tool to Agent**
+
+Here is an example of how you can add Tools to your Agent
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // TypeScript implementation coming soon
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.utils import Tools, Tool
+    from multi_agent_orchestrator.agents import (BedrockLLMAgent, BedrockLLMAgentOptions)
+
+    # Configure and create the agent with our weather tool
+    weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name='weather-agent',
+        description='Agent specialized in providing weather information for cities',
+        tool_config={
+            'tool': weather_tool_with_func.to_bedrock_format(),
+            'toolMaxRecursions': 5,  # Maximum number of tool calls in one conversation
+        }
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+
+### 3. **Overriding the tool hanlder**
+
+When you need more control over tool execution, you can implement a custom handler using the useToolHandler option in your tool_config. This handler lets you:
+
+- Intercept and process the tool invocation before execution
+- Parse the tool block directly from your Agent's output
+- Generate and format custom tool responses
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // TypeScript implementation coming soon
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.utils import Tools, Tool
+    from multi_agent_orchestrator.agents import (BedrockLLMAgent, BedrockLLMAgentOptions)
+
+    async def bedrock_weather_tool_handler(
+        response: ConversationMessage,
+        conversation: list[dict[str, Any]]
+    ) -> ConversationMessage:
+        """
+        Handles tool execution requests from the agent and processes the results.
+
+        This handler:
+        1. Extracts tool use requests from the agent's response
+        2. Executes the requested tools with provided parameters
+        3. Formats the results for the agent to understand
+
+        Parameters:
+            response: The agent's response containing tool use requests
+            conversation: The current conversation history
+
+        Returns:
+            A formatted message containing tool execution results
+        """
+        response_content_blocks = response.content
+        tool_results = []
+
+        if not response_content_blocks:
+            raise ValueError("No content blocks in response")
+
+        for content_block in response_content_blocks:
+            # Handle regular text content if present
+            if "text" in content_block:
+                continue
+
+            # Process tool use requests
+            if "toolUse" in content_block:
+                tool_use_block = content_block["toolUse"]
+                tool_use_name = tool_use_block.get("name")
+
+                if tool_use_name == "get_weather":
+                    tool_response = get_weather(tool_use_block["input"].get('city'))
+                    tool_results.append({
+                        "toolResult": {
+                            "toolUseId": tool_use_block["toolUseId"],
+                            "content": [{"json": {"result": tool_response}}],
+                        }
+                    })
+
+        return ConversationMessage(
+            role=ParticipantRole.USER.value,
+            content=tool_results
+        )
+
+    # Configure and create the agent with our weather tool
+    weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name='weather-agent',
+        description='Agent specialized in providing weather information for cities',
+        tool_config={
+            'tool': weather_tool_with_func.to_bedrock_format(),
+            'toolMaxRecursions': 5,  # Maximum number of tool calls in one conversation
+            'useToolHandler': bedrock_weather_tool_handler
+        }
+    ))
+    ```
+  </TabItem>
+</Tabs>
+
+This approach provides flexibility when you need to extend the default tool behavior with custom logic, validation, or response formatting. The handler receives the raw tool block text and is responsible for all aspects of tool execution and response generation.
+
+
+## Best Practices
+
+1. **Function Documentation**: Always provide clear docstrings for functions used in tools. The system uses these for generating descriptions and parameter documentation.
+
+2. **Type Hints**: Use Python type hints in your tool functions. These are automatically converted to appropriate JSON schema types.
+
+3. **Error Handling**: Implement proper error handling in your tool functions. Tool execution errors are automatically captured and formatted appropriately.
+
+4. **Provider Compatibility**: When creating tools, consider the formatting requirements of different AI providers if you plan to use the tools across multiple provider types.
+
+5. **Tool Naming**: Use clear, descriptive names for your tools and maintain consistency in naming conventions across your application.
+
+By following these guidelines and leveraging the Tools system effectively, you can create powerful and flexible tool-based interactions in your Multi-Agent Orchestrator implementation.
+
+
+
+## Next Steps
+
+To continue learning about Tools in the Multi-Agent Orchestrator System, head over to our [examples](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/tools) in Github
