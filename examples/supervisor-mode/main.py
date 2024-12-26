@@ -6,18 +6,24 @@ from multi_agent_orchestrator.utils import Logger
 from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
 from multi_agent_orchestrator.agents import (
     BedrockLLMAgent, BedrockLLMAgentOptions,
-    AnthropicAgent,  AnthropicAgentOptions,
     AgentResponse,
     LexBotAgent, LexBotAgentOptions,
     AmazonBedrockAgent, AmazonBedrockAgentOptions,
+    SupervisorAgent, SupervisorAgentOptions
 )
 from multi_agent_orchestrator.classifiers import ClassifierResult
 from multi_agent_orchestrator.types import ConversationMessage
 from multi_agent_orchestrator.storage import DynamoDbChatStorage
 from multi_agent_orchestrator.utils import Tool
 
+try:
+    from multi_agent_orchestrator.agents import AnthropicAgent,  AnthropicAgentOptions
+    _ANTHROPIC_AVAILABLE = True
+except ImportError:
+    _ANTHROPIC_AVAILABLE = False
+
+
 from weather_tool import weather_tool_description, weather_tool_handler, weather_tool_prompt
-from supervisor_agent import SupervisorAgent, SupervisorAgentOptions
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -75,18 +81,19 @@ airlines_agent = LexBotAgent(LexBotAgentOptions(name='AirlinesBot',
                                               bot_id=os.getenv('AIRLINES_BOT_ID', None),
                                               bot_alias_id=os.getenv('AIRLINES_BOT_ALIAS_ID', None)))
 
-supervisor_agent = AnthropicAgent(AnthropicAgentOptions(
-    api_key=os.getenv('ANTHROPIC_API_KEY', None),
-    name="SupervisorAgent",
-    description="You are a supervisor agent. You are responsible for managing the flow of the conversation. You are only allowed to manage the flow of the conversation. You are not allowed to answer questions about anything else.",
-    model_id="claude-3-5-sonnet-latest",
-))
-
-# supervisor_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
-#     name="SupervisorAgent",
-#     model_id="amazon.nova-pro-v1:0",
-#     description="You are a supervisor agent. You are responsible for managing the flow of the conversation. You are only allowed to manage the flow of the conversation. You are not allowed to answer questions about anything else.",
-# ))
+if _ANTHROPIC_AVAILABLE:
+    supervisor_agent = AnthropicAgent(AnthropicAgentOptions(
+        api_key=os.getenv('ANTHROPIC_API_KEY', None),
+        name="SupervisorAgent",
+        description="You are a supervisor agent. You are responsible for managing the flow of the conversation. You are only allowed to manage the flow of the conversation. You are not allowed to answer questions about anything else.",
+        model_id="claude-3-5-sonnet-latest",
+    ))
+else:
+    supervisor_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="SupervisorAgent",
+        model_id="amazon.nova-pro-v1:0",
+        description="You are a supervisor agent. You are responsible for managing the flow of the conversation. You are only allowed to manage the flow of the conversation. You are not allowed to answer questions about anything else.",
+    ))
 
 async def get_current_date():
         """
@@ -122,9 +129,9 @@ async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input:str,
     if isinstance(response, AgentResponse) and response.streaming is False:
         # Handle regular response
         if isinstance(response.output, str):
-            print(response.output)
+            print(f"\033[34m{response.output}\033[0m")
         elif isinstance(response.output, ConversationMessage):
-                print(response.output.content[0].get('text'))
+                print(f"\033[34m{response.output.content[0].get('text')}\033[0m")
 
 if __name__ == "__main__":
 
