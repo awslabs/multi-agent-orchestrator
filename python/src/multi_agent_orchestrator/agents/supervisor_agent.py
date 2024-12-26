@@ -35,8 +35,18 @@ class SupervisorAgentOptions(AgentOptions):
     def validate(self) -> None:
         if not isinstance(self.supervisor, (BedrockLLMAgent, AnthropicAgent)):
             raise ValueError("Supervisor must be BedrockLLMAgent or AnthropicAgent")
-        if self.extra_tools and not isinstance(self.extra_tools, (Tools, list)):
-            raise ValueError('extra_tools must be Tools object or list of Tool objects')
+        if self.extra_tools:
+            if not isinstance(self.extra_tools, (Tools, list)):
+                raise ValueError('extra_tools must be Tools object or list of Tool objects')
+
+            # Get the tools list to validate, regardless of container type
+            tools_to_check = (
+                self.extra_tools.tools if isinstance(self.extra_tools, Tools)
+                else self.extra_tools
+            )
+            if not all(isinstance(tool, Tool) for tool in tools_to_check):
+                raise ValueError('extra_tools must be Tools object or list of Tool objects')
+
         if self.supervisor.tool_config:
             raise ValueError('Supervisor tools are managed by SupervisorAgent. Use extra_tools for additional tools.')
 
@@ -172,8 +182,6 @@ When communicating with other agents, including the User, please follow these gu
                 asyncio.run(self.storage.fetch_chat(user_id, session_id, agent.id))
                 if agent.save_chat else []
             )
-
-            print(agent_chat_history)
 
             user_message = TimestampedMessage(
                 role=ParticipantRole.USER.value,
