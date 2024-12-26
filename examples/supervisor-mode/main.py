@@ -1,3 +1,8 @@
+from typing import Any
+import sys, asyncio, uuid
+import os
+from datetime import datetime, timezone
+from multi_agent_orchestrator.utils import Logger
 from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
 from multi_agent_orchestrator.agents import (
     BedrockLLMAgent, BedrockLLMAgentOptions,
@@ -9,9 +14,8 @@ from multi_agent_orchestrator.agents import (
 from multi_agent_orchestrator.classifiers import ClassifierResult
 from multi_agent_orchestrator.types import ConversationMessage
 from multi_agent_orchestrator.storage import DynamoDbChatStorage
-from typing import Any
-import sys, asyncio, uuid
-import os
+from multi_agent_orchestrator.utils import Tool
+
 from weather_tool import weather_tool_description, weather_tool_handler, weather_tool_prompt
 from supervisor_agent import SupervisorAgent, SupervisorAgentOptions
 from dotenv import load_dotenv
@@ -52,6 +56,7 @@ weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
 weather_agent.set_system_prompt(weather_tool_prompt)
 
 
+
 health_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     name="HealthAgent",
     description="You are a health agent. You are responsible for answering questions about health. You are only allowed to answer questions about health. You are not allowed to answer questions about anything else.",
@@ -74,7 +79,7 @@ supervisor_agent = AnthropicAgent(AnthropicAgentOptions(
     api_key=os.getenv('ANTHROPIC_API_KEY', None),
     name="SupervisorAgent",
     description="You are a supervisor agent. You are responsible for managing the flow of the conversation. You are only allowed to manage the flow of the conversation. You are not allowed to answer questions about anything else.",
-    model_id="claude-3-5-sonnet-latest"
+    model_id="claude-3-5-sonnet-latest",
 ))
 
 # supervisor_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
@@ -82,6 +87,13 @@ supervisor_agent = AnthropicAgent(AnthropicAgentOptions(
 #     model_id="amazon.nova-pro-v1:0",
 #     description="You are a supervisor agent. You are responsible for managing the flow of the conversation. You are only allowed to manage the flow of the conversation. You are not allowed to answer questions about anything else.",
 # ))
+
+async def get_current_date():
+        """
+        Get the current date in US format.
+        """
+        Logger.info('Using Tool : get_current_date')
+        return datetime.now(timezone.utc).strftime('%m/%d/%Y')  # from datetime import datetime, timezone
 
 
 supervisor = SupervisorAgent(
@@ -92,7 +104,11 @@ supervisor = SupervisorAgent(
             table_name=os.getenv('DYNAMODB_CHAT_HISTORY_TABLE_NAME', None),
             region='us-east-1'
         ),
-        trace=True
+        trace=True,
+        extra_tools=[Tool(
+            name="get_current_date",
+            func=get_current_date,
+        )]
     ))
 
 async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input:str, _user_id:str, _session_id:str):
