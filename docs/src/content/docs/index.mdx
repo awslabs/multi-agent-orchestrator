@@ -13,16 +13,19 @@ hero:
     - text: GitHub Repository
       link: https://github.com/awslabs/multi-agent-orchestrator
       icon: external
+      variant: minimal
     - text: NPM Repository
       link: https://www.npmjs.com/package/multi-agent-orchestrator
       icon: external
+      variant: minimal
     - text: PyPI Repository
       link: https://pypi.org/project/multi-agent-orchestrator/
       icon: external
+      variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
-
+import { Badge } from '@astrojs/starlight/components';
 
 ## Key Features
 
@@ -52,11 +55,14 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
   </Card>
   <Card title="Powerful Agents" icon="puzzle">
     Discover our built-in agents:
+    - <Badge text="New" variant="note" size="small"/>[Supervisor Agent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent)
+    - <Badge text="New" variant="note" size="small"/>[Open AI Agent](/multi-agent-orchestrator/agents/built-in/openai-agent)
+    - <Badge text="New" variant="note" size="small"/>[Bedrock Inline Agent](/multi-agent-orchestrator/agents/built-in/bedrock-inline-agent)
+    - <Badge text="New" variant="note" size="small"/>[Bedrock Flows Agent](/multi-agent-orchestrator/agents/built-in/bedrock-flows-agent)
     - [Bedrock LLM Agent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent)
     - [Amazon Bedrock Agent](/multi-agent-orchestrator/agents/built-in/amazon-bedrock-agent)
     - [Lex Bot Agent](/multi-agent-orchestrator/agents/built-in/lex-bot-agent)
     - [AWS Lambda Agent](/multi-agent-orchestrator/agents/built-in/lambda-agent)
-    - [Open AI Agent](/multi-agent-orchestrator/agents/built-in/lex-bot-agent)
     - [Bedrock Translator Agent](/multi-agent-orchestrator/agents/built-in/bedrock-translator-agent)
     - [Comprehend Filter Agent](/multi-agent-orchestrator/agents/built-in/comprehend-filter-agent)
     - [Chain Agent](/multi-agent-orchestrator/agents/built-in/chain-agent)
