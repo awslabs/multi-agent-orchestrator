@@ -15,6 +15,42 @@ describe('Agents', () => {
       const key = agent['generateKeyFromName']('UPPERCASE');
       expect(key).toBe('uppercase');
     });
+
+    it('should convert the key to lowercase and keep the numbers', () => {
+      const agent = new MockAgent({ name: 'Test Agent', description: 'Test description' });
+      const key = agent['generateKeyFromName']('Agent123');
+      expect(key).toBe('agent123');
+    });
+
+    it('should convert the key to lowercase', () => {
+      const agent = new MockAgent({ name: 'Test Agent', description: 'Test description' });
+      const key = agent['generateKeyFromName']('Agent2-test');
+      expect(key).toBe('agent2-test');
+    });
+    
+    it('should handle multiple spaces', () => {
+      const agent = new MockAgent({ name: 'Test Agent', description: 'Test description' });
+      const key = agent['generateKeyFromName']('Agent 123!');
+      expect(key).toBe('agent-123');
+    });
+
+    it('should remove special characters', () => {
+      const agent = new MockAgent({ name: 'Test Agent', description: 'Test description' });
+      const key = agent['generateKeyFromName']('Agent@#$%^&*()');
+      expect(key).toBe('agent');
+    });
+
+    it('should handle mixed content with numbers', () => {
+      const agent = new MockAgent({ name: 'Test Agent', description: 'Test description' });
+      const key = agent['generateKeyFromName']('123 Mixed Content 456!');
+      expect(key).toBe('123-mixed-content-456');
+    });
+
+    it('should remove special characters from mixed symbols', () => {
+      const agent = new MockAgent({ name: 'Test Agent', description: 'Test description' });
+      const key = agent['generateKeyFromName']('Mix@of123Symbols$');
+      expect(key).toBe('mixof123symbols');
+    });
   });
 
   describe('constructor', () => {
