@@ -265,7 +265,7 @@ class BedrockLLMAgent(Agent):
             tool_response = await self.tool_config['useToolHandler'](llm_response, conversation)
         else:
             # tool process logic is handled in Tools class
-            if not isinstance(self.tool_config['tool'], Tools):
+            if isinstance(self.tool_config['tool'], Tools):
                 tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.BEDROCK.value, llm_response, conversation)
             else:
                 raise ValueError("You must use Tools class when not providing a custom tool handler")
