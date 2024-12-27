@@ -1,4 +1,4 @@
-from typing import Any, AsyncIterable, Optional, Union, AsyncGenerator
+from typing import Any, Optional, AsyncGenerator, AsyncIterator
 from dataclasses import dataclass
 import re
 import json
@@ -20,7 +20,7 @@ class BedrockLLMAgentOptions(AgentOptions):
     inference_config: Optional[dict[str, Any]] = None
     guardrail_config: Optional[dict[str, str]] = None
     retriever: Optional[Retriever] = None
-    tool_config: Optional[Union[dict[str, Any], Tools]] = None
+    tool_config: dict[str, Any] | Tools | None = None
     custom_system_prompt: Optional[dict[str, Any]] = None
     client: Optional[Any] = None
 
@@ -93,32 +93,39 @@ class BedrockLLMAgent(Agent):
     def is_streaming_enabled(self) -> bool:
         return self.streaming is True
 
-    async def process_request(
+    async def _prepare_system_prompt(self, input_text: str) -> str:
+        """Prepare the system prompt with optional retrieval context."""
+
+        self.update_system_prompt()
+        system_prompt = self.system_prompt
+
+        if self.retriever:
+            response = await self.retriever.retrieve_and_combine_results(input_text)
+            system_prompt += f"\nHere is the context to use to answer the user's question:\n{response}"
+
+        return system_prompt
+
+    def _prepare_conversation(
         self,
         input_text: str,
-        user_id: str,
-        session_id: str,
-        chat_history: list[ConversationMessage],
-        additional_params: Optional[dict[str, str]] = None
-    ) -> ConversationMessage | AsyncIterable[Any]:
+        chat_history: list[ConversationMessage]
+    ) -> list[ConversationMessage]:
+        """Prepare the conversation history with the new user message."""
 
         user_message = ConversationMessage(
             role=ParticipantRole.USER.value,
             content=[{'text': input_text}]
         )
+        return [*chat_history, user_message]
 
-        conversation = [*chat_history, user_message]
+    def _build_conversation_command(
+            self,
+            conversation: list[ConversationMessage],
+            system_prompt: str
+            ) -> dict:
+        """Build the conversation command with all necessary configurations."""
 
-        self.update_system_prompt()
-
-        system_prompt = self.system_prompt
-
-        if self.retriever:
-            response = await self.retriever.retrieve_and_combine_results(input_text)
-            context_prompt = "\nHere is the context to use to answer the user's question:\n" + response
-            system_prompt += context_prompt
-
-        converse_cmd = {
+        command = {
             'modelId': self.model_id,
             'messages': conversation_to_dict(conversation),
             'system': [{'text': system_prompt}],
@@ -131,68 +138,126 @@ class BedrockLLMAgent(Agent):
         }
 
         if self.guardrail_config:
-            converse_cmd["guardrailConfig"] = self.guardrail_config
-
-        max_recursions = 1 # run at least 1 time if no tool as been configured
-        continue_with_tools = True
+            command["guardrailConfig"] = self.guardrail_config
 
         if self.tool_config:
-            if isinstance(self.tool_config["tool"], Tools):
-                converse_cmd["toolConfig"] = {
-                    'tools': self.tool_config["tool"].to_bedrock_format()
-                }
-            if isinstance(self.tool_config["tool"], list):
-                converse_cmd["toolConfig"] = {
-                    'tools': [tool.to_bedrock_format() if isinstance(tool, Tool) else tool for tool in self.tool_config['tool']],
-                }
+            command["toolConfig"] = self._prepare_tool_config()
+
+        return command
+
+    def _prepare_tool_config(self) -> dict:
+        """Prepare tool configuration based on the tool type."""
+
+        if isinstance(self.tool_config["tool"], Tools):
+            return {'tools': self.tool_config["tool"].to_bedrock_format()}
+
+        if isinstance(self.tool_config["tool"], list):
+            return {
+                'tools': [
+                    tool.to_bedrock_format() if isinstance(tool, Tool) else tool
+                    for tool in self.tool_config['tool']
+                ]
+            }
+
+        raise RuntimeError("Invalid tool config")
+
+    def _get_max_recursions(self) -> int:
+        """Get the maximum number of recursions based on tool configuration."""
+        if not self.tool_config:
+            return 1
+        return self.tool_config.get('toolMaxRecursions', self.default_max_recursions)
+
+    async def _handle_single_response_loop(
+        self,
+        command: dict,
+        conversation: list[ConversationMessage],
+        max_recursions: int
+    ) -> ConversationMessage:
+        """Handle single response processing with tool recursion."""
+
+        continue_with_tools = True
+        llm_response = None
+
+        while continue_with_tools and max_recursions > 0:
+            llm_response = await self.handle_single_response(command)
+            conversation.append(llm_response)
+
+            if any('toolUse' in content for content in llm_response.content):
+                tool_response = await self._process_tool_block(llm_response, conversation)
+                conversation.append(tool_response)
+                command['messages'] = conversation_to_dict(conversation)
             else:
-                raise RuntimeError("Invalid tool config")
+                continue_with_tools = False
 
-            max_recursions = self.tool_config.get('toolMaxRecursions', self.default_max_recursions)
+            max_recursions -= 1
 
+        return llm_response
 
-        if self.streaming:
-            async def handle_streaming_generator():
-                nonlocal conversation, converse_cmd, max_recursions, continue_with_tools
+    async def _handle_streaming(
+        self,
+        command: dict,
+        conversation: list[ConversationMessage],
+        max_recursions: int
+    ) -> AsyncIterator[Any]:
+        """Handle streaming response processing with tool recursion."""
+        continue_with_tools = True
+        final_response = None
 
-                while continue_with_tools and max_recursions > 0:
+        async def stream_generator():
+            nonlocal continue_with_tools, final_response, max_recursions
 
-                    response = self.handle_streaming_response(converse_cmd)
-
-                    async for chunk in response:
-                        if chunk.final_message:
-                            final_response = chunk.final_message
-                        yield chunk
-
-                    conversation.append(final_response)
-
-                    if any('toolUse' in content for content in final_response.content):
-                        tool_response = await self._process_tool_block(final_response, conversation)
-                        conversation.append(tool_response)
-                        converse_cmd['messages'] = conversation_to_dict(conversation)
-                    else:
-                        continue_with_tools = False
-
-                    max_recursions -= 1
-            return handle_streaming_generator()
-        else:
-            llm_response = None
             while continue_with_tools and max_recursions > 0:
+                response = self.handle_streaming_response(command)
 
-                llm_response = await self.handle_single_response(converse_cmd)
+                async for chunk in response:
+                    if chunk.final_message:
+                        final_response = chunk.final_message
+                    yield chunk
 
-                conversation.append(llm_response)
+                conversation.append(final_response)
 
-                if any('toolUse' in content for content in llm_response.content):
-                    tool_response = await self._process_tool_block(llm_response, conversation)
+                if any('toolUse' in content for content in final_response.content):
+                    tool_response = await self._process_tool_block(final_response, conversation)
                     conversation.append(tool_response)
-                    converse_cmd['messages'] = conversation_to_dict(conversation)
+                    command['messages'] = conversation_to_dict(conversation)
                 else:
                     continue_with_tools = False
 
                 max_recursions -= 1
 
-            return llm_response
+        return stream_generator()
+
+    async def _process_with_strategy(
+        self,
+        streaming: bool,
+        command: dict,
+        conversation: list[ConversationMessage]
+    ) -> ConversationMessage | AsyncIterator[Any]:
+        """Process the request using the specified strategy."""
+
+        max_recursions = self._get_max_recursions()
+
+        if streaming:
+            return await self._handle_streaming(command, conversation, max_recursions)
+        return await self._handle_single_response_loop(command, conversation, max_recursions)
+
+    async def process_request(
+        self,
+        input_text: str,
+        user_id: str,
+        session_id: str,
+        chat_history: list[ConversationMessage],
+        additional_params: Optional[dict[str, str]] = None
+    ) -> ConversationMessage | AsyncIterator[Any]:
+        """
+        Process a conversation request either in streaming or single response mode.
+        """
+        conversation = self._prepare_conversation(input_text, chat_history)
+        system_prompt = await self._prepare_system_prompt(input_text)
+
+        command = self._build_conversation_command(conversation, system_prompt)
+
+        return await self._process_with_strategy(self.streaming, command, conversation)
 
     async def _process_tool_block(self, llm_response: ConversationMessage, conversation: list[ConversationMessage]) -> (ConversationMessage):
         if 'useToolHandler' in  self.tool_config:
