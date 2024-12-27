@@ -1,4 +1,4 @@
-from typing import Any, Optional, AsyncGenerator, AsyncIterator
+from typing import Any, Optional, AsyncGenerator, AsyncIterable
 from dataclasses import dataclass
 import re
 import json
@@ -198,7 +198,7 @@ class BedrockLLMAgent(Agent):
         command: dict,
         conversation: list[ConversationMessage],
         max_recursions: int
-    ) -> AsyncIterator[Any]:
+    ) -> AsyncIterable[Any]:
         """Handle streaming response processing with tool recursion."""
         continue_with_tools = True
         final_response = None
@@ -232,7 +232,7 @@ class BedrockLLMAgent(Agent):
         streaming: bool,
         command: dict,
         conversation: list[ConversationMessage]
-    ) -> ConversationMessage | AsyncIterator[Any]:
+    ) -> ConversationMessage | AsyncIterable[Any]:
         """Process the request using the specified strategy."""
 
         max_recursions = self._get_max_recursions()
@@ -248,7 +248,7 @@ class BedrockLLMAgent(Agent):
         session_id: str,
         chat_history: list[ConversationMessage],
         additional_params: Optional[dict[str, str]] = None
-    ) -> ConversationMessage | AsyncIterator[Any]:
+    ) -> ConversationMessage | AsyncIterable[Any]:
         """
         Process a conversation request either in streaming or single response mode.
         """
