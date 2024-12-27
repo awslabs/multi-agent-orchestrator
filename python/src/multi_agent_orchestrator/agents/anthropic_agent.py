@@ -1,6 +1,6 @@
 import json
 from typing import AsyncIterable, Optional, Any, AsyncGenerator
-from typing import List, Dict, Any, AsyncIterable, Optional, Union
+from typing import Any, AsyncIterable, Optional
 from dataclasses import dataclass, field
 import re
 from anthropic import AsyncAnthropic, Anthropic
@@ -18,10 +18,10 @@ class AnthropicAgentOptions(AgentOptions):
     client: Optional[Any] = None
     model_id: str = "claude-3-5-sonnet-20240620"
     streaming: Optional[bool] = False
-    inference_config: Optional[Dict[str, Any]] = None
+    inference_config: Optional[dict[str, Any]] = None
     retriever: Optional[Retriever] = None
     tool_config: dict[str, Any] | Tools | None = None
-    custom_system_prompt: Optional[Dict[str, Any]] = None
+    custom_system_prompt: Optional[dict[str, Any]] = None
 
 
 
@@ -253,8 +253,8 @@ class AnthropicAgent(Agent):
         input_text: str,
         user_id: str,
         session_id: str,
-        chat_history: List[ConversationMessage],
-        additional_params: Optional[Dict[str, str]] = None
+        chat_history: list[ConversationMessage],
+        additional_params: Optional[dict[str, str]] = None
     ) -> ConversationMessage | AsyncIterable[Any]:
 
         messages = self._prepare_conversation(input_text, chat_history)
@@ -263,7 +263,7 @@ class AnthropicAgent(Agent):
 
         return await self._process_with_strategy(self.streaming, input, messages)
 
-    async def handle_single_response(self, input_data: Dict) -> Any:
+    async def handle_single_response(self, input_data: dict) -> Any:
         try:
             response = self.client.messages.create(**input_data)
             return response
