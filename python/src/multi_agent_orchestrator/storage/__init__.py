@@ -19,6 +19,12 @@ try:
 except ImportError:
     _SQL_AVAILABLE = False
 
+try:
+    from .pg_chat_storage import PostgresChatStorage
+    _PG_AVAILABLE = True
+except ImportError:
+    _PG_AVAILABLE = False
+
 __all__ = [
     'ChatStorage',
     'InMemoryChatStorage',
@@ -32,4 +38,9 @@ if _AWS_AVAILABLE:
 if _SQL_AVAILABLE:
     __all__.extend([
         'SqlChatStorage'
+    ])
+
+if _PG_AVAILABLE:
+    __all__.extend([
+        'PostgresChatStorage'
     ])
