@@ -6,12 +6,12 @@ offering a flexible and extensible way to process conversational interactions us
 AWS Bedrock's agent runtime capabilities.
 """
 
-from typing import Dict, List, Optional, Any
+from typing import Any
 from dataclasses import dataclass
 import os
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-from multi_agent_orchestrator.agents import Agent, AgentOptions
+from multi_agent_orchestrator.agents import Agent, AgentOptions, AgentStreamResponse
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils import Logger
 
@@ -30,9 +30,9 @@ class AmazonBedrockAgentOptions(AgentOptions):
     """
     agent_id: str = None
     agent_alias_id: str = None
-    client: Optional[Any] = None
-    streaming: Optional[bool] = False
-    enableTrace: Optional[bool] = False
+    client: Any | None = None
+    streaming: bool | None = False
+    enableTrace: bool | None = False
 
 
 class AmazonBedrockAgent(Agent):
@@ -87,8 +87,8 @@ class AmazonBedrockAgent(Agent):
         input_text: str,
         user_id: str,
         session_id: str,
-        chat_history: List[ConversationMessage],
-        additional_params: Optional[Dict[str, str]] = None
+        chat_history: list[ConversationMessage],
+        additional_params: dict[str, str] | None = None
     ) -> ConversationMessage:
         """
         Process a user request through the Bedrock agent runtime.
@@ -128,32 +128,39 @@ class AmazonBedrockAgent(Agent):
                 streamingConfigurations=streamingConfigurations if self.streaming else {}
             )
 
-            # Process response, handling both streaming and non-streaming modes
             completion = ""
-            for event in response['completion']:
-                if 'chunk' in event:
-                    # Process streaming chunk
-                    chunk = event['chunk']
-                    decoded_response = chunk['bytes'].decode('utf-8')
 
-                    # Trigger callback for each token (useful for real-time updates)
-                    self.callbacks.on_llm_new_token(decoded_response)
-                    completion += decoded_response
+            if self.streaming:
+                async def generate_chunks():
+                    nonlocal completion
+                    for event in response['completion']:
+                        if 'chunk' in event:
+                            chunk = event['chunk']
+                            decoded_response = chunk['bytes'].decode('utf-8')
+                            self.callbacks.on_llm_new_token(decoded_response)
+                            completion += decoded_response
+                            yield AgentStreamResponse(text=decoded_response)
+                        elif 'trace' in event and self.enableTrace:
+                            Logger.info(f"Received event: {event}")
+                    yield AgentStreamResponse(
+                        final_message=ConversationMessage(
+                            role=ParticipantRole.ASSISTANT.value,
+                            content=[{'text':completion}]))
+                return generate_chunks()
+            else:
+                for event in response['completion']:
+                    if 'chunk' in event:
+                        chunk = event['chunk']
+                        decoded_response = chunk['bytes'].decode('utf-8')
+                        self.callbacks.on_llm_new_token(decoded_response)
+                        completion += decoded_response
+                    elif 'trace' in event and self.enableTrace:
+                        Logger.info(f"Received event: {event}")
 
-                elif 'trace' in event:
-                    # Log trace events if tracing is enabled
-                    Logger.info(f"Received event: {event}") if self.enableTrace else None
-
-                else:
-                    # Ignore unrecognized event types
-                    pass
-
-            # Construct and return the conversation message
-            return ConversationMessage(
-                role=ParticipantRole.ASSISTANT.value,
-                content=[{"text": completion}]
-            )
-
+                return ConversationMessage(
+                    role=ParticipantRole.ASSISTANT.value,
+                    content=[{"text": completion}]
+                )
         except (BotoCoreError, ClientError) as error:
             # Comprehensive error logging and propagation
             Logger.error(f"Error processing request: {str(error)}")
