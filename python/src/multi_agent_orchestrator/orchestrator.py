@@ -1,12 +1,16 @@
-from typing import Dict, Any, AsyncIterable, Optional, Union
+from typing import Any, AsyncIterable
 from dataclasses import dataclass, fields, asdict, replace
 import time
 from multi_agent_orchestrator.utils.logger import Logger
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, OrchestratorConfig
+from multi_agent_orchestrator.types import (ConversationMessage,
+                                            ParticipantRole,
+                                            OrchestratorConfig,
+                                            TimestampedMessage)
 from multi_agent_orchestrator.classifiers import Classifier,ClassifierResult
 from multi_agent_orchestrator.agents import (Agent,
-                        AgentResponse,
-                        AgentProcessingResult)
+                                             AgentStreamResponse,
+                                             AgentResponse,
+                                             AgentProcessingResult)
 from multi_agent_orchestrator.storage import ChatStorage
 from multi_agent_orchestrator.storage import InMemoryChatStorage
 try:
@@ -18,11 +22,11 @@ except ImportError:
 @dataclass
 class MultiAgentOrchestrator:
     def __init__(self,
-                 options: Optional[OrchestratorConfig] = None,
-                 storage: Optional[ChatStorage] = None,
-                 classifier: Optional[Classifier] = None,
-                 logger: Optional[Logger] = None,
-                 default_agent: Optional[Agent] = None):
+                 options: OrchestratorConfig | None = None,
+                 storage: ChatStorage | None = None,
+                 classifier: Classifier  | None = None,
+                 logger: Logger | None = None,
+                 default_agent: Agent | None = None):
 
         DEFAULT_CONFIG=OrchestratorConfig()
 
@@ -42,7 +46,7 @@ class MultiAgentOrchestrator:
 
 
         self.logger = Logger(self.config, logger)
-        self.agents: Dict[str, Agent] = {}
+        self.agents: dict[str, Agent] = {}
         self.storage = storage or InMemoryChatStorage()
 
         if classifier:
@@ -51,8 +55,8 @@ class MultiAgentOrchestrator:
             self.classifier = BedrockClassifier(options=BedrockClassifierOptions())
         else:
             raise ValueError("No classifier provided and BedrockClassifier is not available. Please provide a classifier.")
-   
-        self.execution_times: Dict[str, float] = {}
+
+        self.execution_times: dict[str, float] = {}
         self.default_agent: Agent = default_agent
 
 
@@ -71,16 +75,14 @@ class MultiAgentOrchestrator:
     def set_classifier(self, intent_classifier: Classifier):
         self.classifier = intent_classifier
 
-    def get_all_agents(self) -> Dict[str, Dict[str, str]]:
+    def get_all_agents(self) -> dict[str, dict[str, str]]:
         return {key: {
             "name": agent.name,
             "description": agent.description
         } for key, agent in self.agents.items()}
 
-    async def dispatch_to_agent(self,
-                                params: Dict[str, Any]) -> Union[
-                                    ConversationMessage, AsyncIterable[Any]
-                                ]:
+    async def dispatch_to_agent(self, params: dict[str, Any]
+                                ) -> ConversationMessage | AsyncIterable[Any]:
         user_input = params['user_input']
         user_id = params['user_id']
         session_id = params['session_id']
@@ -132,13 +134,14 @@ class MultiAgentOrchestrator:
         except Exception as error:
             self.logger.error(f"Error during intent classification: {str(error)}")
             raise error
-        
+
     async def agent_process_request(self,
                                user_input: str,
                                user_id: str,
                                session_id: str,
                                classifier_result: ClassifierResult,
-                               additional_params: Dict[str, str] = {}) -> AgentResponse:
+                               additional_params: dict[str, str] = {},
+                               stream_response: bool | None = False) -> AgentResponse:
         """Process agent response and handle chat storage."""
         try:
             agent_response = await self.dispatch_to_agent({
@@ -165,33 +168,79 @@ class MultiAgentOrchestrator:
                 classifier_result.selected_agent
             )
 
-            if isinstance(agent_response, ConversationMessage):
-                await self.save_message(agent_response,
-                                    user_id,
-                                    session_id,
-                                    classifier_result.selected_agent)
+            final_response = None
+            if classifier_result.selected_agent.is_streaming_enabled():
+                if stream_response:
+                    if isinstance(agent_response, AsyncIterable):
+                        # Create an async generator function to handle the streaming
+                        async def process_stream():
+                            full_message = None
+                            async for chunk in agent_response:
+                                if isinstance(chunk, AgentStreamResponse):
+                                    if chunk.final_message:
+                                        full_message = chunk.final_message
+                                    yield chunk
+                                else:
+                                    Logger.error("Invalid response type from agent. Expected AgentStreamResponse")
+                                    pass
+
+                            if full_message:
+                                await self.save_message(full_message,
+                                                    user_id,
+                                                    session_id,
+                                                    classifier_result.selected_agent)
+
+
+                        final_response = process_stream()
+                else:
+                    async def process_stream() -> ConversationMessage:
+                        full_message = None
+                        async for chunk in agent_response:
+                            if isinstance(chunk, AgentStreamResponse):
+                                if chunk.final_message:
+                                    full_message = chunk.final_message
+                            else:
+                                Logger.error("Invalid response type from agent. Expected AgentStreamResponse")
+                                pass
+
+                        if full_message:
+                            await self.save_message(full_message,
+                                            user_id,
+                                            session_id,
+                                            classifier_result.selected_agent)
+                        return full_message
+                    final_response = await process_stream()
+
+
+            else:  # Non-streaming response
+                final_response = agent_response
+                await self.save_message(final_response,
+                                        user_id,
+                                        session_id,
+                                        classifier_result.selected_agent)
 
             return AgentResponse(
                 metadata=metadata,
-                output=agent_response,
+                output=final_response,
                 streaming=classifier_result.selected_agent.is_streaming_enabled()
             )
 
         except Exception as error:
             self.logger.error(f"Error during agent processing: {str(error)}")
             raise error
-        
+
     async def route_request(self,
                        user_input: str,
                        user_id: str,
-                       session_id: str, 
-                       additional_params: Dict[str, str] = {}) -> AgentResponse:
+                       session_id: str,
+                       additional_params: dict[str, str] = {},
+                       stream_response: bool | None = False) -> AgentResponse:
         """Route user request to appropriate agent."""
         self.execution_times.clear()
 
         try:
             classifier_result = await self.classify_request(user_input, user_id, session_id)
-            
+
             if not classifier_result.selected_agent:
                 return AgentResponse(
                     metadata=self.create_metadata(classifier_result, user_input, user_id, session_id, additional_params),
@@ -203,11 +252,12 @@ class MultiAgentOrchestrator:
                 )
 
             return await self.agent_process_request(
-                user_input, 
+                user_input,
                 user_id,
-                session_id, 
+                session_id,
                 classifier_result,
-                additional_params
+                additional_params,
+                stream_response
             )
 
         except Exception as error:
@@ -252,11 +302,11 @@ class MultiAgentOrchestrator:
             raise error
 
     def create_metadata(self,
-                        intent_classifier_result: Optional[ClassifierResult],
+                        intent_classifier_result: ClassifierResult | None,
                         user_input: str,
                         user_id: str,
                         session_id: str,
-                        additional_params: Dict[str, str]) -> AgentProcessingResult:
+                        additional_params: dict[str, str]) -> AgentProcessingResult:
         base_metadata = AgentProcessingResult(
             user_input=user_input,
             agent_id="no_agent_selected",
@@ -283,6 +333,18 @@ class MultiAgentOrchestrator:
                            agent: Agent):
         if agent and agent.save_chat:
             return await self.storage.save_chat_message(user_id,
+                                                        session_id,
+                                                        agent.id,
+                                                        message,
+                                                        self.config.MAX_MESSAGE_PAIRS_PER_AGENT)
+    async def save_messages(self,
+                           messages: list[ConversationMessage] | list[TimestampedMessage],
+                           user_id: str, session_id: str,
+                           agent: Agent):
+        if agent and agent.save_chat:
+            for message in messages:
+                # TODO: change this to self.storage.save_chat_messages() when SupervisorAgent is merged
+                await self.storage.save_chat_message(user_id,
                                                         session_id,
                                                         agent.id,
                                                         message,

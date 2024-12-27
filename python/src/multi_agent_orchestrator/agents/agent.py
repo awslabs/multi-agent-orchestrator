@@ -15,10 +15,16 @@ class AgentProcessingResult:
     additional_params: Dict[str, any] = field(default_factory=dict)
 
 
+class AgentStreamResponse:
+    def __init__(self, text: str = '', final_message: ConversationMessage = None):
+        self.text = text
+        self.final_message = final_message
+
+
 @dataclass
 class AgentResponse:
     metadata: AgentProcessingResult
-    output: Union[Any, str]
+    output: Union[Any, str, AgentStreamResponse]
     streaming: bool
 
 

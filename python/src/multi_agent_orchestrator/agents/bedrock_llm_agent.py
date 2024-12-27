@@ -1,16 +1,16 @@
-from typing import Any, AsyncIterable, Optional, Union
+from typing import Any, AsyncIterable, Optional, Union, AsyncGenerator
 from dataclasses import dataclass
 import re
 import json
 import os
 import boto3
-from multi_agent_orchestrator.agents import Agent, AgentOptions
+from multi_agent_orchestrator.agents import Agent, AgentOptions, AgentStreamResponse
 from multi_agent_orchestrator.types import (ConversationMessage,
                        ParticipantRole,
                        BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
                        TemplateVariables,
                        AgentProviderType)
-from multi_agent_orchestrator.utils import conversation_to_dict, Logger, Tools
+from multi_agent_orchestrator.utils import conversation_to_dict, Logger, Tools, Tool
 from multi_agent_orchestrator.retrievers import Retriever
 
 
@@ -100,7 +100,7 @@ class BedrockLLMAgent(Agent):
         session_id: str,
         chat_history: list[ConversationMessage],
         additional_params: Optional[dict[str, str]] = None
-    ) -> Union[ConversationMessage, AsyncIterable[Any]]:
+    ) -> ConversationMessage | AsyncIterable[Any]:
 
         user_message = ConversationMessage(
             role=ParticipantRole.USER.value,
@@ -133,52 +133,85 @@ class BedrockLLMAgent(Agent):
         if self.guardrail_config:
             converse_cmd["guardrailConfig"] = self.guardrail_config
 
-        if self.tool_config:
-            converse_cmd["toolConfig"] = {
-                'tools': self.tool_config["tool"] if not isinstance(self.tool_config["tool"], Tools) else self.tool_config["tool"].to_bedrock_format()
-            }
+        max_recursions = 1 # run at least 1 time if no tool as been configured
+        continue_with_tools = True
 
         if self.tool_config:
-            continue_with_tools = True
-            final_message: ConversationMessage = {'role': ParticipantRole.USER.value, 'content': []}
+            if isinstance(self.tool_config["tool"], Tools):
+                converse_cmd["toolConfig"] = {
+                    'tools': self.tool_config["tool"].to_bedrock_format()
+                }
+            if isinstance(self.tool_config["tool"], list):
+                converse_cmd["toolConfig"] = {
+                    'tools': [tool.to_bedrock_format() if isinstance(tool, Tool) else tool for tool in self.tool_config['tool']],
+                }
+            else:
+                raise RuntimeError("Invalid tool config")
+
             max_recursions = self.tool_config.get('toolMaxRecursions', self.default_max_recursions)
 
-            while continue_with_tools and max_recursions > 0:
-                if self.streaming:
-                    bedrock_response = await self.handle_streaming_response(converse_cmd)
-                else:
-                    bedrock_response = await self.handle_single_response(converse_cmd)
-
-                conversation.append(bedrock_response)
-
-                if any('toolUse' in content for content in bedrock_response.content):
-                    if 'useToolHandler' in self.tool_config:
-                        # user is handling the tool blocks itself
-                        tool_response = await self.tool_config['useToolHandler'](bedrock_response, conversation)
-                    else:
-                        tools:Tools = self.tool_config["tool"]
-                        # no handler has been provided, we can use the default implementation
-                        tool_response = await tools.tool_handler(AgentProviderType.BEDROCK.value, bedrock_response, conversation)
-                    conversation.append(tool_response)
-                else:
-                    continue_with_tools = False
-                    final_message = bedrock_response
-
-                max_recursions -= 1
-                converse_cmd['messages'] = conversation_to_dict(conversation)
-
-            return final_message
 
         if self.streaming:
-            return await self.handle_streaming_response(converse_cmd)
+            async def handle_streaming_generator():
+                nonlocal conversation, converse_cmd, max_recursions, continue_with_tools
 
-        return await self.handle_single_response(converse_cmd)
+                while continue_with_tools and max_recursions > 0:
+
+                    response = self.handle_streaming_response(converse_cmd)
+
+                    async for chunk in response:
+                        if chunk.final_message:
+                            final_response = chunk.final_message
+                        yield chunk
+
+                    conversation.append(final_response)
+
+                    if any('toolUse' in content for content in final_response.content):
+                        tool_response = await self._process_tool_block(final_response, conversation)
+                        conversation.append(tool_response)
+                        converse_cmd['messages'] = conversation_to_dict(conversation)
+                    else:
+                        continue_with_tools = False
+
+                    max_recursions -= 1
+            return handle_streaming_generator()
+        else:
+            llm_response = None
+            while continue_with_tools and max_recursions > 0:
+
+                llm_response = await self.handle_single_response(converse_cmd)
+
+                conversation.append(llm_response)
+
+                if any('toolUse' in content for content in llm_response.content):
+                    tool_response = await self._process_tool_block(llm_response, conversation)
+                    conversation.append(tool_response)
+                    converse_cmd['messages'] = conversation_to_dict(conversation)
+                else:
+                    continue_with_tools = False
+
+                max_recursions -= 1
+
+            return llm_response
+
+    async def _process_tool_block(self, llm_response: ConversationMessage, conversation: list[ConversationMessage]) -> (ConversationMessage):
+        if 'useToolHandler' in  self.tool_config:
+            # tool process logic is handled elsewhere
+            tool_response = await self.tool_config['useToolHandler'](llm_response, conversation)
+        else:
+            # tool process logic is handled in Tools class
+            if not isinstance(self.tool_config['tool'], Tools):
+                tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.BEDROCK.value, llm_response, conversation)
+            else:
+                raise ValueError("You must use Tools class when not providing a custom tool handler")
+        return tool_response
 
     async def handle_single_response(self, converse_input: dict[str, Any]) -> ConversationMessage:
         try:
             response = self.client.converse(**converse_input)
             if 'output' not in response:
                 raise ValueError("No output received from Bedrock model")
+
             return ConversationMessage(
                 role=response['output']['message']['role'],
                 content=response['output']['message']['content']
@@ -187,7 +220,20 @@ class BedrockLLMAgent(Agent):
             Logger.error(f"Error invoking Bedrock model:{str(error)}")
             raise error
 
-    async def handle_streaming_response(self, converse_input: dict[str, Any]) -> ConversationMessage:
+    async def handle_streaming_response(
+        self,
+        converse_input: dict[str, Any]
+    ) -> AsyncGenerator[AgentStreamResponse, None]:
+        """
+        Handle streaming response from Bedrock model.
+        Yields StreamChunk objects containing either text chunks or the final message.
+
+        Args:
+            converse_input: Input for the conversation
+
+        Yields:
+            StreamChunk: Contains either a text chunk or the final complete message
+        """
         try:
             response = self.client.converse_stream(**converse_input)
 
@@ -197,7 +243,6 @@ class BedrockLLMAgent(Agent):
             text = ''
             tool_use = {}
 
-            #stream the response into a message.
             for chunk in response['stream']:
                 if 'messageStart' in chunk:
                     message['role'] = chunk['messageStart']['role']
@@ -214,6 +259,8 @@ class BedrockLLMAgent(Agent):
                     elif 'text' in delta:
                         text += delta['text']
                         self.callbacks.on_llm_new_token(delta['text'])
+                        # yield the text chunk
+                        yield AgentStreamResponse(text=delta['text'])
                 elif 'contentBlockStop' in chunk:
                     if 'input' in tool_use:
                         tool_use['input'] = json.loads(tool_use['input'])
@@ -222,10 +269,13 @@ class BedrockLLMAgent(Agent):
                     else:
                         content.append({'text': text})
                         text = ''
-            return ConversationMessage(
+
+            final_message = ConversationMessage(
                 role=ParticipantRole.ASSISTANT.value,
                 content=message['content']
             )
+            # yield the final message
+            yield AgentStreamResponse(final_message=final_message)
 
         except Exception as error:
             Logger.error(f"Error getting stream from Bedrock model: {str(error)}")
