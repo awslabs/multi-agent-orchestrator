@@ -1,9 +1,12 @@
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
-from typing import Dict, Any
+from typing import AsyncIterable
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
-from multi_agent_orchestrator.utils import Logger
+from multi_agent_orchestrator.agents import (
+    BedrockLLMAgent,
+    BedrockLLMAgentOptions,
+    AgentStreamResponse)
+from multi_agent_orchestrator.utils import Logger, Tools, Tool
 
 logger = Logger()
 
@@ -122,14 +125,23 @@ async def test_process_request_streaming(bedrock_llm_agent, mock_boto3_client):
 
     result = await bedrock_llm_agent.process_request(input_text, user_id, session_id, chat_history)
 
-    assert isinstance(result, ConversationMessage)
-    assert result.role == ParticipantRole.ASSISTANT.value
-    assert result.content[0]['text'] == 'This is a test response'
+    assert isinstance(result, AsyncIterable)
+
+    async for chunk in result:
+        assert isinstance(chunk, AgentStreamResponse)
+        if chunk.final_message:
+            assert chunk.final_message.role == ParticipantRole.ASSISTANT.value
+            assert chunk.final_message.content[0]['text'] == 'This is a test response'
+
 
 @pytest.mark.asyncio
 async def test_process_request_with_tool_use(bedrock_llm_agent, mock_boto3_client):
+    async def _handler(message, conversation):
+        return ConversationMessage(role=ParticipantRole.ASSISTANT, content=[{'text': 'Tool response'}])
     bedrock_llm_agent.tool_config = {
-        "tool": {"name": "test_tool"},
+        "tool": [
+            Tool(name='test_tool', func=_handler, description='This is a test handler')
+        ],
         "toolMaxRecursions": 2,
         "useToolHandler": AsyncMock()
     }
@@ -176,4 +188,42 @@ def test_set_system_prompt(bedrock_llm_agent):
     assert bedrock_llm_agent.custom_variables == variables
     assert bedrock_llm_agent.system_prompt == "You are a test agent. Your task is to run tests."
 
-# Add more tests as needed for other methods and edge cases
+def test_streaming(mock_boto3_client):
+    options = BedrockLLMAgentOptions(
+        name="TestAgent",
+        description="A test agent",
+        custom_system_prompt={
+            'template': """This is my new prompt with this {{variable}}""",
+            'variables': {'variable': 'value'}
+        },
+        streaming=True
+    )
+
+    agent = BedrockLLMAgent(options)
+    assert(agent.is_streaming_enabled() == True)
+
+    options = BedrockLLMAgentOptions(
+        name="TestAgent",
+        description="A test agent",
+        custom_system_prompt={
+            'template': """This is my new prompt with this {{variable}}""",
+            'variables': {'variable': 'value'}
+        },
+        streaming=False
+    )
+
+    agent = BedrockLLMAgent(options)
+    assert(agent.is_streaming_enabled() == False)
+
+    options = BedrockLLMAgentOptions(
+        name="TestAgent",
+        description="A test agent",
+        custom_system_prompt={
+            'template': """This is my new prompt with this {{variable}}""",
+            'variables': {'variable': 'value'}
+        }
+    )
+
+    agent = BedrockLLMAgent(options)
+    assert(agent.is_streaming_enabled() == False)
+

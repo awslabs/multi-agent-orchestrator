@@ -1,4 +1,4 @@
-from typing import List, Dict, Union, Optional
+from typing import Union, Optional
 import time
 import boto3
 from multi_agent_orchestrator.storage import ChatStorage
@@ -27,7 +27,7 @@ class DynamoDbChatStorage(ChatStorage):
         agent_id: str,
         new_message: ConversationMessage,
         max_history_size: Optional[int] = None
-    ) -> List[ConversationMessage]:
+    ) -> list[ConversationMessage]:
         key = self._generate_key(user_id, session_id, agent_id)
         existing_conversation = await self.fetch_chat_with_timestamp(user_id, session_id, agent_id)
 
@@ -42,12 +42,12 @@ class DynamoDbChatStorage(ChatStorage):
             timestamp=int(time.time() * 1000))
         existing_conversation.append(timestamped_message)
 
-        trimmed_conversation: List[TimestampedMessage] = self.trim_conversation(
+        trimmed_conversation: list[TimestampedMessage] = self.trim_conversation(
             existing_conversation,
             max_history_size
         )
 
-        item: Dict[str, Union[str, List[TimestampedMessage], int]] = {
+        item: dict[str, str | list[TimestampedMessage] | int] = {
             'PK': user_id,
             'SK': key,
             'conversation': conversation_to_dict(trimmed_conversation),
@@ -69,11 +69,11 @@ class DynamoDbChatStorage(ChatStorage):
         user_id: str,
         session_id: str,
         agent_id: str
-    ) -> List[ConversationMessage]:
+    ) -> list[ConversationMessage]:
         key = self._generate_key(user_id, session_id, agent_id)
         try:
             response = self.table.get_item(Key={'PK': user_id, 'SK': key})
-            stored_messages: List[TimestampedMessage] = self._dict_to_conversation(
+            stored_messages: list[TimestampedMessage] = self._dict_to_conversation(
                 response.get('Item', {}).get('conversation', [])
             )
             return self._remove_timestamps(stored_messages)
@@ -86,11 +86,11 @@ class DynamoDbChatStorage(ChatStorage):
         user_id: str,
         session_id: str,
         agent_id: str
-    ) -> List[TimestampedMessage]:
+    ) -> list[TimestampedMessage]:
         key = self._generate_key(user_id, session_id, agent_id)
         try:
             response = self.table.get_item(Key={'PK': user_id, 'SK': key})
-            stored_messages: List[TimestampedMessage] = self._dict_to_conversation(
+            stored_messages: list[TimestampedMessage] = self._dict_to_conversation(
                 response.get('Item', {}).get('conversation', [])
             )
             return stored_messages
@@ -98,7 +98,7 @@ class DynamoDbChatStorage(ChatStorage):
             Logger.error(f"Error getting conversation from DynamoDB: {str(error)}")
             raise error
 
-    async def fetch_all_chats(self, user_id: str, session_id: str) -> List[ConversationMessage]:
+    async def fetch_all_chats(self, user_id: str, session_id: str) -> list[ConversationMessage]:
         try:
             response = self.table.query(
                 KeyConditionExpression="PK = :pk AND begins_with(SK, :skPrefix)",
@@ -143,13 +143,13 @@ class DynamoDbChatStorage(ChatStorage):
         return f"{session_id}#{agent_id}"
 
     def _remove_timestamps(self,
-                           messages: List[Union[TimestampedMessage]]) -> List[ConversationMessage]:
+                           messages: list[Union[TimestampedMessage]]) -> list[ConversationMessage]:
         return [ConversationMessage(role=message.role,
                                     content=message.content
                                     ) for message in messages]
 
     def _dict_to_conversation(self,
-                              messages: List[Dict]) -> List[TimestampedMessage]:
+                              messages: list[dict]) -> list[TimestampedMessage]:
         return [TimestampedMessage(role=msg['role'],
                                    content=msg['content'],
                                    timestamp=msg['timestamp']

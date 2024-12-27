@@ -120,3 +120,32 @@ async def test_process_request_with_additional_params(bedrock_agent):
     assert isinstance(result, ConversationMessage)
     assert result.role == ParticipantRole.ASSISTANT.value
     assert result.content == [{"text": "Response with additional params"}]
+
+
+def test_streaming(mock_boto3_client):
+    options = AmazonBedrockAgentOptions(
+        name="TestAgent",
+        description="A test agent",
+        streaming=True
+    )
+
+    agent = AmazonBedrockAgent(options)
+    assert(agent.is_streaming_enabled() == True)
+
+    options = AmazonBedrockAgentOptions(
+        name="TestAgent",
+        description="A test agent",
+        streaming=False
+    )
+
+    agent = AmazonBedrockAgent(options)
+    assert(agent.is_streaming_enabled() == False)
+
+    options = AmazonBedrockAgentOptions(
+        name="TestAgent",
+        description="A test agent",
+    )
+
+    agent = AmazonBedrockAgent(options)
+    assert(agent.is_streaming_enabled() == False)
+

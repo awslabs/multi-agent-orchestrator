@@ -237,8 +237,8 @@ class AnthropicAgent(Agent):
 
         while continue_with_tools and max_recursions > 0:
             llm_response = await self.handle_single_response(input)
-            input['messages'].append({"role": "assistant", "content": llm_response.content})
             if any('tool_use' in content.type for content in llm_response.content):
+                input['messages'].append({"role": "assistant", "content": llm_response.content})
                 tool_response = await self._process_tool_block(llm_response, messages)
                 input['messages'].append(tool_response)
             else:
