@@ -115,3 +115,7 @@ class TestAgent:
         assert isinstance(result, ConversationMessage)
         assert result.role == "assistant"
         assert result.content == "Mock response"
+
+
+    def test_streaming(self, mock_agent):
+        assert mock_agent.is_streaming_enabled() is False
