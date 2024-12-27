@@ -3,7 +3,7 @@ from unittest.mock import patch,MagicMock
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.agents import AnthropicAgent, AnthropicAgentOptions
 from multi_agent_orchestrator.utils import Logger
-
+from anthropic import Anthropic, AsyncAnthropic
 logger = Logger()
 
 @pytest.fixture
@@ -22,6 +22,92 @@ def test_no_api_key_init(mock_anthropic):
         assert(_anthropic_llm_agent.api_key is not None)
     except Exception as e:
         assert(str(e) == "Anthropic API key or Anthropic client is required")
+
+def test_client(mock_anthropic):
+    try:
+        options = AnthropicAgentOptions(
+            name="TestAgent",
+            description="A test agent",
+            client=Anthropic(),
+            streaming=True
+
+        )
+
+        _anthropic_llm_agent = AnthropicAgent(options)
+        assert(_anthropic_llm_agent.api_key is not None)
+    except Exception as e:
+        assert(str(e) == "If streaming is enabled, the provided client must be an AsyncAnthropic client")
+
+    try:
+        options = AnthropicAgentOptions(
+            name="TestAgent",
+            description="A test agent",
+            client=AsyncAnthropic(),
+            streaming=False
+
+        )
+
+        _anthropic_llm_agent = AnthropicAgent(options)
+        assert(_anthropic_llm_agent.api_key is not None)
+    except Exception as e:
+        assert(str(e) == "If streaming is disabled, the provided client must be an Anthropic client")
+
+    options = AnthropicAgentOptions(
+        name="TestAgent",
+        description="A test agent",
+        client=AsyncAnthropic(),
+        streaming=True
+
+    )
+    _anthropic_llm_agent = AnthropicAgent(options)
+
+
+def test_inference_config(mock_anthropic):
+
+    options = AnthropicAgentOptions(
+            name="TestAgent",
+            description="A test agent",
+            client=Anthropic(),
+            streaming=False,
+            inference_config={
+                'temperature': 0.5,
+                'topP': 0.5,
+                'topK': 0.5,
+                'maxTokens': 1000,
+            }
+        )
+
+    _anthropic_llm_agent = AnthropicAgent(options)
+    assert _anthropic_llm_agent.inference_config == {
+                'temperature': 0.5,
+                'topP': 0.5,
+                'topK': 0.5,
+                'maxTokens': 1000,
+                'stopSequences': []
+            }
+
+    options = AnthropicAgentOptions(
+            name="TestAgent",
+            description="A test agent",
+            client=Anthropic(),
+            streaming=False,
+            inference_config={
+                'temperature': 0.5,
+                'topK': 0.5,
+                'maxTokens': 1000,
+            }
+        )
+
+    _anthropic_llm_agent = AnthropicAgent(options)
+    assert _anthropic_llm_agent.inference_config == {
+                'temperature': 0.5,
+                'topP': 0.9,
+                'topK': 0.5,
+                'maxTokens': 1000,
+                'stopSequences': []
+            }
+
+
 
 def test_custom_system_prompt_with_variable(mock_anthropic):
     options = AnthropicAgentOptions(
