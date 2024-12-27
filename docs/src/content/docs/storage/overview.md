@@ -25,7 +25,11 @@ The Multi-Agent Orchestrator System offers flexible storage options for maintain
     - Offers persistent storage using SQLite or Turso databases.
     - When you need local-first development with remote deployment options
 
-4. **Custom Storage Solutions**:
+4. **PostgreSQL Storage**:
+    - Offers persistent storage using PostgreSQL.
+    - When you need a more robust and scalable database solution.
+
+5. **Custom Storage Solutions**:
    - The system allows for implementation of custom storage options to meet specific needs.
 
 ## Choosing the Right Storage Option
@@ -40,6 +44,7 @@ The Multi-Agent Orchestrator System offers flexible storage options for maintain
 - Learn more about [In-Memory Storage](/multi-agent-orchestrator/storage/in-memory)
 - Explore [DynamoDB Storage](/multi-agent-orchestrator/storage/dynamodb) for persistent storage
 - Explore [SQL Storage](/multi-agent-orchestrator/storage/sql) for persistent storage using SQLite or Turso.
+- Explore [PostgreSQL Storage](/multi-agent-orchestrator/storage/postgresql) for persistent storage using PostgreSQL.
 - Discover how to [implement custom storage solutions](/multi-agent-orchestrator/storage/custom)
 
 By leveraging these storage options, you can ensure that your Multi-Agent Orchestrator System maintains the necessary context for coherent and effective conversations across various use cases and deployment scenarios.
