@@ -1,4 +1,4 @@
-from typing import List, Dict, Union, AsyncIterable, Optional
+from typing import List, Dict, Union, AsyncIterable, Optional, Any
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils.logger import Logger
 from .agent import Agent, AgentOptions
@@ -24,9 +24,9 @@ class ChainAgent(Agent):
         session_id: str,
         chat_history: List[ConversationMessage],
         additional_params: Optional[Dict[str, str]] = None
-    ) -> Union[ConversationMessage, AsyncIterable[any]]:
+    ) -> Union[ConversationMessage, AsyncIterable[Any]]:
         current_input = input_text
-        final_response: Union[ConversationMessage, AsyncIterable[any]]
+        final_response: Union[ConversationMessage, AsyncIterable[Any]]
 
         for i, agent in enumerate(self.agents):
             is_last_agent = i == len(self.agents) - 1
@@ -67,11 +67,11 @@ class ChainAgent(Agent):
         return final_response
 
     @staticmethod
-    def is_async_iterable(obj: any) -> bool:
+    def is_async_iterable(obj: Any) -> bool:
         return hasattr(obj, '__aiter__')
 
     @staticmethod
-    def is_conversation_message(response: any) -> bool:
+    def is_conversation_message(response: Any) -> bool:
         return (
             isinstance(response, ConversationMessage) and
             hasattr(response, 'role') and
