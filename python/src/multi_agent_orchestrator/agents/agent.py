@@ -12,7 +12,7 @@ class AgentProcessingResult:
     agent_name: str
     user_id: str
     session_id: str
-    additional_params: Dict[str, Any] = field(default_factory=dict)
+    additional_params: dict[str, Any] = field(default_factory=dict)
 
 
 class AgentStreamResponse:

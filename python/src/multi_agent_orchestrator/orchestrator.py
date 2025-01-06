@@ -142,7 +142,8 @@ class MultiAgentOrchestrator:
                                session_id: str,
                                classifier_result: ClassifierResult,
                                additional_params: dict[str, str] = {},
-                               stream_response: bool | None = False) -> AgentResponse:
+                               stream_response: bool | None = False # wether to stream back the response from the agent
+    ) -> AgentResponse:
         """Process agent response and handle chat storage."""
         try:
             agent_response = await self.dispatch_to_agent({
