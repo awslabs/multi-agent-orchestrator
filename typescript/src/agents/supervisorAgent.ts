@@ -28,7 +28,7 @@ export class SupervisorAgent extends Agent {
   private promptTemplate: string;
 
   constructor(options: SupervisorAgentOptions) {
-    if (!(options.supervisor instanceof BedrockLLMAgent )) {
+    if (!(options.supervisor instanceof BedrockLLMAgent)) {
       throw new Error('Supervisor must be BedrockLLMAgent or AnthropicAgent');
     }
 
@@ -94,13 +94,6 @@ export class SupervisorAgent extends Agent {
     }
 
     console.log()
-
-    // Determine the correct tool format based on the supervisor agent type
-    /*const toolFormat = this.supervisor instanceof BedrockLLMAgent 
-    ? this.supervisorTools.toBedrockFormat() 
-    : this.supervisorTools.toClaudeFormat();*/
-
-    const toolFormat = this.supervisorTools.toBedrockFormat();
 
     this.supervisor.toolConfig = {
       tool: this.supervisorTools,

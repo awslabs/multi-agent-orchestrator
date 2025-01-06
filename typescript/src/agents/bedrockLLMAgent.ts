@@ -2,11 +2,9 @@ import {
   BedrockRuntimeClient,
   ConverseCommand,
   ConverseStreamCommand,
-  Tool,
 } from "@aws-sdk/client-bedrock-runtime";
 import { Agent, AgentOptions } from "./agent";
 import {
-  AgentProviderType,
   BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
   ConversationMessage,
   ParticipantRole,
@@ -14,7 +12,7 @@ import {
 } from "../types";
 import { Retriever } from "../retrievers/retriever";
 import { Logger } from "../utils/logger"
-import { Tools } from "../utils/tool";
+import { ToolResult, Tools } from "../utils/tool";
 
 export interface BedrockLLMAgentOptions extends AgentOptions {
   streaming?: boolean;
@@ -132,6 +130,92 @@ export class BedrockLLMAgent extends Agent {
   }
 
   /**
+   * Formats the tool results into a conversation message format.
+   * This method converts an array of tool results into a format expected by the system.
+   *
+   * @param toolResults - An array of ToolResult objects that need to be formatted.
+   * @returns A ConversationMessage object containing the formatted tool results.
+   */
+  private formatToolResults(toolResults: ToolResult[]): ConversationMessage {  
+    return {
+      role: ParticipantRole.USER,
+      content: toolResults.map((item: any) => ({
+        toolResult: {
+          toolUseId: item.toolUseId,
+          content: [{ text: item.content }]
+        }
+      }))
+    }as ConversationMessage;
+  }
+  
+  /**
+   * Transforms the tools into a format compatible with the system's expected structure.
+   * This method maps each tool to an object containing its name, description, and input schema.
+   *
+   * @param tools - The Tools object containing an array of tools to be formatted.
+   * @returns An array of formatted tool specifications.
+   */
+  private formatTools(tools: Tools): any[] {
+    return tools.tools.map(tool => ({
+      toolSpec: {
+        name: tool.name,
+        description: tool.description,
+        inputSchema: {
+          json: {
+            type: 'object',
+            properties: tool.properties,
+            required: tool.required
+          }
+        }
+      }
+    }));
+  }
+
+  /**
+   * Extracts the tool name from the tool use block.
+   * This method retrieves the `name` field from the provided tool use block.
+   *
+   * @param toolUseBlock - The block containing tool use details, including a `name` field.
+   * @returns The name of the tool from the provided block.
+   */
+  private getToolName(toolUseBlock: any): string {
+    return toolUseBlock.name;
+  }
+
+  /**
+   * Extracts the tool ID from the tool use block.
+   * This method retrieves the `toolUseId` field from the provided tool use block.
+   *
+   * @param toolUseBlock - The block containing tool use details, including a `toolUseId` field.
+   * @returns The tool ID from the provided block.
+   */
+  private getToolId(toolUseBlock: any): string {
+    return toolUseBlock.toolUseId;
+  }
+
+  /**
+   * Extracts the input data from the tool use block.
+   * This method retrieves the `input` field from the provided tool use block.
+   *
+   * @param toolUseBlock - The block containing tool use details, including an `input` field.
+   * @returns The input data associated with the tool use block.
+   */
+  private getInputData(toolUseBlock: any): any {
+    return toolUseBlock.input;
+  }
+
+  /**
+   * Retrieves the tool use block from the provided block.
+   * This method checks if the block contains a `toolUse` field and returns it.
+   *
+   * @param block - The block from which the tool use block needs to be extracted.
+   * @returns The tool use block if present, otherwise null.
+   */
+  private getToolUseBlock(block: any): any {
+      return block.toolUse;    
+  }
+
+  /**
    * Abstract method to process a request.
    * This method must be implemented by all concrete agent classes.
    *
@@ -193,14 +277,11 @@ export class BedrockLLMAgent extends Agent {
         ...(this.toolConfig && { 
           toolConfig: {
             tools: this.toolConfig.tool instanceof Tools 
-              ? this.toolConfig.tool.toBedrockFormat()
+              ? this.formatTools(this.toolConfig.tool)
               : this.toolConfig.tool
           }
         })
       };
-
-
-      //console.log(this.name+ " => converseCmd="+JSON.stringify(converseCmd))
 
       if (this.streaming){
         return this.handleStreamingResponse(converseCmd);
@@ -224,11 +305,13 @@ export class BedrockLLMAgent extends Agent {
               const tools = this.toolConfig.tool;
 
               const toolHandler = this.toolConfig.useToolHandler ?? 
-                (async (response, conversation) => {
+                (async (response) => {
                   return tools.toolHandler(
-                    AgentProviderType.BEDROCK,
                     response,
-                    conversation
+                    this.getToolUseBlock.bind(this),
+                    this.getToolName.bind(this),
+                    this.getToolId.bind(this),
+                    this.getInputData.bind(this)
                   );
                 });
 
@@ -237,8 +320,11 @@ export class BedrockLLMAgent extends Agent {
                 conversation
               );
 
+              const formattedResponse = this.formatToolResults(toolResponse);
+
               continueWithTools = true;
-              converseCmd.messages.push(toolResponse);
+              converseCmd.messages.push(formattedResponse);
+
             } else {
               continueWithTools = false;
               finalMessage = bedrockResponse;
