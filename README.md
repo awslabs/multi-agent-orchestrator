@@ -399,13 +399,16 @@ Let’s collaborate, learn from each other, and build something incredible toget
 
 ## 🤝 Contributing
 
-We welcome contributions to the Multi-Agent Orchestrator! If you have ideas, improvements, or new features to add, please:
+We welcome contributions! Here's how to get started:
 
-1. Check our [Contributing Guide](CONTRIBUTING.md) for guidelines
-2. Create a new [GitHub Issue](https://github.com/awslabs/multi-agent-orchestrator/issues)
-3. Submit a pull request
+1. 📚 Review our [Contributing Guide](CONTRIBUTING.md)
+2. 💡 Create a [GitHub Issue](https://github.com/awslabs/multi-agent-orchestrator/issues)
+3. 🔨 Submit a pull request
 
-Make sure to follow the existing project structure and include appropriate documentation for new features.
+⚠️ For major changes, please open an issue first to discuss your proposal.
+
+✅ Follow existing project structure and include documentation for new features.
+
 
 ### Thank You for Your Support! 🙏
 
