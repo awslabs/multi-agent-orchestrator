@@ -39,16 +39,18 @@ class ParticipantRole(Enum):
     ASSISTANT = "assistant"
     USER = "user"
 
+class ConversationMessageMetadata(TypedDict):
+    citations: List[str]
 
 class ConversationMessage:
     role: ParticipantRole
     content: List[Any]
-    citations: List[str]
+    metadata: ConversationMessageMetadata
 
-    def __init__(self, role: ParticipantRole, content: Optional[List[Any]] = None, citations: Optional[List[str]] = None):
+    def __init__(self, role: ParticipantRole, content: Optional[List[Any]] = None, metadata: Optional[ConversationMessageMetadata] = None):
         self.role = role
         self.content = content
-        self.citations = citations
+        self.metadata = metadata
 
 class TimestampedMessage(ConversationMessage):
     def __init__(self,
