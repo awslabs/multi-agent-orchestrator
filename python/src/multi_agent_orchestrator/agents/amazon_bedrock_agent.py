@@ -138,7 +138,12 @@ class AmazonBedrockAgent(Agent):
                     decoded_response = chunk['bytes'].decode('utf-8')
 
                     # Trigger callback for each token (useful for real-time updates)
-                    self.callbacks.on_llm_new_token(decoded_response)
+                    self.callbacks.on_llm_new_token(
+                        ConversationMessage(
+                            role=ParticipantRole.ASSISTANT.value,
+                            content=[{'text': decoded_response}]
+                        )
+                    )
                     completion += decoded_response
 
                 elif 'trace' in event:

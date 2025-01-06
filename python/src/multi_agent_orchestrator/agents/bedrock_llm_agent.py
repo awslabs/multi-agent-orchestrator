@@ -215,7 +215,12 @@ class BedrockLLMAgent(Agent):
                         tool_use['input'] += delta['toolUse']['input']
                     elif 'text' in delta:
                         text += delta['text']
-                        self.callbacks.on_llm_new_token(delta['text'])
+                        self.callbacks.on_llm_new_token(
+                          ConversationMessage(
+                              role=ParticipantRole.ASSISTANT.value,
+                              content=[{'text': delta['text']}]
+                          )
+                        )
                 elif 'contentBlockStop' in chunk:
                     if 'input' in tool_use:
                         tool_use['input'] = json.loads(tool_use['input'])

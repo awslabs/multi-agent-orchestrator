@@ -169,7 +169,12 @@ class OpenAIAgent(Agent):
                     chunk_content = chunk.choices[0].delta.content
                     accumulated_message.append(chunk_content)
                     if self.callbacks:
-                        self.callbacks.on_llm_new_token(chunk_content)
+                        self.callbacks.on_llm_new_token(
+                            ConversationMessage(
+                                role=ParticipantRole.ASSISTANT.value,
+                                content=[{'text': chunk_content}]
+                            )
+                        )
                     #yield chunk_content
 
             # Store the complete message in the instance for later access if needed

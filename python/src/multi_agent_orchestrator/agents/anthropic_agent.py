@@ -205,7 +205,12 @@ class AnthropicAgent(Agent):
             async with self.client.messages.stream(**input) as stream:
                 async for event in stream:
                     if event.type == "text":
-                        self.callbacks.on_llm_new_token(event.text)
+                        self.callbacks.on_llm_new_token(
+                            ConversationMessage(
+                                role=ParticipantRole.ASSISTANT.value,
+                                content=[{'text': event.text}]
+                            )
+                        )
                     elif event.type == "input_json":
                         message['input'] = json.loads(event.partial_json)
                     elif event.type == "content_block_stop":
