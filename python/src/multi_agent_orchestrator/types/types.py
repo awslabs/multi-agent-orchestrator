@@ -43,9 +43,9 @@ class ParticipantRole(Enum):
 class ConversationMessage:
     role: ParticipantRole
     content: List[Any]
-    citations: List[Any]
+    citations: List[str]
 
-    def __init__(self, role: ParticipantRole, content: Optional[List[Any]] = None, citations: Optional[List[Any]] = None):
+    def __init__(self, role: ParticipantRole, content: Optional[List[Any]] = None, citations: Optional[List[str]] = None):
         self.role = role
         self.content = content
         self.citations = citations
