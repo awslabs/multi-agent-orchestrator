@@ -12,7 +12,7 @@ class AgentProcessingResult:
     agent_name: str
     user_id: str
     session_id: str
-    additional_params: dict[str, any] = field(default_factory=dict)
+    additional_params: Dict[str, Any] = field(default_factory=dict)
 
 
 class AgentStreamResponse:
@@ -82,7 +82,8 @@ class Agent(ABC):
         session_id: str,
         chat_history: list[ConversationMessage],
         additional_params: Optional[dict[str, str]] = None,
-    ) -> Union[ConversationMessage, AsyncIterable[any]]:
+    ) -> Union[ConversationMessage, AsyncIterable[Any]]:
+
         pass
 
     def log_debug(self, class_name, message, data=None):
