@@ -65,11 +65,12 @@ export interface AnthropicAgentOptions extends AgentOptions {
 
   protected retriever?: Retriever;
 
-  private toolConfig?: {
+  public toolConfig?: {
     tool: Anthropic.Tool[];
-    useToolHandler: (response: any, conversation: any[]) => any;
+    useToolHandler?: (response: any, conversation: any[]) => any;
     toolMaxRecursions?: number;
   };
+
 
   private promptTemplate: string;
   private systemPrompt: string;

@@ -6,6 +6,7 @@ import {
 } from "@aws-sdk/client-bedrock-runtime";
 import { Agent, AgentOptions } from "./agent";
 import {
+  AgentProviderType,
   BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
   ConversationMessage,
   ParticipantRole,
@@ -13,6 +14,7 @@ import {
 } from "../types";
 import { Retriever } from "../retrievers/retriever";
 import { Logger } from "../utils/logger"
+import { Tools } from "../utils/tool";
 
 export interface BedrockLLMAgentOptions extends AgentOptions {
   streaming?: boolean;
@@ -28,7 +30,7 @@ export interface BedrockLLMAgentOptions extends AgentOptions {
   };
   retriever?: Retriever;
   toolConfig?: {
-    tool: Tool[];
+    tool: Tools;
     useToolHandler: (response: any, conversation: ConversationMessage[]) => any ;
     toolMaxRecursions?: number;
   };
@@ -69,9 +71,9 @@ export class BedrockLLMAgent extends Agent {
 
   protected retriever?: Retriever;
 
-  private toolConfig?: {
-    tool: any[];
-    useToolHandler: (response: any, conversation: ConversationMessage[]) => any;
+  public toolConfig?: {
+    tool: Tools;
+    useToolHandler?: (response: any, conversation: ConversationMessage[]) => any;
     toolMaxRecursions?: number;
   };
 
@@ -177,7 +179,7 @@ export class BedrockLLMAgent extends Agent {
       // Prepare the command to converse with the Bedrock API
       const converseCmd = {
         modelId: this.modelId,
-        messages: conversation, //Include the updated conversation history
+        messages: conversation,
         system: [{ text: systemPrompt }],
         inferenceConfig: {
           maxTokens: this.inferenceConfig.maxTokens,
@@ -185,9 +187,20 @@ export class BedrockLLMAgent extends Agent {
           topP: this.inferenceConfig.topP,
           stopSequences: this.inferenceConfig.stopSequences,
         },
-        guardrailConfig: this.guardrailConfig? this.guardrailConfig:undefined,
-        toolConfig: (this.toolConfig ? { tools:this.toolConfig.tool}:undefined)
+        ...(this.guardrailConfig && { 
+          guardrailConfig: this.guardrailConfig 
+        }),
+        ...(this.toolConfig && { 
+          toolConfig: {
+            tools: this.toolConfig.tool instanceof Tools 
+              ? this.toolConfig.tool.toBedrockFormat()
+              : this.toolConfig.tool
+          }
+        })
       };
+
+
+      //console.log(this.name+ " => converseCmd="+JSON.stringify(converseCmd))
 
       if (this.streaming){
         return this.handleStreamingResponse(converseCmd);
@@ -204,16 +217,29 @@ export class BedrockLLMAgent extends Agent {
             conversation.push(bedrockResponse);
 
             // process model response
-            if (bedrockResponse?.content?.some((content) => 'toolUse' in content)){
+            if (
+              bedrockResponse?.content?.some((content) => "toolUse" in content)
+            ) {
               // forward everything to the tool use handler
-              if (!this.toolConfig){
-                throw new Error("Tool config is not defined");
-              }
-              const toolResponse = await this.toolConfig.useToolHandler(bedrockResponse, conversation);
+              const tools = this.toolConfig.tool;
+
+              const toolHandler = this.toolConfig.useToolHandler ?? 
+                (async (response, conversation) => {
+                  return tools.toolHandler(
+                    AgentProviderType.BEDROCK,
+                    response,
+                    conversation
+                  );
+                });
+
+              const toolResponse = await toolHandler(
+                bedrockResponse,
+                conversation
+              );
+
               continueWithTools = true;
               converseCmd.messages.push(toolResponse);
-            }
-            else {
+            } else {
               continueWithTools = false;
               finalMessage = bedrockResponse;
             }
@@ -267,6 +293,7 @@ export class BedrockLLMAgent extends Agent {
                   } else if (chunk.contentBlockDelta?.delta?.toolUse){
                       inputString += chunk.contentBlockDelta.delta.toolUse.input
                   } else if (chunk.messageStop?.stopReason === 'tool_use'){
+                    console.log("*************** CALL TOOL *****************")
                       toolBlock.input = JSON.parse(inputString);
                       const message = {role:ParticipantRole.ASSISTANT, content:[{'toolUse':toolBlock}]}
                       input.messages.push(message);
@@ -306,6 +333,8 @@ export class BedrockLLMAgent extends Agent {
       this.promptTemplate,
       allVariables
     );
+
+    //console.log("*** systemPrompt="+this.systemPrompt)
   }
 
   private replaceplaceholders(

@@ -2,7 +2,7 @@ import { ConversationMessage } from "../types";
 
 export abstract class ChatStorage {
 
-  protected isConsecutiveMessage(conversation: ConversationMessage[], newMessage: ConversationMessage): boolean {
+  public isConsecutiveMessage(conversation: ConversationMessage[], newMessage: ConversationMessage): boolean {
     if (conversation.length === 0) return false;
     const lastMessage = conversation[conversation.length - 1];
     return lastMessage.role === newMessage.role;

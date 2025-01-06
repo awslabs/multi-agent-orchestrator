@@ -52,3 +52,10 @@ export type TimestampedMessage = ConversationMessage & { timestamp: number };
 export interface TemplateVariables {
   [key: string]: string | string[];
 }
+
+
+export enum AgentProviderType {
+  BEDROCK = "BEDROCK",
+  ANTHROPIC = "ANTHROPIC"
+}
+
