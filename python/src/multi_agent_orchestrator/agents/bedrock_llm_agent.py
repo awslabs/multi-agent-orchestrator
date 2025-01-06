@@ -6,6 +6,7 @@ import os
 import boto3
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import (ConversationMessage,
+                       ConversationMessageMetadata,
                        ParticipantRole,
                        BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
                        TemplateVariables,
@@ -183,7 +184,11 @@ class BedrockLLMAgent(Agent):
                 raise ValueError("No output received from Bedrock model")
             return ConversationMessage(
                 role=response['output']['message']['role'],
-                content=response['output']['message']['content']
+                content=response['output']['message']['content'],
+                metadata=ConversationMessageMetadata({
+                  'usage': response['usage'],
+                  'metrics': response['metrics']
+                })
             )
         except Exception as error:
             Logger.error(f"Error invoking Bedrock model:{str(error)}")
@@ -198,6 +203,7 @@ class BedrockLLMAgent(Agent):
             message['content'] = content
             text = ''
             tool_use = {}
+            metadata: Optional[ConversationMessageMetadata] = None
 
             #stream the response into a message.
             for chunk in response['stream']:
@@ -229,9 +235,23 @@ class BedrockLLMAgent(Agent):
                     else:
                         content.append({'text': text})
                         text = ''
+
+                elif 'metadata' in chunk:
+                    metadata = {
+                       'usage': chunk['metadata']['usage'],
+                       'metrics': chunk['metadata']['metrics']
+                    }
+
+                    self.callbacks.on_llm_new_token(
+                        ConversationMessage(
+                            role=ParticipantRole.ASSISTANT.value,
+                            metadata=ConversationMessageMetadata(**metadata)
+                        )
+                    )
             return ConversationMessage(
                 role=ParticipantRole.ASSISTANT.value,
-                content=message['content']
+                content=message['content'],
+                metadata=ConversationMessageMetadata(**metadata)
             )
 
         except Exception as error:

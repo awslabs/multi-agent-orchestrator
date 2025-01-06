@@ -39,18 +39,35 @@ class ParticipantRole(Enum):
     ASSISTANT = "assistant"
     USER = "user"
 
+class UsageMetrics(TypedDict):
+    inputTokens: int
+    outputTokens: int
+    totalTokens: int
+
+class PerformanceMetrics(TypedDict):
+    latencyMs: int
+
 class ConversationMessageMetadata(TypedDict):
     citations: List[str]
+    usage: Optional[UsageMetrics]
+    metrics: Optional[PerformanceMetrics]
 
 class ConversationMessage:
     role: ParticipantRole
     content: List[Any]
     metadata: ConversationMessageMetadata
 
-    def __init__(self, role: ParticipantRole, content: Optional[List[Any]] = None, metadata: Optional[ConversationMessageMetadata] = None):
+    def __init__(self,
+                 role: ParticipantRole,
+                 content: Optional[List[Any]] = None,
+                 metadata: Optional[ConversationMessageMetadata] = None):
         self.role = role
-        self.content = content
-        self.metadata = metadata
+        self.content = content or []
+        self.metadata = metadata or {
+            'citations': [],
+            'usage': None,
+            'metrics': None
+        }
 
 class TimestampedMessage(ConversationMessage):
     def __init__(self,
