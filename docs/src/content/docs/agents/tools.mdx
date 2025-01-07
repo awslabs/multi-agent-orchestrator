@@ -1,10 +1,10 @@
 ---
-title: Tools System
-description: Documentation for the Tools system in the Multi-Agent Orchestrator
+title: AgentTools System
+description: Documentation for the AgentTools system in the Multi-Agent Orchestrator
 ---
 
-The Tools system in the Multi-Agent Orchestrator provides a flexible framework for defining, building, and managing tools that agents can use.
-It consists of three main classes: `Tool`, `ToolBuilder`, and `Tools`, which work together to enable tool-based interactions in the orchestrator.
+The AgentTools system in the Multi-Agent Orchestrator provides a flexible framework for defining, building, and managing tools that agents can use.
+It consists of three main classes: `AgentTool` and `AgentTools`, which work together to enable tool-based interactions in the orchestrator.
 
 ## Key Features
 
@@ -15,11 +15,11 @@ It consists of three main classes: `Tool`, `ToolBuilder`, and `Tools`, which wor
 - Async/sync function handling
 - Built-in tool result formatting
 
-## Tool Class
+## AgentTool Class
 
-The `Tool` class is the core component that represents a single tool definition. It can be created in multiple ways and supports various formats for different AI providers.
+The `AgentTool` class is the core component that represents a single tool definition. It can be created in multiple ways and supports various formats for different AI providers.
 
-### Creating a Tool
+### Creating a AgentTool
 
 There are several ways to create a tool:
 
@@ -35,7 +35,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import Tool
+    from multi_agent_orchestrator.utils import AgentTool
 
     def get_weather(location: str, units: str = "celsius") -> str:
         """Get weather information for a location.
@@ -45,7 +45,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
         """
         return f'It is sunny in {city} with 30 {units}!'
 
-    tool = Tool(
+    tool = AgentTool(
         name="weather_tool",
         description="Get current weather information",
         properties = {
@@ -76,7 +76,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import Tool
+    from multi_agent_orchestrator.utils import AgentTool
 
     def get_weather(location: str, units: str = "celsius") -> str:
         """Get weather information for a location.
@@ -86,7 +86,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
         """
         return f'It is sunny in {city} with 30 {units}!'
 
-    tool = Tool(
+    tool = AgentTool(
         name="weather_tool",
         func=get_weather,
         enum_values={"units": ["celsius", "fahrenheit"]}
@@ -98,12 +98,12 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 ### Format Conversion
 
-The Tool class can output its definition in different formats for various AI providers:
+The AgentTool class can output its definition in different formats for various AI providers:
 
 <Tabs syncKey="runtime">
   <TabItem label="Python" icon="seti:python">
     ```python
-    tool = Tool(
+    tool = AgentTool(
         name="weather_tool",
         description="Get current weather information",
         func=get_weather,
@@ -123,22 +123,22 @@ The Tool class can output its definition in different formats for various AI pro
 </Tabs>
 
 
-## Tools Class
+## AgentTools Class
 
-The `Tools` class manages multiple tool definitions and handles tool execution during agent interactions. It provides a unified interface for tool processing across different AI providers.
+The `AgentTools` class manages multiple tool definitions and handles tool execution during agent interactions. It provides a unified interface for tool processing across different AI providers.
 
-### Creating and Using Tools
+### Creating and Using AgentTools
 
 <Tabs syncKey="runtime">
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import Tools, Tool
+    from multi_agent_orchestrator.utils import AgentTools, AgentTool
 
     # Define your tools
-    weather_tool = Tool("weather", "Get weather info", get_weather)
+    weather_tool = AgentTool("weather", "Get weather info", get_weather)
 
-    # Create Tools instance
-    tools = Tools([weather_tool])
+    # Create AgentTools instance
+    tools = AgentTools([weather_tool])
 
     # Format tool with an agent
     weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
@@ -151,13 +151,13 @@ The `Tools` class manages multiple tool definitions and handles tool execution d
         },
     ))
 
-    # Use Tools class with an agent
+    # Use AgentTools class with an agent
     weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
         name="Weather Agent",
         streaming=True,
         description="Specialized agent for giving weather condition from a city.",
         tool_config={
-            'tool': Tools([weather_tool]),
+            'tool': AgentTools([weather_tool]),
             'toolMaxRecursions': 5,
         },
     ))
@@ -165,10 +165,10 @@ The `Tools` class manages multiple tool definitions and handles tool execution d
   </TabItem>
 </Tabs>
 
-By using Tools, the logic of parsing the tool response from the Agent is hanlded directly by the class.
+By using AgentTools, the logic of parsing the tool response from the Agent is hanlded directly by the class.
 
 
-## Using a Tool with an Agent
+## Using a AgentTool with an Agent
 
 ### 1. **Definition**
 <Tabs syncKey="runtime">
@@ -179,7 +179,7 @@ By using Tools, the logic of parsing the tool response from the Agent is hanlded
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import Tools, Tool
+    from multi_agent_orchestrator.utils import AgentTools, AgentTool
 
     def get_weather(city:str):
         """
@@ -192,7 +192,7 @@ By using Tools, the logic of parsing the tool response from the Agent is hanlded
         return f'It is sunny in {city}!'
 
     # Create a tool definition with name and description
-    weather_tools:Tools = Tools(tools=[Tool(
+    weather_tools:AgentTools = AgentTools(tools=[AgentTool(
         name='get_weather',
         func=get_weather
     )])
@@ -200,9 +200,9 @@ By using Tools, the logic of parsing the tool response from the Agent is hanlded
   </TabItem>
 </Tabs>
 
-### 2. **Adding Tool to Agent**
+### 2. **Adding AgentTool to Agent**
 
-Here is an example of how you can add Tools to your Agent
+Here is an example of how you can add AgentTools to your Agent
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -212,7 +212,7 @@ Here is an example of how you can add Tools to your Agent
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import Tools, Tool
+    from multi_agent_orchestrator.utils import AgentTools, AgentTool
     from multi_agent_orchestrator.agents import (BedrockLLMAgent, BedrockLLMAgentOptions)
 
     # Configure and create the agent with our weather tool
@@ -246,7 +246,7 @@ When you need more control over tool execution, you can implement a custom handl
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import Tools, Tool
+    from multi_agent_orchestrator.utils import AgentTools, AgentTool
     from multi_agent_orchestrator.agents import (BedrockLLMAgent, BedrockLLMAgentOptions)
 
     async def bedrock_weather_tool_handler(
@@ -321,16 +321,16 @@ This approach provides flexibility when you need to extend the default tool beha
 
 2. **Type Hints**: Use Python type hints in your tool functions. These are automatically converted to appropriate JSON schema types.
 
-3. **Error Handling**: Implement proper error handling in your tool functions. Tool execution errors are automatically captured and formatted appropriately.
+3. **Error Handling**: Implement proper error handling in your tool functions. AgentTool execution errors are automatically captured and formatted appropriately.
 
 4. **Provider Compatibility**: When creating tools, consider the formatting requirements of different AI providers if you plan to use the tools across multiple provider types.
 
-5. **Tool Naming**: Use clear, descriptive names for your tools and maintain consistency in naming conventions across your application.
+5. **AgentTool Naming**: Use clear, descriptive names for your tools and maintain consistency in naming conventions across your application.
 
-By following these guidelines and leveraging the Tools system effectively, you can create powerful and flexible tool-based interactions in your Multi-Agent Orchestrator implementation.
+By following these guidelines and leveraging the AgentTools system effectively, you can create powerful and flexible tool-based interactions in your Multi-Agent Orchestrator implementation.
 
 
 
 ## Next Steps
 
-To continue learning about Tools in the Multi-Agent Orchestrator System, head over to our [examples](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/tools) in Github
+To continue learning about AgentTools in the Multi-Agent Orchestrator System, head over to our [examples](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/tools) in Github

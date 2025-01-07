@@ -78,7 +78,7 @@ The `SupervisorAgentOptions` defines the configuration parameters for creating a
         team: list[Agent]  # Team of agents that can help in resolving tasks
         storage: Optional[ChatStorage]  # Memory storage for the team
         trace: Optional[bool]  # Enable tracing/logging
-        extra_tools: Optional[Union[Tools, list[Tool]]]  # Additional tools for supervisor
+        extra_tools: Optional[Union[AgentTools, list[AgentTool]]]  # Additional tools for supervisor
     ```
   </TabItem>
 </Tabs>
@@ -147,10 +147,10 @@ You can extend the SupervisorAgent's capabilities with custom tools:
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import Tool, Tools
+    from multi_agent_orchestrator.utils import AgentTool, AgentTools
 
     custom_tools = [
-        Tool(
+        AgentTool(
             name="analyze_sentiment",
             description="Analyze message sentiment",
             properties={
@@ -216,7 +216,7 @@ Here's a complete example showing how to use the SupervisorAgent in a typical sc
         SupervisorAgentOptions
     )
     from multi_agent_orchestrator.storage import DynamoDBChatStorage
-    from multi_agent_orchestrator.utils import Tools, Tool
+    from multi_agent_orchestrator.utils import AgentTool, AgentTools
 
     # Create orchestrator
     orchestrator = MultiAgentOrchestrator()
@@ -239,7 +239,7 @@ Here's a complete example showing how to use the SupervisorAgent in a typical sc
 
     # Create custom tools
     custom_tools = [
-        Tool(
+        AgentTool(
             name="analyze_sentiment",
             description="Analyze message sentiment",
             properties={

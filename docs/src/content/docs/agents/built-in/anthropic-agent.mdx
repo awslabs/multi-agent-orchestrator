@@ -351,12 +351,12 @@ const agent = new AnthropicAgent({
   name: 'Advanced Anthropic Assistant',
   description: 'A fully configured AI assistant powered by Anthropic models',
   apiKey: 'your-anthropic-api-key',
-  
+
   // Optional fields
   modelId: 'claude-3-opus-20240229',  // Choose Anthropic model
   streaming: true, // Enable streaming responses
   retriever: customRetriever, // Custom retriever for additional context
-  
+
   // Inference configuration
   inferenceConfig: {
     maxTokens: 500,      // Maximum tokens to generate
@@ -364,7 +364,7 @@ const agent = new AnthropicAgent({
     topP: 0.9,          // Control diversity via nucleus sampling
     stopSequences: ['Human:', 'AI:']  // Sequences that stop generation
   },
-  
+
   // Tool configuration
   toolConfig: {
     tool: [{
@@ -394,13 +394,13 @@ const agent = new AnthropicAgent({
       }
     })
   },
-  
+
   // Custom system prompt with variables
   customSystemPrompt: {
     template: `You are an AI assistant specialized in {{DOMAIN}}.
               Your core competencies:
               {{SKILLS}}
-              
+
               Communication style:
               - Maintain a {{TONE}} tone
               - Focus on {{FOCUS}}
@@ -481,7 +481,7 @@ custom_system_prompt={
     'template': """You are an AI assistant specialized in {{DOMAIN}}.
                   Your core competencies:
                   {{SKILLS}}
-                  
+
                   Communication style:
                   - Maintain a {{TONE}} tone
                   - Focus on {{FOCUS}}
@@ -512,7 +512,7 @@ custom_system_prompt={
 - `streaming`: Enables streaming responses for real-time output.
 - `inferenceConfig`: Fine-tunes the model's output characteristics.
 - `retriever`: Integrates a retrieval system for enhanced context.
-- `toolConfig`: Defines tools the agent can use and how to handle their responses ([See Tools for Agents for seamless tool definition](/multi-agent-orchestrator/agents/tools))
+- `toolConfig`: Defines tools the agent can use and how to handle their responses ([See AgentTools for Agents for seamless tool definition](/multi-agent-orchestrator/agents/tools))
 
 ## Setting a New Prompt
 
