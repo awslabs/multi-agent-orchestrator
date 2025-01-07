@@ -637,21 +637,8 @@ Here's a complete example showing how to use the SupervisorAgent in a typical sc
 ## Limitations
 
 - Supervisor must be either BedrockLLMAgent or AnthropicAgent
-- Tool configurations on supervisor agent are managed by SupervisorAgent
 - May require significant memory for large conversation histories
 - Performance depends on slowest agent in parallel operations
-- Memory cleanup strategies must be implemented manually
-- Stream processing requires careful error handling
-- Tool execution limits may apply based on the agent type
 
-## Looking Ahead
-
-Future enhancements to consider:
-- Automatic memory cleanup and optimization
-- Enhanced parallel processing capabilities
-- Additional built-in tools for common tasks
-- Support for more agent types as supervisors
-- Improved streaming response handling
-- Memory compression techniques for large conversations
 
 By leveraging the SupervisorAgent, you can create sophisticated multi-agent systems with coordinated responses, maintained context, and efficient parallel processing. The agent's flexible architecture allows for customization while providing robust built-in capabilities for common coordination tasks.
