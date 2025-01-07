@@ -47,6 +47,7 @@ class InMemoryChatStorage(ChatStorage):
     ) -> bool:
         key = self._generate_key(user_id, session_id, agent_id)
         conversation = self.conversations[key]
+        #TODO: check messages are consecutive
 
         # if self.is_consecutive_message(conversation, new_message):
         #     Logger.debug(f"> Consecutive {new_message.role} \
