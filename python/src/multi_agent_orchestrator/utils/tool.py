@@ -12,7 +12,7 @@ class PropertyDefinition:
     enum: Optional[list] = None
 
 @dataclass
-class ToolResult:
+class AgentToolResult:
     tool_use_id: str
     content: Any
 
@@ -207,7 +207,7 @@ class AgentTools:
             result = await self._process_tool(tool_name, input_data)
 
             # Create tool result
-            tool_result = ToolResult(tool_id, result)
+            tool_result = AgentToolResult(tool_id, result)
 
             # Format according to platform
             formatted_result = (
