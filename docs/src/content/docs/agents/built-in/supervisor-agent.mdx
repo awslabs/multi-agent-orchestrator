@@ -5,7 +5,34 @@ description: Documentation for the SupervisorAgent in the Multi-Agent Orchestrat
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-The `SupervisorAgent` is a specialized agent class in the Multi-Agent Orchestrator System that orchestrates interactions between multiple agents. It acts as a coordinator, managing communication, task delegation, and response aggregation between a team of agents while maintaining conversation history.
+The `SupervisorAgent` is an advanced orchestration component that enables sophisticated multi-agent coordination within the Multi-Agent Orchestrator framework.
+
+It implements a unique **"agent-as-tools"** architecture where team members are exposed to a supervisor agent as invocable tools, enabling parallel processing and contextual communication.
+
+
+## Core Components
+
+**1. Supervisor (Base Agent)**
+
+- Must be either a [BedrockLLMAgent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) or [AnthropicAgent](/multi-agent-orchestrator/agents/built-in/anthropic-agent)
+- Acts as the central coordinator
+- Communicates with team members through a tool interface
+- Maintains conversation context with both user and team members
+
+
+**2. Team Members**
+
+- Collection of agents - each agent is wrapped as a tool for the supervisor
+- Can be any agent type supported by the framework
+- Operate independently and in parallel when possible
+
+
+**3. Memory Management**
+
+- Two-level conversation history:
+    - User ↔ Supervisor interactions
+    - Supervisor ↔ Team Member interactions
+- Configurable storage backend (defaults to [InMemoryChatStorage](/multi-agent-orchestrator/storage/in-memory))
 
 ## Key Features
 
@@ -16,6 +43,301 @@ The `SupervisorAgent` is a specialized agent class in the Multi-Agent Orchestrat
 - Intelligent task delegation and response aggregation
 - Compatible with BedrockLLMAgent and AnthropicAgent as supervisors
 
+## Memory Architecture
+
+
+The **SupervisorAgent** implements a three-tier memory system to maintain context across conversations:
+
+**1. User-Supervisor Memory**
+
+This is like the main conversation between a customer and the team leader. For example:
+
+```text
+User: I'm having trouble with my billing and the mobile app isn't working
+Assistant: I understand you're having two issues. Let me help you with both your billing and app problems.
+User: Yes, the app crashes when I try to view my bill
+Assistant: I'll look into both issues. Let me check with our technical and billing teams.
+```
+
+
+**2. Supervisor-Team Memory**
+
+The supervisor maintains separate conversations with each team member, like private chats. For example:
+
+
+```
+# Tech Support Conversation
+Supervisor: User is experiencing app crashes when viewing bills. Can you investigate?
+Tech Support: Based on the symptoms, this might be a cache issue. I'll provide steps to clear it.
+
+# Billing Team Conversation
+Supervisor: Please check the user's billing status
+Billing Team: Account is active, last payment received Jan 15, next due Feb 15
+```
+
+3. **Combined Memory**
+
+The supervisor keeps track of all important information in a organized way:
+
+### Memory Processing Flow
+
+**1. When a User Sends a Message**
+- The supervisor receives the message
+- Checks previous conversations for context
+- Decides which team members need to be involved
+
+**2. When Working with Team Members**
+- The supervisor can talk to multiple team members at once
+- Each team member only sees their own conversation
+- The supervisor collects and organizes all responses
+
+**3. When Responding to the User**
+- The supervisor combines information from team members
+- Provides a clear, unified response
+- Maintains the context for future questions
+
+### Example Conversation Flow
+
+Here's how a typical interaction might look:
+
+1. Initial User Request
+
+```text
+User: I'm having trouble with my bill and the mobile app
+```
+
+2. Supervisor's Internal Processing
+
+```text
+# Checking with Tech Support
+Supervisor → Tech Support: What could cause app issues when viewing bills?
+
+# Simultaneously Checking with Billing
+Supervisor → Billing: Please verify account status
+```
+
+3. Team Responses
+
+```text
+Tech Support → Supervisor: Likely a cache issue. Common after recent updates.
+Billing → Supervisor: Account in good standing, no payment issues.
+```
+
+4. Final Response to User
+
+```text
+Supervisor → User: I've checked both issues. Your billing account is in good standing. For the app problem, it appears to be a cache issue. Would you like me to guide you through clearing your app's cache?
+```
+
+### Key Features of the Memory System
+
+1. Organized Conversations
+
+- Each team member has their own conversation thread
+- The supervisor keeps track of all conversations
+- Important information is easily accessible
+
+
+2. Smart Memory Use
+
+- Only relevant information is kept and used
+- Previous solutions can be reused for similar problems
+- Context is maintained throughout the conversation
+
+
+3. Efficient Information Sharing
+
+- Team members receive only the information they need
+- The supervisor can quickly access previous solutions
+- User gets clear, unified responses
+
+
+
+This memory system allows the SupervisorAgent to handle complex conversations naturally, maintain context over time, and coordinate effectively with team members - much like a skilled team leader would in a real support environment.
+
+
+## Usage Patterns
+
+The SupervisorAgent offers flexible integration patterns within the Multi-Agent Orchestrator framework. It can be used in two primary ways:
+
+### 1. Direct Usage
+
+You can use the SupervisorAgent directly, bypassing the classifier, when you want dedicated team coordination for specific tasks:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    // Create and configure SupervisorAgent
+    const supervisorAgent = new SupervisorAgent({
+      supervisor: new BedrockLLMAgent({
+        name: "Support Team Lead",
+        description: "Coordinates support inquiries"
+      }),
+      team: [
+        new LexBotAgent({
+          name: "Booking Agent",
+          description: "Handles travel bookings",
+          botId: "travel-bot-id",
+          botAliasId: "alias-id",
+          localeId: "en_US"
+        }),
+        new BedrockAgent({
+          name: "Payment Support",
+          description: "Handles payment issues",
+          agentId: "payment-agent-id",
+          agentAliasId: "alias-id"
+        })
+      ]
+    });
+
+    // Use directly
+    const response = await supervisorAgent.processRequest(
+      "I need to modify my flight and check my refund status",
+      "user123",
+      "session456"
+    );
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    # Create and configure SupervisorAgent
+    supervisor_agent = SupervisorAgent(SupervisorAgentOptions(
+        supervisor=BedrockLLMAgent(BedrockLLMAgentOptions(
+            name="Support Team Lead",
+            description="Coordinates support inquiries"
+        )),
+        team=[
+            LexBotAgent(LexBotAgentOptions(
+                name="Booking Agent",
+                description="Handles travel bookings",
+                bot_id="travel-bot-id",
+                bot_alias_id="alias-id",
+                locale_id="en_US"
+            )),
+            BedrockAgent(BedrockAgentOptions(
+                name="Payment Support",
+                description="Handles payment issues",
+                agent_id="payment-agent-id",
+                agent_alias_id="alias-id"
+            ))
+        ]
+    ))
+
+    # Use directly
+    response = await supervisor_agent.process_request(
+        "I need to modify my flight and check my refund status",
+        "user123",
+        "session456"
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+### 2. As Part of Classifier-Based Architecture
+
+The SupervisorAgent can also be integrated into a larger system using the classifier, enabling complex hierarchical architectures:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const orchestrator = new MultiAgentOrchestrator();
+
+    // Add individual agents
+    orchestrator.addAgent(new BedrockLLMAgent({
+      name: "General Assistant",
+      description: "Handles general inquiries"
+    }));
+
+    // Add a SupervisorAgent for complex support tasks
+    orchestrator.addAgent(new SupervisorAgent({
+      supervisor: new BedrockLLMAgent({
+        name: "Support Team",
+        description: "Coordinates support inquiries requiring multiple specialists"
+      }),
+      team: [techAgent, billingAgent, lexBookingBot]
+    }));
+
+    // Add another SupervisorAgent for product development
+    orchestrator.addAgent(new SupervisorAgent({
+      supervisor: new AnthropicAgent({
+        name: "Product Team",
+        description: "Coordinates product development and feature requests"
+      }),
+      team: [designAgent, engineeringAgent, productManagerAgent]
+    }));
+
+    // Process through classifier
+    const response = await orchestrator.routeRequest(
+      userInput,
+      userId,
+      sessionId
+    );
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    orchestrator = MultiAgentOrchestrator()
+
+    # Add individual agents
+    orchestrator.add_agent(BedrockLLMAgent(BedrockLLMAgentOptions(
+        name="General Assistant",
+        description="Handles general inquiries"
+    )))
+
+    # Add a SupervisorAgent for complex support tasks
+    orchestrator.add_agent(SupervisorAgent(SupervisorAgentOptions(
+        supervisor=BedrockLLMAgent(BedrockLLMAgentOptions(
+            name="Support Team",
+            description="Coordinates support inquiries requiring multiple specialists"
+        )),
+        team=[tech_agent, billing_agent, lex_booking_bot]
+    )))
+
+    # Add another SupervisorAgent for product development
+    orchestrator.add_agent(SupervisorAgent(SupervisorAgentOptions(
+        supervisor=AnthropicAgent(AnthropicAgentOptions(
+            name="Product Team",
+            description="Coordinates product development and feature requests"
+        )),
+        team=[design_agent, engineering_agent, product_manager_agent]
+    )))
+
+    # Process through classifier
+    response = await orchestrator.route_request(
+        user_input,
+        user_id,
+        session_id
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+### Example: Complex Multi-Level Architecture
+
+You can create sophisticated systems where different SupervisorAgents handle specialized domains:
+
+```plaintext
+Classifier
+├── General Assistant (BedrockLLMAgent)
+├── Support Team (SupervisorAgent)
+│   ├── Tech Support (BedrockAgent)
+│   ├── Billing Support (BedrockLLMAgent)
+│   └── Booking System (LexBotAgent)
+└── Product Team (SupervisorAgent)
+    ├── Design (AnthropicAgent)
+    ├── Engineering (BedrockLLMAgent)
+    └── Product Management (BedrockAgent)
+```
+
+This flexibility allows you to:
+- Use SupervisorAgent directly for dedicated team coordination
+- Integrate it into classifier-based systems for dynamic routing
+- Create hierarchical structures with multiple specialized teams
+- Mix different types of agents (LexBot, Bedrock, Anthropic, etc.) in teams
+- Scale and adapt the architecture as needs evolve
+
+The SupervisorAgent's ability to work both independently and as part of a larger system makes it a versatile tool for building complex AI architectures while maintaining clean separation of concerns.
+
 ## Creating a SupervisorAgent
 
 
@@ -23,7 +345,35 @@ The `SupervisorAgent` is a specialized agent class in the Multi-Agent Orchestrat
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    // TypeScript implementation coming soon
+    import { SupervisorAgent, SupervisorAgentOptions } from 'multi-agent-orchestrator';
+    import { BedrockLLMAgent } from 'multi-agent-orchestrator';
+    import { DynamoDBChatStorage } from 'multi-agent-orchestrator';
+
+    // Create supervisor (base agent)
+    const supervisor = new BedrockLLMAgent({
+    name: "Team Lead",
+    description: "Coordinates specialized team members",
+    modelId: "anthropic.claude-3-sonnet-20240229-v1:0"
+    });
+
+    // Create team members
+    const techAgent = new BedrockLLMAgent({
+    name: "Tech Support",
+    description: "Handles technical issues"
+    });
+
+    const billingAgent = new BedrockLLMAgent({
+    name: "Billing Expert",
+    description: "Handles billing and payment queries"
+    });
+
+    // Create SupervisorAgent
+    const supervisorAgent = new SupervisorAgent({
+    supervisor: supervisor,
+    team: [techAgent, billingAgent],
+    storage: new DynamoDBChatStorage("conversation-table", "us-east-1"),
+    trace: true
+    });
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
@@ -67,7 +417,13 @@ The `SupervisorAgentOptions` defines the configuration parameters for creating a
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    // TypeScript implementation coming soon
+    interface SupervisorAgentOptions extends AgentOptions {
+      supervisor: BedrockLLMAgent | AnthropicAgent;  // The agent that acts as supervisor
+      team: Agent[];  // Team of agents to coordinate
+      storage?: ChatStorage;  // Memory storage implementation
+      trace?: boolean;  // Enable detailed logging
+      extraTools?: AgentTools | AgentTool[];  // Additional tools for supervisor
+    }
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
@@ -126,14 +482,6 @@ The SupervisorAgent includes a built-in tool for parallel message processing:
 }
 ```
 
-## Memory Management
-
-The SupervisorAgent uses a configurable storage system for maintaining conversation history:
-
-- Default storage: InMemoryChatStorage
-- Supports any ChatStorage implementation
-- Maintains separate histories for each agent
-- Efficiently formats and retrieves conversations for context
 
 ## Adding Custom Tools
 
@@ -142,7 +490,26 @@ You can extend the SupervisorAgent's capabilities with custom tools:
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    // TypeScript implementation coming soon
+        const customTools = [
+    new AgentTool({
+        name: "analyze_sentiment",
+        description: "Analyze message sentiment",
+        properties: {
+        text: {
+            type: "string",
+            description: "Text to analyze"
+        }
+        },
+        required: ["text"],
+        func: analyzeSentiment
+    })
+    ];
+
+    const supervisorAgent = new SupervisorAgent({
+    supervisor: supervisor,
+    team: [techAgent, billingAgent],
+    extraTools: customTools
+    });
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
@@ -204,7 +571,105 @@ Here's a complete example showing how to use the SupervisorAgent in a typical sc
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    // TypeScript implementation coming soon
+        import {
+    MultiAgentOrchestrator,
+    BedrockLLMAgent,
+    SupervisorAgent,
+    DynamoDBChatStorage,
+    AgentTool,
+    AgentTools
+    } from 'multi-agent-orchestrator';
+
+    // Function to analyze sentiment (implementation would go here)
+    async function analyzeSentiment(text: string): Promise<{ sentiment: string; score: number }> {
+    // Implement sentiment analysis logic here
+    return {
+        sentiment: "positive",
+        score: 0.8
+    };
+    }
+
+    async function main() {
+    // Create orchestrator
+    const orchestrator = new MultiAgentOrchestrator();
+
+    // Create supervisor (base agent)
+    const supervisor = new BedrockLLMAgent({
+        name: "Team Lead",
+        description: "Coordinates specialized team members",
+        modelId: "anthropic.claude-3-sonnet-20240229-v1:0"
+    });
+
+    // Create team members
+    const techAgent = new BedrockLLMAgent({
+        name: "Tech Support",
+        description: "Handles technical issues",
+        modelId: "anthropic.claude-3-sonnet-20240229-v1:0"
+    });
+
+    const billingAgent = new BedrockLLMAgent({
+        name: "Billing Expert",
+        description: "Handles billing and payment queries",
+        modelId: "anthropic.claude-3-sonnet-20240229-v1:0"
+    });
+
+    // Create custom tools
+    const customTools = [
+        new AgentTool({
+        name: "analyze_sentiment",
+        description: "Analyze message sentiment",
+        properties: {
+            text: {
+            type: "string",
+            description: "Text to analyze"
+            }
+        },
+        required: ["text"],
+        func: analyzeSentiment
+        })
+    ];
+
+    // Create SupervisorAgent
+    const supervisorAgent = new SupervisorAgent({
+        supervisor: supervisor,
+        team: [techAgent, billingAgent],
+        storage: new DynamoDBChatStorage("conversation-table", "us-east-1"),
+        trace: true,
+        extraTools: new AgentTools(customTools)
+    });
+
+    // Add supervisor agent to orchestrator
+    orchestrator.addAgent(supervisorAgent);
+
+    try {
+        // Process request
+        const response = await orchestrator.routeRequest(
+        "I'm having issues with my bill and the mobile app",
+        "user123",
+        "session456"
+        );
+
+        // Handle the response (streaming or non-streaming)
+        if (response.streaming) {
+        console.log("\n** STREAMING RESPONSE **");
+        console.log(`Agent: ${response.metadata.agentName}`);
+
+        // Handle streaming response
+        for await (const chunk of response.output) {
+            process.stdout.write(chunk);
+        }
+        } else {
+        console.log("\n** RESPONSE **");
+        console.log(`Agent: ${response.metadata.agentName}`);
+        console.log(`Response: ${response.output}`);
+        }
+    } catch (error) {
+        console.error("Error processing request:", error);
+    }
+    }
+
+    // Run the example
+    main().catch(console.error);
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
