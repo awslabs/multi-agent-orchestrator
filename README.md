@@ -6,7 +6,6 @@
   <a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
   <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img alt="npm" src="https://img.shields.io/npm/v/multi-agent-orchestrator.svg?style=flat-square"></a>
   <a href="https://pypi.org/project/multi-agent-orchestrator/"><img alt="PyPI" src="https://img.shields.io/pypi/v/multi-agent-orchestrator.svg?style=flat-square"></a>
-  <a href="https://awslabs.github.io/multi-agent-orchestrator/"><img alt="Documentation" src="https://img.shields.io/badge/docs-book-blue.svg?style=flat-square"></a>
 </p>
 
 <p align="center">
@@ -41,6 +40,15 @@
   <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/✅%20Done-2-purple?style=flat" alt="Done"></a>
   <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/🚀%20Released-0-brightgreen?style=flat" alt="Released"></a>
 </p>
+
+
+<p align="center">
+  <a href="https://awslabs.github.io/multi-agent-orchestrator/" style="display: inline-block; background-color: #0066cc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 15px; transition: background-color 0.3s;">
+    📚 Explore Full Documentation
+  </a>
+</p>
+
+
 
 ## 🔖 Features
 
@@ -391,13 +399,16 @@ Let’s collaborate, learn from each other, and build something incredible toget
 
 ## 🤝 Contributing
 
-We welcome contributions to the Multi-Agent Orchestrator! If you have ideas, improvements, or new features to add, please:
+We welcome contributions! Here's how to get started:
 
-1. Check our [Contributing Guide](CONTRIBUTING.md) for guidelines
-2. Create a new [GitHub Issue](https://github.com/awslabs/multi-agent-orchestrator/issues)
-3. Submit a pull request
+1. 📚 Review our [Contributing Guide](CONTRIBUTING.md)
+2. 💡 Create a [GitHub Issue](https://github.com/awslabs/multi-agent-orchestrator/issues)
+3. 🔨 Submit a pull request
 
-Make sure to follow the existing project structure and include appropriate documentation for new features.
+⚠️ For major changes, please open an issue first to discuss your proposal.
+
+✅ Follow existing project structure and include documentation for new features.
+
 
 ### Thank You for Your Support! 🙏
 
