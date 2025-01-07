@@ -309,21 +309,21 @@ import { BedrockLLMAgent } from 'multi-agent-orchestrator';
 import { weatherToolDescription, weatherToolHandler, WEATHER_PROMPT } from './weatherTool';
 
 const weatherAgent = new BedrockLLMAgent({
-    name: "Weather Agent",
-    description:`Specialized agent for providing comprehensive weather information and forecasts for specific cities worldwide.
-    This agent can deliver current conditions, temperature ranges, precipitation probabilities, wind speeds, humidity levels, UV indexes, and extended forecasts.
-    It can also offer insights on severe weather alerts, air quality indexes, and seasonal climate patterns.
-    The agent is capable of interpreting user queries related to weather, including natural language requests like 'Do I need an umbrella today?' or 'What's the best day for outdoor activities this week?'.
-    It can handle location-specific queries and time-based weather predictions, making it ideal for travel planning, event scheduling, and daily decision-making based on weather conditions.`,
-    streaming: false,
-    inferenceConfig: {
-        temperature: 0.1,
-    },
-    toolConfig: {
-        useToolHandler: weatherToolHandler,
-        tool: weatherToolDescription,
-        toolMaxRecursions: 5
-    }
+  name: "Weather Agent",
+  description:`Specialized agent for providing comprehensive weather information and forecasts for specific cities worldwide.
+  This agent can deliver current conditions, temperature ranges, precipitation probabilities, wind speeds, humidity levels, UV indexes, and extended forecasts.
+  It can also offer insights on severe weather alerts, air quality indexes, and seasonal climate patterns.
+  The agent is capable of interpreting user queries related to weather, including natural language requests like 'Do I need an umbrella today?' or 'What's the best day for outdoor activities this week?'.
+  It can handle location-specific queries and time-based weather predictions, making it ideal for travel planning, event scheduling, and daily decision-making based on weather conditions.`,
+  streaming: false,
+  inferenceConfig: {
+    temperature: 0.1,
+  },
+  toolConfig: {
+    useToolHandler: weatherToolHandler,
+    tool: weatherToolDescription,
+    toolMaxRecursions: 5
+  }
 });
 
 weatherAgent.setSystemPrompt(WEATHER_PROMPT);

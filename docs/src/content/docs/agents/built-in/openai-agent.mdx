@@ -91,10 +91,9 @@ agent = OpenAIAgent(OpenAIAgentOptions(
 import OpenAI from 'openai';
 const customClient = new OpenAI({ apiKey: 'your-openai-api-key' });
 const agent = new OpenAIAgent({
-name: 'OpenAI Assistant',
-description: 'A versatile AI assistant',
-client: customClient
-
+  name: 'OpenAI Assistant',
+  description: 'A versatile AI assistant',
+  client: customClient
 });
 ```
 </TabItem>
@@ -262,10 +261,10 @@ const retriever = new CustomRetriever({
   // Retriever configuration
 });
 const agent = new OpenAIAgent({
-name: 'OpenAI Assistant',
-description: 'An assistant with retriever',
-apiKey: 'your-openai-api-key',
-retriever: retriever
+  name: 'OpenAI Assistant',
+  description: 'An assistant with retriever',
+  apiKey: 'your-openai-api-key',
+  retriever: retriever
 });
 ```
 </TabItem>
@@ -350,12 +349,12 @@ const agent = new OpenAIAgent({
   name: 'Advanced OpenAI Assistant',
   description: 'A fully configured AI assistant powered by OpenAI models',
   apiKey: 'your-openai-api-key',
-  
+
   // Optional fields
   model: 'gpt-4',  // Choose OpenAI model
   streaming: true, // Enable streaming responses
   retriever: customRetriever, // Custom retriever for additional context
-  
+
   // Inference configuration
   inferenceConfig: {
     maxTokens: 500,      // Maximum tokens to generate
@@ -363,13 +362,13 @@ const agent = new OpenAIAgent({
     topP: 0.9,          // Control diversity via nucleus sampling
     stopSequences: ['Human:', 'AI:']  // Sequences that stop generation
   },
-  
+
   // Custom system prompt with variables
   customSystemPrompt: {
     template: `You are an AI assistant specialized in {{DOMAIN}}.
               Your core competencies:
               {{SKILLS}}
-              
+
               Communication style:
               - Maintain a {{TONE}} tone
               - Focus on {{FOCUS}}
@@ -399,12 +398,12 @@ agent = OpenAIAgent(OpenAIAgentOptions(
     name='Advanced OpenAI Assistant',
     description='A fully configured AI assistant powered by OpenAI models',
     api_key='your-openai-api-key',
-    
+
     # Optional fields
     model='gpt-4',         # Choose OpenAI model
     streaming=True,        # Enable streaming responses
     retriever=custom_retriever,  # Custom retriever for additional context
-    
+
     # Inference configuration
     inference_config={
         'maxTokens': 500,     # Maximum tokens to generate
@@ -412,13 +411,13 @@ agent = OpenAIAgent(OpenAIAgentOptions(
         'topP': 0.9,         # Control diversity via nucleus sampling
         'stopSequences': ['Human:', 'AI:']  # Sequences that stop generation
     },
-    
+
     # Custom system prompt with variables
     custom_system_prompt={
         'template': """You are an AI assistant specialized in {{DOMAIN}}.
                       Your core competencies:
                       {{SKILLS}}
-                      
+
                       Communication style:
                       - Maintain a {{TONE}} tone
                       - Focus on {{FOCUS}}

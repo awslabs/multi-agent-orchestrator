@@ -15,59 +15,59 @@ A. Tool Descriptions
 
 ```typescript
 export const mathAgentToolDefinition = [
-    {
-        toolSpec: {
-            name: "perform_math_operation",
-            description: "Perform a mathematical operation. This tool supports basic arithmetic and various mathematical functions.",
-            inputSchema: {
-                json: {
-                    type: "object",
-                    properties: {
-                        operation: {
-                            type: "string",
-                            description: "The mathematical operation to perform. Supported operations include:\n" +
-                                "- Basic arithmetic: 'add', 'subtract', 'multiply', 'divide'\n" +
-                                "- Exponentiation: 'power'\n" +
-                                "- Trigonometric: 'sin', 'cos', 'tan'\n" +
-                                "- Logarithmic and exponential: 'log', 'exp'\n" +
-                                "- Rounding: 'round', 'floor', 'ceil'\n" +
-                                "- Other: 'sqrt', 'abs'",
-                        },
-                        args: {
-                            type: "array",
-                            items: { type: "number" },
-                            description: "The arguments for the operation.",
-                        },
-                    },
-                    required: ["operation", "args"],
-                },
+  {
+    toolSpec: {
+      name: "perform_math_operation",
+      description: "Perform a mathematical operation. This tool supports basic arithmetic and various mathematical functions.",
+      inputSchema: {
+        json: {
+          type: "object",
+          properties: {
+            operation: {
+              type: "string",
+              description: "The mathematical operation to perform. Supported operations include:\n" +
+                "- Basic arithmetic: 'add', 'subtract', 'multiply', 'divide'\n" +
+                "- Exponentiation: 'power'\n" +
+                "- Trigonometric: 'sin', 'cos', 'tan'\n" +
+                "- Logarithmic and exponential: 'log', 'exp'\n" +
+                "- Rounding: 'round', 'floor', 'ceil'\n" +
+                "- Other: 'sqrt', 'abs'",
             },
-        },
-    },
-    {
-        toolSpec: {
-            name: "perform_statistical_calculation",
-            description: "Perform statistical calculations on a set of numbers.",
-            inputSchema: {
-                json: {
-                    type: "object",
-                    properties: {
-                        operation: {
-                            type: "string",
-                            description: "The statistical operation to perform. Supported operations include:\n" +
-                                "'mean', 'median', 'mode', 'variance', 'stddev'",
-                        },
-                        args: {
-                            type: "array",
-                            items: { type: "number" },
-                            description: "The set of numbers to perform the statistical operation on.",
-                        },
-                    },
-                    required: ["operation", "args"],
-                },
+            args: {
+              type: "array",
+              items: { type: "number" },
+              description: "The arguments for the operation.",
             },
+          },
+          required: ["operation", "args"],
         },
+      },
     },
+  },
+  {
+    toolSpec: {
+      name: "perform_statistical_calculation",
+      description: "Perform statistical calculations on a set of numbers.",
+      inputSchema: {
+        json: {
+          type: "object",
+          properties: {
+            operation: {
+              type: "string",
+              description: "The statistical operation to perform. Supported operations include:\n" +
+                "'mean', 'median', 'mode', 'variance', 'stddev'",
+            },
+            args: {
+              type: "array",
+              items: { type: "number" },
+              description: "The set of numbers to perform the statistical operation on.",
+            },
+          },
+          required: ["operation", "args"],
+        },
+      },
+    },
+  },
 ];
 ```
 
@@ -85,30 +85,30 @@ B. Tool Handler
 import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
 
 export async function mathToolHandler(response, conversation: ConversationMessage[]): Promise<ConversationMessage> {
-    const responseContentBlocks = response.content as any[];
-    let toolResults: any = [];
+  const responseContentBlocks = response.content as any[];
+  let toolResults: any = [];
 
-    if (!responseContentBlocks) {
-        throw new Error("No content blocks in response");
+  if (!responseContentBlocks) {
+    throw new Error("No content blocks in response");
+  }
+
+  for (const contentBlock of response.content) {
+    if ("toolUse" in contentBlock) {
+      const toolUseBlock = contentBlock.toolUse;
+      const toolUseName = toolUseBlock.name;
+
+      if (toolUseName === "perform_math_operation") {
+        const result = executeMathOperation(toolUseBlock.input.operation, toolUseBlock.input.args);
+        // Process and add result to toolResults
+      } else if (toolUseName === "perform_statistical_calculation") {
+        const result = calculateStatistics(toolUseBlock.input.operation, toolUseBlock.input.args);
+        // Process and add result to toolResults
+      }
     }
+  }
 
-    for (const contentBlock of response.content) {
-        if ("toolUse" in contentBlock) {
-            const toolUseBlock = contentBlock.toolUse;
-            const toolUseName = toolUseBlock.name;
-
-            if (toolUseName === "perform_math_operation") {
-                const result = executeMathOperation(toolUseBlock.input.operation, toolUseBlock.input.args);
-                // Process and add result to toolResults
-            } else if (toolUseName === "perform_statistical_calculation") {
-                const result = calculateStatistics(toolUseBlock.input.operation, toolUseBlock.input.args);
-                // Process and add result to toolResults
-            }
-        }
-    }
-
-    const message: ConversationMessage = { role: ParticipantRole.USER, content: toolResults };
-    return messages;
+  const message: ConversationMessage = { role: ParticipantRole.USER, content: toolResults };
+  return messages;
 }
 ```
 
@@ -192,43 +192,43 @@ function executeMathOperation(
 }
 
 function calculateStatistics(operation: string, args: number[]): { result: number } | { error: string } {
-try {
+  try {
     switch (operation.toLowerCase()) {
     case 'mean':
-        return { result: args.reduce((sum, num) => sum + num, 0) / args.length };
+      return { result: args.reduce((sum, num) => sum + num, 0) / args.length };
     case 'median': {
-        const sorted = args.slice().sort((a, b) => a - b);
-        const mid = Math.floor(sorted.length / 2);
-        return {
+      const sorted = args.slice().sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      return {
         result: sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2,
-        };
+      };
     }
     case 'mode': {
-        const counts = args.reduce((acc, num) => {
+      const counts = args.reduce((acc, num) => {
         acc[num] = (acc[num] || 0) + 1;
         return acc;
-        }, {} as Record<number, number>);
-        const maxCount = Math.max(...Object.values(counts));
-        const modes = Object.keys(counts).filter(key => counts[Number(key)] === maxCount);
-        return { result: Number(modes[0]) }; // Return first mode if there are multiple
+      }, {} as Record<number, number>);
+      const maxCount = Math.max(...Object.values(counts));
+      const modes = Object.keys(counts).filter(key => counts[Number(key)] === maxCount);
+      return { result: Number(modes[0]) }; // Return first mode if there are multiple
     }
     case 'variance': {
-        const mean = args.reduce((sum, num) => sum + num, 0) / args.length;
-        const squareDiffs = args.map(num => Math.pow(num - mean, 2));
-        return { result: squareDiffs.reduce((sum, square) => sum + square, 0) / args.length };
+      const mean = args.reduce((sum, num) => sum + num, 0) / args.length;
+      const squareDiffs = args.map(num => Math.pow(num - mean, 2));
+      return { result: squareDiffs.reduce((sum, square) => sum + square, 0) / args.length };
     }
     case 'stddev': {
-        const mean = args.reduce((sum, num) => sum + num, 0) / args.length;
-        const squareDiffs = args.map(num => Math.pow(num - mean, 2));
-        const variance = squareDiffs.reduce((sum, square) => sum + square, 0) / args.length;
-        return { result: Math.sqrt(variance) };
+      const mean = args.reduce((sum, num) => sum + num, 0) / args.length;
+      const squareDiffs = args.map(num => Math.pow(num - mean, 2));
+      const variance = squareDiffs.reduce((sum, square) => sum + square, 0) / args.length;
+      return { result: Math.sqrt(variance) };
     }
     default:
-        throw new Error(`Unsupported statistical operation: ${operation}`);
+      throw new Error(`Unsupported statistical operation: ${operation}`);
     }
-} catch (error) {
+  } catch (error) {
     return { error: `Error executing ${operation}: ${(error as Error).message}` };
-}
+  }
 }
 
 ```
@@ -258,17 +258,17 @@ Only respond to mathematical queries. For non-math questions, politely redirect 
 `;
 
 const mathAgent = new BedrockLLMAgent({
-    name: "Math Agent",
-    description: "Specialized agent for performing mathematical operations and statistical calculations.",
-    streaming: false,
-    inferenceConfig: {
-        temperature: 0.1,
-    },
-    toolConfig: {
-        useToolHandler: mathToolHandler,
-        tool: mathAgentToolDefinition,
-        toolMaxRecursions: 5
-    }
+  name: "Math Agent",
+  description: "Specialized agent for performing mathematical operations and statistical calculations.",
+  streaming: false,
+  inferenceConfig: {
+    temperature: 0.1,
+  },
+  toolConfig: {
+    useToolHandler: mathToolHandler,
+    tool: mathAgentToolDefinition,
+    toolMaxRecursions: 5
+  }
 });
 
 mathAgent.setSystemPrompt(MATH_PROMPT);
