@@ -28,9 +28,11 @@ export class AgentTool {
     enumValues?: Record<string, any[]>;
   }) {
     this.name = options.name;
-    this.description = options.description || this.extractFunctionDescription(options.func);
+    this.description =
+      options.description || this.extractFunctionDescription(options.func);
     this.enumValues = options.enumValues || {};
-    this.properties = options.properties || this.extractProperties(options.func);
+    this.properties =
+      options.properties || this.extractProperties(options.func);
     this.required = options.required || Object.keys(this.properties);
     this.func = this.wrapFunction(options.func);
 

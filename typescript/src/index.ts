@@ -23,7 +23,7 @@ export { AmazonKnowledgeBasesRetriever, AmazonKnowledgeBasesRetrieverOptions } f
 export { ChatStorage } from './storage/chatStorage';
 export { InMemoryChatStorage } from './storage/memoryChatStorage';
 export { DynamoDbChatStorage } from './storage/dynamoDbChatStorage';
-export { SqlChatStorage } from './storage/sqlChatStorage';
+//export { SqlChatStorage } from './storage/sqlChatStorage';
 
 export { Logger } from './utils/logger';
 

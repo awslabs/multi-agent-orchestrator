@@ -1,13 +1,14 @@
-import { Agent, AgentOptions } from './agent';
-import { BedrockLLMAgent } from './bedrockLLMAgent';
-import { AnthropicAgent } from './anthropicAgent';
-import { ConversationMessage, ParticipantRole } from '../types';
-import { Logger } from '../utils/logger';
-import { AgentTool, AgentTools } from '../utils/tool';
-import { InMemoryChatStorage } from '../storage/memoryChatStorage';
-import { ChatStorage } from '../storage/chatStorage';
+import { Agent, AgentOptions } from "./agent";
+import { BedrockLLMAgent } from "./bedrockLLMAgent";
+import { AnthropicAgent } from "./anthropicAgent";
+import { ConversationMessage, ParticipantRole } from "../types";
+import { Logger } from "../utils/logger";
+import { AgentTool, AgentTools } from "../utils/tool";
+import { InMemoryChatStorage } from "../storage/memoryChatStorage";
+import { ChatStorage } from "../storage/chatStorage";
 
-export interface SupervisorAgentOptions extends Omit<AgentOptions, 'name' | 'description'> {
+export interface SupervisorAgentOptions
+  extends Omit<AgentOptions, "name" | "description"> {
   supervisor: BedrockLLMAgent | AnthropicAgent;
   team: Agent[];
   storage?: ChatStorage;
@@ -18,38 +19,53 @@ export interface SupervisorAgentOptions extends Omit<AgentOptions, 'name' | 'des
 export class SupervisorAgent extends Agent {
   private static readonly DEFAULT_TOOL_MAX_RECURSIONS = 40;
 
-  private supervisor: BedrockLLMAgent;// | AnthropicAgent;
+  private supervisor: BedrockLLMAgent | AnthropicAgent;
   private team: Agent[];
   private storage: ChatStorage;
   private trace: boolean;
-  private userId: string = '';
-  private sessionId: string = '';
+  private userId: string = "";
+  private sessionId: string = "";
   private supervisorTools: AgentTools;
   private promptTemplate: string;
 
   constructor(options: SupervisorAgentOptions) {
-    if (!(options.supervisor instanceof BedrockLLMAgent)) {
-      throw new Error('Supervisor must be BedrockLLMAgent or AnthropicAgent');
+    if (
+      !(
+        options.supervisor instanceof BedrockLLMAgent ||
+        options.supervisor instanceof AnthropicAgent
+      )
+    ) {
+      throw new Error("Supervisor must be BedrockLLMAgent or AnthropicAgent");
     }
 
-    if (options.extraTools && !(options.extraTools instanceof AgentTools || Array.isArray(options.extraTools))) {
-      throw new Error('extraTools must be Tools object or array of Tool objects');
+    if (
+      options.extraTools &&
+      !(
+        options.extraTools instanceof AgentTools ||
+        Array.isArray(options.extraTools)
+      )
+    ) {
+      throw new Error(
+        "extraTools must be Tools object or array of Tool objects"
+      );
     }
 
     if (options.supervisor.toolConfig) {
-      throw new Error('Supervisor tools are managed by SupervisorAgent. Use extraTools for additional tools.');
+      throw new Error(
+        "Supervisor tools are managed by SupervisorAgent. Use extraTools for additional tools."
+      );
     }
 
     super({
       ...options,
       name: options.supervisor.name,
-      description: options.supervisor.description
+      description: options.supervisor.description,
     });
 
     this.supervisor = options.supervisor;
     this.team = options.team;
     this.storage = options.storage || new InMemoryChatStorage();
-    
+
     this.trace = options.trace || false;
 
     this.configureSupervisorTools(options.extraTools);
@@ -57,58 +73,58 @@ export class SupervisorAgent extends Agent {
   }
 
   private configureSupervisorTools(extraTools?: AgentTools): void {
-    
     const sendMessagesTool = new AgentTool({
-      name: 'send_messages',
-      description: 'Send messages to multiple agents in parallel.',
+      name: "send_messages",
+      description: "Send messages to multiple agents in parallel.",
       properties: {
         messages: {
-          type: 'array',
+          type: "array",
           items: {
-            type: 'object',
+            type: "object",
             properties: {
               recipient: {
-                type: 'string',
-                description: 'Agent name to send message to.'
+                type: "string",
+                description: "Agent name to send message to.",
               },
               content: {
-                type: 'string',
-                description: 'Message content.'
-              }
+                type: "string",
+                description: "Message content.",
+              },
             },
-            required: ['recipient', 'content']
+            required: ["recipient", "content"],
           },
-          description: 'Array of messages for different agents.',
-          minItems: 1
-        }
+          description: "Array of messages for different agents.",
+          minItems: 1,
+        },
       },
-      required: ['messages'],
-      func: this.sendMessages.bind(this)
+      required: ["messages"],
+      func: this.sendMessages.bind(this),
     });
 
     this.supervisorTools = new AgentTools([sendMessagesTool]);
-    
+
     if (extraTools) {
-      const additionalTools = extraTools instanceof AgentTools ? extraTools.tools : extraTools;
+      const additionalTools =
+        extraTools instanceof AgentTools ? extraTools.tools : extraTools;
       this.supervisorTools.tools.push(...additionalTools);
     }
 
-    console.log()
+    console.log();
 
     this.supervisor.toolConfig = {
       tool: this.supervisorTools,
-      toolMaxRecursions: SupervisorAgent.DEFAULT_TOOL_MAX_RECURSIONS     
+      toolMaxRecursions: SupervisorAgent.DEFAULT_TOOL_MAX_RECURSIONS,
     };
   }
 
   private configurePrompt(): void {
-    const toolsStr = this.supervisorTools.tools.map(tool => 
-      `${tool.name}:${tool.description}`
-    ).join('\n');
+    const toolsStr = this.supervisorTools.tools
+      .map((tool) => `${tool.name}:${tool.description}`)
+      .join("\n");
 
-    const agentListStr = this.team.map(agent => 
-      `${agent.name}: ${agent.description}`
-    ).join('\n');
+    const agentListStr = this.team
+      .map((agent) => `${agent.name}: ${agent.description}`)
+      .join("\n");
 
     this.promptTemplate = `
 You are a ${this.name}.
@@ -154,8 +170,10 @@ When communicating with other agents, including the User, please follow these gu
     this.supervisor.setSystemPrompt(this.promptTemplate);
   }
 
-  private async accumulateStreamResponse(stream: AsyncIterable<string>): Promise<string> {
-    let accumulatedText = '';
+  private async accumulateStreamResponse(
+    stream: AsyncIterable<string>
+  ): Promise<string> {
+    let accumulatedText = "";
     for await (const chunk of stream) {
       accumulatedText += chunk;
     }
@@ -171,11 +189,14 @@ When communicating with other agents, including the User, please follow these gu
   ): Promise<string> {
     try {
       if (this.trace) {
-        Logger.logger.info(`\x1b[32m\n===>>>>> Supervisor sending ${agent.name}: ${content}\x1b[0m`);
+        Logger.logger.info(
+          `\x1b[32m\n===>>>>> Supervisor sending ${agent.name}: ${content}\x1b[0m`
+        );
       }
 
-      const agentChatHistory = agent.saveChat ? 
-        await this.storage.fetchChat(userId, sessionId, agent.id) : [];
+      const agentChatHistory = agent.saveChat
+        ? await this.storage.fetchChat(userId, sessionId, agent.id)
+        : [];
 
       const response = await agent.processRequest(
         content,
@@ -234,31 +255,38 @@ When communicating with other agents, including the User, please follow these gu
         );
       }
 
-
       return `${agent.name}: ${responseText}`;
-
     } catch (error) {
-      Logger.logger.error('Error in sendMessage:', error);
+      Logger.logger.error("Error in sendMessage:", error);
       throw error;
     }
   }
 
-  private async sendMessages(messages: Array<{ recipient: string; content: string }>): Promise<string> {
+  private async sendMessages(
+    messages: Array<{ recipient: string; content: string }>
+  ): Promise<string> {
     try {
       const tasks = messages
-        .map(message => {
-          const agent = this.team.find(a => a.name === message.recipient);
-          return agent ? this.sendMessage(agent, message.content, this.userId, this.sessionId, {}) : null;
+        .map((message) => {
+          const agent = this.team.find((a) => a.name === message.recipient);
+          return agent
+            ? this.sendMessage(
+                agent,
+                message.content,
+                this.userId,
+                this.sessionId,
+                {}
+              )
+            : null;
         })
         .filter((task): task is Promise<string> => task !== null);
 
-      if (!tasks.length) return '';
+      if (!tasks.length) return "";
 
       const responses = await Promise.all(tasks);
-      return responses.join('');
-
+      return responses.join("");
     } catch (error) {
-      Logger.logger.error('Error in sendMessages:', error);
+      Logger.logger.error("Error in sendMessages:", error);
       throw error;
     }
   }
@@ -269,17 +297,17 @@ When communicating with other agents, including the User, please follow these gu
         if (i % 2 === 0 && i + 1 < agentsHistory.length) {
           const userMsg = msg;
           const asstMsg = agentsHistory[i + 1];
-          const asstText = asstMsg.content?.[0]?.text || '';
+          const asstText = asstMsg.content?.[0]?.text || "";
           if (!asstText.includes(this.id)) {
             acc.push(
-              `${userMsg.role}:${userMsg.content?.[0]?.text || ''}\n` +
-              `${asstMsg.role}:${asstText}\n`
+              `${userMsg.role}:${userMsg.content?.[0]?.text || ""}\n` +
+                `${asstMsg.role}:${asstText}\n`
             );
           }
         }
         return acc;
       }, [])
-      .join('');
+      .join("");
   }
 
   async processRequest(
@@ -297,7 +325,7 @@ When communicating with other agents, including the User, please follow these gu
       const agentsMemory = this.formatAgentsMemory(agentsHistory);
 
       this.supervisor.setSystemPrompt(
-        this.promptTemplate.replace('{{AGENTS_MEMORY}}', agentsMemory)
+        this.promptTemplate.replace("{{AGENTS_MEMORY}}", agentsMemory)
       );
 
       return await this.supervisor.processRequest(
@@ -307,9 +335,8 @@ When communicating with other agents, including the User, please follow these gu
         chatHistory,
         additionalParams
       );
-
     } catch (error) {
-      Logger.logger.error('Error in processRequest:', error);
+      Logger.logger.error("Error in processRequest:", error);
       throw error;
     }
   }

@@ -34,7 +34,7 @@ export class SqlChatStorage extends ChatStorage {
 
       // Create index for faster queries
       await this.client.execute(/*sql*/`
-        CREATE INDEX IF NOT EXISTS idx_conversations_lookup 
+        CREATE INDEX IF NOT EXISTS idx_conversations_lookup
         ON conversations(user_id, session_id, agent_id);
       `);
     } catch (error) {
