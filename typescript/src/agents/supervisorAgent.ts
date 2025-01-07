@@ -3,7 +3,7 @@ import { BedrockLLMAgent } from './bedrockLLMAgent';
 import { AnthropicAgent } from './anthropicAgent';
 import { ConversationMessage, ParticipantRole } from '../types';
 import { Logger } from '../utils/logger';
-import { Tool, Tools } from '../utils/tool';
+import { AgentTool, AgentTools } from '../utils/tool';
 import { InMemoryChatStorage } from '../storage/memoryChatStorage';
 import { ChatStorage } from '../storage/chatStorage';
 
@@ -12,7 +12,7 @@ export interface SupervisorAgentOptions extends Omit<AgentOptions, 'name' | 'des
   team: Agent[];
   storage?: ChatStorage;
   trace?: boolean;
-  extraTools?: Tools;
+  extraTools?: AgentTools;
 }
 
 export class SupervisorAgent extends Agent {
@@ -24,7 +24,7 @@ export class SupervisorAgent extends Agent {
   private trace: boolean;
   private userId: string = '';
   private sessionId: string = '';
-  private supervisorTools: Tools;
+  private supervisorTools: AgentTools;
   private promptTemplate: string;
 
   constructor(options: SupervisorAgentOptions) {
@@ -32,7 +32,7 @@ export class SupervisorAgent extends Agent {
       throw new Error('Supervisor must be BedrockLLMAgent or AnthropicAgent');
     }
 
-    if (options.extraTools && !(options.extraTools instanceof Tools || Array.isArray(options.extraTools))) {
+    if (options.extraTools && !(options.extraTools instanceof AgentTools || Array.isArray(options.extraTools))) {
       throw new Error('extraTools must be Tools object or array of Tool objects');
     }
 
@@ -56,9 +56,9 @@ export class SupervisorAgent extends Agent {
     this.configurePrompt();
   }
 
-  private configureSupervisorTools(extraTools?: Tools): void {
+  private configureSupervisorTools(extraTools?: AgentTools): void {
     
-    const sendMessagesTool = new Tool({
+    const sendMessagesTool = new AgentTool({
       name: 'send_messages',
       description: 'Send messages to multiple agents in parallel.',
       properties: {
@@ -86,10 +86,10 @@ export class SupervisorAgent extends Agent {
       func: this.sendMessages.bind(this)
     });
 
-    this.supervisorTools = new Tools([sendMessagesTool]);
+    this.supervisorTools = new AgentTools([sendMessagesTool]);
     
     if (extraTools) {
-      const additionalTools = extraTools instanceof Tools ? extraTools.tools : extraTools;
+      const additionalTools = extraTools instanceof AgentTools ? extraTools.tools : extraTools;
       this.supervisorTools.tools.push(...additionalTools);
     }
 

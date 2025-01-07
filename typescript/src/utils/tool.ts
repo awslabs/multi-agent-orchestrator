@@ -1,11 +1,17 @@
-export class ToolResult {
+/**
+ * Represents the result of a tool execution
+ */
+export class AgentToolResult {
   constructor(
     public toolUseId: string,
     public content: any
   ) {}
 }
 
-export class Tool {
+/**
+ * Represents a single tool that can be used by an agent
+ */
+export class AgentTool {
   readonly name: string;
   readonly description: string;
   readonly properties: Record<string, any>;
@@ -22,11 +28,9 @@ export class Tool {
     enumValues?: Record<string, any[]>;
   }) {
     this.name = options.name;
-    this.description =
-      options.description || this.extractFunctionDescription(options.func);
+    this.description = options.description || this.extractFunctionDescription(options.func);
     this.enumValues = options.enumValues || {};
-    this.properties =
-      options.properties || this.extractProperties(options.func);
+    this.properties = options.properties || this.extractProperties(options.func);
     this.required = options.required || Object.keys(this.properties);
     this.func = this.wrapFunction(options.func);
 
@@ -44,16 +48,13 @@ export class Tool {
   private extractProperties(func: Function): Record<string, any> {
     const properties: Record<string, any> = {};
     const params = this.getParamNames(func);
-
     params.forEach((param) => {
       if (param === "this") return;
-
       properties[param] = {
         type: "string",
         description: `The ${param} parameter`,
       };
     });
-
     return properties;
   }
 
@@ -77,10 +78,13 @@ export class Tool {
   }
 }
 
-export class Tools {
-  public tools: Tool[];
+/**
+ * Manages a collection of tools that can be used by an agent
+ */
+export class AgentTools {
+  public tools: AgentTool[];
 
-  constructor(tools: Tool[]) {
+  constructor(tools: AgentTool[]) {
     this.tools = tools;
   }
 
@@ -90,11 +94,12 @@ export class Tools {
     getToolName: (toolUseBlock: any) => string,
     getToolId: (toolUseBlock: any) => string,
     getInputData: (toolUseBlock: any) => any
-  ): Promise<ToolResult[]> {
+  ): Promise<AgentToolResult[]> {
     if (!response.content) {
       throw new Error("No content blocks in response");
     }
-    const toolResults: ToolResult[] = [];
+
+    const toolResults: AgentToolResult[] = [];
     const contentBlocks = response.content;
 
     for (const block of contentBlocks) {
@@ -105,18 +110,17 @@ export class Tools {
       const toolId = getToolId(toolUseBlock);
       const inputData = getInputData(toolUseBlock);
 
-      
       const result = await this.processTool(toolName, inputData);
-      const toolResult = new ToolResult(toolId, result);
-
+      const toolResult = new AgentToolResult(toolId, result);
       toolResults.push(toolResult);
     }
+
     return toolResults;
   }
 
   private async processTool(toolName: string, inputData: any): Promise<any> {
     try {
-      let tool: Tool | undefined;
+      let tool: AgentTool | undefined;
       for (const t of this.tools) {
         if (t.name === toolName) {
           tool = t;
@@ -131,6 +135,7 @@ export class Tools {
       if ("messages" in inputData) {
         return await tool.func(inputData.messages);
       }
+
       return await tool.func(inputData);
     } catch (error) {
       return `Error processing tool '${toolName}': ${error.message}`;

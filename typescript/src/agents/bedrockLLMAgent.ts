@@ -2,6 +2,7 @@ import {
   BedrockRuntimeClient,
   ConverseCommand,
   ConverseStreamCommand,
+  Tool
 } from "@aws-sdk/client-bedrock-runtime";
 import { Agent, AgentOptions } from "./agent";
 import {
@@ -12,7 +13,7 @@ import {
 } from "../types";
 import { Retriever } from "../retrievers/retriever";
 import { Logger } from "../utils/logger"
-import { ToolResult, Tools } from "../utils/tool";
+import { AgentToolResult, AgentTools } from "../utils/tool";
 
 export interface BedrockLLMAgentOptions extends AgentOptions {
   streaming?: boolean;
@@ -28,7 +29,7 @@ export interface BedrockLLMAgentOptions extends AgentOptions {
   };
   retriever?: Retriever;
   toolConfig?: {
-    tool: Tools;
+    tool: AgentTools | Tool[];
     useToolHandler: (response: any, conversation: ConversationMessage[]) => any ;
     toolMaxRecursions?: number;
   };
@@ -36,6 +37,13 @@ export interface BedrockLLMAgentOptions extends AgentOptions {
     template: string, variables?: TemplateVariables
   };
   client?: BedrockRuntimeClient;
+}
+
+/**
+ * Type guard to check if the tool is an AgentTools instance
+ */
+export function isAgentTools(tool: AgentTools | Tool[]): tool is AgentTools {
+  return tool instanceof AgentTools;
 }
 
 /**
@@ -70,7 +78,7 @@ export class BedrockLLMAgent extends Agent {
   protected retriever?: Retriever;
 
   public toolConfig?: {
-    tool: Tools;
+    tool: AgentTools | Tool[];
     useToolHandler?: (response: any, conversation: ConversationMessage[]) => any;
     toolMaxRecursions?: number;
   };
@@ -129,6 +137,16 @@ export class BedrockLLMAgent extends Agent {
 
   }
 
+  private isConversationMessage(result: any): result is ConversationMessage {
+    return (
+      result &&
+      typeof result === 'object' &&
+      'role' in result &&
+      'content' in result &&
+      Array.isArray(result.content)
+    );
+  }
+
   /**
    * Formats the tool results into a conversation message format.
    * This method converts an array of tool results into a format expected by the system.
@@ -136,7 +154,12 @@ export class BedrockLLMAgent extends Agent {
    * @param toolResults - An array of ToolResult objects that need to be formatted.
    * @returns A ConversationMessage object containing the formatted tool results.
    */
-  private formatToolResults(toolResults: ToolResult[]): ConversationMessage {  
+  private formatToolResults(toolResults: AgentToolResult[]): ConversationMessage {  
+   
+    if (this.isConversationMessage(toolResults)) {
+      return toolResults as ConversationMessage;
+    }
+
     return {
       role: ParticipantRole.USER,
       content: toolResults.map((item: any) => ({
@@ -145,7 +168,7 @@ export class BedrockLLMAgent extends Agent {
           content: [{ text: item.content }]
         }
       }))
-    }as ConversationMessage;
+    } as ConversationMessage;
   }
   
   /**
@@ -155,7 +178,7 @@ export class BedrockLLMAgent extends Agent {
    * @param tools - The Tools object containing an array of tools to be formatted.
    * @returns An array of formatted tool specifications.
    */
-  private formatTools(tools: Tools): any[] {
+  private formatTools(tools: AgentTools): any[] {
     return tools.tools.map(tool => ({
       toolSpec: {
         name: tool.name,
@@ -276,7 +299,7 @@ export class BedrockLLMAgent extends Agent {
         }),
         ...(this.toolConfig && { 
           toolConfig: {
-            tools: this.toolConfig.tool instanceof Tools 
+            tools: this.toolConfig.tool instanceof AgentTools 
               ? this.formatTools(this.toolConfig.tool)
               : this.toolConfig.tool
           }
@@ -296,16 +319,14 @@ export class BedrockLLMAgent extends Agent {
 
             // Append the model's response to the ongoing conversation
             conversation.push(bedrockResponse);
-
             // process model response
-            if (
-              bedrockResponse?.content?.some((content) => "toolUse" in content)
-            ) {
+            if (bedrockResponse?.content?.some((content) => "toolUse" in content)) {
+
               // forward everything to the tool use handler
               const tools = this.toolConfig.tool;
-
               const toolHandler = this.toolConfig.useToolHandler ?? 
-                (async (response) => {
+              (async (response, conversationHistory) => {
+                if (isAgentTools(tools)) {
                   return tools.toolHandler(
                     response,
                     this.getToolUseBlock.bind(this),
@@ -313,7 +334,11 @@ export class BedrockLLMAgent extends Agent {
                     this.getToolId.bind(this),
                     this.getInputData.bind(this)
                   );
-                });
+                }
+                // Only use legacy handler when it's not AgentTools
+                console.log("LEGACY")
+                return this.toolConfig.useToolHandler(response, conversationHistory);
+              });
 
               const toolResponse = await toolHandler(
                 bedrockResponse,
@@ -379,7 +404,6 @@ export class BedrockLLMAgent extends Agent {
                   } else if (chunk.contentBlockDelta?.delta?.toolUse){
                       inputString += chunk.contentBlockDelta.delta.toolUse.input
                   } else if (chunk.messageStop?.stopReason === 'tool_use'){
-                    console.log("*************** CALL TOOL *****************")
                       toolBlock.input = JSON.parse(inputString);
                       const message = {role:ParticipantRole.ASSISTANT, content:[{'toolUse':toolBlock}]}
                       input.messages.push(message);
