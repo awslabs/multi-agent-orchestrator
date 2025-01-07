@@ -9,6 +9,7 @@ export { Agent, AgentOptions } from './agents/agent';
 export { Classifier, ClassifierResult } from './classifiers/classifier';
 export { ChainAgent, ChainAgentOptions } from './agents/chainAgent';
 export {BedrockFlowsAgent, BedrockFlowsAgentOptions} from './agents/bedrockFlowsAgent';
+export { SupervisorAgent, SupervisorAgentOptions } from './agents/supervisorAgent';
 
 export { AgentResponse } from './agents/agent';
 
