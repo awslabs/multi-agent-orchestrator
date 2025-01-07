@@ -47,10 +47,11 @@ export default defineConfig({
 						items: [
 						  { label: 'Bedrock Classifier', link: '/classifiers/built-in/bedrock-classifier'},
 						  { label: 'Anthropic Classifier', link: '/classifiers/built-in/anthropic-classifier' },
+						  { label: 'OpenAI Classifier', link: '/classifiers/built-in/openai-classifier' },
 						]
 					  },
 					  { label: 'Custom Classifier', link: '/classifiers/custom-classifier' },
-					  
+
 					]
 				},
 				{
@@ -68,11 +69,14 @@ export default defineConfig({
 						{ label: 'Anthropic Agent', link: '/agents/built-in/anthropic-agent'},
 						{ label: 'Chain Agent', link: '/agents/built-in/chain-agent' },
 						{ label: 'Comprehend Filter Agent', link: '/agents/built-in/comprehend-filter-agent' },
-						{ label: 'Amazon Bedrock Translator Agent', link: '/agents/built-in/bedrock-translator-agent' }
+						{ label: 'Amazon Bedrock Translator Agent', link: '/agents/built-in/bedrock-translator-agent' },
+						{ label: 'Amazon Bedrock Inline Agent', link: '/agents/built-in/bedrock-inline-agent' },
+						{ label: 'Bedrock Flows Agent', link: '/agents/built-in/bedrock-flows-agent' },
 					  ]
 					},
 					{ label: 'Custom Agents', link: '/agents/custom-agents' },
-					
+					{ label: 'Tools for Agents', link: '/agents/tools' },
+
 				  ]
 				},
 				{
@@ -84,6 +88,7 @@ export default defineConfig({
 						items: [
 							{ label: 'In-Memory', link: '/storage/in-memory' },
 							{ label: 'DynamoDB', link: '/storage/dynamodb' },
+							{ label: 'SQL Storage', link: '/storage/sql' },
 						]
 					},
 					{ label: 'Custom Storage', link: '/storage/custom' }
@@ -105,13 +110,6 @@ export default defineConfig({
 				{
 					label: 'Cookbook',
 					items: [
-					  { 
-						label: 'Getting Started',
-						items: [
-						  { label: 'Overview', link: '/cookbook/overview' },
-						  { label: 'Local Development', link: '/cookbook/getting-started/local-development' }
-						]
-					  },
 					  {
 						label: 'Examples',
 						items: [

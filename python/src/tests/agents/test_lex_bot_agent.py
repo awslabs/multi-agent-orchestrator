@@ -25,13 +25,13 @@ def mock_lex_client():
 def lex_bot_agent(lex_bot_options, mock_lex_client):
     return LexBotAgent(lex_bot_options)
 
-def test_lex_bot_agent_initialization(lex_bot_options):
+def test_lex_bot_agent_initialization(lex_bot_options, lex_bot_agent):
     agent = LexBotAgent(lex_bot_options)
     assert agent.bot_id == lex_bot_options.bot_id
     assert agent.bot_alias_id == lex_bot_options.bot_alias_id
     assert agent.locale_id == lex_bot_options.locale_id
 
-def test_lex_bot_agent_initialization_missing_params():
+def test_lex_bot_agent_initialization_missing_params(lex_bot_agent):
     with pytest.raises(ValueError):
         LexBotAgent(
             LexBotAgentOptions(

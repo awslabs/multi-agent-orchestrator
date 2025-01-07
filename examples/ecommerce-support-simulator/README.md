@@ -45,39 +45,55 @@ Both interfaces demonstrate:
 
 ## 🏗️ System Architecture
 
-### Agent Architecture
 
-![Agents](./img/ai_e-commerce_support_system.png)
+![E-commerce Email Simulator System](./img/ai_e-commerce_support_system.jpg)
 
 The system employs multiple specialized AI agents, each designed for specific tasks:
 
 #### 1. Order Management Agent
-- **Model**: Anthropic Claude 3 Sonnet
-- **Purpose**: Handles all order-related inquiries
-- **Custom Tools**:
-  - `orderlookup`: Retrieves detailed order information
-  - `shipmenttracker`: Provides real-time shipping status
-  - `returnprocessor`: Initiates and manages return requests
-- **Key Features**:
-  - Accesses order database
-  - Tracks shipments in real-time
-  - Processes return requests
-  - Handles refund inquiries
+- **Implementation**: `BedrockLLMAgent`
+- **Model**: Anthropic Claude 3 Sonnet (`anthropic.claude-3-sonnet-20240229-v1:0`)
+- **Purpose**: Handles all order-related inquiries and management tasks
+- **Tools**:
+  - `orderlookup`: 
+    - Retrieves order details from database
+    - Input: `orderId` (string)
+    - Returns: Complete order information including status, items, and pricing
+  - `shipmenttracker`: 
+    - Provides real-time shipping status updates
+    - Input: `orderId` (string)
+    - Returns: Current shipment status, location, and estimated delivery
+  - `returnprocessor`: 
+    - Manages return request workflows
+    - Input: `orderId` (string)
+    - Returns: Return authorization and instructions
+
 
 #### 2. Product Information Agent
-- **Model**: Anthropic Claude 3 Haiku
-- **Purpose**: Provides detailed product information and specifications
+- **Implementation**: `BedrockLLMAgent`
+- **Model**: Anthropic Claude 3 Haiku (`anthropic.claude-3-haiku-20240307-v1:0`)
+- **Purpose**: Provides comprehensive product information and specifications
+- **Integration**: 
+  - Connected to `AmazonKnowledgeBasesRetriever` for product data
+  - Knowledge Base ID configuration required
 - **Key Features**:
-  - Integrates with product knowledge base
-  - Provides availability information
-  - Handles specification inquiries
+  - Real-time product database access
+  - Specification lookups
+  - Availability checking
+  - Compatibility information
 
-#### 3. Human Agent (Custom Implementation)
-- **Type**: Custom agent implementation
-- **Purpose**: Handles complex cases and verifies AI responses
-- **Key Features**:
-  - Handles complex customer complaints
-  - Provides human oversight for critical decisions
+
+#### 3. Human Agent
+- **Implementation**: Custom `HumanAgent` class extending base `Agent`
+- **Purpose**: Handles complex cases requiring human intervention
+- **Integration**:
+  - AWS SQS integration for message queuing
+  - Requires queue URL configuration
+- **Features**:
+  - Asynchronous message handling
+  - Bi-directional communication support
+  - Customer and support message routing
+
 
 ### AWS Infrastructure
 

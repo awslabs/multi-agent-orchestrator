@@ -58,10 +58,6 @@ This simulator demonstrates the seamless integration of AI agents and human supp
 - Support Interface: The support side of the interface allows human agents to see which messages require their attention and respond accordingly.
 - Handoff Visibility: Users can observe when a query is handled by AI and when it's transferred to a human agent.
 
-## Getting Started
-
-[TODO]
-
 This simulator serves as a practical example of how AI and human support can be integrated effectively in a customer service environment. It demonstrates the potential for enhancing efficiency while maintaining the ability to provide personalized, human touch when necessary.# AI-Powered E-commerce Support Simulator
 
 A demonstration of how AI agents and human support can work together in an e-commerce customer service environment. This project showcases intelligent query routing, multi-agent collaboration, and seamless human integration for complex support scenarios.
@@ -75,11 +71,11 @@ A demonstration of how AI agents and human support can work together in an e-com
 - Production-ready AWS architecture
 - Mock data for realistic scenarios
 
-## 🏗️ System Architecture
+## 🏗️ Architecture
 
 ### Agent Architecture
 
-![Agents](/multi-agent-orchestrator/ai_e-commerce_support_system.png)
+![Agents](/multi-agent-orchestrator/ai_e-commerce_support_system.jpg)
 
 The system employs three specialized agents:
 

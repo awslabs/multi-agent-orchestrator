@@ -1,0 +1,173 @@
+---
+title: OpenAI Classifier
+description: How to configure the OpenAI classifier
+---
+
+The OpenAI Classifier is a built-in classifier for the Multi-Agent Orchestrator that leverages OpenAI's language models for intent classification. It provides robust classification capabilities using OpenAI's state-of-the-art models like GPT-4o.
+
+The OpenAI Classifier extends the abstract `Classifier` class and uses the OpenAI API client to process requests and classify user intents.
+
+## Features
+
+- Utilizes OpenAI's advanced models (e.g., GPT-4o) for intent classification
+- Configurable model selection and inference parameters
+- Supports custom system prompts and variables
+- Handles conversation history for context-aware classification
+
+## Basic Usage
+
+### Python Package
+
+If you haven't already installed the OpenAI-related dependencies, make sure to install them:
+
+```bash
+pip install "multi-agent-orchestrator[openai]"
+```
+
+To use the OpenAIClassifier, you need to create an instance with your OpenAI API key and pass it to the Multi-Agent Orchestrator:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { OpenAIClassifier } from "multi-agent-orchestrator";
+    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+
+    const openaiClassifier = new OpenAIClassifier({
+      apiKey: 'your-openai-api-key'
+    });
+
+    const orchestrator = new MultiAgentOrchestrator({ classifier: openaiClassifier });
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.classifiers import OpenAIClassifier, OpenAIClassifierOptions
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    openai_classifier = OpenAIClassifier(OpenAIClassifierOptions(
+        api_key='your-openai-api-key'
+    ))
+
+    orchestrator = MultiAgentOrchestrator(classifier=openai_classifier)
+    ```
+  </TabItem>
+</Tabs>
+
+## Custom Configuration
+
+You can customize the OpenAIClassifier by providing additional options:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const customOpenAIClassifier = new OpenAIClassifier({
+      apiKey: 'your-openai-api-key',
+      modelId: 'gpt-4o',
+      inferenceConfig: {
+        maxTokens: 500,
+        temperature: 0.7,
+        topP: 0.9,
+        stopSequences: ['']
+      }
+    });
+
+    const orchestrator = new MultiAgentOrchestrator({ classifier: customOpenAIClassifier });
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.classifiers import OpenAIClassifier, OpenAIClassifierOptions
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    custom_openai_classifier = OpenAIClassifier(OpenAIClassifierOptions(
+        api_key='your-openai-api-key',
+        model_id='gpt-4o',
+        inference_config={
+            'max_tokens': 500,
+            'temperature': 0.7,
+            'top_p': 0.9,
+            'stop_sequences': ['']
+        }
+    ))
+
+    orchestrator = MultiAgentOrchestrator(classifier=custom_openai_classifier)
+    ```
+  </TabItem>
+</Tabs>
+
+The OpenAIClassifier accepts the following configuration options:
+
+- `api_key` (required): Your OpenAI API key.
+- `model_id` (optional): The ID of the OpenAI model to use. Defaults to GPT-4 Turbo.
+- `inference_config` (optional): A dictionary containing inference configuration parameters:
+  - `max_tokens` (optional): The maximum number of tokens to generate. Defaults to 1000 if not specified.
+  - `temperature` (optional): Controls randomness in output generation.
+  - `top_p` (optional): Controls diversity of output generation.
+  - `stop_sequences` (optional): A list of sequences that, when generated, will stop the generation process.
+
+## Customizing the System Prompt
+
+You can customize the system prompt used by the OpenAIClassifier:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    orchestrator.classifier.setSystemPrompt(
+      `
+      Custom prompt template with placeholders:
+      {{AGENT_DESCRIPTIONS}}
+      {{HISTORY}}
+      {{CUSTOM_PLACEHOLDER}}
+      `,
+      {
+        CUSTOM_PLACEHOLDER: "Value for custom placeholder"
+      }
+    );
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    orchestrator.classifier.set_system_prompt(
+        """
+        Custom prompt template with placeholders:
+        {{AGENT_DESCRIPTIONS}}
+        {{HISTORY}}
+        {{CUSTOM_PLACEHOLDER}}
+        """,
+        {
+            "CUSTOM_PLACEHOLDER": "Value for custom placeholder"
+        }
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+## Processing Requests
+
+The OpenAIClassifier processes requests using the `process_request` method, which is called internally by the orchestrator. This method:
+
+1. Prepares the user's message and conversation history.
+2. Constructs a request for the OpenAI API, including the system prompt and function calling configurations.
+3. Sends the request to the OpenAI API and processes the response.
+4. Returns a `ClassifierResult` containing the selected agent and confidence score.
+
+## Error Handling
+
+The OpenAIClassifier includes error handling to manage potential issues during the classification process. If an error occurs, it will log the error and raise an exception, which can be caught and handled by the orchestrator.
+
+## Best Practices
+
+1. **API Key Security**: Ensure your OpenAI API key is kept secure and not exposed in your codebase.
+2. **Model Selection**: Choose an appropriate model based on your use case and performance requirements.
+3. **Inference Configuration**: Experiment with different inference parameters to find the best balance between response quality and speed.
+4. **System Prompt**: Craft a clear and comprehensive system prompt to guide the model's classification process effectively.
+
+## Limitations
+
+- Requires an active OpenAI API key.
+- Classification quality depends on the chosen model and the quality of your system prompt and agent descriptions.
+- API usage is subject to OpenAI's pricing and rate limits.
+
+For more information on using and customizing the Multi-Agent Orchestrator, refer to the [Classifier Overview](/multi-agent-orchestrator/classifier/overview) and [Agents](/multi-agent-orchestrator/agents/overview) documentation.

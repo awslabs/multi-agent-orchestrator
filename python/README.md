@@ -1,9 +1,32 @@
-<h2 align="center">Multi-Agent Orchestrator&nbsp;<img alt="Static Badge" src="https://img.shields.io/badge/Beta-4e9bcd"></h2>
+<h2 align="center">Multi-Agent Orchestrator&nbsp;</h2>
 
 <p align="center">Flexible and powerful framework for managing multiple AI agents and handling complex conversations.</p>
 
+
 <p align="center">
-<a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
+  <a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
+  <a href="https://pypi.org/project/multi-agent-orchestrator/"><img alt="PyPI" src="https://img.shields.io/pypi/v/multi-agent-orchestrator.svg?style=flat-square"></a>
+  <a href="https://awslabs.github.io/multi-agent-orchestrator/"><img alt="Documentation" src="https://img.shields.io/badge/docs-book-blue.svg?style=flat-square"></a>
+</p>
+
+<p align="center">
+  <!-- GitHub Stats -->
+  <img src="https://img.shields.io/github/stars/awslabs/multi-agent-orchestrator?style=social" alt="GitHub stars">
+  <img src="https://img.shields.io/github/forks/awslabs/multi-agent-orchestrator?style=social" alt="GitHub forks">
+  <img src="https://img.shields.io/github/watchers/awslabs/multi-agent-orchestrator?style=social" alt="GitHub watchers">
+</p>
+
+<p align="center">
+  <!-- Repository Info -->
+  <img src="https://img.shields.io/github/last-commit/awslabs/multi-agent-orchestrator" alt="Last Commit">
+  <img src="https://img.shields.io/github/issues/awslabs/multi-agent-orchestrator" alt="Issues">
+  <img src="https://img.shields.io/github/issues-pr/awslabs/multi-agent-orchestrator" alt="Pull Requests">
+</p>
+
+<p align="center">
+  <!-- Package Stats -->
+  <a href="https://pypi.org/project/multi-agent-orchestrator/"><img src="https://img.shields.io/pypi/dm/multi-agent-orchestrator?label=pypi%20downloads" alt="PyPI Monthly Downloads"></a>
+  
 </p>
 
 ## 🔖 Features
@@ -18,9 +41,9 @@
 
 ## What's the Multi-Agent Orchestrator ❓
 
-The Multi-Agent Orchestrator is a flexible framework for managing multiple AI agents and handling complex conversations. It intelligently routes queries and maintains context across interactions. 
+The Multi-Agent Orchestrator is a flexible framework for managing multiple AI agents and handling complex conversations. It intelligently routes queries and maintains context across interactions.
 
-The system offers pre-built components for quick deployment, while also allowing easy integration of custom agents and conversation messages storage solutions. 
+The system offers pre-built components for quick deployment, while also allowing easy integration of custom agents and conversation messages storage solutions.
 
 This adaptability makes it suitable for a wide range of applications, from simple chatbots to sophisticated AI systems, accommodating diverse requirements and scaling efficiently.
 
@@ -34,15 +57,15 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 <br /><br />
 
 
-1. The process begins with user input, which is analyzed by a Classifier. 
-2. The Classifier leverages both Agents' Characteristics and Agents' Conversation history to select the most appropriate agent for the task. 
+1. The process begins with user input, which is analyzed by a Classifier.
+2. The Classifier leverages both Agents' Characteristics and Agents' Conversation history to select the most appropriate agent for the task.
 3. Once an agent is selected, it processes the user input.
-4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user. 
+4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user.
 
 
 ## 💬 Demo App
 
-To quickly get a feel for the Multi-Agent Orchestrator, we've provided a Demo App with a few basic agents. This interactive demo showcases the orchestrator's capabilities in a user-friendly interface. To learn more about setting up and running the demo app, please refer to our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/deployment/demo-web-app/) section.
+To quickly get a feel for the Multi-Agent Orchestrator, we've provided a Demo App with a few basic agents. This interactive demo showcases the orchestrator's capabilities in a user-friendly interface. To learn more about setting up and running the demo app, please refer to our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/) section.
 
 <br>
 
@@ -55,7 +78,7 @@ In the screen recording below, we demonstrate an extended version of the demo ap
 - **Health Agent**: A Bedrock LLM Agent focused on addressing health-related queries
 
 Watch as the system seamlessly switches context between diverse topics, from booking flights to checking weather, solving math problems, and providing health information.
-Notice how the appropriate agent is selected for each query, maintaining coherence even with brief follow-up inputs. 
+Notice how the appropriate agent is selected for each query, maintaining coherence even with brief follow-up inputs.
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
@@ -72,16 +95,16 @@ Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator
 
 
 
-### Installation
+### Core Installation
 
 ```bash
 # Optional: Set up a virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-pip install multi-agent-orchestrator
+pip install multi-agent-orchestrator[aws]
 ```
 
-### Usage
+#### Default Usage
 
 Here's an equivalent Python example demonstrating the use of the Multi-Agent Orchestrator with a Bedrock LLM Agent and a Lex Bot Agent:
 
@@ -174,6 +197,73 @@ This example showcases:
 2. Integration of a Lex Bot Agent for specialized tasks (in this case, travel-related queries).
 3. The orchestrator's ability to route requests to the most appropriate agent based on the input.
 4. Handling of both streaming and non-streaming responses from different types of agents.
+
+
+### Working with Anthropic or OpenAI
+If you want to use Anthropic or OpenAI for classifier and/or agents, make sure to install the multi-agent-orchestrator with the relevant extra feature.
+```bash
+pip install "multi-agent-orchestrator[anthropic]"
+pip install "multi-agent-orchestrator[openai]"
+```
+
+### Full package installation
+For a complete installation (including Anthropic and OpenAi):
+```bash
+pip install multi-agent-orchestrator[all]
+```
+
+## Building Locally
+
+This guide explains how to build and install the multi-agent-orchestrator package from source code.
+
+### Prerequisites
+
+- Python 3.11
+- pip package manager
+- Git (to clone the repository)
+
+### Building the Package
+
+1. Navigate to the Python package directory:
+   ```bash
+   cd python
+   ```
+
+2. Install the build dependencies:
+   ```bash
+   python -m pip install build
+   ```
+
+3. Build the package:
+   ```bash
+   python -m build
+   ```
+
+This process will create distribution files in the `python/dist` directory, including a wheel (`.whl`) file.
+
+### Installation
+
+1. Locate the current version number in `setup.cfg`.
+
+2. Install the built package using pip:
+   ```bash
+   pip install ./dist/multi_agent_orchestrator-<VERSION>-py3-none-any.whl
+   ```
+   Replace `<VERSION>` with the version number from `setup.cfg`.
+
+### Example
+
+If the version in `setup.cfg` is `1.2.3`, the installation command would be:
+```bash
+pip install ./dist/multi_agent_orchestrator-1.2.3-py3-none-any.whl
+```
+
+### Troubleshooting
+
+- If you encounter permission errors during installation, you may need to use `sudo` or activate a virtual environment.
+- Make sure you're in the correct directory when running the build and install commands.
+- Clean the `dist` directory before rebuilding if you encounter issues: `rm -rf python/dist/*`
+
 
 
 ## 🤝 Contributing

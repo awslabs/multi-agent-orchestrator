@@ -1,10 +1,6 @@
 import { AgentOverlapAnalyzer } from "./agentOverlapAnalyzer";
-import {
-  AgentTypes,
-} from "./types/index";
 import { Agent, AgentResponse } from "./agents/agent";
 import { ClassifierResult } from './classifiers/classifier';
-import { BedrockLLMAgent } from "./agents/bedrockLLMAgent";
 import { ChatStorage } from "./storage/chatStorage";
 import { InMemoryChatStorage } from "./storage/memoryChatStorage";
 import { AccumulatorTransform } from "./utils/helpers";
@@ -155,6 +151,7 @@ export interface OrchestratorOptions {
   config?: Partial<OrchestratorConfig>;
   logger?: any;
   classifier?: Classifier;
+  defaultAgent?: Agent;
 }
 
 export interface RequestMetadata {
@@ -231,12 +228,7 @@ export class MultiAgentOrchestrator {
     this.agents = {};
     this.classifier = options.classifier || new BedrockClassifier();
 
-    this.defaultAgent = new BedrockLLMAgent({
-      name: AgentTypes.DEFAULT,
-      streaming: true,
-      description:
-        "A knowledgeable generalist capable of addressing a wide range of topics. This agent should be selected if no other specialized agent is a better fit.",
-    });
+    this.defaultAgent = options.defaultAgent;
 
   }
 
@@ -341,47 +333,41 @@ export class MultiAgentOrchestrator {
     }
   }
 
-  async routeRequest(
+  async classifyRequest(
     userInput: string,
     userId: string,
-    sessionId: string,
-    additionalParams: Record<string, string> = {}
-  ): Promise<AgentResponse> {
-    this.executionTimes = new Map();
-    let classifierResult: ClassifierResult;
-    const chatHistory = (await this.storage.fetchAllChats(userId, sessionId)) || [];
-
+    sessionId: string
+  ): Promise<ClassifierResult> {
     try {
-      classifierResult = await this.measureExecutionTime(
+      const chatHistory = await this.storage.fetchAllChats(userId, sessionId) || [];
+      const classifierResult = await this.measureExecutionTime(
         "Classifying user intent",
         () => this.classifier.classify(userInput, chatHistory)
       );
-
+  
       this.logger.printIntent(userInput, classifierResult);
+  
+      if (!classifierResult.selectedAgent && this.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED && this.defaultAgent) {
+        const fallbackResult = this.getFallbackResult();
+        this.logger.info("Using default agent as no agent was selected");
+        return fallbackResult;
+      }
+  
+      return classifierResult;
     } catch (error) {
       this.logger.error("Error during intent classification:", error);
-      return {
-        metadata: this.createMetadata(null, userInput, userId, sessionId, additionalParams),
-        output: this.config.CLASSIFICATION_ERROR_MESSAGE ? this.config.CLASSIFICATION_ERROR_MESSAGE: String(error),
-        streaming: false,
-      };
+      throw error;
     }
-
+  }
+  
+  async agentProcessRequest(
+    userInput: string,
+    userId: string,
+    sessionId: string,
+    classifierResult: ClassifierResult,
+    additionalParams: Record<any, any> = {}
+  ): Promise<AgentResponse> {
     try {
-      // Handle case where no agent was selected
-      if (!classifierResult.selectedAgent) {
-        if (this.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED) {
-          classifierResult = this.getFallbackResult();
-          this.logger.info("Using default agent as no agent was selected");
-        } else {
-          return {
-            metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
-            output: this.config.NO_SELECTED_AGENT_MESSAGE!,
-            streaming: false,
-          };
-        }
-      }
-
       const agentResponse = await this.dispatchToAgent({
         userInput,
         userId,
@@ -389,9 +375,9 @@ export class MultiAgentOrchestrator {
         classifierResult,
         additionalParams,
       });
-
+  
       const metadata = this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams);
-
+  
       if (this.isAsyncIterable(agentResponse)) {
         const accumulatorTransform = new AccumulatorTransform();
         this.processStreamInBackground(
@@ -408,8 +394,7 @@ export class MultiAgentOrchestrator {
           streaming: true,
         };
       }
-
-      // Check if we should save the conversation
+  
       if (classifierResult?.selectedAgent.saveChat) {
         await saveConversationExchange(
           userInput,
@@ -421,25 +406,49 @@ export class MultiAgentOrchestrator {
           this.config.MAX_MESSAGE_PAIRS_PER_AGENT
         );
       }
-
-
+  
       return {
         metadata,
         output: agentResponse,
         streaming: false,
       };
     } catch (error) {
-      this.logger.error("Error during agent dispatch or processing:", error);
-
+      this.logger.error("Error during agent processing:", error);
+      throw error;
+    }
+  }
+  
+  async routeRequest(
+    userInput: string,
+    userId: string,
+    sessionId: string,
+    additionalParams: Record<any, any> = {}
+  ): Promise<AgentResponse> {
+    this.executionTimes = new Map();
+  
+    try {
+      const classifierResult = await this.classifyRequest(userInput, userId, sessionId);
+  
+      if (!classifierResult.selectedAgent) {
+        return {
+          metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
+          output: this.config.NO_SELECTED_AGENT_MESSAGE!,
+          streaming: false,
+        };
+      }
+  
+      return await this.agentProcessRequest(userInput, userId, sessionId, classifierResult, additionalParams);
+    } catch (error) {
       return {
-        metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
-        output: this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE ? this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE: String(error),
+        metadata: this.createMetadata(null, userInput, userId, sessionId, additionalParams),
+        output: this.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE || String(error),
         streaming: false,
       };
     } finally {
       this.logger.printExecutionTimes(this.executionTimes);
     }
   }
+  
 
   private async processStreamInBackground(
     agentResponse: AsyncIterable<any>,

@@ -5,3 +5,4 @@ anthropic
 moto
 pytest-mock
 pytest-asyncio
+openai

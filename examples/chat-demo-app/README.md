@@ -1,7 +1,7 @@
 ## 🎮 Demo Application
 
 ### Overview
-The demo showcases the versatility of the Multi-Agent Orchestrator System through an interactive chat interface. Watch how the system seamlessly handles diverse queries using specialized agents:
+The demo showcases the versatility of the Multi-Agent Orchestrator System through an interactive chat interface.
 
 ![Demo Application](./img/chat-demo-app.png)
 
@@ -75,7 +75,7 @@ Follow these steps to deploy the demo chat web application:
 
 6. **Deploy the Application**:
    ```bash
-   cdk deploy
+   cdk deploy --all
    ```
 
 7. **Create a user in Amazon Cognito user pool**:

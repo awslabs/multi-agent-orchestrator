@@ -4,6 +4,8 @@ import boto3
 from multi_agent_orchestrator.storage import ChatStorage
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, TimestampedMessage
 from multi_agent_orchestrator.utils import Logger, conversation_to_dict
+from operator import attrgetter
+
 
 class DynamoDbChatStorage(ChatStorage):
     def __init__(self,
@@ -131,7 +133,7 @@ class DynamoDbChatStorage(ChatStorage):
                             timestamp=int(msg['timestamp'])
                         ))
 
-            all_chats.sort(key=lambda x: x.timestamp)
+            all_chats.sort(key=attrgetter('timestamp'))
             return self._remove_timestamps(all_chats)
         except Exception as error:
             Logger.error(f"Error querying conversations from DynamoDB:{str(error)}")

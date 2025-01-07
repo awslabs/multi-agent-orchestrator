@@ -1,0 +1,2 @@
+duckduckgo-search
+dotenv

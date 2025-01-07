@@ -13,7 +13,8 @@ from .types import (
     OPENAI_MODEL_ID_GPT_O_MINI,
     ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET,
     TemplateVariables,
-    OrchestratorConfig
+    OrchestratorConfig,
+    AgentProviderType,
 )
 
 __all__ = [
@@ -31,4 +32,5 @@ __all__ = [
     'ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET',
     'TemplateVariables',
     'OrchestratorConfig',
+    'AgentProviderType',
 ]

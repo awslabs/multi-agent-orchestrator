@@ -59,6 +59,9 @@ class InMemoryChatStorage(ChatStorage):
             if stored_user_id == user_id and stored_session_id == session_id:
                 for message in messages:
                     new_content = message.content if message.content else []
+
+                    if len(new_content) > 0 and message.role == "assistant":
+                        new_content = [{'text':f"[{agent_id}] {new_content[0]['text']}"}]
                     all_messages.append(TimestampedMessage(
                         role=message.role,
                         content=new_content,

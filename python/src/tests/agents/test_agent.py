@@ -2,7 +2,14 @@ import pytest
 from typing import Dict, List
 from unittest.mock import Mock
 from multi_agent_orchestrator.types import ConversationMessage
-from multi_agent_orchestrator.agents import AgentProcessingResult, AgentResponse, AgentCallbacks, AgentOptions, Agent
+from multi_agent_orchestrator.agents import (
+    AgentProcessingResult,
+    AgentResponse,
+    AgentCallbacks,
+    AgentOptions,
+    Agent,
+)
+
 
 class TestAgent:
     @pytest.fixture
@@ -13,7 +20,7 @@ class TestAgent:
             model_id="test-model",
             region="us-west-2",
             save_chat=True,
-            callbacks=None
+            callbacks=None,
         )
 
     @pytest.fixture
@@ -25,7 +32,7 @@ class TestAgent:
                 user_id: str,
                 session_id: str,
                 chat_history: List[ConversationMessage],
-                additional_params: Dict[str, str] = None
+                additional_params: Dict[str, str] = None,
             ):
                 return ConversationMessage(role="assistant", content="Mock response")
 
@@ -37,7 +44,7 @@ class TestAgent:
             agent_id="test-agent",
             agent_name="Test Agent",
             user_id="user123",
-            session_id="session456"
+            session_id="session456",
         )
         assert result.user_input == "Hello"
         assert result.agent_id == "test-agent"
@@ -53,9 +60,11 @@ class TestAgent:
             agent_id="test-agent",
             agent_name="Test Agent",
             user_id="user123",
-            session_id="session456"
+            session_id="session456",
         )
-        response = AgentResponse(metadata=metadata, output="Hello, user!", streaming=False)
+        response = AgentResponse(
+            metadata=metadata, output="Hello, user!", streaming=False
+        )
         assert response.metadata == metadata
         assert response.output == "Hello, user!"
         assert response.streaming is False
@@ -82,6 +91,17 @@ class TestAgent:
     def test_generate_key_from_name(self):
         assert Agent.generate_key_from_name("Test Agent") == "test-agent"
         assert Agent.generate_key_from_name("Complex Name! @#$%") == "complex-name-"
+        assert Agent.generate_key_from_name("Agent123") == "agent123"
+        assert Agent.generate_key_from_name("Agent2-test") == "agent2-test"
+        assert Agent.generate_key_from_name("Agent4-test") == "agent4-test"
+        assert Agent.generate_key_from_name("Agent 123!") == "agent-123"
+        assert Agent.generate_key_from_name("Agent@#$%^&*()") == "agent"
+        assert Agent.generate_key_from_name("Trailing Space  ") == "trailing-space-"
+        assert (
+            Agent.generate_key_from_name("123 Mixed Content 456!")
+            == "123-mixed-content-456"
+        )
+        assert Agent.generate_key_from_name("Mix@of123Symbols$") == "mixof123symbols"
 
     @pytest.mark.asyncio
     async def test_process_request(self, mock_agent):
@@ -90,7 +110,7 @@ class TestAgent:
             input_text="Hi",
             user_id="user123",
             session_id="session456",
-            chat_history=chat_history
+            chat_history=chat_history,
         )
         assert isinstance(result, ConversationMessage)
         assert result.role == "assistant"

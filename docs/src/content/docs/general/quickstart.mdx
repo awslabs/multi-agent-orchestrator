@@ -38,7 +38,7 @@ To help you kickstart with the Multi-Agent Orchestrator framework, we'll walk yo
 
 2. Authenticate with your AWS account
 
-This quickstart demonstrates the use of Amazon Bedrock for both classification and agent responses. 
+This quickstart demonstrates the use of Amazon Bedrock for both classification and agent responses.
 
 To authenticate with your AWS account, follow these steps:
 
@@ -61,8 +61,8 @@ By default, the framework is configured as follows:
 <br/>
 
 > **Important**
-> 
->   These are merely default settings and can be easily changed to suit your needs or preferences. 
+>
+>   These are merely default settings and can be easily changed to suit your needs or preferences.
 
 <br/>
 
@@ -91,7 +91,9 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```bash
-    pip install multi-agent-orchestrator
+    pip install "multi-agent-orchestrator[anthropic]" # for Anthropic classifier and agent
+    pip install "multi-agent-orchestrator[openai]" # for OpenAI classifier and agent
+    pip install "multi-agent-orchestrator[all]" # for all packages including Anthropic and OpenAI
     ```
   </TabItem>
 </Tabs>
@@ -165,7 +167,7 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
         streaming: true
       })
     );
-    
+
     orchestrator.addAgent(
       new BedrockLLMAgent({
         name: "Health Agent",
@@ -187,10 +189,16 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
       description="Specializes in technology areas including software development, hardware, AI, \
       cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs \
       related to technology products and services.",
-      model_id="anthropic.claude-3-sonnet-20240229-v1:0",
       callbacks=BedrockLLMAgentCallbacks()
     ))
     orchestrator.add_agent(tech_agent)
+
+    health_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+      name="Health Agent",
+      description="Focuses on health and medical topics such as general wellness, nutrition, diseases, treatments, mental health, fitness, healthcare systems, and medical terminology or concepts.",
+      callbacks=BedrockLLMAgentCallbacks()
+    ))
+    orchestrator.add_agent(health_agent)
     ```
   </TabItem>
 </Tabs>
@@ -227,7 +235,7 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
             console.error("Received unexpected chunk type:", typeof chunk);
           }
         }
-        console.log(); 
+        console.log();
       } catch (error) {
         console.error("An error occurred:", error);
         // Here you could also add more specific error handling if needed

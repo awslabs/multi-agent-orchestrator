@@ -3,16 +3,17 @@ from dataclasses import dataclass, fields, asdict, replace
 import time
 from multi_agent_orchestrator.utils.logger import Logger
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, OrchestratorConfig
-from multi_agent_orchestrator.classifiers import (Classifier,
-                             ClassifierResult,
-                             BedrockClassifier,
-                             BedrockClassifierOptions)
+from multi_agent_orchestrator.classifiers import Classifier,ClassifierResult
 from multi_agent_orchestrator.agents import (Agent,
                         AgentResponse,
-                        AgentProcessingResult,
-                        BedrockLLMAgent,
-                        BedrockLLMAgentOptions)
-from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
+                        AgentProcessingResult)
+from multi_agent_orchestrator.storage import ChatStorage
+from multi_agent_orchestrator.storage import InMemoryChatStorage
+try:
+    from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
+    _BEDROCK_AVAILABLE = True
+except ImportError:
+    _BEDROCK_AVAILABLE = False
 
 @dataclass
 class MultiAgentOrchestrator:
@@ -20,7 +21,8 @@ class MultiAgentOrchestrator:
                  options: Optional[OrchestratorConfig] = None,
                  storage: Optional[ChatStorage] = None,
                  classifier: Optional[Classifier] = None,
-                 logger: Optional[Logger] = None):
+                 logger: Optional[Logger] = None,
+                 default_agent: Optional[Agent] = None):
 
         DEFAULT_CONFIG=OrchestratorConfig()
 
@@ -42,14 +44,16 @@ class MultiAgentOrchestrator:
         self.logger = Logger(self.config, logger)
         self.agents: Dict[str, Agent] = {}
         self.storage = storage or InMemoryChatStorage()
-        self.classifier: Classifier = classifier or BedrockClassifier(options=BedrockClassifierOptions())
+
+        if classifier:
+            self.classifier = classifier
+        elif _BEDROCK_AVAILABLE:
+            self.classifier = BedrockClassifier(options=BedrockClassifierOptions())
+        else:
+            raise ValueError("No classifier provided and BedrockClassifier is not available. Please provide a classifier.")
+   
         self.execution_times: Dict[str, float] = {}
-        self.default_agent: Agent = BedrockLLMAgent(
-            options=BedrockLLMAgentOptions(
-                name="DEFAULT",
-                streaming=True,
-                description="A knowledgeable generalist capable of addressing a wide range of topics.",
-            ))
+        self.default_agent: Agent = default_agent
 
 
     def add_agent(self, agent: Agent):
@@ -103,16 +107,14 @@ class MultiAgentOrchestrator:
 
         return response
 
-    async def route_request(self,
-                            user_input: str,
-                            user_id: str,
-                            session_id: str,
-                            additional_params: Dict[str, str] = {}) -> AgentResponse:
-        self.execution_times.clear()
-
+    async def classify_request(self,
+                             user_input: str,
+                             user_id: str,
+                             session_id: str) -> ClassifierResult:
+        """Classify user request with conversation history."""
         try:
             chat_history = await self.storage.fetch_all_chats(user_id, session_id) or []
-            classifier_result:ClassifierResult = await self.measure_execution_time(
+            classifier_result = await self.measure_execution_time(
                 "Classifying user intent",
                 lambda: self.classifier.classify(user_input, chat_history)
             )
@@ -120,36 +122,24 @@ class MultiAgentOrchestrator:
             if self.config.LOG_CLASSIFIER_OUTPUT:
                 self.print_intent(user_input, classifier_result)
 
+            if not classifier_result.selected_agent:
+                if self.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED and self.default_agent:
+                    classifier_result = self.get_fallback_result()
+                    self.logger.info("Using default agent as no agent was selected")
+
+            return classifier_result
+
         except Exception as error:
             self.logger.error(f"Error during intent classification: {str(error)}")
-            return AgentResponse(
-                metadata=self.create_metadata(None,
-                                              user_input,
-                                              user_id,
-                                              session_id,
-                                              additional_params),
-                output=self.config.CLASSIFICATION_ERROR_MESSAGE
-                 if self.config.CLASSIFICATION_ERROR_MESSAGE else
-                 str(error),
-                streaming=False
-            )
-
-        if not classifier_result.selected_agent:
-            if self.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED:
-                classifier_result = self.get_fallback_result()
-                self.logger.info("Using default agent as no agent was selected")
-            else:
-                return AgentResponse(
-                    metadata= self.create_metadata(classifier_result,
-                                                   user_input,
-                                                   user_id,
-                                                   session_id,
-                                                   additional_params),
-                    output= ConversationMessage(role=ParticipantRole.ASSISTANT.value,
-                                                content=[{'text': self.config.NO_SELECTED_AGENT_MESSAGE}]),
-                    streaming=False
-                )
-
+            raise error
+        
+    async def agent_process_request(self,
+                               user_input: str,
+                               user_id: str,
+                               session_id: str,
+                               classifier_result: ClassifierResult,
+                               additional_params: Dict[str, str] = {}) -> AgentResponse:
+        """Process agent response and handle chat storage."""
         try:
             agent_response = await self.dispatch_to_agent({
                 "user_input": user_input,
@@ -160,16 +150,15 @@ class MultiAgentOrchestrator:
             })
 
             metadata = self.create_metadata(classifier_result,
-                                            user_input,
-                                            user_id,
-                                            session_id,
-                                            additional_params)
+                                        user_input,
+                                        user_id,
+                                        session_id,
+                                        additional_params)
 
-            # save question
             await self.save_message(
                 ConversationMessage(
                     role=ParticipantRole.USER.value,
-                    content=[{'text':user_input}]
+                    content=[{'text': user_input}]
                 ),
                 user_id,
                 session_id,
@@ -177,31 +166,56 @@ class MultiAgentOrchestrator:
             )
 
             if isinstance(agent_response, ConversationMessage):
-                # save the response
                 await self.save_message(agent_response,
-                                        user_id,
-                                        session_id,
-                                        classifier_result.selected_agent)
-
+                                    user_id,
+                                    session_id,
+                                    classifier_result.selected_agent)
 
             return AgentResponse(
-                    metadata=metadata,
-                    output=agent_response,
-                    streaming=classifier_result.selected_agent.is_streaming_enabled()
-                )
+                metadata=metadata,
+                output=agent_response,
+                streaming=classifier_result.selected_agent.is_streaming_enabled()
+            )
 
         except Exception as error:
-            self.logger.error(f"Error during agent dispatch or processing:{str(error)}")
-            return AgentResponse(
-                    metadata= self.create_metadata(classifier_result,
-                                                   user_input,
-                                                   user_id,
-                                                   session_id,
-                                                   additional_params),
-                    output = self.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE \
-                        if self.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE else str(error),
+            self.logger.error(f"Error during agent processing: {str(error)}")
+            raise error
+        
+    async def route_request(self,
+                       user_input: str,
+                       user_id: str,
+                       session_id: str, 
+                       additional_params: Dict[str, str] = {}) -> AgentResponse:
+        """Route user request to appropriate agent."""
+        self.execution_times.clear()
+
+        try:
+            classifier_result = await self.classify_request(user_input, user_id, session_id)
+            
+            if not classifier_result.selected_agent:
+                return AgentResponse(
+                    metadata=self.create_metadata(classifier_result, user_input, user_id, session_id, additional_params),
+                    output=ConversationMessage(
+                        role=ParticipantRole.ASSISTANT.value,
+                        content=[{'text': self.config.NO_SELECTED_AGENT_MESSAGE}]
+                    ),
                     streaming=False
                 )
+
+            return await self.agent_process_request(
+                user_input, 
+                user_id,
+                session_id, 
+                classifier_result,
+                additional_params
+            )
+
+        except Exception as error:
+            return AgentResponse(
+                metadata=self.create_metadata(None, user_input, user_id, session_id, additional_params),
+                output=self.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE or str(error),
+                streaming=False
+            )
 
         finally:
             self.logger.print_execution_times(self.execution_times)

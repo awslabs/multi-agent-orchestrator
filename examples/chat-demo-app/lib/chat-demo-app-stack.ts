@@ -6,15 +6,15 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
-import { UserInterfaceStack } from "./user-interface-stack"
 import * as path from "path";
-import * as cloudfront_origins from "aws-cdk-lib/aws-cloudfront-origins";
 import { LexAgentConstruct } from './lex-agent-construct';
 import { BedrockKnowledgeBase } from './knowledge-base-construct';
 import {BedrockKnowledgeBaseModels } from './constants';
 
 
 export class ChatDemoStack extends cdk.Stack {
+  public multiAgentLambdaFunctionUrl: cdk.aws_lambda.FunctionUrl;
+
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -82,9 +82,6 @@ export class ChatDemoStack extends cdk.Stack {
         "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
       )
     );
-
-    const uiStack = new UserInterfaceStack(this, "UserInterface");
-
     const sessionTable = new dynamodb.Table(this, "SessionTable", {
       partitionKey: { name: "PK", type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -178,25 +175,7 @@ export class ChatDemoStack extends cdk.Stack {
       invokeMode: lambda.InvokeMode.RESPONSE_STREAM,
     });
 
-    uiStack.authFunction.addToRolePolicy(
-      new iam.PolicyStatement({
-        sid: "AllowInvokeFunctionUrl",
-        effect: iam.Effect.ALLOW,
-        actions: ["lambda:InvokeFunctionUrl"],
-        resources: [
-          multiAgentLambdaFunctionUrl.functionArn,
-        ],
-        conditions: {
-          StringEquals: { "lambda:FunctionUrlAuthType": "AWS_IAM" },
-        },
-      })
-    );
-
-    uiStack.distribution.addBehavior(
-      "/chat/*",
-      new cloudfront_origins.HttpOrigin(cdk.Fn.select(2, cdk.Fn.split("/", multiAgentLambdaFunctionUrl.url))),
-      uiStack.behaviorOptions
-    );
+    this.multiAgentLambdaFunctionUrl = multiAgentLambdaFunctionUrl;
 
     if (enableLexAgent){
       multiAgentLambdaFunction.addToRolePolicy(

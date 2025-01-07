@@ -11,6 +11,9 @@ The Classifier is a crucial component of the Multi-Agent Orchestrator, responsib
 
 - **[Anthropic Classifier](/multi-agent-orchestrator/classifiers/built-in/anthropic-classifier)** uses Anthropic's AI models for intent classification. It provides an alternative option for users who prefer or have access to Anthropic's services.
 
+- **[OpenAI Classifier](/multi-agent-orchestrator/classifiers/built-in/openai-classifier)** uses OpenAI's AI models for intent classification. It provides an alternative option for users who prefer or have access to OpenAI's services.
+
+
 ### Process Flow
 
 Regardless of the classifier used, the general process remains the same:
@@ -23,11 +26,11 @@ Regardless of the classifier used, the general process remains the same:
 
 By default, if no agent is selected the orchestrator can be configured to:
 
-A. Use a default agent (a **[BedrockLLMAgent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent)**)
+A. Use a default agent (a **[BedrockLLMAgent for example](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent)**)
 
 B. Return a message prompting the user for more information.
 
-This behavior can be customized using the `USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED` and `NO_SELECTED_AGENT_MESSAGE` configuration options in the orchestrator. 
+This behavior can be customized using the `USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED` and `NO_SELECTED_AGENT_MESSAGE` configuration options in the orchestrator.
 
 For a detailed explanation of these options and other orchestrator configurations, please refer to the [Orchestrator Overview](/multi-agent-orchestrator/orchestrator/overview#agent-selection-and-default-behavior) page.
 
@@ -105,13 +108,13 @@ You can test any Classifier directly using the `classify` method:
         user_input = "What are the symptoms of the flu?"
         user_id = "test_user"
         session_id = "test_session"
-        
+
         # Fetch chat history (this might vary depending on your implementation)
         chat_history = await orchestrator.storage.fetch_all_chats(user_id, session_id)
-        
+
         # Classify the input
         response = await orchestrator.classifier.classify(user_input, chat_history)
-        
+
         print('\n** RESPONSE ** \n')
         print(f" > Agent ID: {response.selected_agent.id if response.selected_agent else 'None'}")
         print(f" > Agent Name: {response.selected_agent.name if response.selected_agent else 'None'}")
@@ -143,6 +146,50 @@ When deciding between different classifiers, consider:
 3. **Cost**: Compare the pricing structures for your expected usage.
 
 By thoroughly testing and debugging your chosen Classifier, you can ensure accurate intent classification and efficient query routing in your Multi-Agent Orchestrator.
+
+## Direct Classifier Access
+
+### With Context Management
+Test the classifier with full conversation history handling:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const response = await orchestrator.classifyRequest(userInput, userId, sessionId);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    response = await orchestrator.classify_request(user_input, user_id, session_id)
+    ```
+  </TabItem>
+</Tabs>
+
+This method:
+- Retrieves conversation history automatically
+- Maintains context across test calls
+- Ideal for end-to-end testing
+
+### Without Context
+Test raw classification without conversation history:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const response = await orchestrator.classifier.classify(userInput, []);
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    response = await orchestrator.classifier.classify(user_input, [])
+    ```
+  </TabItem>
+</Tabs>
+
+Best for:
+- Prompt tuning
+- Single-input validation
+- Classification unit tests
 
 ---
 

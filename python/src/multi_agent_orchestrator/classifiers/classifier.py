@@ -3,7 +3,7 @@ import re
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 from multi_agent_orchestrator.types import ConversationMessage, AgentTypes, TemplateVariables
-from multi_agent_orchestrator.agents import Agent, BedrockLLMAgent, BedrockLLMAgentOptions
+from multi_agent_orchestrator.agents import Agent
 
 
 @dataclass
@@ -13,14 +13,6 @@ class ClassifierResult:
 
 class Classifier(ABC):
     def __init__(self):
-        self.default_agent = BedrockLLMAgent(
-            options=BedrockLLMAgentOptions(
-            name=AgentTypes.DEFAULT.value,
-            streaming=True,
-            description="A knowledgeable generalist capable of addressing a wide range of topics.\
-            This agent should be selected if no other specialized agent is a better fit."
-        ))
-
         self.agent_descriptions = ""
         self.history = ""
         self.custom_variables: TemplateVariables = {}
@@ -39,7 +31,7 @@ Analyze the user's input and categorize it into one of the following agent types
 <agents>
 {{AGENT_DESCRIPTIONS}}
 </agents>
-If you are unable to select an agent put "unkwnown"
+If you are unable to select an agent put "unknown"
 
 Guidelines for classification:
 
@@ -77,7 +69,7 @@ userinput: What are the symptoms of the flu?
 selected_agent: agent-name
 confidence: 0.95
 
-2. Context switching example between a TechAgentand a BillingAgent:
+2. Context switching example between a TechAgent and a BillingAgent:
 Previous conversation:
 User: "How do I set up a wireless printer?"
 Assistant: [agent-a]: To set up a wireless printer, follow these steps:
@@ -116,7 +108,7 @@ Assistant: [agent-name-b]: Certainly! Our refund policy allows for a full refund
 of purchase if you're not satisfied with our service. After 30 days, refunds are prorated based
 on the remaining time in your billing cycle. Is there a specific concern you have about our service?
 User: "I'm having trouble accessing my account"
-Assistant: [agenc-name-c]: I'm sorry to hear you're having trouble accessing your account.
+Assistant: [agent-name-c]: I'm sorry to hear you're having trouble accessing your account.
 Let's try to resolve this issue. Can you tell me what specific error message or problem
 you're encountering when trying to log in?
 User: "It says my password is incorrect, but I'm sure it's right"

@@ -1,5 +1,11 @@
-"""This module implements an Amazon Bedrock agent that interacts with a runtime client.
 """
+Amazon Bedrock Agent Integration Module
+
+This module provides a robust implementation for interacting with Amazon Bedrock agents,
+offering a flexible and extensible way to process conversational interactions using
+AWS Bedrock's agent runtime capabilities.
+"""
+
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 import os
@@ -12,33 +18,69 @@ from multi_agent_orchestrator.utils import Logger
 
 @dataclass
 class AmazonBedrockAgentOptions(AgentOptions):
-    """Options for Amazon Bedrock Agent."""
+    """
+    Configuration options for Amazon Bedrock Agent initialization.
+
+    Provides flexible configuration for Bedrock agent runtime:
+    - agent_id: Unique identifier for the Bedrock agent
+    - agent_alias_id: Specific alias for the agent
+    - client: Optional custom boto3 client (allows dependency injection)
+    - streaming: Flag to enable streaming response mode (on final response)
+    - enableTrace: Flag to enable detailed event tracing
+    """
     agent_id: str = None
     agent_alias_id: str = None
     client: Optional[Any] = None
+    streaming: Optional[bool] = False
+    enableTrace: Optional[bool] = False
 
 
 class AmazonBedrockAgent(Agent):
     """
-    Represents an Amazon Bedrock agent that interacts with a runtime client.
-    Extends base Agent class and implements specific methods for Amazon Bedrock.
+    Specialized agent for interacting with Amazon Bedrock's intelligent agent runtime.
+
+    This class extends the base Agent class to provide:
+    - Direct integration with AWS Bedrock agent runtime
+    - Configurable response handling (streaming/non-streaming)
+    - Comprehensive error management
+    - Flexible session and conversation state management
     """
 
     def __init__(self, options: AmazonBedrockAgentOptions):
         """
-        Constructs an instance of AmazonBedrockAgent with the specified options.
-        Initializes the agent ID, agent alias ID, and creates a new Bedrock agent runtime client.
+        Initialize the Bedrock agent with comprehensive configuration.
 
-        :param options: Options to configure the Amazon Bedrock agent.
+        Handles client creation, either using a provided client or
+        automatically creating one based on AWS configuration.
+
+        :param options: Detailed configuration for agent initialization
         """
         super().__init__(options)
+
+        # Store core agent identifiers
         self.agent_id = options.agent_id
         self.agent_alias_id = options.agent_alias_id
+
+        # Set up Bedrock runtime client
         if options.client:
+            # Use provided client (useful for testing or custom configurations)
             self.client = options.client
         else:
+            # Create default client using AWS region from options or environment
             self.client = boto3.client('bedrock-agent-runtime',
                                     region_name=options.region or os.environ.get('AWS_REGION'))
+
+        # Configure response handling modes
+        self.streaming = options.streaming
+        self.enableTrace = options.enableTrace
+
+    def is_streaming_enabled(self) -> bool:
+        """
+        Check if streaming mode is active for response processing.
+
+        :return: Boolean indicating streaming status
+        """
+        return self.streaming is True
 
     async def process_request(
         self,
@@ -49,38 +91,70 @@ class AmazonBedrockAgent(Agent):
         additional_params: Optional[Dict[str, str]] = None
     ) -> ConversationMessage:
         """
-        Processes a user request by sending it to the Amazon Bedrock agent for processing.
+        Process a user request through the Bedrock agent runtime.
 
-        :param input_text: The user input as a string.
-        :param user_id: The ID of the user sending the request.
-        :param session_id: The ID of the session associated with the conversation.
-        :param chat_history: A list of ConversationMessage objects representing
-        the conversation history.
-        :param additional_params: Optional additional parameters as key-value pairs.
-        :return: A ConversationMessage object containing the agent's response.
+        Handles the entire interaction lifecycle:
+        - Manages session state
+        - Invokes agent with configured parameters
+        - Processes streaming or non-streaming responses
+        - Handles potential errors
+
+        :param input_text: User's input message
+        :param user_id: Identifier for the user
+        :param session_id: Unique conversation session identifier
+        :param chat_history: Previous conversation messages
+        :param additional_params: Optional supplementary parameters
+        :return: Agent's response as a conversation message
         """
+        # Initialize session state, defaulting to empty if not provided
+        session_state = {}
+        if (additional_params and 'sessionState' in additional_params):
+            session_state = additional_params['sessionState']
+
         try:
+            # Configure streaming behavior
+            streamingConfigurations = {
+                'streamFinalResponse': self.streaming
+            }
+
+            # Invoke Bedrock agent with comprehensive configuration
             response = self.client.invoke_agent(
                 agentId=self.agent_id,
                 agentAliasId=self.agent_alias_id,
                 sessionId=session_id,
-                inputText=input_text
+                inputText=input_text,
+                enableTrace=self.enableTrace,
+                sessionState=session_state,
+                streamingConfigurations=streamingConfigurations if self.streaming else {}
             )
 
+            # Process response, handling both streaming and non-streaming modes
             completion = ""
             for event in response['completion']:
                 if 'chunk' in event:
+                    # Process streaming chunk
                     chunk = event['chunk']
                     decoded_response = chunk['bytes'].decode('utf-8')
-                    completion += decoded_response
-                else:
-                    Logger.warn("Received a chunk event with no chunk data")
 
+                    # Trigger callback for each token (useful for real-time updates)
+                    self.callbacks.on_llm_new_token(decoded_response)
+                    completion += decoded_response
+
+                elif 'trace' in event:
+                    # Log trace events if tracing is enabled
+                    Logger.info(f"Received event: {event}") if self.enableTrace else None
+
+                else:
+                    # Ignore unrecognized event types
+                    pass
+
+            # Construct and return the conversation message
             return ConversationMessage(
                 role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": completion}]
             )
 
         except (BotoCoreError, ClientError) as error:
+            # Comprehensive error logging and propagation
             Logger.error(f"Error processing request: {str(error)}")
             raise error

@@ -50,7 +50,10 @@ async def test_process_request_success(bedrock_agent):
         agentId='test_agent_id',
         agentAliasId='test_agent_alias_id',
         sessionId='test_session',
-        inputText='Test input'
+        inputText='Test input',
+        enableTrace=False,
+        streamingConfigurations={},
+        sessionState={}
     )
 
 @pytest.mark.asyncio
