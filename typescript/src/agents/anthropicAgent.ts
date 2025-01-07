@@ -1,5 +1,6 @@
 import { Agent, AgentOptions } from "./agent";
 import {
+  ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET,
   ConversationMessage,
   ParticipantRole,
   TemplateVariables,
@@ -97,7 +98,7 @@ export class AnthropicAgent extends Agent {
 
     this.streaming = options.streaming ?? false;
 
-    this.modelId = options.modelId || "claude-3-5-sonnet-20240620";
+    this.modelId = options.modelId || ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET;
 
     const defaultMaxTokens = 1000; // You can adjust this default value as needed
     this.inferenceConfig = {
@@ -270,7 +271,7 @@ export class AnthropicAgent extends Agent {
       } else {
         let finalMessage: string = "";
         let toolUse = false;
-        let recursions = this.toolConfig?.toolMaxRecursions || 5;
+        let recursions = this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
         do {
           // Call Anthropic
           const llmInput = {

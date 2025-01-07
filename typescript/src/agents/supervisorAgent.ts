@@ -7,8 +7,7 @@ import { AgentTool, AgentTools } from "../utils/tool";
 import { InMemoryChatStorage } from "../storage/memoryChatStorage";
 import { ChatStorage } from "../storage/chatStorage";
 
-export interface SupervisorAgentOptions
-  extends Omit<AgentOptions, "name" | "description"> {
+export interface SupervisorAgentOptions extends AgentOptions{
   supervisor: BedrockLLMAgent | AnthropicAgent;
   team: Agent[];
   storage?: ChatStorage;

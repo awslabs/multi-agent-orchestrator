@@ -8,6 +8,8 @@ export class AgentToolResult {
   ) {}
 }
 
+type ToolFunction = (...args: any[]) => Promise<any> | any;
+
 /**
  * Represents a single tool that can be used by an agent
  */
@@ -16,7 +18,7 @@ export class AgentTool {
   readonly description: string;
   readonly properties: Record<string, any>;
   readonly required: string[];
-  readonly func: Function;
+  readonly func: ToolFunction;
   private enumValues: Record<string, any[]>;
 
   constructor(options: {
@@ -24,12 +26,12 @@ export class AgentTool {
     description?: string;
     properties?: Record<string, any>;
     required?: string[];
-    func: Function;
+    func: ToolFunction;
     enumValues?: Record<string, any[]>;
   }) {
     this.name = options.name;
     this.description =
-      options.description || this.extractFunctionDescription(options.func);
+      options.description || this.extractFunctionDescription();
     this.enumValues = options.enumValues || {};
     this.properties =
       options.properties || this.extractProperties(options.func);
@@ -43,11 +45,11 @@ export class AgentTool {
     }
   }
 
-  private extractFunctionDescription(func: Function): string {
+  private extractFunctionDescription(): string {
     return `Function to ${this.name}`;
   }
 
-  private extractProperties(func: Function): Record<string, any> {
+  private extractProperties(func: ToolFunction): Record<string, any> {
     const properties: Record<string, any> = {};
     const params = this.getParamNames(func);
     params.forEach((param) => {
@@ -60,7 +62,7 @@ export class AgentTool {
     return properties;
   }
 
-  private getParamNames(func: Function): string[] {
+  private getParamNames(func: ToolFunction): string[] {
     const functionStr = func.toString();
     const paramStr = functionStr.slice(
       functionStr.indexOf("(") + 1,
@@ -72,7 +74,7 @@ export class AgentTool {
       .filter((p) => p);
   }
 
-  private wrapFunction(func: Function): Function {
+  private wrapFunction(func: ToolFunction): ToolFunction {
     return async (...args: any[]) => {
       const result = func(...args);
       return result instanceof Promise ? await result : result;
@@ -111,7 +113,6 @@ export class AgentTools {
       const toolName = getToolName(toolUseBlock);
       const toolId = getToolId(toolUseBlock);
       const inputData = getInputData(toolUseBlock);
-
       const result = await this.processTool(toolName, inputData);
       const toolResult = new AgentToolResult(toolId, result);
       toolResults.push(toolResult);
@@ -137,7 +138,6 @@ export class AgentTools {
       if ("messages" in inputData) {
         return await tool.func(inputData.messages);
       }
-
       return await tool.func(inputData);
     } catch (error) {
       return `Error processing tool '${toolName}': ${error.message}`;
