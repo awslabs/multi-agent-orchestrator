@@ -12,7 +12,7 @@ from multi_agent_orchestrator.agents import (
 )
 from multi_agent_orchestrator.storage import InMemoryChatStorage
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.utils import Tools, Tool, Logger
+from multi_agent_orchestrator.utils import AgentTools, AgentTool, Logger
 
 
 @pytest.fixture
@@ -96,7 +96,7 @@ async def test_supervisor_agent_initialization(mock_boto3_client):
     assert len(agent.team) == 1
     assert isinstance(agent.storage, InMemoryChatStorage)
     assert agent.trace is None
-    assert isinstance(agent.supervisor_tools, Tools)
+    assert isinstance(agent.supervisor_tools, AgentTools)
 
 @pytest.mark.asyncio
 async def test_supervisor_agent_validation(mock_boto3_client):
@@ -195,7 +195,7 @@ async def test_supervisor_agent_with_custom_tools(mock_boto3_client):
     def mock_tool_function(*args, **kwargs):
         return "Tool result"
 
-    custom_tool = Tool(
+    custom_tool = AgentTool(
         name="test_tool",
         description="Test tool",
         properties={
@@ -228,7 +228,7 @@ async def test_supervisor_agent_with_custom_tools_(mock_boto3_client):
     def mock_tool_function(*args, **kwargs):
         return "Tool result"
 
-    custom_tool = Tool(
+    custom_tool = AgentTool(
         name="test_tool",
         description="Test tool",
         properties={
@@ -249,7 +249,7 @@ async def test_supervisor_agent_with_custom_tools_(mock_boto3_client):
     agent = SupervisorAgent(SupervisorAgentOptions(
         supervisor=supervisor,
         team=[],
-        extra_tools=Tools(tools=[custom_tool])
+        extra_tools=AgentTools(tools=[custom_tool])
     ))
 
     assert len(agent.supervisor_tools.tools) > 1

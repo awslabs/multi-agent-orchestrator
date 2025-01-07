@@ -31,7 +31,7 @@ class ToolResult:
             }
         }
 
-class Tool:
+class AgentTool:
     def __init__(self,
                 name: str,
                 description: Optional[str] = None,
@@ -167,9 +167,9 @@ class Tool:
             }
         }
 
-class Tools:
-    def __init__(self, tools:list[Tool]):
-        self.tools:list[Tool] = tools
+class AgentTools:
+    def __init__(self, tools:list[AgentTool]):
+        self.tools:list[AgentTool] = tools
 
     async def tool_handler(self, provider_type, response: Any, _conversation: list[dict[str, Any]]) -> Any:
         if not response.content:

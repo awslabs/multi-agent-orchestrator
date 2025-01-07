@@ -14,7 +14,7 @@ from multi_agent_orchestrator.agents import (
 from multi_agent_orchestrator.classifiers import ClassifierResult
 from multi_agent_orchestrator.types import ConversationMessage
 from multi_agent_orchestrator.storage import DynamoDbChatStorage
-from multi_agent_orchestrator.utils import Tool
+from multi_agent_orchestrator.utils import AgentTool
 
 try:
     from multi_agent_orchestrator.agents import AnthropicAgent,  AnthropicAgentOptions
@@ -112,7 +112,7 @@ supervisor = SupervisorAgent(
             region='us-east-1'
         ),
         trace=True,
-        extra_tools=[Tool(
+        extra_tools=[AgentTool(
             name="get_current_date",
             func=get_current_date,
         )]

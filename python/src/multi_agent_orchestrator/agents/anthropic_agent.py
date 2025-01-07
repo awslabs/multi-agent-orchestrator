@@ -8,7 +8,7 @@ from multi_agent_orchestrator.types import (ConversationMessage,
                        ParticipantRole,
                        TemplateVariables,
                        AgentProviderType)
-from multi_agent_orchestrator.utils import Logger, Tools
+from multi_agent_orchestrator.utils import Logger, AgentTools
 from multi_agent_orchestrator.retrievers import Retriever
 
 @dataclass
@@ -19,7 +19,7 @@ class AnthropicAgentOptions(AgentOptions):
     streaming: Optional[bool] = False
     inference_config: Optional[Dict[str, Any]] = None
     retriever: Optional[Retriever] = None
-    tool_config: Optional[Union[dict[str, Any], Tools]] = None
+    tool_config: Optional[Union[dict[str, Any], AgentTools]] = None
     custom_system_prompt: Optional[Dict[str, Any]] = None
 
 
@@ -133,7 +133,7 @@ class AnthropicAgent(Agent):
 
         try:
             if self.tool_config:
-                tools = self.tool_config["tool"] if not isinstance(self.tool_config["tool"], Tools) else self.tool_config["tool"].to_claude_format()
+                tools = self.tool_config["tool"] if not isinstance(self.tool_config["tool"], AgentTools) else self.tool_config["tool"].to_claude_format()
 
                 input['tools'] = tools
                 final_message = ''
@@ -157,7 +157,7 @@ class AnthropicAgent(Agent):
                             # user is handling the tool blocks itself
                             tool_response = await self.tool_config['useToolHandler'](response, input['messages'])
                         else:
-                            tools:Tools = self.tool_config["tool"]
+                            tools:AgentTools = self.tool_config["tool"]
                             # no handler has been provided, we can use the default implementation
                             tool_response = await tools.tool_handler(AgentProviderType.ANTHROPIC.value, response, messages)
                         input['messages'].append(tool_response)

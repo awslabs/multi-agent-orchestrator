@@ -8,7 +8,7 @@ from multi_agent_orchestrator.agents import (
     SupervisorAgent, SupervisorAgentOptions)
 from multi_agent_orchestrator.classifiers import ClassifierResult
 from multi_agent_orchestrator.types import ConversationMessage
-from multi_agent_orchestrator.utils import Tool, Tools
+from multi_agent_orchestrator.utils import AgentTool, AgentTools
 from search_web import search_web
 
 # Set up the Streamlit app
@@ -20,7 +20,7 @@ To learn more about the agents used in this demo visit [this link](https://githu
 .
 """)
 
-search_web_tool = Tool(name='search_web',
+search_web_tool = AgentTool(name='search_web',
                           description='Search Web for information',
                           properties={
                               'query': {
@@ -47,7 +47,7 @@ your tasks consist of:
 4. Remember: the quality of the results is important.
 """,
     tool_config={
-        'tool': Tools(tools=[search_web_tool]),
+        'tool': AgentTools(tools=[search_web_tool]),
         'toolMaxRecursions': 20,
     },
     save_chat=False

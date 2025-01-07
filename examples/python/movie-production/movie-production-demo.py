@@ -12,7 +12,7 @@ from multi_agent_orchestrator.agents import (
 )
 from multi_agent_orchestrator.types import ConversationMessage
 from multi_agent_orchestrator.classifiers import ClassifierResult
-from multi_agent_orchestrator.utils import Tools, Tool
+from multi_agent_orchestrator.utils import AgentTools, AgentTool
 
 # Function to test AWS connection
 def test_aws_connection():
@@ -44,7 +44,7 @@ if not test_aws_connection():
     st.stop()
 
 # Define the tools
-search_web_tool = Tool(name='search_web',
+search_web_tool = AgentTool(name='search_web',
                        description='Search Web for information',
                        properties={
                            'query': {
@@ -85,7 +85,7 @@ Your tasks consist of:
 5. Provide a final response with all the actors you suggest for the main roles.
 """,
     tool_config={
-        'tool': Tools(tools=[search_web_tool]),
+        'tool': AgentTools(tools=[search_web_tool]),
         'toolMaxRecursions': 20,
     },
     save_chat=False

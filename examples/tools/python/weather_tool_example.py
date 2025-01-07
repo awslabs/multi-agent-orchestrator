@@ -5,7 +5,7 @@ from multi_agent_orchestrator.agents import (
     AnthropicAgent, AnthropicAgentOptions,
     Agent
     )
-from multi_agent_orchestrator.utils.tool import Tools, Tool
+from multi_agent_orchestrator.utils.tool import AgentTools, AgentTool
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 
 def get_weather(city:str):
@@ -19,13 +19,13 @@ def get_weather(city:str):
     return f'It is sunny in {city}!'
 
 # Create a tool definition with clear name and description
-weather_tool_with_func:Tools = Tools(tools=[Tool(
+weather_tool_with_func:AgentTools = AgentTools(tools=[AgentTool(
     name='get_weather',
     description="Get the current weather for a given city. Expects city name as input.",
     func=get_weather
 )])
 
-weather_tool_with_properties:Tools = Tools(tools=[Tool(
+weather_tool_with_properties:AgentTools = AgentTools(tools=[AgentTool(
         name='get_weather',
         description="Get the current weather for a given city. Expects city name as input.",
         func=get_weather,

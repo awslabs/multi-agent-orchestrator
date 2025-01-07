@@ -16,7 +16,7 @@ if AnthropicAgent is None and BedrockLLMAgent is None:
     raise ImportError("No agents available. Please install at least one agent: AnthropicAgent or BedrockLLMAgent")
 
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, TimestampedMessage
-from multi_agent_orchestrator.utils import Logger, Tools, Tool
+from multi_agent_orchestrator.utils import Logger, AgentTools, AgentTool
 from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
 
 
@@ -26,7 +26,7 @@ class SupervisorAgentOptions(AgentOptions):
     team: list[Agent] = field(default_factory=list) # a team of agents that can help in resolving tasks
     storage: Optional[ChatStorage] = None # memory storage for the team
     trace: Optional[bool] = None # enable tracing/logging
-    extra_tools: Optional[Union[Tools, list[Tool]]] = None # add extra tools to the supervisor
+    extra_tools: Optional[Union[AgentTools, list[AgentTool]]] = None # add extra tools to the supervisor
 
     # Hide inherited fields
     name: str = field(init=False)
@@ -36,15 +36,15 @@ class SupervisorAgentOptions(AgentOptions):
         if not isinstance(self.supervisor, (BedrockLLMAgent, AnthropicAgent)):
             raise ValueError("Supervisor must be BedrockLLMAgent or AnthropicAgent")
         if self.extra_tools:
-            if not isinstance(self.extra_tools, (Tools, list)):
+            if not isinstance(self.extra_tools, (AgentTools, list)):
                 raise ValueError('extra_tools must be Tools object or list of Tool objects')
 
             # Get the tools list to validate, regardless of container type
             tools_to_check = (
-                self.extra_tools.tools if isinstance(self.extra_tools, Tools)
+                self.extra_tools.tools if isinstance(self.extra_tools, AgentTools)
                 else self.extra_tools
             )
-            if not all(isinstance(tool, Tool) for tool in tools_to_check):
+            if not all(isinstance(tool, AgentTool) for tool in tools_to_check):
                 raise ValueError('extra_tools must be Tools object or list of Tool objects')
 
         if self.supervisor.tool_config:
@@ -75,9 +75,9 @@ class SupervisorAgent(Agent):
         self._configure_supervisor_tools(options.extra_tools)
         self._configure_prompt()
 
-    def _configure_supervisor_tools(self, extra_tools: Optional[Union[Tools, list[Tool]]]) -> None:
+    def _configure_supervisor_tools(self, extra_tools: Optional[Union[AgentTools, list[AgentTool]]]) -> None:
         """Configure the tools available to the supervisor."""
-        self.supervisor_tools = Tools([Tool(
+        self.supervisor_tools = AgentTools([AgentTool(
             name='send_messages',
             description='Send messages to multiple agents in parallel.',
             properties={
@@ -106,7 +106,7 @@ class SupervisorAgent(Agent):
         )])
 
         if extra_tools:
-            if isinstance(extra_tools, Tools):
+            if isinstance(extra_tools, AgentTools):
                 self.supervisor_tools.tools.extend(extra_tools.tools)
             else:
                 self.supervisor_tools.tools.extend(extra_tools)
