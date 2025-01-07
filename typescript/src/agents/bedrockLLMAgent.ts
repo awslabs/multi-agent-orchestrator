@@ -136,7 +136,7 @@ export class BedrockLLMAgent extends Agent {
    * @param toolResults - An array of ToolResult objects that need to be formatted.
    * @returns A ConversationMessage object containing the formatted tool results.
    */
-  private formatToolResults(toolResults: ToolResult[]): ConversationMessage {  
+  private formatToolResults(toolResults: ToolResult[]): ConversationMessage {
     return {
       role: ParticipantRole.USER,
       content: toolResults.map((item: any) => ({
@@ -147,7 +147,7 @@ export class BedrockLLMAgent extends Agent {
       }))
     }as ConversationMessage;
   }
-  
+
   /**
    * Transforms the tools into a format compatible with the system's expected structure.
    * This method maps each tool to an object containing its name, description, and input schema.
@@ -212,7 +212,7 @@ export class BedrockLLMAgent extends Agent {
    * @returns The tool use block if present, otherwise null.
    */
   private getToolUseBlock(block: any): any {
-      return block.toolUse;    
+      return block.toolUse;
   }
 
   /**
@@ -271,12 +271,12 @@ export class BedrockLLMAgent extends Agent {
           topP: this.inferenceConfig.topP,
           stopSequences: this.inferenceConfig.stopSequences,
         },
-        ...(this.guardrailConfig && { 
-          guardrailConfig: this.guardrailConfig 
+        ...(this.guardrailConfig && {
+          guardrailConfig: this.guardrailConfig
         }),
-        ...(this.toolConfig && { 
+        ...(this.toolConfig && {
           toolConfig: {
-            tools: this.toolConfig.tool instanceof Tools 
+            tools: this.toolConfig.tool instanceof Tools
               ? this.formatTools(this.toolConfig.tool)
               : this.toolConfig.tool
           }
@@ -304,7 +304,7 @@ export class BedrockLLMAgent extends Agent {
               // forward everything to the tool use handler
               const tools = this.toolConfig.tool;
 
-              const toolHandler = this.toolConfig.useToolHandler ?? 
+              const toolHandler = this.toolConfig.useToolHandler ??
                 (async (response) => {
                   return tools.toolHandler(
                     response,
