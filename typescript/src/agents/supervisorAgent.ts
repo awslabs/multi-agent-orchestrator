@@ -8,7 +8,7 @@ import { InMemoryChatStorage } from "../storage/memoryChatStorage";
 import { ChatStorage } from "../storage/chatStorage";
 
 export interface SupervisorAgentOptions extends AgentOptions{
-  supervisor: BedrockLLMAgent | AnthropicAgent;
+  leadAgent: BedrockLLMAgent | AnthropicAgent;
   team: Agent[];
   storage?: ChatStorage;
   trace?: boolean;
@@ -18,7 +18,7 @@ export interface SupervisorAgentOptions extends AgentOptions{
 export class SupervisorAgent extends Agent {
   private static readonly DEFAULT_TOOL_MAX_RECURSIONS = 40;
 
-  private supervisor: BedrockLLMAgent | AnthropicAgent;
+  private leadAgent: BedrockLLMAgent | AnthropicAgent;
   private team: Agent[];
   private storage: ChatStorage;
   private trace: boolean;
@@ -30,8 +30,8 @@ export class SupervisorAgent extends Agent {
   constructor(options: SupervisorAgentOptions) {
     if (
       !(
-        options.supervisor instanceof BedrockLLMAgent ||
-        options.supervisor instanceof AnthropicAgent
+        options.leadAgent instanceof BedrockLLMAgent ||
+        options.leadAgent instanceof AnthropicAgent
       )
     ) {
       throw new Error("Supervisor must be BedrockLLMAgent or AnthropicAgent");
@@ -49,7 +49,7 @@ export class SupervisorAgent extends Agent {
       );
     }
 
-    if (options.supervisor.toolConfig) {
+    if (options.leadAgent.toolConfig) {
       throw new Error(
         "Supervisor tools are managed by SupervisorAgent. Use extraTools for additional tools."
       );
@@ -57,11 +57,11 @@ export class SupervisorAgent extends Agent {
 
     super({
       ...options,
-      name: options.supervisor.name,
-      description: options.supervisor.description,
+      name: options.leadAgent.name,
+      description: options.leadAgent.description,
     });
 
-    this.supervisor = options.supervisor;
+    this.leadAgent = options.leadAgent;
     this.team = options.team;
     this.storage = options.storage || new InMemoryChatStorage();
 
@@ -110,7 +110,7 @@ export class SupervisorAgent extends Agent {
 
     console.log();
 
-    this.supervisor.toolConfig = {
+    this.leadAgent.toolConfig = {
       tool: this.supervisorTools,
       toolMaxRecursions: SupervisorAgent.DEFAULT_TOOL_MAX_RECURSIONS,
     };
@@ -166,7 +166,7 @@ When communicating with other agents, including the User, please follow these gu
 </agents_memory>
 `;
 
-    this.supervisor.setSystemPrompt(this.promptTemplate);
+    this.leadAgent.setSystemPrompt(this.promptTemplate);
   }
 
   private async accumulateStreamResponse(
@@ -323,11 +323,11 @@ When communicating with other agents, including the User, please follow these gu
       const agentsHistory = await this.storage.fetchAllChats(userId, sessionId);
       const agentsMemory = this.formatAgentsMemory(agentsHistory);
 
-      this.supervisor.setSystemPrompt(
+      this.leadAgent.setSystemPrompt(
         this.promptTemplate.replace("{{AGENTS_MEMORY}}", agentsMemory)
       );
 
-      return await this.supervisor.processRequest(
+      return await this.leadAgent.processRequest(
         inputText,
         userId,
         sessionId,

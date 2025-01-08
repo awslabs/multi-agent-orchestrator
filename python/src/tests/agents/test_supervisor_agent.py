@@ -57,9 +57,9 @@ class MockBedrockLLMAgent(BedrockLLMAgent):
 
 @pytest.fixture
 def supervisor_agent(mock_boto3_client):
-    supervisor = MockBedrockLLMAgent(BedrockLLMAgentOptions(
+    lead_agent = MockBedrockLLMAgent(BedrockLLMAgentOptions(
         name="Supervisor",
-        description="Test supervisor",
+        description="Test lead_agent",
     ))
 
     team_member = MockBedrockLLMAgent(BedrockLLMAgentOptions(
@@ -68,7 +68,7 @@ def supervisor_agent(mock_boto3_client):
     ))
 
     return SupervisorAgent(SupervisorAgentOptions(
-        supervisor=supervisor,
+        lead_agent=lead_agent,
         team=[team_member],
         storage=mock_storage(),
         trace=True
@@ -77,9 +77,9 @@ def supervisor_agent(mock_boto3_client):
 @pytest.mark.asyncio
 async def test_supervisor_agent_initialization(mock_boto3_client):
     """Test SupervisorAgent initialization"""
-    supervisor = MockBedrockLLMAgent(BedrockLLMAgentOptions(
+    lead_agent = MockBedrockLLMAgent(BedrockLLMAgentOptions(
         name="Supervisor",
-        description="Test supervisor"
+        description="Test lead_agent"
     ))
 
     team = [MockBedrockLLMAgent(BedrockLLMAgentOptions(
@@ -88,11 +88,11 @@ async def test_supervisor_agent_initialization(mock_boto3_client):
     ))]
 
     agent = SupervisorAgent(SupervisorAgentOptions(
-        supervisor=supervisor,
+        lead_agent=lead_agent,
         team=team
     ))
 
-    assert agent.supervisor == supervisor
+    assert agent.lead_agent == lead_agent
     assert len(agent.team) == 1
     assert isinstance(agent.storage, InMemoryChatStorage)
     assert agent.trace is None
@@ -103,19 +103,19 @@ async def test_supervisor_agent_validation(mock_boto3_client):
     """Test SupervisorAgent validation"""
     with pytest.raises(ValueError, match="Supervisor must be BedrockLLMAgent or AnthropicAgent"):
         SupervisorAgent(SupervisorAgentOptions(
-            supervisor=MagicMock(spec=Agent),
+            lead_agent=MagicMock(spec=Agent),
             team=[]
         ))
 
-    supervisor = MockBedrockLLMAgent(BedrockLLMAgentOptions(
+    lead_agent = MockBedrockLLMAgent(BedrockLLMAgentOptions(
         name="Supervisor",
-        description="Test supervisor"
+        description="Test lead_agent"
     ))
-    supervisor.tool_config = {'tool':{}}
+    lead_agent.tool_config = {'tool':{}}
 
     with pytest.raises(ValueError, match="Supervisor tools are managed by SupervisorAgent"):
         SupervisorAgent(SupervisorAgentOptions(
-            supervisor=supervisor,
+            lead_agent=lead_agent,
             team=[]
         ))
 
@@ -208,13 +208,13 @@ async def test_supervisor_agent_with_custom_tools(mock_boto3_client):
         func=mock_tool_function
     )
 
-    supervisor = MockBedrockLLMAgent(BedrockLLMAgentOptions(
+    lead_agent = MockBedrockLLMAgent(BedrockLLMAgentOptions(
         name="Supervisor",
-        description="Test supervisor"
+        description="Test lead_agent"
     ))
 
     agent = SupervisorAgent(SupervisorAgentOptions(
-        supervisor=supervisor,
+        lead_agent=lead_agent,
         team=[],
         extra_tools=[custom_tool]
     ))
@@ -241,13 +241,13 @@ async def test_supervisor_agent_with_custom_tools_(mock_boto3_client):
         func=mock_tool_function
     )
 
-    supervisor = MockBedrockLLMAgent(BedrockLLMAgentOptions(
+    lead_agent = MockBedrockLLMAgent(BedrockLLMAgentOptions(
         name="Supervisor",
-        description="Test supervisor"
+        description="Test lead_agent"
     ))
 
     agent = SupervisorAgent(SupervisorAgentOptions(
-        supervisor=supervisor,
+        lead_agent=lead_agent,
         team=[],
         extra_tools=AgentTools(tools=[custom_tool])
     ))
@@ -259,22 +259,22 @@ async def test_supervisor_agent_with_custom_tools_(mock_boto3_client):
 @pytest.mark.asyncio
 async def test_supervisor_agent_with_extra_tools(mock_boto3_client):
 
-    supervisor = MockBedrockLLMAgent(BedrockLLMAgentOptions(
+    lead_agent = MockBedrockLLMAgent(BedrockLLMAgentOptions(
         name="Supervisor",
-        description="Test supervisor"
+        description="Test lead_agent"
     ))
 
 
     with pytest.raises(Exception, match="extra_tools must be Tools object or list of Tool objects"):
         agent = SupervisorAgent(SupervisorAgentOptions(
-            supervisor=supervisor,
+            lead_agent=lead_agent,
             team=[],
             extra_tools=[{'tool':'here is my tool'}]
         ))
 
     with pytest.raises(Exception, match="extra_tools must be Tools object or list of Tool objects"):
         agent = SupervisorAgent(SupervisorAgentOptions(
-            supervisor=supervisor,
+            lead_agent=lead_agent,
             team=[],
             extra_tools="here is my tool"
         ))
@@ -289,13 +289,13 @@ async def test_supervisor_agent_error_handling(mock_boto3_client):
         async def process_request(self, *args, **kwargs):
             raise Exception("Test error")
 
-    supervisor = FailingMockAgent(BedrockLLMAgentOptions(
+    lead_agent = FailingMockAgent(BedrockLLMAgentOptions(
         name="Failing Supervisor",
-        description="Test failing supervisor"
+        description="Test failing lead_agent"
     ))
 
     agent = SupervisorAgent(SupervisorAgentOptions(
-        supervisor=supervisor,
+        lead_agent=lead_agent,
         team=[]
     ))
 
@@ -320,13 +320,13 @@ async def test_supervisor_agent_parallel_processing(mock_boto3_client):
         for i in range(3)
     ]
 
-    supervisor = MockBedrockLLMAgent(BedrockLLMAgentOptions(
+    lead_agent = MockBedrockLLMAgent(BedrockLLMAgentOptions(
         name="Supervisor",
-        description="Test supervisor"
+        description="Test lead_agent"
     ))
 
     agent = SupervisorAgent(SupervisorAgentOptions(
-        supervisor=supervisor,
+        lead_agent=lead_agent,
         team=team
     ))
 
@@ -346,13 +346,13 @@ async def test_supervisor_agent_parallel_processing(mock_boto3_client):
 @pytest.mark.asyncio
 async def test_supervisor_agent_memory_management(mock_boto3_client):
     """Test memory management functionality"""
-    supervisor = MockBedrockLLMAgent(BedrockLLMAgentOptions(
+    lead_agent = MockBedrockLLMAgent(BedrockLLMAgentOptions(
         name="Supervisor",
-        description="Test supervisor"
+        description="Test lead_agent"
     ))
 
     agent = SupervisorAgent(SupervisorAgentOptions(
-        supervisor=supervisor,
+        lead_agent=lead_agent,
         team=[],
         storage=mock_storage()
     ))

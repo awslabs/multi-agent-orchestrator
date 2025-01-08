@@ -22,18 +22,18 @@ from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
 
 @dataclass
 class SupervisorAgentOptions(AgentOptions):
-    supervisor: Agent = None # The agent that acts as a supervisor
+    lead_agent: Agent = None # The agent that leads the team coordination
     team: list[Agent] = field(default_factory=list) # a team of agents that can help in resolving tasks
     storage: Optional[ChatStorage] = None # memory storage for the team
     trace: Optional[bool] = None # enable tracing/logging
-    extra_tools: Optional[Union[AgentTools, list[AgentTool]]] = None # add extra tools to the supervisor
+    extra_tools: Optional[Union[AgentTools, list[AgentTool]]] = None # add extra tools to the lead_agent
 
     # Hide inherited fields
     name: str = field(init=False)
     description: str = field(init=False)
 
     def validate(self) -> None:
-        if not isinstance(self.supervisor, (BedrockLLMAgent, AnthropicAgent)):
+        if not isinstance(self.lead_agent, (BedrockLLMAgent, AnthropicAgent)):
             raise ValueError("Supervisor must be BedrockLLMAgent or AnthropicAgent")
         if self.extra_tools:
             if not isinstance(self.extra_tools, (AgentTools, list)):
@@ -47,7 +47,7 @@ class SupervisorAgentOptions(AgentOptions):
             if not all(isinstance(tool, AgentTool) for tool in tools_to_check):
                 raise ValueError('extra_tools must be Tools object or list of Tool objects')
 
-        if self.supervisor.tool_config:
+        if self.lead_agent.tool_config:
             raise ValueError('Supervisor tools are managed by SupervisorAgent. Use extra_tools for additional tools.')
 
 class SupervisorAgent(Agent):
@@ -61,11 +61,11 @@ class SupervisorAgent(Agent):
 
     def __init__(self, options: SupervisorAgentOptions):
         options.validate()
-        options.name = options.supervisor.name
-        options.description = options.supervisor.description
+        options.name = options.lead_agent.name
+        options.description = options.lead_agent.description
         super().__init__(options)
 
-        self.supervisor: Union[AnthropicAgent, BedrockLLMAgent] = options.supervisor
+        self.lead_agent: Union[AnthropicAgent, BedrockLLMAgent] = options.lead_agent
         self.team = options.team
         self.storage = options.storage or InMemoryChatStorage()
         self.trace = options.trace
@@ -76,7 +76,7 @@ class SupervisorAgent(Agent):
         self._configure_prompt()
 
     def _configure_supervisor_tools(self, extra_tools: Optional[Union[AgentTools, list[AgentTool]]]) -> None:
-        """Configure the tools available to the supervisor."""
+        """Configure the tools available to the lead_agent."""
         self.supervisor_tools = AgentTools([AgentTool(
             name='send_messages',
             description='Send messages to multiple agents in parallel.',
@@ -111,13 +111,13 @@ class SupervisorAgent(Agent):
             else:
                 self.supervisor_tools.tools.extend(extra_tools)
 
-        self.supervisor.tool_config = {
+        self.lead_agent.tool_config = {
             'tool': self.supervisor_tools,
             'toolMaxRecursions': self.DEFAULT_TOOL_MAX_RECURSIONS,
         }
 
     def _configure_prompt(self) -> None:
-        """Configure the supervisor's prompt template."""
+        """Configure the lead_agent's prompt template."""
         tools_str = "\n".join(f"{tool.name}:{tool.func_description}"
                             for tool in self.supervisor_tools.tools)
         agent_list_str = "\n".join(f"{agent.name}: {agent.description}"
@@ -163,7 +163,7 @@ When communicating with other agents, including the User, please follow these gu
 {{AGENTS_MEMORY}}
 </agents_memory>
 """
-        self.supervisor.set_system_prompt(self.prompt_template)
+        self.lead_agent.set_system_prompt(self.prompt_template)
 
     def send_message(
         self,
@@ -260,7 +260,7 @@ When communicating with other agents, including the User, please follow these gu
         chat_history: list[ConversationMessage],
         additional_params: Optional[dict[str, str]] = None
     ) -> Union[ConversationMessage, AsyncIterable[Any]]:
-        """Process a user request through the supervisor agent."""
+        """Process a user request through the lead_agent agent."""
         try:
             self.user_id = user_id
             self.session_id = session_id
@@ -268,11 +268,11 @@ When communicating with other agents, including the User, please follow these gu
             agents_history = await self.storage.fetch_all_chats(user_id, session_id)
             agents_memory = self._format_agents_memory(agents_history)
 
-            self.supervisor.set_system_prompt(
+            self.lead_agent.set_system_prompt(
                 self.prompt_template.replace('{AGENTS_MEMORY}', agents_memory)
             )
 
-            return await self.supervisor.process_request(
+            return await self.lead_agent.process_request(
                 input_text, user_id, session_id, chat_history, additional_params
             )
 

@@ -22,7 +22,7 @@ You can use the SupervisorAgent directly, bypassing the classifier, when you wan
     ```typescript
     // Create and configure SupervisorAgent
     const supervisorAgent = new SupervisorAgent({
-      supervisor: new BedrockLLMAgent({
+      leadAgent: new BedrockLLMAgent({
         name: "Support Team Lead",
         description: "Coordinates support inquiries"
       }),
@@ -55,7 +55,7 @@ You can use the SupervisorAgent directly, bypassing the classifier, when you wan
     ```python
     # Create and configure SupervisorAgent
     supervisor_agent = SupervisorAgent(SupervisorAgentOptions(
-        supervisor=BedrockLLMAgent(BedrockLLMAgentOptions(
+        lead_agent=BedrockLLMAgent(BedrockLLMAgentOptions(
             name="Support Team Lead",
             description="Coordinates support inquiries"
         )),
@@ -103,7 +103,7 @@ The SupervisorAgent can also be integrated into a larger system using the classi
 
     // Add a SupervisorAgent for complex support tasks
     orchestrator.addAgent(new SupervisorAgent({
-      supervisor: new BedrockLLMAgent({
+      leadAgent: new BedrockLLMAgent({
         name: "Support Team",
         description: "Coordinates support inquiries requiring multiple specialists"
       }),
@@ -112,7 +112,7 @@ The SupervisorAgent can also be integrated into a larger system using the classi
 
     // Add another SupervisorAgent for product development
     orchestrator.addAgent(new SupervisorAgent({
-      supervisor: new AnthropicAgent({
+      leadAgent: new AnthropicAgent({
         name: "Product Team",
         description: "Coordinates product development and feature requests"
       }),
@@ -139,7 +139,7 @@ The SupervisorAgent can also be integrated into a larger system using the classi
 
     # Add a SupervisorAgent for complex support tasks
     orchestrator.add_agent(SupervisorAgent(SupervisorAgentOptions(
-        supervisor=BedrockLLMAgent(BedrockLLMAgentOptions(
+        lead_agent=BedrockLLMAgent(BedrockLLMAgentOptions(
             name="Support Team",
             description="Coordinates support inquiries requiring multiple specialists"
         )),
@@ -148,7 +148,7 @@ The SupervisorAgent can also be integrated into a larger system using the classi
 
     # Add another SupervisorAgent for product development
     orchestrator.add_agent(SupervisorAgent(SupervisorAgentOptions(
-        supervisor=AnthropicAgent(AnthropicAgentOptions(
+        lead_agent=AnthropicAgent(AnthropicAgentOptions(
             name="Product Team",
             description="Coordinates product development and feature requests"
         )),
@@ -191,7 +191,7 @@ This flexibility allows you to:
 
 ## Core Components
 
-### 1. Supervisor (Base Agent)
+### 1. Supervisor (Lead Agent)
 - Must be either a [BedrockLLMAgent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) or [AnthropicAgent](/multi-agent-orchestrator/agents/built-in/anthropic-agent)
 - Acts as the central coordinator
 - Communicates with team members through a tool interface
@@ -278,7 +278,7 @@ Supervisor → User: I've checked both issues. Your billing account is in good s
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
     interface SupervisorAgentOptions extends AgentOptions {
-      supervisor: BedrockLLMAgent | AnthropicAgent;  // The agent that acts as supervisor
+      leadAgent: BedrockLLMAgent | AnthropicAgent;  // The agent that leads the team coordination
       team: Agent[];  // Team of agents to coordinate
       storage?: ChatStorage;  // Memory storage implementation
       trace?: boolean;  // Enable detailed logging
@@ -290,7 +290,7 @@ Supervisor → User: I've checked both issues. Your billing account is in good s
     ```python
     @dataclass
     class SupervisorAgentOptions(AgentOptions):
-        supervisor: Agent  # The agent that acts as a supervisor
+        lead_agent: Agent  # The agent that leads the team coordination
         team: list[Agent]  # Team of agents that can help in resolving tasks
         storage: Optional[ChatStorage]  # Memory storage for the team
         trace: Optional[bool]  # Enable tracing/logging
@@ -300,7 +300,7 @@ Supervisor → User: I've checked both issues. Your billing account is in good s
 </Tabs>
 
 ### Required Parameters
-- `supervisor`: Must be either a BedrockLLMAgent or AnthropicAgent instance
+- `leadAgent`/`lead_agent`: Must be either a BedrockLLMAgent or AnthropicAgent instance
 - `team`: List of agents that will be coordinated by the supervisor
 
 ### Optional Parameters
@@ -363,7 +363,7 @@ The SupervisorAgent includes a built-in tool for parallel message processing:
     ];
 
     const supervisorAgent = new SupervisorAgent({
-      supervisor: supervisor,
+      leadAgent: supervisor,
       team: [techAgent, billingAgent],
       extraTools: customTools
     });
@@ -387,7 +387,7 @@ The SupervisorAgent includes a built-in tool for parallel message processing:
     ]
 
     supervisor_agent = SupervisorAgent(SupervisorAgentOptions(
-        supervisor=supervisor,
+        lead_agent=supervisor,
         team=[tech_agent, billing_agent],
         extra_tools=custom_tools
     ))
@@ -470,7 +470,7 @@ Here's a complete example showing how to use the SupervisorAgent in a typical sc
       // Create orchestrator
       const orchestrator = new MultiAgentOrchestrator();
 
-      // Create supervisor (base agent)
+      // Create supervisor (lead agent)
       const supervisor = new BedrockLLMAgent({
         name: "Team Lead",
         description: "Coordinates specialized team members",
@@ -508,7 +508,7 @@ Here's a complete example showing how to use the SupervisorAgent in a typical sc
 
       // Create SupervisorAgent
       const supervisorAgent = new SupervisorAgent({
-        supervisor: supervisor,
+        leadAgent: supervisor,
         team: [techAgent, billingAgent],
         storage: new DynamoDBChatStorage("conversation-table", "us-east-1"),
         trace: true,
@@ -598,7 +598,7 @@ Here's a complete example showing how to use the SupervisorAgent in a typical sc
 
     # Create and add supervisor agent
     supervisor_agent = SupervisorAgent(SupervisorAgentOptions(
-        supervisor=supervisor,
+        lead_agent=supervisor,
         team=[tech_agent, billing_agent],
         storage=DynamoDBChatStorage(),
         trace=True,
@@ -636,7 +636,7 @@ Here's a complete example showing how to use the SupervisorAgent in a typical sc
 
 ## Limitations
 
-- Supervisor must be either BedrockLLMAgent or AnthropicAgent
+- LeadAgent must be either BedrockLLMAgent or AnthropicAgent
 - May require significant memory for large conversation histories
 - Performance depends on slowest agent in parallel operations
 

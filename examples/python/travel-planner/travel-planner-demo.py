@@ -71,7 +71,7 @@ your tasks consist of:
 ))
 
 supervisor = SupervisorAgent(SupervisorAgentOptions(
-    supervisor=planner_agent,
+    lead_agent=planner_agent,
     team=[researcher_agent],
     trace=True
 ))

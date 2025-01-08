@@ -82,14 +82,14 @@ airlines_agent = LexBotAgent(LexBotAgentOptions(name='AirlinesBot',
                                               bot_alias_id=os.getenv('AIRLINES_BOT_ALIAS_ID', None)))
 
 if _ANTHROPIC_AVAILABLE:
-    supervisor_agent = AnthropicAgent(AnthropicAgentOptions(
+    lead_agent = AnthropicAgent(AnthropicAgentOptions(
         api_key=os.getenv('ANTHROPIC_API_KEY', None),
         name="SupervisorAgent",
         description="You are a supervisor agent. You are responsible for managing the flow of the conversation. You are only allowed to manage the flow of the conversation. You are not allowed to answer questions about anything else.",
         model_id="claude-3-5-sonnet-latest",
     ))
 else:
-    supervisor_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+    lead_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
         name="SupervisorAgent",
         model_id="amazon.nova-pro-v1:0",
         description="You are a supervisor agent. You are responsible for managing the flow of the conversation. You are only allowed to manage the flow of the conversation. You are not allowed to answer questions about anything else.",
@@ -105,7 +105,7 @@ async def get_current_date():
 
 supervisor = SupervisorAgent(
     SupervisorAgentOptions(
-        supervisor=supervisor_agent,
+        lead_agent=lead_agent,
         team=[airlines_agent, travel_agent, tech_agent, sales_agent, health_agent, claim_agent, weather_agent],
         storage=DynamoDbChatStorage(
             table_name=os.getenv('DYNAMODB_CHAT_HISTORY_TABLE_NAME', None),
