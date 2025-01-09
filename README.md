@@ -106,7 +106,8 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 > - Product Development Teams
 > - Healthcare Coordination Systems
 >
-> [Learn more about SupervisorAgent →](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/supervisor-agent)
+
+[Learn more about SupervisorAgent →](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/supervisor-agent)
 
 
 ## 💬 Demo App
