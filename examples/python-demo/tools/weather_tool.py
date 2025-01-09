@@ -2,7 +2,7 @@ import requests
 from requests.exceptions import RequestException
 from typing import List, Dict, Any
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.utils import Tool, Tools
+from multi_agent_orchestrator.utils import AgentTool, AgentTools
 import json
 
 async def fetch_weather_data(latitude:str, longitude:str):
@@ -29,7 +29,7 @@ async def fetch_weather_data(latitude:str, longitude:str):
         return {"error": type(e), "message": str(e)}
 
 
-weather_tools:Tools = Tools(tools=[Tool(name="Weather_Tool",
+weather_tools:AgentTools = AgentTools(tools=[AgentTool(name="Weather_Tool",
                             description="Get the current weather for a given location, based on its WGS84 coordinates.",
                             func=fetch_weather_data
                             )])

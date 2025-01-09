@@ -12,7 +12,9 @@ import {
   TemplateVariables,
 } from "../types";
 import { Retriever } from "../retrievers/retriever";
-import { Logger } from "../utils/logger"
+import { Logger } from "../utils/logger";
+import { AgentToolResult, AgentTools } from "../utils/tool";
+import { isConversationMessage } from "../utils/helpers";
 
 export interface BedrockLLMAgentOptions extends AgentOptions {
   streaming?: boolean;
@@ -28,12 +30,13 @@ export interface BedrockLLMAgentOptions extends AgentOptions {
   };
   retriever?: Retriever;
   toolConfig?: {
-    tool: Tool[];
-    useToolHandler: (response: any, conversation: ConversationMessage[]) => any ;
+    tool: AgentTools | Tool[];
+    useToolHandler: (response: any, conversation: ConversationMessage[]) => any;
     toolMaxRecursions?: number;
   };
   customSystemPrompt?: {
-    template: string, variables?: TemplateVariables
+    template: string;
+    variables?: TemplateVariables;
   };
   client?: BedrockRuntimeClient;
 }
@@ -69,9 +72,12 @@ export class BedrockLLMAgent extends Agent {
 
   protected retriever?: Retriever;
 
-  private toolConfig?: {
-    tool: any[];
-    useToolHandler: (response: any, conversation: ConversationMessage[]) => any;
+  public toolConfig?: {
+    tool: AgentTools | Tool[];
+    useToolHandler?: (
+      response: any,
+      conversation: ConversationMessage[]
+    ) => any;
     toolMaxRecursions?: number;
   };
 
@@ -87,9 +93,11 @@ export class BedrockLLMAgent extends Agent {
   constructor(options: BedrockLLMAgentOptions) {
     super(options);
 
-    this.client = options.client ? options.client : options.region
-      ? new BedrockRuntimeClient({ region: options.region })
-      : new BedrockRuntimeClient();
+    this.client = options.client
+      ? options.client
+      : options.region
+        ? new BedrockRuntimeClient({ region: options.region })
+        : new BedrockRuntimeClient();
 
     // Initialize the modelId
     this.modelId = options.modelId ?? BEDROCK_MODEL_ID_CLAUDE_3_HAIKU;
@@ -118,7 +126,7 @@ export class BedrockLLMAgent extends Agent {
     - Draw insights and connections from your extensive knowledge when appropriate.
     - Ask for clarification if any part of the question or prompt is ambiguous.
     - Maintain a consistent, respectful, and engaging tone tailored to the human's communication style.
-    - Seamlessly transition between topics as the human introduces new subjects.`
+    - Seamlessly transition between topics as the human introduces new subjects.`;
 
     if (options.customSystemPrompt) {
       this.setSystemPrompt(
@@ -126,7 +134,105 @@ export class BedrockLLMAgent extends Agent {
         options.customSystemPrompt.variables
       );
     }
+  }
 
+  /**
+   * Type guard to check if the tool is an AgentTools instance
+   */
+  private isAgentTools(tool: AgentTools | Tool[]): tool is AgentTools {
+    return tool instanceof AgentTools;
+  }
+
+  /**
+   * Formats the tool results into a conversation message format.
+   * This method converts an array of tool results into a format expected by the system.
+   *
+   * @param toolResults - An array of ToolResult objects that need to be formatted.
+   * @returns A ConversationMessage object containing the formatted tool results.
+   */
+  private formatToolResults(
+    toolResults: AgentToolResult[]
+  ): ConversationMessage {
+    if (isConversationMessage(toolResults)) {
+      return toolResults as ConversationMessage;
+    }
+
+    return {
+      role: ParticipantRole.USER,
+      content: toolResults.map((item: any) => ({
+        toolResult: {
+          toolUseId: item.toolUseId,
+          content: [{ text: item.content }],
+        },
+      })),
+    } as ConversationMessage;
+  }
+
+  /**
+   * Transforms the tools into a format compatible with the system's expected structure.
+   * This method maps each tool to an object containing its name, description, and input schema.
+   *
+   * @param tools - The Tools object containing an array of tools to be formatted.
+   * @returns An array of formatted tool specifications.
+   */
+  private formatTools(tools: AgentTools): any[] {
+    return tools.tools.map((tool) => ({
+      toolSpec: {
+        name: tool.name,
+        description: tool.description,
+        inputSchema: {
+          json: {
+            type: "object",
+            properties: tool.properties,
+            required: tool.required,
+          },
+        },
+      },
+    }));
+  }
+
+  /**
+   * Extracts the tool name from the tool use block.
+   * This method retrieves the `name` field from the provided tool use block.
+   *
+   * @param toolUseBlock - The block containing tool use details, including a `name` field.
+   * @returns The name of the tool from the provided block.
+   */
+  private getToolName(toolUseBlock: any): string {
+    return toolUseBlock.name;
+  }
+
+  /**
+   * Extracts the tool ID from the tool use block.
+   * This method retrieves the `toolUseId` field from the provided tool use block.
+   *
+   * @param toolUseBlock - The block containing tool use details, including a `toolUseId` field.
+   * @returns The tool ID from the provided block.
+   */
+  private getToolId(toolUseBlock: any): string {
+    return toolUseBlock.toolUseId;
+  }
+
+  /**
+   * Extracts the input data from the tool use block.
+   * This method retrieves the `input` field from the provided tool use block.
+   *
+   * @param toolUseBlock - The block containing tool use details, including an `input` field.
+   * @returns The input data associated with the tool use block.
+   */
+  private getInputData(toolUseBlock: any): any {
+    return toolUseBlock.input;
+  }
+
+  /**
+   * Retrieves the tool use block from the provided block.
+   * This method checks if the block contains a `toolUse` field and returns it.
+   *
+   * @param block - The block from which the tool use block needs to be extracted.
+   * @returns The tool use block if present, otherwise null.
+   */
+  private getToolUseBlock(block: any): any {
+    return block.toolUse;
   }
 
   /**
@@ -147,7 +253,6 @@ export class BedrockLLMAgent extends Agent {
     additionalParams?: Record<string, string>
   ): Promise<ConversationMessage | AsyncIterable<any>> {
     try {
-
       // Construct the user's message based on the provided inputText
       const userMessage: ConversationMessage = {
         role: ParticipantRole.USER,
@@ -155,10 +260,7 @@ export class BedrockLLMAgent extends Agent {
       };
 
       // Combine the existing chat history with the user's message
-      const conversation: ConversationMessage[] = [
-        ...chatHistory,
-        userMessage,
-      ];
+      const conversation: ConversationMessage[] = [...chatHistory, userMessage];
 
       this.updateSystemPrompt();
 
@@ -167,17 +269,18 @@ export class BedrockLLMAgent extends Agent {
       // Update the system prompt with the latest history, agent descriptions, and custom variables
       if (this.retriever) {
         // retrieve from Vector store
-        const response = await this.retriever.retrieveAndCombineResults(inputText);
+        const response =
+          await this.retriever.retrieveAndCombineResults(inputText);
         const contextPrompt =
           "\nHere is the context to use to answer the user's question:\n" +
           response;
-          systemPrompt = systemPrompt + contextPrompt;
+        systemPrompt = systemPrompt + contextPrompt;
       }
 
       // Prepare the command to converse with the Bedrock API
       const converseCmd = {
         modelId: this.modelId,
-        messages: conversation, //Include the updated conversation history
+        messages: conversation,
         system: [{ text: systemPrompt }],
         inferenceConfig: {
           maxTokens: this.inferenceConfig.maxTokens,
@@ -185,44 +288,80 @@ export class BedrockLLMAgent extends Agent {
           topP: this.inferenceConfig.topP,
           stopSequences: this.inferenceConfig.stopSequences,
         },
-        guardrailConfig: this.guardrailConfig? this.guardrailConfig:undefined,
-        toolConfig: (this.toolConfig ? { tools:this.toolConfig.tool}:undefined)
+        ...(this.guardrailConfig && {
+          guardrailConfig: this.guardrailConfig,
+        }),
+        ...(this.toolConfig && {
+          toolConfig: {
+            tools:
+              this.toolConfig.tool instanceof AgentTools
+                ? this.formatTools(this.toolConfig.tool)
+                : this.toolConfig.tool,
+          },
+        }),
       };
 
-      if (this.streaming){
+      if (this.streaming) {
         return this.handleStreamingResponse(converseCmd);
       } else {
-          let continueWithTools = false;
-          let finalMessage:ConversationMessage = { role: ParticipantRole.USER, content:[]};
-          let maxRecursions = this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
+        let continueWithTools = false;
+        let finalMessage: ConversationMessage = {
+          role: ParticipantRole.USER,
+          content: [],
+        };
+        let maxRecursions =
+          this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
 
-          do{
-            // send the conversation to Amazon Bedrock
-            const bedrockResponse = await this.handleSingleResponse(converseCmd);
+        do {
+          // send the conversation to Amazon Bedrock
+          const bedrockResponse = await this.handleSingleResponse(converseCmd);
 
-            // Append the model's response to the ongoing conversation
-            conversation.push(bedrockResponse);
+          // Append the model's response to the ongoing conversation
+          conversation.push(bedrockResponse);
+          // process model response
+          if (
+            bedrockResponse?.content?.some((content) => "toolUse" in content)
+          ) {
+            // forward everything to the tool use handler
+            const tools = this.toolConfig.tool;
 
-            // process model response
-            if (bedrockResponse?.content?.some((content) => 'toolUse' in content)){
-              // forward everything to the tool use handler
-              if (!this.toolConfig){
-                throw new Error("Tool config is not defined");
-              }
-              const toolResponse = await this.toolConfig.useToolHandler(bedrockResponse, conversation);
-              continueWithTools = true;
-              converseCmd.messages.push(toolResponse);
-            }
-            else {
-              continueWithTools = false;
-              finalMessage = bedrockResponse;
-            }
-            maxRecursions--;
+            const toolHandler =
+              this.toolConfig.useToolHandler ??
+              (async (response, conversationHistory) => {
+                if (this.isAgentTools(tools)) {
+                  return tools.toolHandler(
+                    response,
+                    this.getToolUseBlock.bind(this),
+                    this.getToolName.bind(this),
+                    this.getToolId.bind(this),
+                    this.getInputData.bind(this)
+                  );
+                }
+                // Only use legacy handler when it's not AgentTools
+                return this.toolConfig.useToolHandler(
+                  response,
+                  conversationHistory
+                );
+              });
 
-            converseCmd.messages = conversation;
+            const toolResponse = await toolHandler(
+              bedrockResponse,
+              conversation
+            );
 
-          }while (continueWithTools && maxRecursions > 0)
-          return finalMessage;
+            const formattedResponse = this.formatToolResults(toolResponse);
+
+            continueWithTools = true;
+            converseCmd.messages.push(formattedResponse);
+          } else {
+            continueWithTools = false;
+            finalMessage = bedrockResponse;
+          }
+          maxRecursions--;
+
+          converseCmd.messages = conversation;
+        } while (continueWithTools && maxRecursions > 0);
+        return finalMessage;
       }
     } catch (error) {
       Logger.logger.error("Error processing request:", error.message);
@@ -230,7 +369,9 @@ export class BedrockLLMAgent extends Agent {
     }
   }
 
-  protected async handleSingleResponse(input: any): Promise<ConversationMessage> {
+  protected async handleSingleResponse(
+    input: any
+  ): Promise<ConversationMessage> {
     try {
       const command = new ConverseCommand(input);
 
@@ -246,44 +387,56 @@ export class BedrockLLMAgent extends Agent {
   }
 
   private async *handleStreamingResponse(input: any): AsyncIterable<string> {
-      let toolBlock:any = {toolUseId:'', input:{}, name:''};
-      let inputString = '';
-      let toolUse = false;
-      let recursions = this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
+    let toolBlock: any = { toolUseId: "", input: {}, name: "" };
+    let inputString = "";
+    let toolUse = false;
+    let recursions =
+      this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
 
-      try {
-          do
-          {
-              const command = new ConverseStreamCommand(input);
-              const response = await this.client.send(command);
-              if (!response.stream) {
-                  throw new Error("No stream received from Bedrock model");
-              }
-              for await (const chunk of response.stream) {
-                  if (chunk.contentBlockDelta && chunk.contentBlockDelta.delta && chunk.contentBlockDelta.delta.text) {
-                      yield chunk.contentBlockDelta.delta.text;
-                  } else if (chunk.contentBlockStart?.start?.toolUse){
-                      toolBlock = chunk.contentBlockStart?.start?.toolUse
-                  } else if (chunk.contentBlockDelta?.delta?.toolUse){
-                      inputString += chunk.contentBlockDelta.delta.toolUse.input
-                  } else if (chunk.messageStop?.stopReason === 'tool_use'){
-                      toolBlock.input = JSON.parse(inputString);
-                      const message = {role:ParticipantRole.ASSISTANT, content:[{'toolUse':toolBlock}]}
-                      input.messages.push(message);
-                      const toolResponse = await this.toolConfig!.useToolHandler(message, input.messages);
-                      input.messages.push(toolResponse);
-                      toolUse = true;
-                  } else if (chunk.messageStop?.stopReason === 'end_turn') {
-                      toolUse=false;
-                  }
-              }
-          } while (toolUse &&  --recursions > 0)
-      } catch (error) {
-          Logger.logger.error("Error getting stream from Bedrock model:", error.message);
-          throw `Error getting stream from Bedrock model: ${error.message}`;
-      }
+    try {
+      do {
+        const command = new ConverseStreamCommand(input);
+        const response = await this.client.send(command);
+        if (!response.stream) {
+          throw new Error("No stream received from Bedrock model");
+        }
+        for await (const chunk of response.stream) {
+          if (
+            chunk.contentBlockDelta &&
+            chunk.contentBlockDelta.delta &&
+            chunk.contentBlockDelta.delta.text
+          ) {
+            yield chunk.contentBlockDelta.delta.text;
+          } else if (chunk.contentBlockStart?.start?.toolUse) {
+            toolBlock = chunk.contentBlockStart?.start?.toolUse;
+          } else if (chunk.contentBlockDelta?.delta?.toolUse) {
+            inputString += chunk.contentBlockDelta.delta.toolUse.input;
+          } else if (chunk.messageStop?.stopReason === "tool_use") {
+            toolBlock.input = JSON.parse(inputString);
+            const message = {
+              role: ParticipantRole.ASSISTANT,
+              content: [{ toolUse: toolBlock }],
+            };
+            input.messages.push(message);
+            const toolResponse = await this.toolConfig!.useToolHandler(
+              message,
+              input.messages
+            );
+            input.messages.push(toolResponse);
+            toolUse = true;
+          } else if (chunk.messageStop?.stopReason === "end_turn") {
+            toolUse = false;
+          }
+        }
+      } while (toolUse && --recursions > 0);
+    } catch (error) {
+      Logger.logger.error(
+        "Error getting stream from Bedrock model:",
+        error.message
+      );
+      throw `Error getting stream from Bedrock model: ${error.message}`;
+    }
   }
-
 
   setSystemPrompt(template?: string, variables?: TemplateVariables): void {
     if (template) {
@@ -299,13 +452,15 @@ export class BedrockLLMAgent extends Agent {
 
   private updateSystemPrompt(): void {
     const allVariables: TemplateVariables = {
-      ...this.customVariables
+      ...this.customVariables,
     };
 
     this.systemPrompt = this.replaceplaceholders(
       this.promptTemplate,
       allVariables
     );
+
+    //console.log("*** systemPrompt="+this.systemPrompt)
   }
 
   private replaceplaceholders(

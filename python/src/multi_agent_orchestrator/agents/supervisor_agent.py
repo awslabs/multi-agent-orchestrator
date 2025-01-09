@@ -1,30 +1,62 @@
-from typing import Optional, Any, AsyncIterable, Union, TypeVar
+from typing import Optional, Any, AsyncIterable, Union, TYPE_CHECKING
 from dataclasses import dataclass, field
 import asyncio
-from multi_agent_orchestrator.agents import Agent, AgentOptions, BedrockLLMAgent, AnthropicAgent
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, AgentProviderType
-from multi_agent_orchestrator.utils import Logger, Tools, Tool
+from multi_agent_orchestrator.agents import Agent, AgentOptions
+if TYPE_CHECKING:
+    from multi_agent_orchestrator.agents import AnthropicAgent, BedrockLLMAgent
+
+
+from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, TimestampedMessage
+from multi_agent_orchestrator.utils import Logger, AgentTools, AgentTool
 from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
 
-# T = TypeVar('T', bound='SupervisorAgent')
 
 @dataclass
 class SupervisorAgentOptions(AgentOptions):
-    supervisor: Agent = None
-    team: list[Agent] = field(default_factory=list)
-    storage: Optional[ChatStorage] = None
-    trace: Optional[bool] = None
-    extra_tools: Optional[Union[Tools, list[Tool]]] = None
+    lead_agent: Agent = None # The agent that leads the team coordination
+    team: list[Agent] = field(default_factory=list) # a team of agents that can help in resolving tasks
+    storage: Optional[ChatStorage] = None # memory storage for the team
+    trace: Optional[bool] = None # enable tracing/logging
+    extra_tools: Optional[Union[AgentTools, list[AgentTool]]] = None # add extra tools to the lead_agent
+
     # Hide inherited fields
     name: str = field(init=False)
     description: str = field(init=False)
 
     def validate(self) -> None:
-        if not isinstance(self.supervisor, (BedrockLLMAgent, AnthropicAgent)):
+        # Get the actual class names as strings for comparison
+        valid_agent_types = []
+        try:
+            from multi_agent_orchestrator.agents import BedrockLLMAgent
+            valid_agent_types.append(BedrockLLMAgent)
+        except ImportError:
+            pass
+
+        try:
+            from multi_agent_orchestrator.agents import AnthropicAgent
+            valid_agent_types.append(AnthropicAgent)
+        except ImportError:
+            pass
+
+        if not valid_agent_types:
+            raise ImportError("No agents available. Please install at least one agent: AnthropicAgent or BedrockLLMAgent")
+
+        if not any(isinstance(self.lead_agent, agent_type) for agent_type in valid_agent_types):
             raise ValueError("Supervisor must be BedrockLLMAgent or AnthropicAgent")
-        if self.extra_tools and not isinstance(self.extra_tools, (Tools, list)):
-            raise ValueError('extra_tools must be Tools object or list of Tool objects')
-        if self.supervisor.tool_config:
+
+        if self.extra_tools:
+            if not isinstance(self.extra_tools, (AgentTools, list)):
+                raise ValueError('extra_tools must be Tools object or list of Tool objects')
+
+            # Get the tools list to validate, regardless of container type
+            tools_to_check = (
+                self.extra_tools.tools if isinstance(self.extra_tools, AgentTools)
+                else self.extra_tools
+            )
+            if not all(isinstance(tool, AgentTool) for tool in tools_to_check):
+                raise ValueError('extra_tools must be Tools object or list of Tool objects')
+
+        if self.lead_agent.tool_config:
             raise ValueError('Supervisor tools are managed by SupervisorAgent. Use extra_tools for additional tools.')
 
 class SupervisorAgent(Agent):
@@ -38,11 +70,11 @@ class SupervisorAgent(Agent):
 
     def __init__(self, options: SupervisorAgentOptions):
         options.validate()
-        options.name = options.supervisor.name
-        options.description = options.supervisor.description
+        options.name = options.lead_agent.name
+        options.description = options.lead_agent.description
         super().__init__(options)
 
-        self.supervisor: Union[AnthropicAgent, BedrockLLMAgent] = options.supervisor
+        self.lead_agent: 'Union[AnthropicAgent, BedrockLLMAgent]' = options.lead_agent
         self.team = options.team
         self.storage = options.storage or InMemoryChatStorage()
         self.trace = options.trace
@@ -52,9 +84,9 @@ class SupervisorAgent(Agent):
         self._configure_supervisor_tools(options.extra_tools)
         self._configure_prompt()
 
-    def _configure_supervisor_tools(self, extra_tools: Optional[Union[Tools, list[Tool]]]) -> None:
-        """Configure the tools available to the supervisor."""
-        self.supervisor_tools = Tools([Tool(
+    def _configure_supervisor_tools(self, extra_tools: Optional[Union[AgentTools, list[AgentTool]]]) -> None:
+        """Configure the tools available to the lead_agent."""
+        self.supervisor_tools = AgentTools([AgentTool(
             name='send_messages',
             description='Send messages to multiple agents in parallel.',
             properties={
@@ -83,18 +115,18 @@ class SupervisorAgent(Agent):
         )])
 
         if extra_tools:
-            if isinstance(extra_tools, Tools):
+            if isinstance(extra_tools, AgentTools):
                 self.supervisor_tools.tools.extend(extra_tools.tools)
             else:
                 self.supervisor_tools.tools.extend(extra_tools)
 
-        self.supervisor.tool_config = {
+        self.lead_agent.tool_config = {
             'tool': self.supervisor_tools,
             'toolMaxRecursions': self.DEFAULT_TOOL_MAX_RECURSIONS,
         }
 
     def _configure_prompt(self) -> None:
-        """Configure the supervisor's prompt template."""
+        """Configure the lead_agent's prompt template."""
         tools_str = "\n".join(f"{tool.name}:{tool.func_description}"
                             for tool in self.supervisor_tools.tools)
         agent_list_str = "\n".join(f"{agent.name}: {agent.description}"
@@ -140,9 +172,7 @@ When communicating with other agents, including the User, please follow these gu
 {{AGENTS_MEMORY}}
 </agents_memory>
 """
-        self.supervisor.set_system_prompt(self.prompt_template)
-
-        print(self.supervisor.prompt_template)
+        self.lead_agent.set_system_prompt(self.prompt_template)
 
     def send_message(
         self,
@@ -155,26 +185,36 @@ When communicating with other agents, including the User, please follow these gu
         """Send a message to a specific agent and process the response."""
         try:
             if self.trace:
-                Logger.info(f"\n===>>>>> Supervisor sending {agent.name}: {content}")
+                Logger.info(f"\033[32m\n===>>>>> Supervisor sending {agent.name}: {content}\033[0m")
 
             agent_chat_history = (
                 asyncio.run(self.storage.fetch_chat(user_id, session_id, agent.id))
                 if agent.save_chat else []
             )
 
+            user_message = TimestampedMessage(
+                role=ParticipantRole.USER.value,
+                content=[{'text': content}]
+            )
+
             response = asyncio.run(agent.process_request(
                 content, user_id, session_id, agent_chat_history, additional_params
             ))
 
+            assistant_message = TimestampedMessage(
+                role=ParticipantRole.ASSISTANT.value,
+                content=[{'text': response.content[0].get('text', '')}]
+            )
+
+
             if agent.save_chat:
-                asyncio.run(self._save_chat_messages(
-                user_id, session_id, agent.id, content, response
+                asyncio.run(self.storage.save_chat_messages(
+                user_id, session_id, agent.id,[user_message, assistant_message]
                 ))
 
             if self.trace:
                 Logger.info(
-                    f"\n<<<<<===Supervisor received from {agent.name}:\n"
-                    f"{response.content[0].get('text','')[:500]}..."
+                    f"\033[33m\n<<<<<===Supervisor received from {agent.name}:\n{response.content[0].get('text','')[:500]}...\033[0m"
                 )
 
             return f"{agent.name}: {response.content[0].get('text', '')}"
@@ -182,30 +222,6 @@ When communicating with other agents, including the User, please follow these gu
         except Exception as e:
             Logger.error(f"Error in send_message: {e}")
             raise e
-
-    async def _save_chat_messages(
-        self,
-        user_id: str,
-        session_id: str,
-        agent_id: str,
-        content: str,
-        response: Any
-    ) -> None:
-        """Save chat messages to storage."""
-        await self.storage.save_chat_message(
-            user_id, session_id, agent_id,
-            ConversationMessage(
-                role=ParticipantRole.USER.value,
-                content=[{'text': content}]
-            )
-        )
-        await self.storage.save_chat_message(
-            user_id, session_id, agent_id,
-            ConversationMessage(
-                role=ParticipantRole.ASSISTANT.value,
-                content=[{'text': response.content[0].get('text', '')}]
-            )
-        )
 
     async def send_messages(self, messages: list[dict[str, str]]) -> str:
         """Process messages for agents in parallel."""
@@ -253,7 +269,7 @@ When communicating with other agents, including the User, please follow these gu
         chat_history: list[ConversationMessage],
         additional_params: Optional[dict[str, str]] = None
     ) -> Union[ConversationMessage, AsyncIterable[Any]]:
-        """Process a user request through the supervisor agent."""
+        """Process a user request through the lead_agent agent."""
         try:
             self.user_id = user_id
             self.session_id = session_id
@@ -261,11 +277,11 @@ When communicating with other agents, including the User, please follow these gu
             agents_history = await self.storage.fetch_all_chats(user_id, session_id)
             agents_memory = self._format_agents_memory(agents_history)
 
-            self.supervisor.set_system_prompt(
+            self.lead_agent.set_system_prompt(
                 self.prompt_template.replace('{AGENTS_MEMORY}', agents_memory)
             )
 
-            return await self.supervisor.process_request(
+            return await self.lead_agent.process_request(
                 input_text, user_id, session_id, chat_history, additional_params
             )
 

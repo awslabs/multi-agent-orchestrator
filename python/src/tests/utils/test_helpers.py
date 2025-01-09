@@ -1,7 +1,7 @@
 import pytest
-from typing import Any, List, Dict, Union
 from datetime import datetime
 from multi_agent_orchestrator.types import ConversationMessage, TimestampedMessage, ParticipantRole
+import time
 
 # Import the functions to be tested
 from multi_agent_orchestrator.utils import is_tool_input, conversation_to_dict
@@ -44,3 +44,11 @@ def test_conversation_to_dict():
         {"role": "user", "content": "How are you?"},
         {"role": "assistant", "content": "I'm fine, thanks!", "timestamp": timestamp}
     ]
+
+    time_now = int(time.time() * 1000)
+    timestamped_message = TimestampedMessage(role=ParticipantRole.ASSISTANT.value, content="I'm fine, thanks!")
+    time_after = int(time.time() * 1000)
+    assert timestamped_message.timestamp != 0
+    assert timestamped_message.timestamp != None
+    assert timestamped_message.timestamp >= time_now
+    assert timestamped_message.timestamp <= time_after

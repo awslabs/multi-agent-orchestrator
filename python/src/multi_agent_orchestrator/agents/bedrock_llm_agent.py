@@ -10,7 +10,7 @@ from multi_agent_orchestrator.types import (ConversationMessage,
                        BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
                        TemplateVariables,
                        AgentProviderType)
-from multi_agent_orchestrator.utils import conversation_to_dict, Logger, Tools
+from multi_agent_orchestrator.utils import conversation_to_dict, Logger, AgentTools
 from multi_agent_orchestrator.retrievers import Retriever
 
 
@@ -20,7 +20,7 @@ class BedrockLLMAgentOptions(AgentOptions):
     inference_config: Optional[dict[str, Any]] = None
     guardrail_config: Optional[dict[str, str]] = None
     retriever: Optional[Retriever] = None
-    tool_config: Optional[Union[dict[str, Any], Tools]] = None
+    tool_config: Optional[Union[dict[str, Any], AgentTools]] = None
     custom_system_prompt: Optional[dict[str, Any]] = None
     client: Optional[Any] = None
 
@@ -135,7 +135,7 @@ class BedrockLLMAgent(Agent):
 
         if self.tool_config:
             converse_cmd["toolConfig"] = {
-                'tools': self.tool_config["tool"] if not isinstance(self.tool_config["tool"], Tools) else self.tool_config["tool"].to_bedrock_format()
+                'tools': self.tool_config["tool"] if not isinstance(self.tool_config["tool"], AgentTools) else self.tool_config["tool"].to_bedrock_format()
             }
 
         if self.tool_config:
@@ -156,7 +156,7 @@ class BedrockLLMAgent(Agent):
                         # user is handling the tool blocks itself
                         tool_response = await self.tool_config['useToolHandler'](bedrock_response, conversation)
                     else:
-                        tools:Tools = self.tool_config["tool"]
+                        tools:AgentTools = self.tool_config["tool"]
                         # no handler has been provided, we can use the default implementation
                         tool_response = await tools.tool_handler(AgentProviderType.BEDROCK.value, bedrock_response, conversation)
                     conversation.append(tool_response)

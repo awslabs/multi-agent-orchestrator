@@ -1,17 +1,17 @@
 import { Transform, TransformCallback } from 'stream';
-import { ToolInput } from '../types';
+import { ConversationMessage, ToolInput } from '../types';
 
 
 export class AccumulatorTransform extends Transform {
     private accumulator: string;
-  
+
     constructor() {
       super({
         objectMode: true  // This allows the transform to handle object chunks
       });
       this.accumulator = '';
     }
-  
+
     _transform(chunk: any, encoding: string, callback: TransformCallback): void {
       const text = this.extractTextFromChunk(chunk);
       if (text) {
@@ -20,7 +20,7 @@ export class AccumulatorTransform extends Transform {
       }
       callback();
     }
-  
+
     extractTextFromChunk(chunk: any): string | null {
       if (typeof chunk === 'string') {
         return chunk;
@@ -30,7 +30,7 @@ export class AccumulatorTransform extends Transform {
       // Add more conditions here if there are other possible structures
       return null;
     }
-  
+
     getAccumulatedData(): string {
       return this.accumulator;
     }
@@ -52,4 +52,15 @@ export class AccumulatorTransform extends Transform {
       'confidence' in input
     );
   }
+
+  export function isConversationMessage(result: any): result is ConversationMessage {
+    return (
+      result &&
+      typeof result === "object" &&
+      "role" in result &&
+      "content" in result &&
+      Array.isArray(result.content)
+    );
+  }
+
 

@@ -12,7 +12,7 @@ class PropertyDefinition:
     enum: Optional[list] = None
 
 @dataclass
-class ToolResult:
+class AgentToolResult:
     tool_use_id: str
     content: Any
 
@@ -31,7 +31,7 @@ class ToolResult:
             }
         }
 
-class Tool:
+class AgentTool:
     def __init__(self,
                 name: str,
                 description: Optional[str] = None,
@@ -167,9 +167,9 @@ class Tool:
             }
         }
 
-class Tools:
-    def __init__(self, tools:list[Tool]):
-        self.tools:list[Tool] = tools
+class AgentTools:
+    def __init__(self, tools:list[AgentTool]):
+        self.tools:list[AgentTool] = tools
 
     async def tool_handler(self, provider_type, response: Any, _conversation: list[dict[str, Any]]) -> Any:
         if not response.content:
@@ -207,7 +207,7 @@ class Tools:
             result = await self._process_tool(tool_name, input_data)
 
             # Create tool result
-            tool_result = ToolResult(tool_id, result)
+            tool_result = AgentToolResult(tool_id, result)
 
             # Format according to platform
             formatted_result = (
