@@ -42,13 +42,6 @@ export interface AgentOptions {
   // A description of the agent's purpose or capabilities
   description: string;
 
-  // Optional: The ID of the model used by this agent
-  // If not provided, a default model may be used
-  modelId?: string;
-
-  // Optional: The geographic region where the agent should be deployed or run
-  region?: string;
-
   // Optional: Determines whether to save the chat, defaults to true
   saveChat?: boolean;
 
