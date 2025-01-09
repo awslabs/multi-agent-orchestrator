@@ -11,7 +11,7 @@ It implements a unique **"agent-as-tools"** architecture where team members are 
 
 The diagram below illustrates the **SupervisorAgent** architecture, featuring a Lead Agent that coordinates with a team of specialized agents (A, B, and C). Two memory components—User-Supervisor Memory and Supervisor-Team Memory—support the interactions, enabling efficient information flow and conversation history management throughout the system.
 
-![Supervisor flow](/public/flow-supervisor.jpg)
+![Supervisor flow](/multi-agent-orchestrator/flow-supervisor.jpg)
 
 
 ## Usage Patterns
@@ -94,7 +94,7 @@ You can use the SupervisorAgent directly, bypassing the classifier, when you wan
 
 Here's a diagram illustrating the code implementation above, showing how the BedrockLLMAgent (Lead Agent) processes the user's flight modification request by coordinating with LexBotAgent and Amazon BedrockAgent, supported by dual memory systems for maintaining conversation context.
 
-![Supervisor flow direct](/public/flow-supervisor-direct.jpg)
+![Supervisor flow direct](/multi-agent-orchestrator/flow-supervisor-direct.jpg)
 
 
 ### 2. As Part of Classifier-Based Architecture
@@ -178,7 +178,7 @@ The SupervisorAgent can also be integrated into a larger system using the classi
 
 Here's a diagram illustrating the code implementation above, showing a Classifier that routes user requests to appropriate teams. Three specialized units are shown: a General Assistant, a Support Team (handling tech, billing, and booking), and a Product Team (comprising design, engineering, and product management agents). Each team uses different agent types (BedrockLLMAgent, LexBotAgent, AnthropicAgent, AmazonBedrockAgent) based on their specific functions.
 
-![Supervisor flow orchestrator](/public/flow-supervisor-orchestrator.jpg)
+![Supervisor flow orchestrator](/multi-agent-orchestrator/flow-supervisor-orchestrator.jpg)
 
 <hr/>
 
