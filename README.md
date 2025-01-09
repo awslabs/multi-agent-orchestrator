@@ -29,18 +29,6 @@
   <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img src="https://img.shields.io/npm/dm/multi-agent-orchestrator?label=npm%20downloads" alt="npm Monthly Downloads"></a>
 </p>
 
-<h2 align="center">🔄 Project Status</h2>
-
-<p align="center">
-  <!-- Project Status -->
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/📋%20Todo-13-green?style=flat" alt="Todo"></a>
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/👀%20In%20Review-5-orange?style=flat" alt="In Review"></a>
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/📅%20Planned-0-blue?style=flat" alt="Planned"></a>
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/🚧%20In%20Progress-2-yellow?style=flat" alt="In Progress"></a>
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/✅%20Done-2-purple?style=flat" alt="Done"></a>
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/🚀%20Released-0-brightgreen?style=flat" alt="Released"></a>
-</p>
-
 
 <p align="center">
   <a href="https://awslabs.github.io/multi-agent-orchestrator/" style="display: inline-block; background-color: #0066cc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 15px; transition: background-color 0.3s;">
