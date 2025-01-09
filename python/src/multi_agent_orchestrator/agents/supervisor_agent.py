@@ -1,19 +1,10 @@
-from typing import Optional, Any, AsyncIterable, Union, TypeVar
+from typing import Optional, Any, AsyncIterable, Union, TYPE_CHECKING
 from dataclasses import dataclass, field
 import asyncio
 from multi_agent_orchestrator.agents import Agent, AgentOptions
-try:
-    from multi_agent_orchestrator.agents import BedrockLLMAgent
-except ImportError:
-    BedrockLLMAgent = None
+if TYPE_CHECKING:
+    from multi_agent_orchestrator.agents import AnthropicAgent, BedrockLLMAgent
 
-try:
-    from multi_agent_orchestrator.agents import AnthropicAgent
-except ImportError:
-    AnthropicAgent = None
-
-if AnthropicAgent is None and BedrockLLMAgent is None:
-    raise ImportError("No agents available. Please install at least one agent: AnthropicAgent or BedrockLLMAgent")
 
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, TimestampedMessage
 from multi_agent_orchestrator.utils import Logger, AgentTools, AgentTool
@@ -33,8 +24,26 @@ class SupervisorAgentOptions(AgentOptions):
     description: str = field(init=False)
 
     def validate(self) -> None:
-        if not isinstance(self.lead_agent, (BedrockLLMAgent, AnthropicAgent)):
+        # Get the actual class names as strings for comparison
+        valid_agent_types = []
+        try:
+            from multi_agent_orchestrator.agents import BedrockLLMAgent
+            valid_agent_types.append(BedrockLLMAgent)
+        except ImportError:
+            pass
+
+        try:
+            from multi_agent_orchestrator.agents import AnthropicAgent
+            valid_agent_types.append(AnthropicAgent)
+        except ImportError:
+            pass
+
+        if not valid_agent_types:
+            raise ImportError("No agents available. Please install at least one agent: AnthropicAgent or BedrockLLMAgent")
+
+        if not any(isinstance(self.lead_agent, agent_type) for agent_type in valid_agent_types):
             raise ValueError("Supervisor must be BedrockLLMAgent or AnthropicAgent")
+
         if self.extra_tools:
             if not isinstance(self.extra_tools, (AgentTools, list)):
                 raise ValueError('extra_tools must be Tools object or list of Tool objects')
@@ -65,7 +74,7 @@ class SupervisorAgent(Agent):
         options.description = options.lead_agent.description
         super().__init__(options)
 
-        self.lead_agent: Union[AnthropicAgent, BedrockLLMAgent] = options.lead_agent
+        self.lead_agent: 'Union[AnthropicAgent, BedrockLLMAgent]' = options.lead_agent
         self.team = options.team
         self.storage = options.storage or InMemoryChatStorage()
         self.trace = options.trace
