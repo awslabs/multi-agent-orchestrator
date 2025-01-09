@@ -83,6 +83,31 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user.
 
 
+> ## 🎯 Introducing SupervisorAgent: Agents Coordination
+>
+> The Multi-Agent Orchestrator now includes a powerful new SupervisorAgent that enables sophisticated team coordination between multiple specialized agents. This new component implements an innovative "agent-as-tools" architecture, allowing a lead agent to orchestrate a team of specialized agents in parallel, maintaining context and delivering coherent responses.
+>
+> ![SupervisorAgent Architecture](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/supervisor-agent-flow.jpg)
+>
+> Key capabilities:
+> - 🤝 **Team Coordination** - Coordonate multiple specialized agents working together on complex tasks
+> - ⚡ **Parallel Processing** - Execute multiple agent queries simultaneously
+> - 🧠 **Smart Context Management** - Maintain conversation history across all team members
+> - 🔄 **Dynamic Delegation** - Intelligently distribute subtasks to appropriate team members
+> - 🤖 **Agent Compatibility** - Works with all agent types (Bedrock, Anthropic, Lex, etc.)
+>
+> The SupervisorAgent can be used in two powerful ways:
+> 1. **Direct Usage** - Call it directly when you need dedicated team coordination for specific tasks
+> 2. **Classifier Integration** - Add it as an agent within the classifier to build complex hierarchical systems with multiple specialized teams
+>
+> Here are just a few examples where this agent can be used:
+> - Customer Support Teams with specialized sub-teams
+> - AI Movie Production Studios
+> - Travel Planning Services
+> - Product Development Teams
+> - Healthcare Coordination Systems
+>
+> [Learn more about SupervisorAgent →](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/supervisor-agent)
 
 
 ## 💬 Demo App
@@ -360,7 +385,7 @@ The Multi-Agent Orchestrator is designed with a modular architecture, allowing y
   ```bash
    pip install "multi-agent-orchestrator[aws]"
   ```
-Includes core orchestration functionality with comprehensive AWS service integrations (`BedrockLLMAgent`, `AmazonBedrockAgent`, `LambdaAgent`, etc.)   
+Includes core orchestration functionality with comprehensive AWS service integrations (`BedrockLLMAgent`, `AmazonBedrockAgent`, `LambdaAgent`, etc.)
 
 **2. Anthropic Integration**:
 
@@ -382,7 +407,7 @@ Adds OpenAI's GPT models for agents and classification, along with core packages
 pip install "multi-agent-orchestrator[all]"
   ```
 
-Includes all optional dependencies for maximum flexibility. 
+Includes all optional dependencies for maximum flexibility.
 
 
 ### 🙌 **We Want to Hear From You!**
