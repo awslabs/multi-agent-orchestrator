@@ -87,7 +87,6 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 >
 > The Multi-Agent Orchestrator now includes a powerful new SupervisorAgent that enables sophisticated team coordination between multiple specialized agents. This new component implements a "agent-as-tools" architecture, allowing a lead agent to coordinate a team of specialized agents in parallel, maintaining context and delivering coherent responses.
 >
-> ![SupervisorAgent Architecture](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/supervisor-agent-flow.jpg)
 >
 > Key capabilities:
 > - 🤝 **Team Coordination** - Coordonate multiple specialized agents working together on complex tasks
