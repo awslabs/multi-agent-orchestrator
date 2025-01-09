@@ -113,10 +113,6 @@ Here are just a few examples where this agent can be used:
 
 ## 💬 Demo App
 
-To quickly get a feel for the Multi-Agent Orchestrator, we've provided a Demo App with a few basic agents. This interactive demo showcases the orchestrator's capabilities in a user-friendly interface. To learn more about setting up and running the demo app, please refer to our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/) section.
-
-<br>
-
 In the screen recording below, we demonstrate an extended version of the demo app that uses 6 specialized agents:
 - **Travel Agent**: Powered by an Amazon Lex Bot
 - **Weather Agent**: Utilizes a Bedrock LLM Agent with a tool to query the open-meteo API
@@ -132,13 +128,11 @@ The demo highlights the system's ability to handle complex, multi-turn conversat
 
 ![](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/demo-app.gif?raw=true)
 
-To quickly get a feel for the Multi-Agent Orchestrator, check out our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/). Additional code examples are available in both the documentation and the `examples` folder.
 
 ## 🎯 Examples & Quick Start
 
 Get hands-on experience with the Multi-Agent Orchestrator through our diverse set of examples:
 
-- **Ready-to-run Scripts**: Start locally with our collection of standalone scripts in both Python and TypeScript.
 - **Demo Applications**:
   - [Streamlit Global Demo](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/python): A single Streamlit application showcasing multiple demos, including:
     - AI Movie Production Studio
@@ -157,10 +151,10 @@ Get hands-on experience with the Multi-Agent Orchestrator through our diverse se
   - [`fast-api-streaming`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/fast-api-streaming): FastAPI implementation with streaming support
   - [`text-2-structured-output`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/text-2-structured-output): Natural Language to Structured Data
   - [`bedrock-inline-agents`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-inline-agents): Bedrock Inline Agents sample
-  - [`bedrock-prompt-routing`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-prompt-routing): Bedrock Prompt Routing sample code for `BedrockClassifier`and `BedrockLLMAgent`
+  - [`bedrock-prompt-routing`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-prompt-routing): Bedrock Prompt Routing sample code
 
 
-All examples are available in both Python and TypeScript implementations. Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
+Examples are available in both Python and TypeScript. Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator framework!
 
 
 ## 🌟 Use cases and implementations
