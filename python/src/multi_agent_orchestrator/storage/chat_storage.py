@@ -5,7 +5,7 @@ from multi_agent_orchestrator.types import ConversationMessage, TimestampedMessa
 class ChatStorage(ABC):
     """Abstract base class representing the interface for an agent.
     """
-    def is_consecutive_message(self,
+    def is_same_role_as_last_message(self,
                                conversation: list[ConversationMessage],
                                new_message: ConversationMessage) -> bool:
         """
