@@ -68,9 +68,6 @@ class MultiAgentOrchestrator:
     def set_default_agent(self, agent: Agent):
         self.default_agent = agent
 
-    def set_classifier(self, intent_classifier: Classifier):
-        self.classifier = intent_classifier
-
     def get_all_agents(self) -> Dict[str, Dict[str, str]]:
         return {key: {
             "name": agent.name,
