@@ -162,9 +162,8 @@ The MultiAgentOrchestrator provides several key functions to manage agents, proc
     1. addAgent(agent: Agent): void
     2. getDefaultAgent(): Agent
     3. setDefaultAgent(agent: Agent): void
-    4. setClassifier(intentClassifier: Classifier): void
-    5. getAllAgents(): { [key: string]: { name: string; description: string } }
-    6. routeRequest(userInput: string, userId: string, sessionId: string, additionalParams: Record<string, string> = {}): Promise<AgentResponse>
+    4. getAllAgents(): { [key: string]: { name: string; description: string } }
+    5. routeRequest(userInput: string, userId: string, sessionId: string, additionalParams: Record<string, string> = {}): Promise<AgentResponse>
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
@@ -172,9 +171,8 @@ The MultiAgentOrchestrator provides several key functions to manage agents, proc
     1. add_agent(agent: Agent) -> None
     2. get_default_agent() -> Agent
     3. set_default_agent(agent: Agent) -> None
-    4. set_classifier(intent_classifier: Classifier) -> None
-    5. get_all_agents() -> Dict[str, Dict[str, str]]
-    6. route_request(user_input: str, user_id: str, session_id: str, additional_params: Dict[str, str] = {}) -> AgentResponse
+    4. get_all_agents() -> Dict[str, Dict[str, str]]
+    5. route_request(user_input: str, user_id: str, session_id: str, additional_params: Dict[str, str] = {}) -> AgentResponse
     ```
   </TabItem>
 </Tabs>
@@ -196,17 +194,12 @@ Let's break down each function:
    - **Why use it**: This allows you to change the fallback agent used when no specific agent is selected for a query. It's useful for customizing the general-purpose response handling of your system.
    - **Example use case**: Replacing the default generalist agent with a more specialized one that better fits your application's primary use case.
 
-4. **setClassifier**
-   - **What it does**: Sets a new classifier for the orchestrator.
-   - **Why use it**: When you want to use a different classifier than the default [BedrockClassifier](/multi-agent-orchestrator/classifiers/built-in/bedrock-classifier/), either by using another built-in classifier (like the [AnthropicClassifier](/multi-agent-orchestrator/classifiers/built-in/anthropic-classifier/) or [OpenAIClassifier](/multi-agent-orchestrator/classifiers/built-in/openai-classifier/)) or by implementing your own [custom classifier](/multi-agent-orchestrator/classifiers/custom-classifier/).
-   - **Example use case**: Implementing a domain-specific classifier that's more accurate for your particular use case than the default classifier.
-
-5. **getAllAgents**
+4. **getAllAgents**
    - **What it does**: Retrieves a dictionary of all registered agents, including their names and descriptions.
    - **Why use it**: This function is useful for getting an overview of all available agents in the system. It can be used for debugging, logging, or providing user-facing information about system capabilities.
    - **Example use case**: Generating a help message that lists all available agents and their capabilities.
 
-6. **routeRequest**
+5. **routeRequest**
    - **What it does**: This is the main function for processing user requests. It takes a user's input, classifies it, selects an appropriate agent, and returns the agent's response.
    - **Why use it**: This is the core function you'll use to handle user interactions in your application. It encapsulates the entire process of understanding the user's intent and generating an appropriate response.
    - **Example use case**: Processing a user's message in a chatbot interface and returning the appropriate response.
@@ -246,21 +239,14 @@ Here are practical examples of how to use each function:
   });
   orchestrator.setDefaultAgent(customDefault);
 
-  // 4. setClassifier Example
-  const customClassifier = new AnthropicClassifier({
-    apiKey: 'your-api-key',
-    modelId: 'claude-3-sonnet-20240229'
-  });
-  orchestrator.setClassifier(customClassifier);
-
-  // 5. getAllAgents Example
+  // 4. getAllAgents Example
   const agents = orchestrator.getAllAgents();
   console.log("Available agents:");
   Object.entries(agents).forEach(([id, info]) => {
     console.log(`${id}: ${info.name} - ${info.description}`);
   });
 
-  // 6. routeRequest Example
+  // 5. routeRequest Example
   async function handleUserQuery() {
     const response = await orchestrator.routeRequest(
       "How do I optimize a Python script?",
@@ -306,12 +292,6 @@ custom_default = BedrockLLMAgent(BedrockLLMAgentOptions(
 ))
 orchestrator.set_default_agent(custom_default)
 
-# 4. set_classifier Example
-custom_classifier = AnthropicClassifier(AnthropicClassifierOptions(
-    api_key='your-api-key',
-    model_id='claude-3-sonnet-20240229'
-))
-orchestrator.set_classifier(custom_classifier)
 
 # 5. get_all_agents Example
 agents = orchestrator.get_all_agents()
