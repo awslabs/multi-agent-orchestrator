@@ -21,7 +21,7 @@ class MockChatStorage(ChatStorage):
 def chat_storage():
     return MockChatStorage()
 
-def test_is_consecutive_message(chat_storage):
+def test_is_same_role_as_last_message(chat_storage):
     conversation = [
         ConversationMessage(role="user", content="Hello"),
         ConversationMessage(role="assistant", content="Hi there"),
@@ -29,14 +29,14 @@ def test_is_consecutive_message(chat_storage):
 
     # Test consecutive message
     new_message = ConversationMessage(role="assistant", content="How can I help you?")
-    assert chat_storage.is_consecutive_message(conversation, new_message) == True
+    assert chat_storage.is_same_role_as_last_message(conversation, new_message) == True
 
     # Test non-consecutive message
     new_message = ConversationMessage(role="user", content="I have a question")
-    assert chat_storage.is_consecutive_message(conversation, new_message) == False
+    assert chat_storage.is_same_role_as_last_message(conversation, new_message) == False
 
     # Test empty conversation
-    assert chat_storage.is_consecutive_message([], new_message) == False
+    assert chat_storage.is_same_role_as_last_message([], new_message) == False
 
 def test_trim_conversation(chat_storage):
     conversation = [

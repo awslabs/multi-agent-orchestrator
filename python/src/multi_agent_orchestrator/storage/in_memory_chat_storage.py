@@ -21,7 +21,7 @@ class InMemoryChatStorage(ChatStorage):
         key = self._generate_key(user_id, session_id, agent_id)
         conversation = self.conversations[key]
 
-        if self.is_consecutive_message(conversation, new_message):
+        if self.is_same_role_as_last_message(conversation, new_message):
             Logger.debug(f"> Consecutive {new_message.role} \
                        message detected for agent {agent_id}. Not saving.")
             return self._remove_timestamps(conversation)
@@ -49,7 +49,7 @@ class InMemoryChatStorage(ChatStorage):
         conversation = self.conversations[key]
         #TODO: check messages are consecutive
 
-        # if self.is_consecutive_message(conversation, new_message):
+        # if self.is_same_role_as_last_message(conversation, new_message):
         #     Logger.debug(f"> Consecutive {new_message.role} \
         #                message detected for agent {agent_id}. Not saving.")
         #     return self._remove_timestamps(conversation)
