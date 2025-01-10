@@ -473,7 +473,7 @@ def test_tool_with_properties():
 
 def test_tool_not_found():
     try:
-        tools = Tools([Tool(
+        tools = AgentTools([AgentTool(
             name="weather",
             func=fetch_weather_data
         )])
@@ -483,7 +483,7 @@ def test_tool_not_found():
 
 
 def test_get_tool_use_block():
-    tools = Tools([Tool(
+    tools = AgentTools([AgentTool(
         name="weather",
         func=fetch_weather_data
     )])
@@ -493,7 +493,7 @@ def test_get_tool_use_block():
 
 def test_no_func():
     try:
-        tools = Tools([Tool(
+        tools = AgentTools([AgentTool(
             name="weather",
         )])
     except Exception as e:
@@ -502,7 +502,7 @@ def test_no_func():
 @pytest.mark.asyncio
 async def test_no_tool_block():
     try:
-        tools = Tools([Tool(
+        tools = AgentTools([AgentTool(
             name="weather",
             func=fetch_weather_data
         )])
@@ -513,7 +513,7 @@ async def test_no_tool_block():
 
 @pytest.mark.asyncio
 async def test_no_tool_use_block():
-    tools = Tools([Tool(
+    tools = AgentTools([AgentTool(
         name="weather",
         func=fetch_weather_data
     )])
@@ -527,7 +527,7 @@ async def test_no_tool_use_block():
 def test_self_param():
     def _handler(self, tool_input):
         return tool_input
-    tools = Tools([Tool(
+    tools = AgentTools([AgentTool(
         name="test",
         func=_handler
     )])

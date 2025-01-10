@@ -10,7 +10,7 @@ from multi_agent_orchestrator.types import (ConversationMessage,
                        BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
                        TemplateVariables,
                        AgentProviderType)
-from multi_agent_orchestrator.utils import conversation_to_dict, Logger, AgentTools
+from multi_agent_orchestrator.utils import conversation_to_dict, Logger, AgentTools, AgentTool
 from multi_agent_orchestrator.retrievers import Retriever
 
 
@@ -144,7 +144,7 @@ class BedrockLLMAgent(Agent):
 
         if self.tool_config:
             command["toolConfig"] = self._prepare_tool_config()
-            
+
         return command
 
     def _prepare_tool_config(self) -> dict:
@@ -220,7 +220,7 @@ class BedrockLLMAgent(Agent):
 
                 if any('toolUse' in content for content in final_response.content):
                     tool_response = await self._process_tool_block(final_response, conversation)
-        
+
                     conversation.append(tool_response)
                     command['messages'] = conversation_to_dict(conversation)
                 else:

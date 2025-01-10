@@ -14,7 +14,7 @@ from multi_agent_orchestrator.agents import (BedrockLLMAgent,
                         AgentStreamResponse,
                         AgentCallbacks)
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.utils import Tools
+from multi_agent_orchestrator.utils import AgentTools
 
 class LLMAgentCallbacks(AgentCallbacks):
     def on_llm_new_token(self, token: str) -> None:

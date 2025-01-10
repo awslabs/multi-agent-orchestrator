@@ -20,7 +20,7 @@ class AnthropicAgentOptions(AgentOptions):
     streaming: Optional[bool] = False
     inference_config: Optional[dict[str, Any]] = None
     retriever: Optional[Retriever] = None
-    tool_config: Optional[Union[dict[str, Any], AgentTools]] = None
+    tool_config: Optional[dict[str, Any] | AgentTools] = None
     custom_system_prompt: Optional[dict[str, Any]] = None
 
 
@@ -221,10 +221,7 @@ class AnthropicAgent(Agent):
             if isinstance(self.tool_config['tool'], AgentTools):
                 tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.ANTHROPIC.value, llm_response, conversation)
             else:
-                raise ValueError("You must use 
-                                 
-                                 
-                                 class when not providing a custom tool handler")
+                raise ValueError("You must use class when not providing a custom tool handler")
         return tool_response
 
     async def _handle_single_response_loop(

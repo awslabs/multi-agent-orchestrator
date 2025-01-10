@@ -140,7 +140,7 @@ async def test_process_request_with_tool_use(bedrock_llm_agent, mock_boto3_clien
         return ConversationMessage(role=ParticipantRole.ASSISTANT, content=[{'text': 'Tool response'}])
     bedrock_llm_agent.tool_config = {
         "tool": [
-            Tool(name='test_tool', func=_handler, description='This is a test handler')
+            AgentTool(name='test_tool', func=_handler, description='This is a test handler')
         ],
         "toolMaxRecursions": 2,
         "useToolHandler": AsyncMock()

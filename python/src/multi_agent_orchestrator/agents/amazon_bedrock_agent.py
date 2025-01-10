@@ -6,7 +6,7 @@ offering a flexible and extensible way to process conversational interactions us
 AWS Bedrock's agent runtime capabilities.
 """
 
-from typing import Any
+from typing import Any, Optional
 from dataclasses import dataclass
 import os
 import boto3
