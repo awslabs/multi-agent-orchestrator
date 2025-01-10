@@ -17,6 +17,8 @@ import { AgentToolResult, AgentTools } from "../utils/tool";
 import { isConversationMessage } from "../utils/helpers";
 
 export interface BedrockLLMAgentOptions extends AgentOptions {
+  modelId?: string;
+  region?: string;
   streaming?: boolean;
   inferenceConfig?: {
     maxTokens?: number;

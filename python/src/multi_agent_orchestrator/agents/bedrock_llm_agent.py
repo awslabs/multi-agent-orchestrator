@@ -16,6 +16,8 @@ from multi_agent_orchestrator.retrievers import Retriever
 
 @dataclass
 class BedrockLLMAgentOptions(AgentOptions):
+    model_id: Optional[str] = None
+    region: Optional[str] = None
     streaming: Optional[bool] = None
     inference_config: Optional[dict[str, Any]] = None
     guardrail_config: Optional[dict[str, str]] = None
