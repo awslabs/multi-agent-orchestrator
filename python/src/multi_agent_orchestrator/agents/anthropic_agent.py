@@ -9,7 +9,7 @@ from multi_agent_orchestrator.types import (ConversationMessage,
                        ParticipantRole,
                        TemplateVariables,
                        AgentProviderType)
-from multi_agent_orchestrator.utils import Logger, AgentTools
+from multi_agent_orchestrator.utils import Logger, AgentTools, AgentTool
 from multi_agent_orchestrator.retrievers import Retriever
 
 @dataclass
@@ -129,12 +129,12 @@ class AnthropicAgent(Agent):
     def _prepare_tool_config(self) -> dict:
         """Prepare tool configuration based on the tool type."""
 
-        if isinstance(self.tool_config["tool"], Tools):
+        if isinstance(self.tool_config["tool"], AgentTools):
             return self.tool_config["tool"].to_claude_format()
 
         if isinstance(self.tool_config["tool"], list):
             return [
-                    tool.to_claude_format() if isinstance(tool, Tool) else tool
+                    tool.to_claude_format() if isinstance(tool, AgentTool) else tool
                     for tool in self.tool_config['tool']
                 ]
 
