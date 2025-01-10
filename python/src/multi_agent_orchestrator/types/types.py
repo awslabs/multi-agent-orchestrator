@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Dict, Union, TypedDict, Optional, Any
+from typing import TypedDict, Optional, Any
 from dataclasses import dataclass
 import time
 
@@ -31,7 +31,7 @@ class RequestMetadata(TypedDict):
     agent_name: str
     user_id: str
     session_id: str
-    additional_params :Optional[Dict[str, str]]
+    additional_params :Optional[dict[str, str]]
     error_type: Optional[str]
 
 
@@ -42,21 +42,21 @@ class ParticipantRole(Enum):
 
 class ConversationMessage:
     role: ParticipantRole
-    content: List[Any]
+    content: list[Any]
 
-    def __init__(self, role: ParticipantRole, content: Optional[List[Any]] = None):
+    def __init__(self, role: ParticipantRole, content: Optional[list[Any]] = None):
         self.role = role
         self.content = content
 
 class TimestampedMessage(ConversationMessage):
     def __init__(self,
                  role: ParticipantRole,
-                 content: Optional[List[Any]] = None,
-                 timestamp: Optional[int] = None):
+                 content: Optional[list[Any]] = None,
+                 timestamp: int = 0):
         super().__init__(role, content)  # Call the parent constructor
         self.timestamp = timestamp or int(time.time() * 1000)      # Initialize the timestamp attribute (in ms)
 
-TemplateVariables = Dict[str, Union[str, List[str]]]
+TemplateVariables = dict[str, str | list[str]]
 
 @dataclass
 class OrchestratorConfig:

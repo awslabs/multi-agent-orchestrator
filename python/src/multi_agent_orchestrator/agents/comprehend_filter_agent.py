@@ -1,4 +1,4 @@
-from typing import List, Dict, Union, Optional, Callable, Any
+from typing import Optional, Callable, Any
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils.logger import Logger
 from .agent import Agent, AgentOptions
@@ -34,7 +34,7 @@ class ComprehendFilterAgent(Agent):
         config = Config(region_name=options.region) if options.region else None
         self.comprehend_client = boto3.client('comprehend', config=config)
 
-        self.custom_checks: List[CheckFunction] = []
+        self.custom_checks: list[CheckFunction] = []
 
         self.enable_sentiment_check = options.enable_sentiment_check
         self.enable_pii_check = options.enable_pii_check
@@ -52,10 +52,10 @@ class ComprehendFilterAgent(Agent):
                               input_text: str,
                               user_id: str,
                               session_id: str,
-                              chat_history: List[ConversationMessage],
-                              additional_params: Optional[Dict[str, str]] = None) -> Optional[ConversationMessage]:
+                              chat_history: list[ConversationMessage],
+                              additional_params: Optional[dict[str, str]] = None) -> Optional[ConversationMessage]:
         try:
-            issues: List[str] = []
+            issues: list[str] = []
 
             # Run all checks
             sentiment_result = self.detect_sentiment(input_text) if self.enable_sentiment_check else None
@@ -101,43 +101,43 @@ class ComprehendFilterAgent(Agent):
     def add_custom_check(self, check: CheckFunction):
         self.custom_checks.append(check)
 
-    def check_sentiment(self, result: Dict[str, Any]) -> Optional[str]:
+    def check_sentiment(self, result: dict[str, Any]) -> Optional[str]:
         if result['Sentiment'] == 'NEGATIVE' and result['SentimentScore']['Negative'] > self.sentiment_threshold:
             return f"Negative sentiment detected ({result['SentimentScore']['Negative']:.2f})"
         return None
 
-    def check_pii(self, result: Dict[str, Any]) -> Optional[str]:
+    def check_pii(self, result: dict[str, Any]) -> Optional[str]:
         if not self.allow_pii and result.get('Entities'):
             return f"PII detected: {', '.join(e['Type'] for e in result['Entities'])}"
         return None
 
-    def check_toxicity(self, result: Dict[str, Any]) -> Optional[str]:
+    def check_toxicity(self, result: dict[str, Any]) -> Optional[str]:
         toxic_labels = self.get_toxic_labels(result)
         if toxic_labels:
             return f"Toxic content detected: {', '.join(toxic_labels)}"
         return None
 
-    def detect_sentiment(self, text: str) -> Dict[str, Any]:
+    def detect_sentiment(self, text: str) -> dict[str, Any]:
         return self.comprehend_client.detect_sentiment(
             Text=text,
             LanguageCode=self.language_code
         )
 
-    def detect_pii_entities(self, text: str) -> Dict[str, Any]:
+    def detect_pii_entities(self, text: str) -> dict[str, Any]:
         return self.comprehend_client.detect_pii_entities(
             Text=text,
             LanguageCode=self.language_code
         )
 
-    def detect_toxic_content(self, text: str) -> Dict[str, Any]:
+    def detect_toxic_content(self, text: str) -> dict[str, Any]:
         return self.comprehend_client.detect_toxic_content(
             TextSegments=[{"Text": text}],
             LanguageCode=self.language_code
         )
 
-    def get_toxic_labels(self, toxicity_result: Dict[str, Any]) -> List[str]:
+    def get_toxic_labels(self, toxicity_result: dict[str, Any]) -> list[str]:
         toxic_labels = []
-        for result in toxicity_result.get('ResultList', []):
+        for result in toxicity_result.get('Resultlist', []):
             for label in result.get('Labels', []):
                 if label['Score'] > self.toxicity_threshold:
                     toxic_labels.append(label['Name'])

@@ -1,4 +1,4 @@
-from typing import Dict, List, Union, AsyncIterable, Optional, Any
+from typing import Union, AsyncIterable, Optional, Any
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from multi_agent_orchestrator.types import ConversationMessage
@@ -12,13 +12,19 @@ class AgentProcessingResult:
     agent_name: str
     user_id: str
     session_id: str
-    additional_params: Dict[str, Any] = field(default_factory=dict)
+    additional_params: dict[str, Any] = field(default_factory=dict)
+
+
+class AgentStreamResponse:
+    def __init__(self, text: str = '', final_message: ConversationMessage = None):
+        self.text = text
+        self.final_message = final_message
 
 
 @dataclass
 class AgentResponse:
     metadata: AgentProcessingResult
-    output: Union[Any, str]
+    output: Union[Any, str, AgentStreamResponse]
     streaming: bool
 
 
@@ -72,9 +78,10 @@ class Agent(ABC):
         input_text: str,
         user_id: str,
         session_id: str,
-        chat_history: List[ConversationMessage],
-        additional_params: Optional[Dict[str, str]] = None,
+        chat_history: list[ConversationMessage],
+        additional_params: Optional[dict[str, str]] = None,
     ) -> Union[ConversationMessage, AsyncIterable[Any]]:
+
         pass
 
     def log_debug(self, class_name, message, data=None):
