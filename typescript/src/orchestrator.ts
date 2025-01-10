@@ -254,10 +254,6 @@ export class MultiAgentOrchestrator {
     this.defaultAgent = agent;
   }
 
-  setClassifier(intentClassifier: Classifier): void {
-    this.classifier = intentClassifier;
-  }
-
   getAllAgents(): { [key: string]: { name: string; description: string } } {
     return Object.fromEntries(
       Object.entries(this.agents).map(([key, { name, description }]) => [

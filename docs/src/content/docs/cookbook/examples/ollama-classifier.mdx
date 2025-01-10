@@ -136,10 +136,8 @@ If you have used the quickstarter sample program, you can use the Ollama classif
             inference_config={'temperature':0.0}
         ))
 
-    orchestrator = MultiAgentOrchestrator()
-
     # Use our newly created classifier within the orchestrator
-    orchestrator.set_classifier(classifier)
+    orchestrator = MultiAgentOrchestrator(classifier=classifier)
     ```
   </TabItem>
 </Tabs>

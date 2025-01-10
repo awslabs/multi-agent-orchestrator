@@ -168,11 +168,6 @@ describe('MultiAgentOrchestrator', () => {
     expect(orchestrator.getDefaultAgent()).toBe(newDefaultAgent);
   });
 
-  test('setClassifier changes the classifier', () => {
-    const newClassifier = new BedrockClassifier();
-    orchestrator.setClassifier(newClassifier);
-    expect(orchestrator['classifier']).toBe(newClassifier);
-  });
 
   test('addAgent throws error when adding an agent with an existing ID', () => {
     const existingAgent: Agent = {
