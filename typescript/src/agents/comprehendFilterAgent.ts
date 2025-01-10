@@ -1,10 +1,10 @@
 import { Agent, AgentOptions } from "./agent";
 import { ConversationMessage, ParticipantRole } from "../types";
 import { Logger } from "../utils/logger";
-import { 
-  ComprehendClient, 
-  DetectSentimentCommand, 
-  DetectPiiEntitiesCommand, 
+import {
+  ComprehendClient,
+  DetectSentimentCommand,
+  DetectPiiEntitiesCommand,
   DetectToxicContentCommand,
   DetectSentimentCommandOutput,
   DetectPiiEntitiesCommandOutput,
@@ -29,6 +29,7 @@ type CheckFunction = (input: string) => Promise<string | null>;
 
 // Extended options for ComprehendContentFilterAgent
 export interface ComprehendFilterAgentOptions extends AgentOptions {
+    region?: string;
     enableSentimentCheck?: boolean;
     enablePiiCheck?: boolean;
     enableToxicityCheck?: boolean;
@@ -40,7 +41,7 @@ export interface ComprehendFilterAgentOptions extends AgentOptions {
 
 /**
  * ComprehendContentFilterAgent class
- * 
+ *
  * This agent uses Amazon Comprehend to analyze and filter content based on
  * sentiment, PII, and toxicity. It can be configured to enable/disable specific
  * checks and allows for the addition of custom checks.
@@ -78,8 +79,8 @@ export class ComprehendFilterAgent extends Agent {
     this.languageCode = this.validateLanguageCode(options.languageCode) ?? 'en';
 
     // Ensure at least one check is enabled
-    if (!this.enableSentimentCheck && 
-        !this.enablePiiCheck && 
+    if (!this.enableSentimentCheck &&
+        !this.enablePiiCheck &&
         !this.enableToxicityCheck) {
       this.enableToxicityCheck = true;
     }
@@ -165,7 +166,7 @@ export class ComprehendFilterAgent extends Agent {
    * @returns A string describing the issue if sentiment is negative, null otherwise
    */
   private checkSentiment(result: DetectSentimentCommandOutput): string | null {
-    if (result.Sentiment === 'NEGATIVE' && 
+    if (result.Sentiment === 'NEGATIVE' &&
         result.SentimentScore?.Negative > this.sentimentThreshold) {
       return `Negative sentiment detected (${result.SentimentScore.Negative.toFixed(2)})`;
     }
@@ -276,11 +277,11 @@ export class ComprehendFilterAgent extends Agent {
    */
   private validateLanguageCode(languageCode: LanguageCode | undefined): LanguageCode | undefined {
     if (!languageCode) return undefined;
-    
+
     const validLanguageCodes: LanguageCode[] = [
       'en', 'es', 'fr', 'de', 'it', 'pt', 'ar', 'hi', 'ja', 'ko', 'zh', 'zh-TW'
     ];
-    
+
     return validLanguageCodes.includes(languageCode) ? languageCode : undefined;
   }
 }

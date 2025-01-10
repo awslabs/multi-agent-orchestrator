@@ -12,6 +12,7 @@ import { Logger } from "../utils/logger";
  * Extends base AgentOptions with specific parameters required for Amazon Lex.
  */
 export interface LexBotAgentOptions extends AgentOptions {
+  region?: string;
   botId: string; // The ID of the Lex Bot
   botAliasId: string; // The alias ID of the Lex Bot
   localeId: string; // The locale of the bot (e.g., en_US)

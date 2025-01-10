@@ -8,6 +8,7 @@ import { Logger } from "../utils/logger";
  * Extends base AgentOptions with specific parameters required for Amazon Bedrock.
  */
 export interface AmazonBedrockAgentOptions extends AgentOptions {
+  region?: string;
   agentId: string;        // The ID of the Amazon Bedrock agent.
   agentAliasId: string;   // The alias ID of the Amazon Bedrock agent.
   client?: BedrockAgentRuntimeClient;  // Client for interacting with the Bedrock agent runtime.

@@ -4,6 +4,7 @@ import { BedrockRuntimeClient, ConverseCommand, ContentBlock } from "@aws-sdk/cl
 import { Logger } from "../utils/logger";
 
 interface BedrockTranslatorAgentOptions extends AgentOptions {
+  region?: string;
   sourceLanguage?: string;
   targetLanguage?: string;
   modelId?: string;
