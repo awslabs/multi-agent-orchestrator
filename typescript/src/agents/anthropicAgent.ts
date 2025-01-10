@@ -1,19 +1,22 @@
 import { Agent, AgentOptions } from "./agent";
 import {
+  ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET,
   ConversationMessage,
   ParticipantRole,
   TemplateVariables,
 } from "../types";
 import { Retriever } from "../retrievers/retriever";
-import { Logger } from "../utils/logger"
+import { Logger } from "../utils/logger";
 import { Anthropic } from "@anthropic-ai/sdk";
+import { AgentToolResult, AgentTools } from "../utils/tool";
+import { isConversationMessage } from "../utils/helpers";
 
 export interface AnthropicAgentOptions extends AgentOptions {
   modelId?: string;
   streaming?: boolean;
   toolConfig?: {
-    tool: Anthropic.Tool[];
-    useToolHandler: (response: any, conversation: any[]) => any ;
+    tool: AgentTools | Anthropic.Tool[];
+    useToolHandler: (response: any, conversation: any[]) => any;
     toolMaxRecursions?: number;
   };
   // Optional: Configuration for the inference process
@@ -34,24 +37,25 @@ export interface AnthropicAgentOptions extends AgentOptions {
   };
   retriever?: Retriever;
   customSystemPrompt?: {
-    template: string, variables?: TemplateVariables
+    template: string;
+    variables?: TemplateVariables;
   };
-  }
+}
 
-  type WithApiKey = {
+type WithApiKey = {
   apiKey: string;
   client?: never;
-  };
+};
 
-  type WithClient = {
+type WithClient = {
   client: Anthropic;
   apiKey?: never;
-  };
+};
 
-  export type AnthropicAgentOptionsWithAuth = AnthropicAgentOptions & (WithApiKey | WithClient);
+export type AnthropicAgentOptionsWithAuth = AnthropicAgentOptions &
+  (WithApiKey | WithClient);
 
-  export class AnthropicAgent extends Agent {
-
+export class AnthropicAgent extends Agent {
   private client: Anthropic;
   protected streaming: boolean;
   private modelId: string;
@@ -65,9 +69,9 @@ export interface AnthropicAgentOptions extends AgentOptions {
 
   protected retriever?: Retriever;
 
-  private toolConfig?: {
-    tool: Anthropic.Tool[];
-    useToolHandler: (response: any, conversation: any[]) => any;
+  public toolConfig?: {
+    tool: AgentTools | Anthropic.Tool[];
+    useToolHandler?: (response: any, conversation: any[]) => any;
     toolMaxRecursions?: number;
   };
 
@@ -82,20 +86,19 @@ export interface AnthropicAgentOptions extends AgentOptions {
     if (!options.apiKey && !options.client) {
       throw new Error("Anthropic API key or Anthropic client is required");
     }
-    if (options.client){
+    if (options.client) {
       this.client = options.client;
-    }
-    else {
+    } else {
       if (!options.apiKey) throw new Error("Anthropic API key is required");
-      this.client = new Anthropic({ apiKey: options.apiKey});
+      this.client = new Anthropic({ apiKey: options.apiKey });
     }
 
-    this.systemPrompt = '';
+    this.systemPrompt = "";
     this.customVariables = {};
 
     this.streaming = options.streaming ?? false;
 
-    this.modelId = options.modelId || "claude-3-5-sonnet-20240620";
+    this.modelId = options.modelId || ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET;
 
     const defaultMaxTokens = 1000; // You can adjust this default value as needed
     this.inferenceConfig = {
@@ -123,7 +126,7 @@ export interface AnthropicAgentOptions extends AgentOptions {
     - Draw insights and connections from your extensive knowledge when appropriate.
     - Ask for clarification if any part of the question or prompt is ambiguous.
     - Maintain a consistent, respectful, and engaging tone tailored to the human's communication style.
-    - Seamlessly transition between topics as the human introduces new subjects.`
+    - Seamlessly transition between topics as the human introduces new subjects.`;
 
     if (options.customSystemPrompt) {
       this.setSystemPrompt(
@@ -133,6 +136,103 @@ export interface AnthropicAgentOptions extends AgentOptions {
     }
   }
 
+  /**
+   * Type guard to check if the tool is an AgentTools instance
+   */
+  private isAgentTools(
+    tool: AgentTools | Anthropic.Tool[]
+  ): tool is AgentTools {
+    return tool instanceof AgentTools;
+  }
+
+  /**
+   * Transforms the tools into a format compatible with Anthropic's Claude format.
+   * This method maps each tool to an object containing its name, description, and input schema.
+   *
+   * @param tools - The Tools object containing an array of tools to be formatted.
+   * @returns An array of tools in Claude's expected format.
+   */
+  private formatTools(tools: AgentTools): any[] {
+    return tools.tools.map((tool) => ({
+      name: tool.name,
+      description: tool.description,
+      input_schema: {
+        type: "object",
+        properties: tool.properties,
+        required: tool.required,
+      },
+    }));
+  }
+
+  /**
+   * Formats tool results into Anthropic's expected format
+   * @param toolResults - Results from tool execution
+   * @returns Formatted message in Anthropic's format
+   */
+  private formatToolResults(
+    toolResults: AgentToolResult[] | any
+  ): ConversationMessage {
+    if (isConversationMessage(toolResults)) {
+      return toolResults;
+    }
+
+    const result = {
+      role: ParticipantRole.USER,
+      content: toolResults.map((item: AgentToolResult) => ({
+        type: "tool_result",
+        tool_use_id: item.toolUseId,
+        content: [{ type: "text", text: item.content }],
+      })),
+    };
+    return result as ConversationMessage;
+  }
+
+  /**
+   * Extracts the tool name from the tool use block.
+   * This method retrieves the `name` field from the provided tool use block.
+   *
+   * @param toolUseBlock - The block containing tool use details, including a `name` field.
+   * @returns The name of the tool from the provided block.
+   */
+  private getToolName(toolUseBlock: any): string {
+    return toolUseBlock.name;
+  }
+
+  /**
+   * Extracts the tool ID from the tool use block.
+   * This method retrieves the `toolUseId` field from the provided tool use block.
+   *
+   * @param toolUseBlock - The block containing tool use details, including a `toolUseId` field.
+   * @returns The tool ID from the provided block.
+   */
+  private getToolId(toolUseBlock: any): string {
+    // For Anthropic, the ID is under id, not toolUseId
+    return toolUseBlock.id;
+  }
+
+  /**
+   * Extracts the input data from the tool use block.
+   * This method retrieves the `input` field from the provided tool use block.
+   *
+   * @param toolUseBlock - The block containing tool use details, including an `input` field.
+   * @returns The input data associated with the tool use block.
+   */
+  private getInputData(toolUseBlock: any): any {
+    return toolUseBlock.input;
+  }
+
+  /**
+   * Retrieves the tool use block from the provided block.
+   * This method checks if the block contains a `toolUse` field and returns it.
+   *
+   * @param block - The block from which the tool use block needs to be extracted.
+   * @returns The tool use block if present, otherwise null.
+   */
+  private getToolUseBlock(block: any): any {
+    const result = block.type === "tool_use" ? block : null;
+    return result;
+  }
+
   async processRequest(
     inputText: string,
     userId: string,
@@ -140,13 +240,15 @@ export interface AnthropicAgentOptions extends AgentOptions {
     chatHistory: ConversationMessage[],
     _additionalParams?: Record<string, string>
   ): Promise<ConversationMessage | AsyncIterable<any>> {
-
     // Format messages to Anthropic's format
-    const messages:Anthropic.MessageParam[] = chatHistory.map(message => ({
-      role: message.role === ParticipantRole.USER ? 'user' : 'assistant',
-      content: message.content![0]['text'] || '' // Fallback to empty string if content is undefined
+    const messages: Anthropic.MessageParam[] = chatHistory.map((message) => ({
+      role:
+        message.role === ParticipantRole.USER
+          ? ParticipantRole.USER
+          : ParticipantRole.ASSISTANT,
+      content: message.content![0]["text"] || "", // Fallback to empty string if content is undefined
     }));
-    messages.push({ role: 'user', content: inputText })
+    messages.push({ role: ParticipantRole.USER, content: inputText });
 
     this.updateSystemPrompt();
 
@@ -155,67 +257,97 @@ export interface AnthropicAgentOptions extends AgentOptions {
     // Update the system prompt with the latest history, agent descriptions, and custom variables
     if (this.retriever) {
       // retrieve from Vector store and combined results as a string into the prompt
-      const response = await this.retriever.retrieveAndCombineResults(inputText);
+      const response =
+        await this.retriever.retrieveAndCombineResults(inputText);
       const contextPrompt =
         "\nHere is the context to use to answer the user's question:\n" +
         response;
-        systemPrompt = systemPrompt + contextPrompt;
+      systemPrompt = systemPrompt + contextPrompt;
     }
 
-
     try {
-      if (this.streaming){
+      if (this.streaming) {
         return this.handleStreamingResponse(messages, systemPrompt);
-
       } else {
-        let finalMessage:string = '';
+        let finalMessage: string = "";
         let toolUse = false;
-        let recursions = this.toolConfig?.toolMaxRecursions || 5;
+        let recursions = this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
         do {
-
           // Call Anthropic
-          const response = await this.handleSingleResponse({
+          const llmInput = {
             model: this.modelId,
             max_tokens: this.inferenceConfig.maxTokens,
             messages: messages,
             system: systemPrompt,
             temperature: this.inferenceConfig.temperature,
             top_p: this.inferenceConfig.topP,
-            tools: this.toolConfig?.tool,
-          });
+            ...(this.toolConfig && {
+              tools:
+                this.toolConfig.tool instanceof AgentTools
+                  ? this.formatTools(this.toolConfig.tool)
+                  : this.toolConfig.tool,
+            }),
+          };
+          const response = await this.handleSingleResponse(llmInput);
 
           const toolUseBlocks = response.content.filter<Anthropic.ToolUseBlock>(
-            (content) => content.type === "tool_use",
+            (content) => content.type === "tool_use"
           );
 
           if (toolUseBlocks.length > 0) {
             // Append current response to the conversation
-            messages.push({role: ParticipantRole.ASSISTANT, content:response.content});
-            if (!this.toolConfig){
-              throw new Error("No tools available for tool use");
-            }
-            const toolResponse = await this.toolConfig.useToolHandler(response, messages);
-            messages.push(toolResponse);
+            messages.push({
+              role: ParticipantRole.ASSISTANT,
+              content: response.content,
+            });
+
+            const tools = this.toolConfig.tool;
+            const toolHandler =
+              this.toolConfig.useToolHandler ??
+              (async (response, conversationHistory) => {
+                if (this.isAgentTools(tools)) {
+                  return tools.toolHandler(
+                    response,
+                    this.getToolUseBlock.bind(this),
+                    this.getToolName.bind(this),
+                    this.getToolId.bind(this),
+                    this.getInputData.bind(this)
+                  );
+                }
+                // Only use legacy handler when it's not AgentTools
+                return this.toolConfig.useToolHandler(
+                  response,
+                  conversationHistory
+                );
+              });
+
+            const toolResponse = await toolHandler(response, messages);
+            const formattedResponse = this.formatToolResults(toolResponse);
+
+            // Add the formatted response to messages
+            messages.push(formattedResponse);
             toolUse = true;
           } else {
             const textContent = response.content.find(
-              (content): content is Anthropic.TextBlock => content.type === "text"
+              (content): content is Anthropic.TextBlock =>
+                content.type === "text"
             );
-            finalMessage = textContent?.text || '';
+            finalMessage = textContent?.text || "";
           }
 
-          if (response.stop_reason === 'end_turn'){
+          if (response.stop_reason === "end_turn") {
             toolUse = false;
           }
 
           recursions--;
-        }while (toolUse && recursions > 0)
+        } while (toolUse && recursions > 0);
 
-
-        return {role: ParticipantRole.ASSISTANT, content:[{'text':finalMessage}]}
+        return {
+          role: ParticipantRole.ASSISTANT,
+          content: [{ text: finalMessage }],
+        };
       }
-    }
-    catch (error) {
+    } catch (error) {
       Logger.logger.error("Error processing request:", error);
       // Instead of returning a default result, we'll throw the error
       throw error;
@@ -226,19 +358,20 @@ export interface AnthropicAgentOptions extends AgentOptions {
     try {
       const response = await this.client.messages.create(input);
       return response as Anthropic.Message;
-
     } catch (error) {
       Logger.logger.error("Error invoking Anthropic:", error);
       throw error;
     }
   }
 
-  private async *handleStreamingResponse(messages: any[], prompt:any): AsyncIterable<string> {
+  private async *handleStreamingResponse(
+    messages: any[],
+    prompt: any
+  ): AsyncIterable<string> {
     let toolUse = false;
     let recursions = this.toolConfig?.toolMaxRecursions || 5;
 
-    do
-    {
+    do {
       const stream = await this.client.messages.stream({
         model: this.modelId,
         max_tokens: this.inferenceConfig.maxTokens,
@@ -246,41 +379,60 @@ export interface AnthropicAgentOptions extends AgentOptions {
         system: prompt,
         temperature: this.inferenceConfig.temperature,
         top_p: this.inferenceConfig.topP,
-        tools: this.toolConfig?.tool,
+        ...(this.toolConfig && {
+          tools:
+            this.toolConfig.tool instanceof AgentTools
+              ? this.formatTools(this.toolConfig.tool)
+              : this.toolConfig.tool,
+        }),
       });
 
-      let toolBlock:Anthropic.ToolUseBlock = {id:'', input:{}, name:'', type: 'tool_use'};
-      let inputString = '';
+      let toolBlock: Anthropic.ToolUseBlock = {
+        id: "",
+        input: {},
+        name: "",
+        type: "tool_use",
+      };
+      let inputString = "";
 
       for await (const event of stream) {
-        if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        if (
+          event.type === "content_block_delta" &&
+          event.delta.type === "text_delta"
+        ) {
           yield event.delta.text;
-        }
-        else if (event.type === 'content_block_start' && event.content_block.type === 'tool_use') {
-          if (!this.toolConfig?.tool){
+        } else if (
+          event.type === "content_block_start" &&
+          event.content_block.type === "tool_use"
+        ) {
+          if (!this.toolConfig?.tool) {
             throw new Error("No tools available for tool use");
           }
           toolBlock = event.content_block;
-        }
-        else if (event.type === 'content_block_delta' && event.delta.type === 'input_json_delta') {
+        } else if (
+          event.type === "content_block_delta" &&
+          event.delta.type === "input_json_delta"
+        ) {
           inputString += event.delta.partial_json;
-        }
-        else if (event.type === 'message_delta') {
-          if (event.delta.stop_reason === 'tool_use'){
-            if (toolBlock && inputString){
+        } else if (event.type === "message_delta") {
+          if (event.delta.stop_reason === "tool_use") {
+            if (toolBlock && inputString) {
               toolBlock.input = JSON.parse(inputString);
-              const message = {role:'assistant', content:[toolBlock]}
+              const message = { role: "assistant", content: [toolBlock] };
               messages.push(message);
-              const toolResponse = await this.toolConfig!.useToolHandler(message, messages);
+              const toolResponse = await this.toolConfig!.useToolHandler(
+                message,
+                messages
+              );
               messages.push(toolResponse);
               toolUse = true;
             }
-          } else{
+          } else {
             toolUse = false;
           }
         }
       }
-    } while (toolUse &&  --recursions > 0)
+    } while (toolUse && --recursions > 0);
   }
 
   setSystemPrompt(template?: string, variables?: TemplateVariables): void {
@@ -297,7 +449,7 @@ export interface AnthropicAgentOptions extends AgentOptions {
 
   private updateSystemPrompt(): void {
     const allVariables: TemplateVariables = {
-      ...this.customVariables
+      ...this.customVariables,
     };
 
     this.systemPrompt = this.replaceplaceholders(

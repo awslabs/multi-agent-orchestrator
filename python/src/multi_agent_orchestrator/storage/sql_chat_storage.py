@@ -65,7 +65,7 @@ class SqlChatStorage(ChatStorage):
             # Fetch existing conversation
             existing_conversation = await self.fetch_chat(user_id, session_id, agent_id)
 
-            if self.is_consecutive_message(existing_conversation, new_message):
+            if self.is_same_role_as_last_message(existing_conversation, new_message):
                 Logger.debug(f"> Consecutive {new_message.role} message detected for agent {agent_id}. Not saving.")
                 return existing_conversation
 

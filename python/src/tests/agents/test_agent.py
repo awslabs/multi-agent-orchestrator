@@ -17,8 +17,6 @@ class TestAgent:
         return AgentOptions(
             name="Test Agent",
             description="A test agent",
-            model_id="test-model",
-            region="us-west-2",
             save_chat=True,
             callbacks=None,
         )
@@ -76,8 +74,6 @@ class TestAgent:
     def test_agent_options(self, mock_agent_options):
         assert mock_agent_options.name == "Test Agent"
         assert mock_agent_options.description == "A test agent"
-        assert mock_agent_options.model_id == "test-model"
-        assert mock_agent_options.region == "us-west-2"
         assert mock_agent_options.save_chat is True
         assert mock_agent_options.callbacks is None
 

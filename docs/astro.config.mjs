@@ -61,6 +61,7 @@ export default defineConfig({
 					{
 					  label: 'Built-in Agents',
 					  items: [
+						{ label: 'Supervisor Agent', link: '/agents/built-in/supervisor-agent' },
 						{ label: 'Bedrock LLM Agent', link: '/agents/built-in/bedrock-llm-agent'},
 						{ label: 'Amazon Bedrock Agent', link: '/agents/built-in/amazon-bedrock-agent' },
 						{ label: 'Amazon Lex Bot Agent', link: '/agents/built-in/lex-bot-agent' },

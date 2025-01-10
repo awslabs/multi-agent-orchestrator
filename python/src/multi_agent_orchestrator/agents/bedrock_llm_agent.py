@@ -10,17 +10,19 @@ from multi_agent_orchestrator.types import (ConversationMessage,
                        BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
                        TemplateVariables,
                        AgentProviderType)
-from multi_agent_orchestrator.utils import conversation_to_dict, Logger, Tools, Tool
+from multi_agent_orchestrator.utils import conversation_to_dict, Logger, AgentTools
 from multi_agent_orchestrator.retrievers import Retriever
 
 
 @dataclass
 class BedrockLLMAgentOptions(AgentOptions):
+    model_id: Optional[str] = None
+    region: Optional[str] = None
     streaming: Optional[bool] = None
     inference_config: Optional[dict[str, Any]] = None
     guardrail_config: Optional[dict[str, str]] = None
     retriever: Optional[Retriever] = None
-    tool_config: dict[str, Any] | Tools | None = None
+    tool_config: dict[str, Any] | AgentTools | None = None
     custom_system_prompt: Optional[dict[str, Any]] = None
     client: Optional[Any] = None
 
@@ -142,19 +144,19 @@ class BedrockLLMAgent(Agent):
 
         if self.tool_config:
             command["toolConfig"] = self._prepare_tool_config()
-
+            
         return command
 
     def _prepare_tool_config(self) -> dict:
         """Prepare tool configuration based on the tool type."""
 
-        if isinstance(self.tool_config["tool"], Tools):
+        if isinstance(self.tool_config["tool"], AgentTools):
             return {'tools': self.tool_config["tool"].to_bedrock_format()}
 
         if isinstance(self.tool_config["tool"], list):
             return {
                 'tools': [
-                    tool.to_bedrock_format() if isinstance(tool, Tool) else tool
+                    tool.to_bedrock_format() if isinstance(tool, AgentTool) else tool
                     for tool in self.tool_config['tool']
                 ]
             }
@@ -218,6 +220,7 @@ class BedrockLLMAgent(Agent):
 
                 if any('toolUse' in content for content in final_response.content):
                     tool_response = await self._process_tool_block(final_response, conversation)
+        
                     conversation.append(tool_response)
                     command['messages'] = conversation_to_dict(conversation)
                 else:
@@ -264,11 +267,11 @@ class BedrockLLMAgent(Agent):
             # tool process logic is handled elsewhere
             tool_response = await self.tool_config['useToolHandler'](llm_response, conversation)
         else:
-            # tool process logic is handled in Tools class
-            if isinstance(self.tool_config['tool'], Tools):
+            # tool process logic is handled in AgentTools class
+            if isinstance(self.tool_config['tool'], AgentTools):
                 tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.BEDROCK.value, llm_response, conversation)
             else:
-                raise ValueError("You must use Tools class when not providing a custom tool handler")
+                raise ValueError("You must use AgentTools class when not providing a custom tool handler")
         return tool_response
 
     async def handle_single_response(self, converse_input: dict[str, Any]) -> ConversationMessage:

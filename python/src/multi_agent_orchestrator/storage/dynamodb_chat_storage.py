@@ -25,22 +25,75 @@ class DynamoDbChatStorage(ChatStorage):
         user_id: str,
         session_id: str,
         agent_id: str,
-        new_message: ConversationMessage,
+        new_message: Union[ConversationMessage, TimestampedMessage],
         max_history_size: Optional[int] = None
     ) -> list[ConversationMessage]:
         key = self._generate_key(user_id, session_id, agent_id)
         existing_conversation = await self.fetch_chat_with_timestamp(user_id, session_id, agent_id)
 
-        if self.is_consecutive_message(existing_conversation, new_message):
+        if self.is_same_role_as_last_message(existing_conversation, new_message):
             Logger.debug(f"> Consecutive {new_message.role} \
                           message detected for agent {agent_id}. Not saving.")
             return existing_conversation
 
-        timestamped_message = TimestampedMessage(
-            role=new_message.role,
-            content=new_message.content,
-            timestamp=int(time.time() * 1000))
-        existing_conversation.append(timestamped_message)
+        if isinstance(new_message, ConversationMessage):
+            new_message = TimestampedMessage(
+                role=new_message.role,
+                content=new_message.content)
+
+        existing_conversation.append(new_message)
+
+        trimmed_conversation: list[TimestampedMessage] = self.trim_conversation(
+            existing_conversation,
+            max_history_size
+        )
+
+        item: dict[str, Union[str, list[TimestampedMessage], int]] = {
+            'PK': user_id,
+            'SK': key,
+            'conversation': conversation_to_dict(trimmed_conversation),
+        }
+
+        if self.ttl_key:
+            item[self.ttl_key] = int(time.time()) + self.ttl_duration
+
+        try:
+            self.table.put_item(Item=item)
+        except Exception as error:
+            Logger.error(f"Error saving conversation to DynamoDB:{str(error)}")
+            raise error
+
+        return self._remove_timestamps(trimmed_conversation)
+
+    async def save_chat_messages(self,
+        user_id: str,
+        session_id: str,
+        agent_id: str,
+        new_messages: Union[list[ConversationMessage], list[TimestampedMessage]],
+        max_history_size: Optional[int] = None
+    ) -> list[ConversationMessage]:
+
+        """
+        Save multiple messages at once
+        """
+        key = self._generate_key(user_id, session_id, agent_id)
+        existing_conversation = await self.fetch_chat_with_timestamp(user_id, session_id, agent_id)
+
+        #TODO: check messages are consecutive
+        # if self.is_same_role_as_last_message(existing_conversation, new_messages):
+        #     Logger.debug(f"> Consecutive {new_message.role} \
+        #                   message detected for agent {agent_id}. Not saving.")
+        #     return existing_conversation
+
+        if isinstance(new_messages[0], ConversationMessage):  # Check only first message
+            new_messages = [
+                TimestampedMessage(
+                    role=new_message.role,
+                    content=new_message.content
+                )
+             for new_message in new_messages]
+
+        existing_conversation.extend(new_messages)
 
         trimmed_conversation: list[TimestampedMessage] = self.trim_conversation(
             existing_conversation,

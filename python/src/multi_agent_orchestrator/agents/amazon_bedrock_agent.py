@@ -28,6 +28,7 @@ class AmazonBedrockAgentOptions(AgentOptions):
     - streaming: Flag to enable streaming response mode (on final response)
     - enableTrace: Flag to enable detailed event tracing
     """
+    region: Optional[str] = None
     agent_id: str = None
     agent_alias_id: str = None
     client: Any | None = None

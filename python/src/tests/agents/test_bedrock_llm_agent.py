@@ -6,7 +6,7 @@ from multi_agent_orchestrator.agents import (
     BedrockLLMAgent,
     BedrockLLMAgentOptions,
     AgentStreamResponse)
-from multi_agent_orchestrator.utils import Logger, Tools, Tool
+from multi_agent_orchestrator.utils import Logger, AgentTools, AgentTool
 
 logger = Logger()
 

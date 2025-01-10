@@ -1,5 +1,5 @@
 import pytest
-from multi_agent_orchestrator.utils import Tools, Tool
+from multi_agent_orchestrator.utils import AgentTools, AgentTool
 from multi_agent_orchestrator.types import AgentProviderType, ConversationMessage, ParticipantRole
 from anthropic import Anthropic
 from anthropic.types import ToolUseBlock
@@ -30,7 +30,7 @@ async def fetch_weather_data(latitude:str, longitude:str):
     return f'Weather data for {latitude}, {longitude}'
 
 def test_tools_without_description():
-    tools = Tools([Tool(
+    tools = AgentTools([AgentTool(
         name="test",
         func=_tool_hanlder
     )])
@@ -42,7 +42,7 @@ This is a test tool handler."""
         assert tool.properties == {'input': {'description': 'the input string to return within a sentence.','type': 'string'}}
 
 def test_tools_with_description():
-    tools = Tools([Tool(
+    tools = AgentTools([AgentTool(
         name="test",
         description="This is a test description.",
         func=_tool_hanlder
@@ -106,7 +106,7 @@ def test_tools_with_description():
 
 
 def test_tools_format():
-    tools = Tools([Tool(
+    tools = AgentTools([AgentTool(
         name="weather",
         func=fetch_weather_data
     )])
@@ -184,7 +184,7 @@ Returns the weather data or an error message if the request fails."""
 
 @pytest.mark.asyncio
 async def test_tool_handler_bedrock():
-    tools = Tools([Tool(
+    tools = AgentTools([AgentTool(
         name="test",
         func=_tool_hanlder
     )])
@@ -205,7 +205,7 @@ async def test_tool_handler_bedrock():
     assert response.role == ParticipantRole.USER.value
     assert response.content[0]['toolResult'] == {'toolUseId': '123', 'content': [{'text': 'This is a hello tool hanlder'}]}
 
-    tools = Tools([Tool(
+    tools = AgentTools([AgentTool(
         name="weather",
         func=fetch_weather_data
     )])
@@ -230,7 +230,7 @@ async def test_tool_handler_bedrock():
 
 @pytest.mark.asyncio
 async def test_tool_handler_anthropic():
-    tools = Tools([Tool(
+    tools = AgentTools([AgentTool(
         name="test",
         func=_tool_hanlder
     )])
@@ -243,7 +243,7 @@ async def test_tool_handler_anthropic():
     assert response.get('role') == ParticipantRole.USER.value
     assert response.get('content')[0] == {'type':'tool_result', 'tool_use_id': '123', 'content': 'This is a hello tool hanlder'}
 
-    tools = Tools([Tool(
+    tools = AgentTools([AgentTool(
         name="weather",
         func=fetch_weather_data
     )])
@@ -261,11 +261,11 @@ async def test_tool_handler_anthropic():
 
 
 def test_tools_format():
-    tools = Tools([Tool(
+    tools = AgentTools([AgentTool(
         name="weather",
         func=fetch_weather_data
     ),
-    Tool(
+    AgentTool(
         name="test",
         func=_tool_hanlder
     )])
@@ -368,7 +368,7 @@ def tool_with_enums(latitude:str, longitude:str, units:str):
     return f'Weather data for {latitude}, {longitude} in {units}'
 
 def test_tool_with_enums():
-    tool = Tool(
+    tool = AgentTool(
         name="weather_tool",
         func=tool_with_enums,
         enum_values={"units": ["celsius", "fahrenheit"]}
@@ -405,7 +405,7 @@ def test_tool_with_enums():
 
 
 def test_tool_with_properties():
-    tool = Tool(
+    tool = AgentTool(
         name="weather_tool",
         func=tool_with_enums,
         description="Fetches weather data for the given latitude and longitude using the Open-Meteo API.\nReturns the weather data or an error message if the request fails.",

@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import TypedDict, Optional, Any
 from dataclasses import dataclass
+import time
 
 # Constants
 BEDROCK_MODEL_ID_CLAUDE_3_HAIKU = "anthropic.claude-3-haiku-20240307-v1:0"
@@ -53,7 +54,7 @@ class TimestampedMessage(ConversationMessage):
                  content: Optional[list[Any]] = None,
                  timestamp: int = 0):
         super().__init__(role, content)  # Call the parent constructor
-        self.timestamp = timestamp       # Initialize the timestamp attribute
+        self.timestamp = timestamp or int(time.time() * 1000)      # Initialize the timestamp attribute (in ms)
 
 TemplateVariables = dict[str, str | list[str]]
 

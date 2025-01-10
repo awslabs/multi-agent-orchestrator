@@ -10,6 +10,7 @@ from typing import Any
 
 @dataclass
 class LexBotAgentOptions(AgentOptions):
+    region: Optional[str] = None
     bot_id: str = None
     bot_alias_id: str = None
     locale_id: str = None

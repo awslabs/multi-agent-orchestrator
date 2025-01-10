@@ -1,27 +1,25 @@
 import uuid
 import asyncio
 import streamlit as st
-import os
 import boto3
-from botocore.exceptions import NoRegionError, NoCredentialsError, PartialCredentialsError
-from search_web import tool_handler
-from tool import Tool
+from search_web import search_web
 from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
 from multi_agent_orchestrator.agents import (
     AgentResponse,
     BedrockLLMAgent,
-    BedrockLLMAgentOptions
+    BedrockLLMAgentOptions,
+    SupervisorAgent, SupervisorAgentOptions
 )
 from multi_agent_orchestrator.types import ConversationMessage
 from multi_agent_orchestrator.classifiers import ClassifierResult
-from supervisor_agent import SupervisorAgent, SupervisorAgentOptions
+from multi_agent_orchestrator.utils import AgentTools, AgentTool
 
 # Function to test AWS connection
 def test_aws_connection():
     """Test the AWS connection and return a status message."""
     try:
         # Attempt to create an S3 client as a test
-        boto3.client('s3').list_buckets()
+        boto3.client('sts').get_caller_identity()
         return True
     except Exception as e:
         print(f"Incomplete AWS credentials. Please check your AWS configuration.")
@@ -46,7 +44,7 @@ if not test_aws_connection():
     st.stop()
 
 # Define the tools
-search_web_tool = Tool(name='search_web',
+search_web_tool = AgentTool(name='search_web',
                        description='Search Web for information',
                        properties={
                            'query': {
@@ -54,6 +52,7 @@ search_web_tool = Tool(name='search_web',
                                'description': 'The search query'
                            }
                        },
+                       func=search_web,
                        required=['query'])
 
 # Define the agents
@@ -86,9 +85,8 @@ Your tasks consist of:
 5. Provide a final response with all the actors you suggest for the main roles.
 """,
     tool_config={
-        'tool': [search_web_tool.to_bedrock_format()],
+        'tool': AgentTools(tools=[search_web_tool]),
         'toolMaxRecursions': 20,
-        'useToolHandler': tool_handler
     },
     save_chat=False
 ))
@@ -109,7 +107,7 @@ Your tasks consist of:
 ))
 
 supervisor = SupervisorAgent(SupervisorAgentOptions(
-    supervisor=movie_producer_supervisor,
+    lead_agent=movie_producer_supervisor,
     team=[script_writer_agent, casting_director_agent],
     trace=True
 ))

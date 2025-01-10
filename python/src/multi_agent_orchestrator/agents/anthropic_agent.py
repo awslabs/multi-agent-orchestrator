@@ -9,7 +9,7 @@ from multi_agent_orchestrator.types import (ConversationMessage,
                        ParticipantRole,
                        TemplateVariables,
                        AgentProviderType)
-from multi_agent_orchestrator.utils import Logger, Tools, Tool
+from multi_agent_orchestrator.utils import Logger, AgentTools
 from multi_agent_orchestrator.retrievers import Retriever
 
 @dataclass
@@ -20,7 +20,7 @@ class AnthropicAgentOptions(AgentOptions):
     streaming: Optional[bool] = False
     inference_config: Optional[dict[str, Any]] = None
     retriever: Optional[Retriever] = None
-    tool_config: dict[str, Any] | Tools | None = None
+    tool_config: Optional[Union[dict[str, Any], AgentTools]] = None
     custom_system_prompt: Optional[dict[str, Any]] = None
 
 
@@ -217,11 +217,14 @@ class AnthropicAgent(Agent):
             # tool process logic is handled elsewhere
             tool_response = await self.tool_config['useToolHandler'](llm_response, conversation)
         else:
-            # tool process logic is handled in Tools class
-            if isinstance(self.tool_config['tool'], Tools):
+            # tool process logic is handled in AgentTools class
+            if isinstance(self.tool_config['tool'], AgentTools):
                 tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.ANTHROPIC.value, llm_response, conversation)
             else:
-                raise ValueError("You must use Tools class when not providing a custom tool handler")
+                raise ValueError("You must use 
+                                 
+                                 
+                                 class when not providing a custom tool handler")
         return tool_response
 
     async def _handle_single_response_loop(

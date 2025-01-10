@@ -76,33 +76,33 @@ Here are an example for TS and python:
 
 // implementation of the custom flowInputEncoder callback
 const flowInputEncoder = (
-    agent: Agent,
-    input: string,
-    kwargs: {
-        userId?: string,
-        sessionId?: string,
-        chatHistory?: any[],
-        [key: string]: any  // This allows any additional properties
-      }
+  agent: Agent,
+  input: string,
+  kwargs: {
+    userId?: string,
+    sessionId?: string,
+    chatHistory?: any[],
+    [key: string]: any  // This allows any additional properties
+  }
 ) => {
-      if (agent.name == 'tech-flow-agent'){
-          return {
-            "question":input,
-          };
-      } else {
-          return input
-      }
+  if (agent.name == 'tech-flow-agent'){
+    return {
+      "question":input,
+    };
+  } else {
+    return input
+  }
 }
 
 // passing flowInputEncoder to our BedrockFlowsAgent
 const techFlowAgent = new BedrockFlowsAgent({
-      name: 'tech-flow-agent',
-      description: 'Specialized in AWS services',
-      flowIdentifier: 'AEXAMPLID',
-      flowAliasIdentifier: 'AEXAMPLEALIASID',
-      flowInputEncoder: flowInputEncoder
-      enableTrace:true
-    });
+  name: 'tech-flow-agent',
+  description: 'Specialized in AWS services',
+  flowIdentifier: 'AEXAMPLID',
+  flowAliasIdentifier: 'AEXAMPLEALIASID',
+  flowInputEncoder: flowInputEncoder,
+  enableTrace: true
+});
 
 
     ```

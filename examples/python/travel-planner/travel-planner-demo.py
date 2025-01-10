@@ -1,17 +1,15 @@
-import os
 import uuid
 import asyncio
 import streamlit as st
-from dotenv import load_dotenv
 from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-from multi_agent_orchestrator.agents import AnthropicAgent, AnthropicAgentOptions, AgentResponse
+from multi_agent_orchestrator.agents import (
+    BedrockLLMAgent, BedrockLLMAgentOptions,
+    AgentResponse,
+    SupervisorAgent, SupervisorAgentOptions)
 from multi_agent_orchestrator.classifiers import ClassifierResult
 from multi_agent_orchestrator.types import ConversationMessage
-from search_web import tool_handler, search_web_tool
-from supervisor import SupervisorMode, SupervisorModeOptions
-
-# Load environment variables
-load_dotenv()
+from multi_agent_orchestrator.utils import AgentTool, AgentTools
+from search_web import search_web
 
 # Set up the Streamlit app
 st.title("AI Travel Planner ✈️")
@@ -22,16 +20,20 @@ To learn more about the agents used in this demo visit [this link](https://githu
 .
 """)
 
-# Get Anthropic API key from user
-anthropic_api_key = st.text_input("Enter Anthropic API Key to access Claude Sonnet 3.5", type="password", value=os.getenv('ANTHROPIC_API_KEY', None))
+search_web_tool = AgentTool(name='search_web',
+                          description='Search Web for information',
+                          properties={
+                              'query': {
+                                  'type': 'string',
+                                  'description': 'The search query'
+                              }
+                          },
+                          func=search_web,
+                          required=['query'])
 
-if not anthropic_api_key:
-    st.error("Anthropic API Key is required to proceed.")
-    st.stop()  # Stop execution if the API key is missing
 
 # Initialize the agents
-researcher_agent = AnthropicAgent(AnthropicAgentOptions(
-    api_key=anthropic_api_key,
+researcher_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     name="ResearcherAgent",
     description="""
 You are a world-class travel researcher. Given a travel destination and the number of days the user wants to travel for,
@@ -45,15 +47,13 @@ your tasks consist of:
 4. Remember: the quality of the results is important.
 """,
     tool_config={
-        'tool': [search_web_tool.to_claude_format()],
+        'tool': AgentTools(tools=[search_web_tool]),
         'toolMaxRecursions': 20,
-        'useToolHandler': tool_handler
     },
     save_chat=False
 ))
 
-planner_agent = AnthropicAgent(AnthropicAgentOptions(
-    api_key=anthropic_api_key,
+planner_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     name="PlannerAgent",
     description="""
 You are a senior travel planner. Given a travel destination, the number of days the user wants to travel for, and a list of research results,
@@ -70,8 +70,8 @@ your tasks consist of:
 """
 ))
 
-supervisor = SupervisorMode(SupervisorModeOptions(
-    supervisor=planner_agent,
+supervisor = SupervisorAgent(SupervisorAgentOptions(
+    lead_agent=planner_agent,
     team=[researcher_agent],
     trace=True
 ))

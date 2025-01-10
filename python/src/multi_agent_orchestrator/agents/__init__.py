@@ -3,6 +3,7 @@ Code for Agents.
 """
 from .agent import Agent, AgentOptions, AgentCallbacks, AgentProcessingResult, AgentResponse, AgentStreamResponse
 
+
 try:
     from .lambda_agent import LambdaAgent, LambdaAgentOptions
     from .bedrock_llm_agent import BedrockLLMAgent, BedrockLLMAgentOptions
@@ -29,14 +30,18 @@ try:
 except ImportError:
     _OPENAI_AVAILABLE = False
 
+from .supervisor_agent import SupervisorAgent, SupervisorAgentOptions
+
 __all__ = [
     'Agent',
     'AgentOptions',
     'AgentCallbacks',
     'AgentProcessingResult',
     'AgentResponse',
-    'AgentStreamResponse'
-    ]
+    'AgentStreamResponse',
+    'SupervisorAgent',
+    'SupervisorAgentOptions'
+]
 
 
 if _AWS_AVAILABLE :

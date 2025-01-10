@@ -29,18 +29,6 @@
   <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img src="https://img.shields.io/npm/dm/multi-agent-orchestrator?label=npm%20downloads" alt="npm Monthly Downloads"></a>
 </p>
 
-<h2 align="center">🔄 Project Status</h2>
-
-<p align="center">
-  <!-- Project Status -->
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/📋%20Todo-13-green?style=flat" alt="Todo"></a>
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/👀%20In%20Review-5-orange?style=flat" alt="In Review"></a>
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/📅%20Planned-0-blue?style=flat" alt="Planned"></a>
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/🚧%20In%20Progress-2-yellow?style=flat" alt="In Progress"></a>
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/✅%20Done-2-purple?style=flat" alt="Done"></a>
-  <a href="https://github.com/orgs/awslabs/projects/186"><img src="https://img.shields.io/badge/🚀%20Released-0-brightgreen?style=flat" alt="Released"></a>
-</p>
-
 
 <p align="center">
   <a href="https://awslabs.github.io/multi-agent-orchestrator/" style="display: inline-block; background-color: #0066cc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 15px; transition: background-color 0.3s;">
@@ -83,13 +71,35 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user.
 
 
+## ![](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/new.png) Introducing SupervisorAgent: Agents Coordination
+
+The Multi-Agent Orchestrator now includes a powerful new SupervisorAgent that enables sophisticated team coordination between multiple specialized agents. This new component implements a "agent-as-tools" architecture, allowing a lead agent to coordinate a team of specialized agents in parallel, maintaining context and delivering coherent responses.
+
+![SupervisorAgent flow diagram](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/flow-supervisor.jpg)
+
+Key capabilities:
+- 🤝 **Team Coordination** - Coordonate multiple specialized agents working together on complex tasks
+- ⚡ **Parallel Processing** - Execute multiple agent queries simultaneously
+- 🧠 **Smart Context Management** - Maintain conversation history across all team members
+- 🔄 **Dynamic Delegation** - Intelligently distribute subtasks to appropriate team members
+- 🤖 **Agent Compatibility** - Works with all agent types (Bedrock, Anthropic, Lex, etc.)
+
+The SupervisorAgent can be used in two powerful ways:
+1. **Direct Usage** - Call it directly when you need dedicated team coordination for specific tasks
+2. **Classifier Integration** - Add it as an agent within the classifier to build complex hierarchical systems with multiple specialized teams
+
+Here are just a few examples where this agent can be used:
+- Customer Support Teams with specialized sub-teams
+- AI Movie Production Studios
+- Travel Planning Services
+- Product Development Teams
+- Healthcare Coordination Systems
+
+
+[Learn more about SupervisorAgent →](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/supervisor-agent)
 
 
 ## 💬 Demo App
-
-To quickly get a feel for the Multi-Agent Orchestrator, we've provided a Demo App with a few basic agents. This interactive demo showcases the orchestrator's capabilities in a user-friendly interface. To learn more about setting up and running the demo app, please refer to our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/) section.
-
-<br>
 
 In the screen recording below, we demonstrate an extended version of the demo app that uses 6 specialized agents:
 - **Travel Agent**: Powered by an Amazon Lex Bot
@@ -106,13 +116,11 @@ The demo highlights the system's ability to handle complex, multi-turn conversat
 
 ![](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/demo-app.gif?raw=true)
 
-To quickly get a feel for the Multi-Agent Orchestrator, check out our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/). Additional code examples are available in both the documentation and the `examples` folder.
 
 ## 🎯 Examples & Quick Start
 
 Get hands-on experience with the Multi-Agent Orchestrator through our diverse set of examples:
 
-- **Ready-to-run Scripts**: Start locally with our collection of standalone scripts in both Python and TypeScript.
 - **Demo Applications**:
   - [Streamlit Global Demo](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/python): A single Streamlit application showcasing multiple demos, including:
     - AI Movie Production Studio
@@ -131,10 +139,10 @@ Get hands-on experience with the Multi-Agent Orchestrator through our diverse se
   - [`fast-api-streaming`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/fast-api-streaming): FastAPI implementation with streaming support
   - [`text-2-structured-output`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/text-2-structured-output): Natural Language to Structured Data
   - [`bedrock-inline-agents`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-inline-agents): Bedrock Inline Agents sample
-  - [`bedrock-prompt-routing`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-prompt-routing): Bedrock Prompt Routing sample code for `BedrockClassifier`and `BedrockLLMAgent`
+  - [`bedrock-prompt-routing`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-prompt-routing): Bedrock Prompt Routing sample code
 
 
-All examples are available in both Python and TypeScript implementations. Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
+Examples are available in both Python and TypeScript. Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator framework!
 
 
 ## 🌟 Use cases and implementations
@@ -360,7 +368,7 @@ The Multi-Agent Orchestrator is designed with a modular architecture, allowing y
   ```bash
    pip install "multi-agent-orchestrator[aws]"
   ```
-Includes core orchestration functionality with comprehensive AWS service integrations (`BedrockLLMAgent`, `AmazonBedrockAgent`, `LambdaAgent`, etc.)   
+Includes core orchestration functionality with comprehensive AWS service integrations (`BedrockLLMAgent`, `AmazonBedrockAgent`, `LambdaAgent`, etc.)
 
 **2. Anthropic Integration**:
 
@@ -382,7 +390,7 @@ Adds OpenAI's GPT models for agents and classification, along with core packages
 pip install "multi-agent-orchestrator[all]"
   ```
 
-Includes all optional dependencies for maximum flexibility. 
+Includes all optional dependencies for maximum flexibility.
 
 
 ### 🙌 **We Want to Hear From You!**

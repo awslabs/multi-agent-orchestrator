@@ -1,24 +1,27 @@
 import pytest
-import asyncio
-from typing import List
-from multi_agent_orchestrator.types import ConversationMessage
+from typing import Union
+from multi_agent_orchestrator.types import ConversationMessage, TimestampedMessage
 from multi_agent_orchestrator.storage import ChatStorage
 
 class MockChatStorage(ChatStorage):
-    async def save_chat_message(self, user_id: str, session_id: str, agent_id: str, new_message: ConversationMessage, max_history_size: int = None) -> bool:
+    async def save_chat_message(self, user_id: str, session_id: str, agent_id: str, new_message: Union[ConversationMessage, TimestampedMessage], max_history_size: int = None) -> bool:
+        assert isinstance(new_message, ConversationMessage) or isinstance(new_message, TimestampedMessage)
         return True
 
-    async def fetch_chat(self, user_id: str, session_id: str, agent_id: str, max_history_size: int = None) -> List[ConversationMessage]:
+    async def save_chat_messages(self, user_id: str, session_id: str, agent_id: str, new_messages: Union[list[ConversationMessage], list[TimestampedMessage]], max_history_size: int = None) -> bool:
+        return True
+
+    async def fetch_chat(self, user_id: str, session_id: str, agent_id: str, max_history_size: int = None) -> list[ConversationMessage]:
         return []
 
-    async def fetch_all_chats(self, user_id: str, session_id: str) -> List[ConversationMessage]:
+    async def fetch_all_chats(self, user_id: str, session_id: str) -> list[ConversationMessage]:
         return []
 
 @pytest.fixture
 def chat_storage():
     return MockChatStorage()
 
-def test_is_consecutive_message(chat_storage):
+def test_is_same_role_as_last_message(chat_storage):
     conversation = [
         ConversationMessage(role="user", content="Hello"),
         ConversationMessage(role="assistant", content="Hi there"),
@@ -26,14 +29,14 @@ def test_is_consecutive_message(chat_storage):
 
     # Test consecutive message
     new_message = ConversationMessage(role="assistant", content="How can I help you?")
-    assert chat_storage.is_consecutive_message(conversation, new_message) == True
+    assert chat_storage.is_same_role_as_last_message(conversation, new_message) == True
 
     # Test non-consecutive message
     new_message = ConversationMessage(role="user", content="I have a question")
-    assert chat_storage.is_consecutive_message(conversation, new_message) == False
+    assert chat_storage.is_same_role_as_last_message(conversation, new_message) == False
 
     # Test empty conversation
-    assert chat_storage.is_consecutive_message([], new_message) == False
+    assert chat_storage.is_same_role_as_last_message([], new_message) == False
 
 def test_trim_conversation(chat_storage):
     conversation = [
@@ -73,6 +76,30 @@ async def test_save_chat_message(chat_storage):
         session_id="session1",
         agent_id="agent1",
         new_message=ConversationMessage(role="user", content="Test message"),
+        max_history_size=10
+    )
+    assert result == True
+
+@pytest.mark.asyncio
+async def test_save_chat_messages(chat_storage):
+    result = await chat_storage.save_chat_messages(
+        user_id="user1",
+        session_id="session1",
+        agent_id="agent1",
+        new_messages=[
+            ConversationMessage(role="user", content="Test message"),
+            ConversationMessage(role="assitant", content="Test message from assistant")],
+        max_history_size=10
+    )
+    assert result == True
+
+    result = await chat_storage.save_chat_messages(
+        user_id="user1",
+        session_id="session1",
+        agent_id="agent1",
+        new_messages=[
+            TimestampedMessage(role="user", content="Test message"),
+            TimestampedMessage(role="assitant", content="Test message from assistant")],
         max_history_size=10
     )
     assert result == True

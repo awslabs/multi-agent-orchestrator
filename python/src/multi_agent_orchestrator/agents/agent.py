@@ -38,8 +38,6 @@ class AgentCallbacks:
 class AgentOptions:
     name: str
     description: str
-    model_id: Optional[str] = None
-    region: Optional[str] = None
     save_chat: bool = True
     callbacks: Optional[AgentCallbacks] = None
     # Optional: Flag to enable/disable agent debug trace logging
