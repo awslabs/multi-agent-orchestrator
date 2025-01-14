@@ -407,13 +407,14 @@ Let’s collaborate, learn from each other, and build something incredible toget
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how to get started:
+⚠️ We value your contributions! Before submitting changes, please start a discussion by opening an issue to share your proposal.
+
+Once your proposal is approved, here are the next steps:
 
 1. 📚 Review our [Contributing Guide](CONTRIBUTING.md)
 2. 💡 Create a [GitHub Issue](https://github.com/awslabs/multi-agent-orchestrator/issues)
 3. 🔨 Submit a pull request
 
-⚠️ For major changes, please open an issue first to discuss your proposal.
 
 ✅ Follow existing project structure and include documentation for new features.
 
