@@ -1,4 +1,4 @@
-from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentCallbacks
+from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentCallbacks, MathAgent, MathAgentOptions
 from ollamaAgent import OllamaAgent, OllamaAgentOptions
 import asyncio
 
@@ -32,5 +32,14 @@ def create_health_agent():
         model_id="llama3.1:latest",
         description="Specializes in health and wellness, including nutrition, fitness, mental health, and disease prevention. Provides personalized health advice, creates wellness plans, and offers resources for self-care. Must have a strong understanding of human anatomy, physiology, and medical terminology. Proficiency in health coaching techniques and a commitment to promoting overall well-being required.",
         streaming=True,
+        callbacks=ChainlitAgentCallbacks()
+    ))
+
+def create_math_agent():
+    return MathAgent(MathAgentOptions(
+        name="Math Agent",
+        description="An agent that performs mathematical operations",
+        model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
+        save_chat=True,
         callbacks=ChainlitAgentCallbacks()
     ))

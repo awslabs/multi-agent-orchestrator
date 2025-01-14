@@ -1,8 +1,8 @@
-
 !typescript/jest.config.js
 typescript/*.d.ts
 node_modules
 typescript/.package-lock.json
+python/
 
 examples/chat-demo-app/cdk.out
 
@@ -13,7 +13,6 @@ examples/chat-demo-app/bin/*.js
 examples/resources/ui/public/aws-exports.json
 examples/resources/ui/dist
 examples/text-2-structured-output/venv
-
 
 .DS_Store
 
@@ -27,10 +26,10 @@ examples/local-demo/.env
 typescript/coverage/**/*
 
 .venv
+venv
 examples/chat-chainlit-app/venv
 
 *.env
 *__pycache__
 
 git-release-notes.genai.mjs
-

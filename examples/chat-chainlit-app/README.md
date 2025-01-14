@@ -17,6 +17,12 @@ To set up and run the application first install dependencies from `requirements.
    cd <repository-directory>
    ```
 
+   Change your directory to the example app directory
+
+   ```bash
+   cd examples/chat-chainlit-app
+   ```
+
 2. **Create a Virtual Environment (Optional but Recommended)**
 
    It's a good practice to use a virtual environment to manage dependencies for your project.
@@ -40,7 +46,7 @@ To set up and run the application first install dependencies from `requirements.
      ```
 
 3. **Install Dependencies**
-
+   
    Use the `requirements.txt` file to install the necessary Python packages.
 
    ```bash
@@ -69,4 +75,6 @@ By following these steps, you should be able to install the necessary dependenci
     - This should route to tech agent on Bedrock
 - What kind of pollen is causing allergies in Seattle?
     - This should health agent running local machine ollama
+- I get paid 20$ an hour. i work 8 hours a day. how much i can withdraw if i am allowed to withdraw 30% after 5 days
+    - This request should be routed to math agent to get more deterministic answer
 - (Ask a followup quesiton to the Travel agent by referring to some context in first response) 

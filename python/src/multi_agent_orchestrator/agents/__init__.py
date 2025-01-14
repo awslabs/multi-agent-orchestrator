@@ -14,6 +14,7 @@ try:
     from .chain_agent import ChainAgent, ChainAgentOptions
     from .bedrock_inline_agent import BedrockInlineAgent, BedrockInlineAgentOptions
     from .bedrock_flows_agent import BedrockFlowsAgent, BedrockFlowsAgentOptions
+    from .math_agent import MathAgent, MathAgentOptions
     _AWS_AVAILABLE = True
 except ImportError:
     _AWS_AVAILABLE = False
@@ -40,7 +41,9 @@ __all__ = [
     'AgentProcessingResult',
     'AgentResponse',
     'SupervisorAgent',
-    'SupervisorAgentOptions'
+    'SupervisorAgentOptions',
+    'MathAgent',
+    'MathAgentOptions'
     ]
 
 
@@ -63,7 +66,8 @@ if _AWS_AVAILABLE :
         'BedrockInlineAgent',
         'BedrockInlineAgentOptions',
         'BedrockFlowsAgent',
-        'BedrockFlowsAgentOptions'
+        'BedrockFlowsAgentOptions',
+        
     ])
 
 

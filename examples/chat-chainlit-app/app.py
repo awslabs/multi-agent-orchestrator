@@ -1,6 +1,6 @@
 import uuid
 import chainlit as cl
-from agents import create_tech_agent, create_travel_agent, create_health_agent
+from agents import create_tech_agent, create_travel_agent, create_health_agent, create_math_agent
 from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
 from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
 from multi_agent_orchestrator.types import ConversationMessage
@@ -24,7 +24,7 @@ orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
         LOG_CLASSIFIER_OUTPUT=True,
         LOG_EXECUTION_TIMES=True,
         MAX_RETRIES=3,
-        USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED=False,
+        USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED=True,
         MAX_MESSAGE_PAIRS_PER_AGENT=10
     ),
     classifier=custom_bedrock_classifier
@@ -34,6 +34,7 @@ orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
 orchestrator.add_agent(create_tech_agent())
 orchestrator.add_agent(create_travel_agent())
 orchestrator.add_agent(create_health_agent())
+orchestrator.add_agent(create_math_agent())
 
 @cl.on_chat_start
 async def start():
@@ -54,8 +55,9 @@ async def main(message: cl.Message):
     cl.user_session.set("current_msg", msg)
 
     response:AgentResponse = await orchestrator.route_request(message.content, user_id, session_id, {})
-
-
+    
+    async with cl.Step(name="Orchestrator") as step:
+        step.output = f"🔄 Routed to: {response.metadata.agent_name}"
     # Handle non-streaming responses
     if isinstance(response, AgentResponse) and response.streaming is False:
         # Handle regular response

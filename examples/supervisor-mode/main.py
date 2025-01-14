@@ -32,14 +32,14 @@ tech_agent = BedrockLLMAgent(
     options=BedrockLLMAgentOptions(
         name="TechAgent",
         description="You are a tech agent. You are responsible for answering questions about tech. You are only allowed to answer questions about tech. You are not allowed to answer questions about anything else.",
-        model_id="anthropic.claude-3-haiku-20240307-v1:0",
+        model_id="us.anthropic.claude-3-haiku-20240307-v1:0",
     )
 )
 
 sales_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     name="SalesAgent",
     description="You are a sales agent. You are responsible for answering questions about sales. You are only allowed to answer questions about sales. You are not allowed to answer questions about anything else.",
-    model_id="anthropic.claude-3-haiku-20240307-v1:0",
+    model_id="us.anthropic.claude-3-haiku-20240307-v1:0",
 ))
 
 claim_agent = AmazonBedrockAgent(AmazonBedrockAgentOptions(
@@ -66,20 +66,20 @@ weather_agent.set_system_prompt(weather_tool_prompt)
 health_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     name="HealthAgent",
     description="You are a health agent. You are responsible for answering questions about health. You are only allowed to answer questions about health. You are not allowed to answer questions about anything else.",
-    model_id="anthropic.claude-3-haiku-20240307-v1:0",
+    model_id="us.anthropic.claude-3-haiku-20240307-v1:0",
 ))
 
 travel_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     name="TravelAgent",
     description="You are a travel assistant agent. You are responsible for answering questions about travel, activities, sight seesing about a city and surrounding",
-    model_id="anthropic.claude-3-haiku-20240307-v1:0",
+    model_id="us.anthropic.claude-3-haiku-20240307-v1:0",
 ))
 
-airlines_agent = LexBotAgent(LexBotAgentOptions(name='AirlinesBot',
-                                              description='Helps users book their flight. This bot works with US metric time and date.',
-                                              locale_id='en_US',
-                                              bot_id=os.getenv('AIRLINES_BOT_ID', None),
-                                              bot_alias_id=os.getenv('AIRLINES_BOT_ALIAS_ID', None)))
+# airlines_agent = LexBotAgent(LexBotAgentOptions(name='AirlinesBot',
+#                                               description='Helps users book their flight. This bot works with US metric time and date.',
+#                                               locale_id='en_US',
+#                                               bot_id=os.getenv('AIRLINES_BOT_ID', None),
+#                                               bot_alias_id=os.getenv('AIRLINES_BOT_ALIAS_ID', None)))
 
 if _ANTHROPIC_AVAILABLE:
     lead_agent = AnthropicAgent(AnthropicAgentOptions(
@@ -91,7 +91,7 @@ if _ANTHROPIC_AVAILABLE:
 else:
     lead_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
         name="SupervisorAgent",
-        model_id="amazon.nova-pro-v1:0",
+        model_id="us.amazon.nova-pro-v1:0",
         description="You are a supervisor agent. You are responsible for managing the flow of the conversation. You are only allowed to manage the flow of the conversation. You are not allowed to answer questions about anything else.",
     ))
 
@@ -106,11 +106,11 @@ async def get_current_date():
 supervisor = SupervisorAgent(
     SupervisorAgentOptions(
         lead_agent=lead_agent,
-        team=[airlines_agent, travel_agent, tech_agent, sales_agent, health_agent, claim_agent, weather_agent],
-        storage=DynamoDbChatStorage(
-            table_name=os.getenv('DYNAMODB_CHAT_HISTORY_TABLE_NAME', None),
-            region='us-east-1'
-        ),
+        team=[travel_agent, tech_agent, sales_agent, health_agent, claim_agent, weather_agent],
+        # storage=DynamoDbChatStorage(
+        #     table_name=os.getenv('DYNAMODB_CHAT_HISTORY_TABLE_NAME', None),
+        #     region='us-east-1'
+        # ),
         trace=True,
         extra_tools=[AgentTool(
             name="get_current_date",
@@ -146,9 +146,9 @@ if __name__ == "__main__":
         USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED=True,
         MAX_MESSAGE_PAIRS_PER_AGENT=10,
     ),
-    storage=DynamoDbChatStorage(
-        table_name=os.getenv('DYNAMODB_CHAT_HISTORY_TABLE_NAME', None),
-        region='us-east-1')
+    # storage=DynamoDbChatStorage(
+    #     table_name=os.getenv('DYNAMODB_CHAT_HISTORY_TABLE_NAME', None),
+    #     region='us-east-1')
     )
 
     USER_ID = str(uuid.uuid4())
