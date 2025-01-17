@@ -144,8 +144,7 @@ Get hands-on experience with the Multi-Agent Orchestrator through our diverse se
 
 Examples are available in both Python and TypeScript. Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator framework!
 
-
-## 🌟 Use cases and implementations
+## 📚 Deep Dives: Stories, Blogs & Podcasts
 
 Discover creative implementations and diverse applications of the Multi-Agent Orchestrator:
 
@@ -157,12 +156,9 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 
   This article demonstrates how to build an AI-driven multi-agent system for automated e-commerce customer email support. It covers the architecture and setup of specialized AI agents using the Multi-Agent Orchestrator framework, integrating automated processing with human-in-the-loop oversight. The guide explores email ingestion, intelligent routing, automated response generation, and human verification, providing a comprehensive approach to balancing AI efficiency with human expertise in customer support.
 
-
 - **[Speak Up, AI: Voicing Your Agents with Amazon Connect, Lex, and Bedrock](https://community.aws/content/2mt7CFG7xg4yw6GRHwH9akhg0oD/speak-up-ai-voicing-your-agents-with-amazon-connect-lex-and-bedrock)**
 
   This article demonstrates how to build an AI customer call center. It covers the architecture and setup of specialized AI agents using the Multi-Agent Orchestrator framework interacting with voice via **Amazon Connect** and **Amazon Lex**.
-
-  Here's the section to add under "Use cases and implementations":
 
 - **[Unlock Bedrock InvokeInlineAgent API's Hidden Potential](https://community.aws/content/2pTsHrYPqvAbJBl9ht1XxPOSPjR/unlock-bedrock-invokeinlineagent-api-s-hidden-potential-with-multi-agent-orchestrator)**
 
@@ -172,6 +168,17 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 
   Learn how to enhance **Amazon Bedrock Flows** with conversation memory and multi-flow orchestration using the Multi-Agent Orchestrator framework. This guide shows how to overcome Bedrock Flows' limitations to build more sophisticated AI workflows with persistent memory and intelligent routing between flows.
 
+### 🎙️ Podcast Discussions
+
+- **🇫🇷 Podcast (French)**: [L'orchestrateur multi-agents : Un orchestrateur open source pour vos agents IA](https://podcasts.apple.com/be/podcast/lorchestrateur-multi-agents/id1452118442?i=1000684332612)
+  - **Platforms**:
+    - [Apple Podcasts](https://podcasts.apple.com/be/podcast/lorchestrateur-multi-agents/id1452118442?i=1000684332612)
+    - [Spotify](https://open.spotify.com/episode/2a9DBGZn2lVqVMBLWGipHU)
+
+- **🇬🇧 Podcast (English)**: [An Orchestrator for Your AI Agents](https://podcasts.apple.com/us/podcast/an-orchestrator-for-your-ai-agents/id1574162669?i=1000677039579)
+  - **Platforms**:
+    - [Apple Podcasts](https://podcasts.apple.com/us/podcast/an-orchestrator-for-your-ai-agents/id1574162669?i=1000677039579)
+    - [Spotify](https://open.spotify.com/episode/4RdMazSRhZUyW2pniG91Vf)
 
 ### TypeScript Version
 
