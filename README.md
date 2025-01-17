@@ -170,15 +170,17 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 
 ### 🎙️ Podcast Discussions
 
-- **🇫🇷 Podcast (French)**: [L'orchestrateur multi-agents : Un orchestrateur open source pour vos agents IA](https://podcasts.apple.com/be/podcast/lorchestrateur-multi-agents/id1452118442?i=1000684332612)
+- **🇫🇷 Podcast (French)**: L'orchestrateur multi-agents : Un orchestrateur open source pour vos agents IA
   - **Platforms**:
     - [Apple Podcasts](https://podcasts.apple.com/be/podcast/lorchestrateur-multi-agents/id1452118442?i=1000684332612)
-    - [Spotify](https://open.spotify.com/episode/2a9DBGZn2lVqVMBLWGipHU)
+    - [Spotify](https://open.spotify.com/episode/4RdMazSRhZUyW2pniG91Vf)
 
-- **🇬🇧 Podcast (English)**: [An Orchestrator for Your AI Agents](https://podcasts.apple.com/us/podcast/an-orchestrator-for-your-ai-agents/id1574162669?i=1000677039579)
+
+- **🇬🇧 Podcast (English)**: An Orchestrator for Your AI Agents
   - **Platforms**:
     - [Apple Podcasts](https://podcasts.apple.com/us/podcast/an-orchestrator-for-your-ai-agents/id1574162669?i=1000677039579)
-    - [Spotify](https://open.spotify.com/episode/4RdMazSRhZUyW2pniG91Vf)
+    - [Spotify](https://open.spotify.com/episode/2a9DBGZn2lVqVMBLWGipHU)
+
 
 ### TypeScript Version
 
