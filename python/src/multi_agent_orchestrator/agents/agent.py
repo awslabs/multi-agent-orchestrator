@@ -27,6 +27,9 @@ class AgentCallbacks:
         # Default implementation
         pass
 
+    def on_llm_end(self, token: ConversationMessage) -> None:
+        # Default implementation
+        pass
 
 @dataclass
 class AgentOptions:

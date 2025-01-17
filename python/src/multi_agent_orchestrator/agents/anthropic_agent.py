@@ -118,7 +118,7 @@ class AnthropicAgent(Agent):
 
         if self.retriever:
             response = await self.retriever.retrieve_and_combine_results(input_text)
-            context_prompt = f"\nHere is the context to use to answer the user's question:\n{response}"
+            context_prompt = f"\nHere is the context to use to answer the user's question:\n{response['text']}"
             system_prompt += context_prompt
 
         input = {
