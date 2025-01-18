@@ -152,6 +152,13 @@ export default defineConfig({
 						  { label: 'Agent Overlap Analysis', link: '/cookbook/monitoring/agent-overlap' },
 						  { label: 'Logging and Monitoring', link: '/cookbook/monitoring/logging' }
 						]
+					  },
+					  {
+						label: 'Testing',
+						items: [
+						  { label: 'Testing Classifiers', link: '/cookbook/testing/classifier-testing' },
+
+						]
 					  }
 					]
 				  }

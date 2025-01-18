@@ -1,0 +1,307 @@
+---
+title: Testing Guide
+description: How to test classification and agent selection in the Multi-Agent Orchestrator
+---
+
+## Testing Classification Logic
+
+The most important aspect of testing your Multi-Agent Orchestrator setup is verifying that queries are being routed to the correct agents. Here's how to systematically test your classification:
+
+### Direct Classifier Testing 
+
+You can test the classifier independently to verify agent selection:
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    import { BedrockClassifier, MultiAgentOrchestrator } from "multi-agent-orchestrator";
+
+    // Sample test cases
+    const testCases = [
+      {
+        input: "How much does AWS Lambda cost?",
+        expectedAgent: "billing-agent"
+      },
+      {
+        input: "How do I set up an S3 bucket?",
+        expectedAgent: "tech-support-agent"
+      },
+      {
+        input: "My account is locked",
+        expectedAgent: "security-agent"
+      }
+    ];
+
+    async function testClassification() {
+      const classifier = new BedrockClassifier();
+      
+      // Add your agents
+      orchestrator.addAgent(billingAgent);
+      orchestrator.addAgent(techSupportAgent);
+      orchestrator.addAgent(securityAgent);
+
+      for (const testCase of testCases) {
+        const result = await classifier.classify(testCase.input, []);
+        
+        console.log(`Input: ${testCase.input}`);
+        console.log(`Expected Agent: ${testCase.expectedAgent}`);
+        console.log(`Selected Agent: ${result.selectedAgent?.id}`);
+        console.log(`Confidence: ${result.confidence}`);
+        console.log('---');
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from multi_agent_orchestrator.classifiers import BedrockClassifier
+    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+
+    # Sample test cases
+    test_cases = [
+        {
+            "input": "How much does AWS Lambda cost?",
+            "expected_agent": "billing-agent"
+        },
+        {
+            "input": "How do I set up an S3 bucket?",
+            "expected_agent": "tech-support-agent"
+        },
+        {
+            "input": "My account is locked",
+            "expected_agent": "security-agent"
+        }
+    ]
+
+    async def test_classification():
+        classifier = BedrockClassifier()
+        
+        # Add your agents
+        orchestrator.add_agent(billing_agent)
+        orchestrator.add_agent(tech_support_agent)
+        orchestrator.add_agent(security_agent)
+
+        for test_case in test_cases:
+            result = await classifier.classify(test_case["input"], [])
+            
+            print(f"Input: {test_case['input']}")
+            print(f"Expected Agent: {test_case['expected_agent']}")
+            print(f"Selected Agent: {result.selected_agent.id}")
+            print(f"Confidence: {result.confidence}")
+            print("---")
+    ```
+  </TabItem>
+</Tabs>
+
+### Testing Context Awareness
+
+Test how the classifier handles follow-up messages:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const conversationTests = [
+      {
+        history: [
+          {
+            role: "user",
+            content: [{ text: "How do I set up an S3 bucket?" }]
+          },
+          {
+            role: "assistant",
+            content: [{ text: "[tech-support-agent] First, go to the S3 console..." }]
+          }
+        ],
+        input: "How much will it cost?",
+        expectedAgent: "billing-agent"  // Should switch to billing agent for cost question
+      },
+      {
+        history: [
+          {
+            role: "user",
+            content: [{ text: "How do I set up an S3 bucket?" }]
+          },
+          {
+            role: "assistant",
+            content: [{ text: "[tech-support-agent] First, go to the S3 console..." }]
+          }
+        ],
+        input: "What's the next step?",
+        expectedAgent: "tech-support-agent"  // Should stay with tech support for follow-up
+      }
+    ];
+
+    async function testContextAwareness() {
+      const classifier = new BedrockClassifier();
+      
+      for (const test of conversationTests) {
+        const result = await classifier.classify(test.input, test.history);
+        
+        console.log(`Input: ${test.input}`);
+        console.log(`History: ${test.history.length} messages`);
+        console.log(`Expected Agent: ${test.expectedAgent}`);
+        console.log(`Selected Agent: ${result.selectedAgent?.id}`);
+        console.log(`Confidence: ${result.confidence}`);
+        console.log('---');
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    conversation_tests = [
+        {
+            "history": [
+                {
+                    "role": "user",
+                    "content": [{"text": "How do I set up an S3 bucket?"}]
+                },
+                {
+                    "role": "assistant",
+                    "content": [{"text": "[tech-support-agent] First, go to the S3 console..."}]
+                }
+            ],
+            "input": "How much will it cost?",
+            "expected_agent": "billing-agent"  # Should switch to billing agent for cost question
+        },
+        {
+            "history": [
+                {
+                    "role": "user",
+                    "content": [{"text": "How do I set up an S3 bucket?"}]
+                },
+                {
+                    "role": "assistant",
+                    "content": [{"text": "[tech-support-agent] First, go to the S3 console..."}]
+                }
+            ],
+            "input": "What's the next step?",
+            "expected_agent": "tech-support-agent"  # Should stay with tech support for follow-up
+        }
+    ]
+
+    async def test_context_awareness():
+        classifier = BedrockClassifier()
+        
+        for test in conversation_tests:
+            result = await classifier.classify(test["input"], test["history"])
+            
+            print(f"Input: {test['input']}")
+            print(f"History: {len(test['history'])} messages")
+            print(f"Expected Agent: {test['expected_agent']}")
+            print(f"Selected Agent: {result.selected_agent.id}")
+            print(f"Confidence: {result.confidence}")
+            print("---")
+    ```
+  </TabItem>
+</Tabs>
+
+### Testing Edge Cases
+
+Important edge cases to test:
+
+1. **Short Responses**:
+```plaintext
+"yes"
+"no"
+"okay"
+"1"
+"next"
+```
+
+2. **Ambiguous Queries**:
+```plaintext
+"help"
+"I need assistance"
+"can you help me?"
+```
+
+3. **Multi-Intent Queries**:
+```plaintext
+"I need help with S3 setup and want to know the cost"
+"My account is locked and I can't access my EC2 instances"
+```
+
+4. **Invalid/Empty Input**:
+```plaintext
+""
+" "
+"   "
+"..."
+```
+
+### Real-World Testing Example
+
+Here's a comprehensive example using real AWS service-related queries:
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const awsQueries = [
+      // Technical queries - should go to tech-support-agent
+      { input: "How do I set up cross-region replication in S3?", expectedAgent: "tech-support-agent" },
+      { input: "What's the difference between t3 and t4g instances?", expectedAgent: "tech-support-agent" },
+      { input: "How to enable versioning on S3 bucket?", expectedAgent: "tech-support-agent" },
+      
+      // Billing queries - should go to billing-agent
+      { input: "How much does S3 cost per GB?", expectedAgent: "billing-agent" },
+      { input: "What's my current AWS bill?", expectedAgent: "billing-agent" },
+      { input: "How can I reduce my EC2 costs?", expectedAgent: "billing-agent" },
+      
+      // Security queries - should go to security-agent
+      { input: "How do I rotate my access keys?", expectedAgent: "security-agent" },
+      { input: "Need help with IAM policies", expectedAgent: "security-agent" },
+      { input: "How to set up MFA?", expectedAgent: "security-agent" },
+      
+      // Follow-ups
+      { input: "Can you explain more?", expectedAgent: "last-agent" },
+      { input: "What about the other options?", expectedAgent: "last-agent" },
+      { input: "How much does that cost?", expectedAgent: "billing-agent" }  // Cost questions should switch to billing
+    ];
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    aws_queries = [
+        # Technical queries - should go to tech-support-agent
+        {"input": "How do I set up cross-region replication in S3?", "expected_agent": "tech-support-agent"},
+        {"input": "What's the difference between t3 and t4g instances?", "expected_agent": "tech-support-agent"},
+        {"input": "How to enable versioning on S3 bucket?", "expected_agent": "tech-support-agent"},
+        
+        # Billing queries - should go to billing-agent
+        {"input": "How much does S3 cost per GB?", "expected_agent": "billing-agent"},
+        {"input": "What's my current AWS bill?", "expected_agent": "billing-agent"},
+        {"input": "How can I reduce my EC2 costs?", "expected_agent": "billing-agent"},
+        
+        # Security queries - should go to security-agent
+        {"input": "How do I rotate my access keys?", "expected_agent": "security-agent"},
+        {"input": "Need help with IAM policies", "expected_agent": "security-agent"},
+        {"input": "How to set up MFA?", "expected_agent": "security-agent"},
+        
+        # Follow-ups
+        {"input": "Can you explain more?", "expected_agent": "last-agent"},
+        {"input": "What about the other options?", "expected_agent": "last-agent"},
+        {"input": "How much does that cost?", "expected_agent": "billing-agent"}  # Cost questions should switch to billing
+    ]
+    ```
+  </TabItem>
+</Tabs>
+
+## Best Practices
+
+1. **Test Coverage**: Include a wide variety of queries that cover all your agents' domains
+2. **Context Testing**: Test both standalone queries and follow-up messages
+3. **Edge Cases**: Include ambiguous queries and transitions between different agents
+4. **Regular Updates**: Add new test cases when you discover misrouted queries in production
+
+## Tips for Improving Classification
+
+If you find queries being misrouted:
+
+1. Review and update agent descriptions to be more specific
+2. Add examples to the classifier's system prompt
+4. Look for patterns in misclassified queries to identify areas needing improvement
+
