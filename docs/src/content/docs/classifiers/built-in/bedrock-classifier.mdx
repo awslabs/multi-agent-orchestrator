@@ -19,6 +19,51 @@ The classifier uses Claude 3.5 Sonnet as its default model:
 BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET = "anthropic.claude-3-5-sonnet-20240620-v1:0"
 ```
 
+### Model Support for Tool Choice
+
+The BedrockClassifier's toolChoice configuration for structured outputs is only available with specific models in Amazon Bedrock. As of January 2025, the following models support tool use:
+
+- **Anthropic Models**:
+  - Claude 3 models (all variants except Haiku)
+  - Claude 3.5 Sonnet (`anthropic.claude-3-5-sonnet-20240620-v1:0`)
+  - Claude 3.5 Sonnet v2
+  
+- **AI21 Labs Models**:
+  - Jamba 1.5 Large
+  - Jamba 1.5 Mini
+
+- **Amazon Models**:
+  - Nova Pro
+  - Nova Lite
+  - Nova Micro
+
+- **Meta Models**:
+  - Llama 3.2 11b
+  - Llama 3.2 90b
+
+- **Mistral AI Models**:
+  - Mistral Large
+  - Mistral Large 2 (24.07)
+  - Mistral Small
+  
+- **Cohere Models**:
+  - Command R
+  - Command R+
+
+When using other models:
+- The tool configuration will still be included in the request
+- The model won't be explicitly directed to use the `analyzePrompt` tool
+- Response formats may be less consistent
+
+For the most up-to-date list of supported models and their features, please refer to the [Amazon Bedrock Converse API documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference-supported-models-features.html).
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="tip">
+For optimal classification results, we recommend using one of the supported models listed above, particularly the Claude family of models which are thoroughly tested with the BedrockClassifier.
+</Aside>
+
+
 ### Python Package
 
 If you haven't already installed the AWS-related dependencies, make sure to install them:
