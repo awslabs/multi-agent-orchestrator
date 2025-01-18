@@ -1,15 +1,32 @@
 ---
-title: Testing Guide
+title: Classifier Testing 
 description: How to test classification and agent selection in the Multi-Agent Orchestrator
 ---
 
-## Testing Classification Logic
+Testing your Multi-Agent Orchestrator's classifier ensures queries are being routed to the correct agents. Here's how to set up and run classifier tests.
 
-The most important aspect of testing your Multi-Agent Orchestrator setup is verifying that queries are being routed to the correct agents. Here's how to systematically test your classification:
+## Basic Setup
 
-### Direct Classifier Testing 
+1. Create a test cases file named `test_cases.txt`. For simple queries, use the format `TEST: query || expected-agent`:
 
-You can test the classifier independently to verify agent selection:
+```plaintext
+TEST: How much does AWS Lambda cost? || billing-agent
+TEST: How do I set up an S3 bucket? || tech-support-agent
+TEST: My account is locked || security-agent
+```
+
+For queries with conversation history, number the history lines and end with the test case:
+```plaintext
+1: How do I set up an S3 bucket?
+2: [tech-support-agent] First, go to the S3 console...
+TEST: What's the next step? || tech-support-agent
+
+1: How do I set up an S3 bucket?
+2: [tech-support-agent] First, go to the S3 console...
+TEST: How much will that cost? || billing-agent
+```
+
+2. Create a test script:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
@@ -17,291 +34,202 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { BedrockClassifier, MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    import { BedrockClassifier } from "multi-agent-orchestrator";
+    import fs from 'fs/promises';
 
-    // Sample test cases
-    const testCases = [
-      {
-        input: "How much does AWS Lambda cost?",
-        expectedAgent: "billing-agent"
-      },
-      {
-        input: "How do I set up an S3 bucket?",
-        expectedAgent: "tech-support-agent"
-      },
-      {
-        input: "My account is locked",
-        expectedAgent: "security-agent"
-      }
-    ];
-
-    async function testClassification() {
-      const classifier = new BedrockClassifier();
+    async function parseTestFile(filePath: string) {
+      const content = await fs.readFile(filePath, 'utf8');
+      const lines = content.split('\n');
+      const testCases = [];
+      let currentHistory = [];
       
-      // Add your agents
-      orchestrator.addAgent(billingAgent);
-      orchestrator.addAgent(techSupportAgent);
-      orchestrator.addAgent(securityAgent);
-
-      for (const testCase of testCases) {
-        const result = await classifier.classify(testCase.input, []);
-        
-        console.log(`Input: ${testCase.input}`);
-        console.log(`Expected Agent: ${testCase.expectedAgent}`);
-        console.log(`Selected Agent: ${result.selectedAgent?.id}`);
-        console.log(`Confidence: ${result.confidence}`);
-        console.log('---');
-      }
-    }
-    ```
-  </TabItem>
-  <TabItem label="Python" icon="seti:python">
-    ```python
-    from multi_agent_orchestrator.classifiers import BedrockClassifier
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
-
-    # Sample test cases
-    test_cases = [
-        {
-            "input": "How much does AWS Lambda cost?",
-            "expected_agent": "billing-agent"
-        },
-        {
-            "input": "How do I set up an S3 bucket?",
-            "expected_agent": "tech-support-agent"
-        },
-        {
-            "input": "My account is locked",
-            "expected_agent": "security-agent"
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          // Empty line resets conversation
+          currentHistory = [];
+          continue;
         }
-    ]
 
-    async def test_classification():
-        classifier = BedrockClassifier()
-        
-        # Add your agents
-        orchestrator.add_agent(billing_agent)
-        orchestrator.add_agent(tech_support_agent)
-        orchestrator.add_agent(security_agent)
-
-        for test_case in test_cases:
-            result = await classifier.classify(test_case["input"], [])
-            
-            print(f"Input: {test_case['input']}")
-            print(f"Expected Agent: {test_case['expected_agent']}")
-            print(f"Selected Agent: {result.selected_agent.id}")
-            print(f"Confidence: {result.confidence}")
-            print("---")
-    ```
-  </TabItem>
-</Tabs>
-
-### Testing Context Awareness
-
-Test how the classifier handles follow-up messages:
-
-<Tabs syncKey="runtime">
-  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
-    ```typescript
-    const conversationTests = [
-      {
-        history: [
-          {
-            role: "user",
-            content: [{ text: "How do I set up an S3 bucket?" }]
-          },
-          {
-            role: "assistant",
-            content: [{ text: "[tech-support-agent] First, go to the S3 console..." }]
-          }
-        ],
-        input: "How much will it cost?",
-        expectedAgent: "billing-agent"  // Should switch to billing agent for cost question
-      },
-      {
-        history: [
-          {
-            role: "user",
-            content: [{ text: "How do I set up an S3 bucket?" }]
-          },
-          {
-            role: "assistant",
-            content: [{ text: "[tech-support-agent] First, go to the S3 console..." }]
-          }
-        ],
-        input: "What's the next step?",
-        expectedAgent: "tech-support-agent"  // Should stay with tech support for follow-up
+        if (trimmed.startsWith('TEST:')) {
+          // Parse test case
+          const testPart = trimmed.substring(5).trim();
+          const [input, expectedAgent] = testPart.split('||').map(s => s.trim());
+          testCases.push({
+            input,
+            expectedAgent,
+            history: [...currentHistory]
+          });
+        } else if (trimmed.match(/^\d+:/)) {
+          // Parse history line
+          const messagePart = trimmed.substring(trimmed.indexOf(':') + 1).trim();
+          currentHistory.push({
+            role: messagePart.includes('[') ? 'assistant' : 'user',
+            content: [{ text: messagePart }]
+          });
+        }
       }
-    ];
-
-    async function testContextAwareness() {
-      const classifier = new BedrockClassifier();
       
-      for (const test of conversationTests) {
+      return testCases;
+    }
+
+    async function runTests() {
+      const testCases = await parseTestFile('test_cases.txt');
+      const classifier = new BedrockClassifier();
+      let passed = 0;
+      let failed = 0;
+      
+      console.log('\nRunning classifier tests...\n');
+      console.log('Input'.padEnd(40), '| Expected'.padEnd(15), '| Got'.padEnd(15), '| Result');
+      console.log('-'.repeat(80));
+
+      for (const test of testCases) {
         const result = await classifier.classify(test.input, test.history);
+        const selectedAgent = result.selectedAgent?.id || 'none';
+        const matched = selectedAgent === test.expectedAgent;
         
-        console.log(`Input: ${test.input}`);
-        console.log(`History: ${test.history.length} messages`);
-        console.log(`Expected Agent: ${test.expectedAgent}`);
-        console.log(`Selected Agent: ${result.selectedAgent?.id}`);
-        console.log(`Confidence: ${result.confidence}`);
-        console.log('---');
+        console.log(
+          test.input.substring(0, 37).padEnd(40),
+          '|', test.expectedAgent.padEnd(14),
+          '|', selectedAgent.padEnd(14),
+          '|', matched ? '✓' : '✗'
+        );
+
+        matched ? passed++ : failed++;
       }
+
+      console.log('\nResults:');
+      console.log(`Passed: ${passed}`);
+      console.log(`Failed: ${failed}`);
+      console.log(`Success Rate: ${(passed / (passed + failed) * 100).toFixed(1)}%\n`);
     }
+
+    runTests().catch(console.error);
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    conversation_tests = [
-        {
-            "history": [
-                {
-                    "role": "user",
-                    "content": [{"text": "How do I set up an S3 bucket?"}]
-                },
-                {
-                    "role": "assistant",
-                    "content": [{"text": "[tech-support-agent] First, go to the S3 console..."}]
-                }
-            ],
-            "input": "How much will it cost?",
-            "expected_agent": "billing-agent"  # Should switch to billing agent for cost question
-        },
-        {
-            "history": [
-                {
-                    "role": "user",
-                    "content": [{"text": "How do I set up an S3 bucket?"}]
-                },
-                {
-                    "role": "assistant",
-                    "content": [{"text": "[tech-support-agent] First, go to the S3 console..."}]
-                }
-            ],
-            "input": "What's the next step?",
-            "expected_agent": "tech-support-agent"  # Should stay with tech support for follow-up
-        }
-    ]
+    from multi_agent_orchestrator import BedrockClassifier
+    import asyncio
 
-    async def test_context_awareness():
-        classifier = BedrockClassifier()
-        
-        for test in conversation_tests:
-            result = await classifier.classify(test["input"], test["history"])
+    def parse_test_file(file_path: str):
+        with open(file_path) as f:
+            lines = f.readlines()
             
-            print(f"Input: {test['input']}")
-            print(f"History: {len(test['history'])} messages")
-            print(f"Expected Agent: {test['expected_agent']}")
-            print(f"Selected Agent: {result.selected_agent.id}")
-            print(f"Confidence: {result.confidence}")
-            print("---")
+        test_cases = []
+        current_history = []
+        
+        for line in lines:
+            trimmed = line.strip()
+            if not trimmed:
+                # Empty line resets conversation
+                current_history = []
+                continue
+                
+            if trimmed.startswith('TEST:'):
+                # Parse test case
+                test_part = trimmed[5:].strip()
+                input_text, expected_agent = [s.strip() for s in test_part.split('||')]
+                test_cases.append({
+                    'input': input_text,
+                    'expected_agent': expected_agent,
+                    'history': current_history.copy()
+                })
+            elif trimmed[0].isdigit() and ':' in trimmed:
+                # Parse history line
+                message = trimmed[trimmed.index(':') + 1:].strip()
+                current_history.append({
+                    'role': 'assistant' if '[' in message else 'user',
+                    'content': [{'text': message}]
+                })
+                
+        return test_cases
+
+    async def run_tests():
+        test_cases = parse_test_file('test_cases.txt')
+        classifier = BedrockClassifier()
+        passed = failed = 0
+        
+        print('\nRunning classifier tests...\n')
+        print(f"{'Input':40} | {'Expected':14} | {'Got':14} | Result")
+        print('-' * 80)
+
+        for test in test_cases:
+            result = await classifier.classify(test['input'], test['history'])
+            selected_agent = result.selected_agent.id if result.selected_agent else 'none'
+            matched = selected_agent == test['expected_agent']
+            
+            print(f"{test['input'][:37]:40} | {test['expected_agent']:14} | {selected_agent:14} | {'✓' if matched else '✗'}")
+            
+            if matched:
+                passed += 1
+            else:
+                failed += 1
+
+        print('\nResults:')
+        print(f"Passed: {passed}")
+        print(f"Failed: {failed}")
+        print(f"Success Rate: {passed / (passed + failed) * 100:.1f}%\n")
+
+    if __name__ == '__main__':
+        asyncio.run(run_tests())
     ```
   </TabItem>
 </Tabs>
 
-### Testing Edge Cases
+## Test Examples
 
-Important edge cases to test:
-
-1. **Short Responses**:
+### Basic Tests
 ```plaintext
-"yes"
-"no"
-"okay"
-"1"
-"next"
+TEST: How much does AWS Lambda cost? || billing-agent
+TEST: How do I set up an S3 bucket? || tech-support-agent
+TEST: My account is locked || security-agent
 ```
 
-2. **Ambiguous Queries**:
+### Context-Aware Tests
 ```plaintext
-"help"
-"I need assistance"
-"can you help me?"
+1: How do I set up an S3 bucket?
+2: [tech-support-agent] First, go to the S3 console...
+TEST: What's the next step? || tech-support-agent
+
+1: Tell me about AWS Lambda
+2: [tech-support-agent] AWS Lambda is a serverless compute service...
+TEST: How much does it cost to run? || billing-agent
 ```
 
-3. **Multi-Intent Queries**:
+### Edge Cases
 ```plaintext
-"I need help with S3 setup and want to know the cost"
-"My account is locked and I can't access my EC2 instances"
+TEST: yes || last-agent
+TEST: help || tech-support-agent
+TEST: ... || tech-support-agent
 ```
 
-4. **Invalid/Empty Input**:
+### Multi-Intent Queries
 ```plaintext
-""
-" "
-"   "
-"..."
+TEST: I need help with S3 setup and want to know the cost || tech-support-agent
+TEST: My account is locked and I can't access my EC2 instances || security-agent
+TEST: Can you help me optimize costs and fix permissions? || billing-agent
 ```
-
-### Real-World Testing Example
-
-Here's a comprehensive example using real AWS service-related queries:
-
-<Tabs syncKey="runtime">
-  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
-    ```typescript
-    const awsQueries = [
-      // Technical queries - should go to tech-support-agent
-      { input: "How do I set up cross-region replication in S3?", expectedAgent: "tech-support-agent" },
-      { input: "What's the difference between t3 and t4g instances?", expectedAgent: "tech-support-agent" },
-      { input: "How to enable versioning on S3 bucket?", expectedAgent: "tech-support-agent" },
-      
-      // Billing queries - should go to billing-agent
-      { input: "How much does S3 cost per GB?", expectedAgent: "billing-agent" },
-      { input: "What's my current AWS bill?", expectedAgent: "billing-agent" },
-      { input: "How can I reduce my EC2 costs?", expectedAgent: "billing-agent" },
-      
-      // Security queries - should go to security-agent
-      { input: "How do I rotate my access keys?", expectedAgent: "security-agent" },
-      { input: "Need help with IAM policies", expectedAgent: "security-agent" },
-      { input: "How to set up MFA?", expectedAgent: "security-agent" },
-      
-      // Follow-ups
-      { input: "Can you explain more?", expectedAgent: "last-agent" },
-      { input: "What about the other options?", expectedAgent: "last-agent" },
-      { input: "How much does that cost?", expectedAgent: "billing-agent" }  // Cost questions should switch to billing
-    ];
-    ```
-  </TabItem>
-  <TabItem label="Python" icon="seti:python">
-    ```python
-    aws_queries = [
-        # Technical queries - should go to tech-support-agent
-        {"input": "How do I set up cross-region replication in S3?", "expected_agent": "tech-support-agent"},
-        {"input": "What's the difference between t3 and t4g instances?", "expected_agent": "tech-support-agent"},
-        {"input": "How to enable versioning on S3 bucket?", "expected_agent": "tech-support-agent"},
-        
-        # Billing queries - should go to billing-agent
-        {"input": "How much does S3 cost per GB?", "expected_agent": "billing-agent"},
-        {"input": "What's my current AWS bill?", "expected_agent": "billing-agent"},
-        {"input": "How can I reduce my EC2 costs?", "expected_agent": "billing-agent"},
-        
-        # Security queries - should go to security-agent
-        {"input": "How do I rotate my access keys?", "expected_agent": "security-agent"},
-        {"input": "Need help with IAM policies", "expected_agent": "security-agent"},
-        {"input": "How to set up MFA?", "expected_agent": "security-agent"},
-        
-        # Follow-ups
-        {"input": "Can you explain more?", "expected_agent": "last-agent"},
-        {"input": "What about the other options?", "expected_agent": "last-agent"},
-        {"input": "How much does that cost?", "expected_agent": "billing-agent"}  # Cost questions should switch to billing
-    ]
-    ```
-  </TabItem>
-</Tabs>
 
 ## Best Practices
 
-1. **Test Coverage**: Include a wide variety of queries that cover all your agents' domains
-2. **Context Testing**: Test both standalone queries and follow-up messages
-3. **Edge Cases**: Include ambiguous queries and transitions between different agents
+1. **Test Coverage**: Include a variety of queries covering all agent domains
+2. **Context Testing**: Test both standalone queries and follow-up messages with history
+3. **Edge Cases**: Include ambiguous queries and transitions between agents
 4. **Regular Updates**: Add new test cases when you discover misrouted queries in production
 
-## Tips for Improving Classification
+## Example Test Output
+```
+Running classifier tests...
 
-If you find queries being misrouted:
+Input                                    | Expected      | Got           | Result
+--------------------------------------------------------------------------------
+How much does AWS Lambda cost?          | billing-agent | billing-agent | ✓
+How do I set up an S3 bucket?          | tech-support  | tech-support  | ✓
+What's the next step?                   | tech-support  | tech-support  | ✓
 
-1. Review and update agent descriptions to be more specific
-2. Add examples to the classifier's system prompt
-4. Look for patterns in misclassified queries to identify areas needing improvement
-
+Results:
+Passed: 3
+Failed: 0
+Success Rate: 100.0%
+```
