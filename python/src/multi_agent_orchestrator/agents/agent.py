@@ -23,10 +23,13 @@ class AgentResponse:
 
 
 class AgentCallbacks:
-    def on_llm_new_token(self, token: str) -> None:
+    def on_llm_new_token(self, message: ConversationMessage) -> None:
         # Default implementation
         pass
 
+    def on_llm_end(self, token: ConversationMessage) -> None:
+        # Default implementation
+        pass
 
 @dataclass
 class AgentOptions:
