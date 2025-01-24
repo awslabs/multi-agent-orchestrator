@@ -16,7 +16,10 @@ Bring your movie ideas to life with this AI-powered production assistant. Descri
 
 Enter your destination and travel duration, and the system will research attractions, accommodations, and activities in real-time to create a personalized, day-by-day itinerary based on your preferences.
 
+### 💳 [Payment Processing] (../payment-processing/README.md)
+**Requirements**: AWS Account with Amazon Bedrock access (Claude models enabled)
 
+An application that processes payments for gig workers using a multi-agent orchestration system. The system performs payout request validation, fraud detection, and payment processing through a chain of specialized agents with deterministic tool usage.
 
 ## 🚀 Getting Started
 
@@ -66,6 +69,11 @@ Your personal travel assistant powered by AI! Experience collaboration between:
 - **ResearcherAgent** ([AnthropicAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/anthropic-agent) with Claude 3 Haiku): Performs real-time destination research
 - **PlannerAgent** ([AnthropicAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/anthropic-agent) with Claude 3 Sonnet): Creates personalized day-by-day itineraries
 - Coordinated by a [**Custom Agent**](https://awslabs.github.io/multi-agent-orchestrator/agents/custom-agents) as Supervisor Agent
+
+### 💳 [Payment Processing](./payment-processing/README.md)
+**Requirements**: AWS Account with Amazon Bedrock access (Claude models enabled)
+
+An application that processes payments for gig workers using a multi-agent orchestration system. The system performs payout request validation, fraud detection, and payment processing through a chain of specialized agents with deterministic tool usage.
 
 ## 🛠️ Technologies Used
 - Streamlit for UI
