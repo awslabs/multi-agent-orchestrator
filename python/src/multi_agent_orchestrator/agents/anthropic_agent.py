@@ -118,7 +118,7 @@ class AnthropicAgent(Agent):
 
         if self.retriever:
             response = await self.retriever.retrieve_and_combine_results(input_text)
-            context_prompt = f"\nHere is the context to use to answer the user's question:\n{response}"
+            context_prompt = f"\nHere is the context to use to answer the user's question:\n{response['text']}"
             system_prompt += context_prompt
 
         input = {
@@ -205,7 +205,12 @@ class AnthropicAgent(Agent):
             async with self.client.messages.stream(**input) as stream:
                 async for event in stream:
                     if event.type == "text":
-                        self.callbacks.on_llm_new_token(event.text)
+                        self.callbacks.on_llm_new_token(
+                            ConversationMessage(
+                                role=ParticipantRole.ASSISTANT.value,
+                                content=[{'text': event.text}]
+                            )
+                        )
                     elif event.type == "input_json":
                         message['input'] = json.loads(event.partial_json)
                     elif event.type == "content_block_stop":

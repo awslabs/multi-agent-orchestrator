@@ -48,8 +48,21 @@ class AmazonKnowledgeBasesRetriever(Retriever):
 
     @staticmethod
     def combine_retrieval_results(retrieval_results):
-        return "\n".join(
+        sources = []
+
+        sources.extend(
+          set(result['metadata']['x-amz-bedrock-kb-source-uri']
+          for result in retrieval_results
+          if result and result.get('metadata') and isinstance(result['metadata'].get('x-amz-bedrock-kb-source-uri'), str))
+        )
+
+        text = "\n".join(
             result['content']['text']
             for result in retrieval_results
             if result and result.get('content') and isinstance(result['content'].get('text'), str)
         )
+
+        return {
+          'text': text,
+          'sources': sources
+        }
