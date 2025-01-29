@@ -42,8 +42,12 @@ class PaymentHelper(Retriever):
             return json.dumps({"status": "failed", "message": "Worker not found."})
                
         payment_history = worker.get("payment_history", [])
+        
+        if not payment_history:
+            return json.dumps({"status": "failed", "message": "Fraud detected: No payment history."})
              
         avg_payment = sum(payment_history) / len(payment_history)
+        
         if payment_amount > 2 * avg_payment:
             return json.dumps({"status": "failed", "message": "Fraud detected: Payment amount is unusually high."})
         
