@@ -11,8 +11,27 @@ from multi_agent_orchestrator.agents import (
 from multi_agent_orchestrator.utils import AgentTool, AgentTools
 from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, AgentResponse, ClassifierResult, ConversationMessage
 sys.path.append(os.path.join(os.path.dirname(__file__), 'payment_backend'))
+import boto3
 
 from payment_helper import PaymentHelper
+
+# Function to test AWS connection
+def test_aws_connection():
+    """Test the AWS connection and return a status message."""
+    try:
+        # Attempt to create an S3 client as a test
+        boto3.client('sts').get_caller_identity()
+        return True
+    except Exception as e:
+        print(f"Incomplete AWS credentials. Please check your AWS configuration.")
+
+    return False
+
+# Check AWS connection
+if not test_aws_connection():
+    st.error("AWS connection failed. Please check your AWS credentials and region configuration.")
+    st.markdown("Visit the AWS documentation for guidance on setting up your credentials and region.")
+    st.stop()
 
 data_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "payment_backend", "workers.json")
 payment_tools = PaymentHelper(data_file)
@@ -39,7 +58,7 @@ validation_tool = AgentTool(
 
 validation_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     name='ValidationAgent',
-    model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
+    model_id="anthropic.claude-3-haiku-20240307-v1:0",
     custom_system_prompt={'template': "Validates payment requests for the workers and then pass to fruad agent with all the details(worker id, payment_amount, device_id and location_id) you recieved along with your response.", "variables":{}},
     description='Validates payment requests for the workers and then pass to fruad agent with all the details(worker id, payment_amount, device_id and location_id) you recieved along with your response.',
     tool_config={
@@ -63,7 +82,7 @@ fraud_detection_tool = AgentTool(
 
 fraud_detection_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     name='FraudDetectionAgent',
-    model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
+    model_id="anthropic.claude-3-haiku-20240307-v1:0",
     custom_system_prompt={'template': "You receive response from ValidationAgent. You analyze the payment request for unusual patterns and then pass to payment agent with all the details (workerd id, payment amount, fraud check and validation check results) you recieved along with your response.", "variables":{}},
     description='You receive response from ValidationAgent. You analyze the payment request for unusual patterns and then pass to payment agent with all the details (workerd id, payment amount, fraud check and validation check results) you recieved along with your response.',
     tool_config={
@@ -85,9 +104,9 @@ payment_tool = AgentTool(
 
 payment_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     name='PaymentAgent',
-    model_id="us.anthropic.claude-3-5-haiku-20241022-v1:0",
-    custom_system_prompt={'template': "You recieive a response from validation and fruad agents. You issue payments to the worker if all checks passed from previous agents including yourself, otherwise not and respond a breif response with what checks are failed (keep the response short and remember you are responding to the user directly. so, approach them accordingly). DO NOT talk about any tool usage in your response", "variables":{}},
-    description='You recieive a response from validation and fruad agents. You issue payments to the worker if all checks passed from previous agents including yourself, otherwise not and respond a breif response with what checks are failed (keep it short).',
+    model_id="anthropic.claude-3-haiku-20240307-v1:0",
+    custom_system_prompt={'template': "You recieive a response from validation and fruad agents. You issue payments to the worker if all checks passed with a response of how much payment is issued, otherwise respond with what checks are failed (remember you are responding to the user directly. so, approach them accordingly). DO NOT talk about any tool usage in your response", "variables":{}},
+    description='You recieive a response from validation and fruad agents. You issue payments to the worker if all checks passed from previous agents including yourself, otherwise not and respond with what checks are failed.',
     tool_config={
         'tool': AgentTools(tools=[payment_tool]),
         'toolMaxRecursions': 5

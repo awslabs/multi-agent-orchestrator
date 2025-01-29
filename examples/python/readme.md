@@ -70,10 +70,15 @@ Your personal travel assistant powered by AI! Experience collaboration between:
 - **PlannerAgent** ([AnthropicAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/anthropic-agent) with Claude 3 Sonnet): Creates personalized day-by-day itineraries
 - Coordinated by a [**Custom Agent**](https://awslabs.github.io/multi-agent-orchestrator/agents/custom-agents) as Supervisor Agent
 
-### 💳 [Payment Processing](./payment-processing/README.md)
-**Requirements**: AWS Account with Amazon Bedrock access (Claude models enabled)
+### 💳 Payment Processing
+**Prerequisite**: AWS Account with Amazon Bedrock access (Claude models enabled)
 
 An application that processes payments for gig workers using a multi-agent orchestration system. The system performs payout request validation, fraud detection, and payment processing through a chain of specialized agents with deterministic tool usage.
+
+- **ValidationAgent** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3 Haiku): Validates payment requests for the workers and then pass to fruad agent 
+- **FraudDetectionAgent** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3 Haiku)Analyzes the payment request for unusual patterns and then pass to payment agent
+- **PaymentAgent** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3 Haiku)Analyzes Issues payments to the worker if all checks passed from previous agents
+
 
 ## 🛠️ Technologies Used
 - Streamlit for UI

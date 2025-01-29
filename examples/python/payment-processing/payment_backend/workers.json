@@ -16,9 +16,9 @@
         "worker_id": "67890",
         "payment_history": [
             50,
-            50,
-            50,
-            100
+            60,
+            70,
+            80
         ],
         "registered_devices": [
             "device456"
