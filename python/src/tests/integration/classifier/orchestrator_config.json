@@ -1,0 +1,11 @@
+{
+    "classifier": {
+        "type": "bedrock",
+        "model_id": "anthropic.claude-3-sonnet-20240229-v1:0",
+        "parameters": {
+            "temperature": 0.0,
+            "max_tokens": 100,
+            "top_p": 1.0
+        }
+    }
+}
