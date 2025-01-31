@@ -1,0 +1,36 @@
+{
+    "cases": [
+        {
+            "input": ["I want to book a flight to London"],
+            "expected": "booking_agent"
+        },
+        {
+            "input": ["I need to make a payment", "How much do I owe?"],
+            "expected": "payment_agent",
+            "min_confidence": "0.10"
+        },
+        {
+            "input": ["Can you help me with my travel plans?", "I need to visit Paris next month"],
+            "expected": "booking_agent",
+            "min_confidence": "0.10"
+        },
+        {
+            "input": ["My credit card was declined"],
+            "expected": "payment_agent"
+        },
+        {
+            "input": ["I'm having trouble with the website"],
+            "expected": "support_agent",
+            "min_confidence": "0.10"
+        },
+        {
+            "input": [
+                "I need to plan a vacation",
+                "It should be somewhere in Europe",
+                "And I need help with flights and hotels"
+            ],
+            "expected": "booking_agent",
+            "min_confidence": "0.10"
+        }
+    ]
+}
