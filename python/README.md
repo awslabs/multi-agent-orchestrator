@@ -278,7 +278,7 @@ We welcome contributions! Please see our [Contributing Guide](https://raw.github
 source venv/bin/activate
 pip3.11 install -r test_requirements.txt
 ```
-2. Run all tests
+2. Run all unit tests
 ```bash
 pytest python/src/tests --ignore-glob='*/integration/*'
 ```
