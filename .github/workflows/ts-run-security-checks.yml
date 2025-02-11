@@ -31,7 +31,7 @@ jobs:
 
       # GitLeaks.
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@4df650038e2eb9f7329218df929c2780866e61a3
+        uses: gitleaks/gitleaks-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
