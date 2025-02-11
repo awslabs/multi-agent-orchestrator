@@ -17,7 +17,7 @@ jobs:
     steps:
       # Checkout and setup.
       - name: Checkout repository
-        uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -31,7 +31,7 @@ jobs:
 
       # GitLeaks.
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v4
+        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
