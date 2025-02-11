@@ -22,7 +22,7 @@ cd multi-agent-orchestrator/examples/chat-chainlit-app
 pip install -r requirements.txt
 
 # Run the application
-python app.py
+chainlit run app.py -w
 ```
 
 ## Implementation Details
