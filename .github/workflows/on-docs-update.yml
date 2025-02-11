@@ -26,7 +26,7 @@ jobs:
         with:
           path: ./docs
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@027b0ddc3de8dbe7e5a699814c4508ca8ecefc5f
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./docs/dist
 
