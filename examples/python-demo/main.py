@@ -13,7 +13,7 @@ from multi_agent_orchestrator.agents import (BedrockLLMAgent,
                         AgentResponse,
                         AnthropicAgent, AnthropicAgentOptions,
                         AgentCallbacks)
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, ConversationMessageMetadata
 from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
 from multi_agent_orchestrator.utils import AgentTools
 
@@ -35,6 +35,15 @@ async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input:str,
             print(response.output)
         elif isinstance(response.output, ConversationMessage):
                 print(response.output.content[0].get('text'))
+
+    if isinstance(response.output, ConversationMessage):
+        if response.output.metadata:
+            print('Agent usage:')
+            print(f' inputTokens={response.output.metadata.usage["inputTokens"]}')
+            print(f' outputTokens={response.output.metadata.usage["outputTokens"]}')
+            print(f' totalTokens={response.output.metadata.usage["totalTokens"]}')
+            print('Agent metrics:')
+            print(f' latencyMs={response.output.metadata.metrics["latencyMs"]}')
 
 def custom_input_payload_encoder(input_text: str,
                                  chat_history: List[Any],
@@ -123,13 +132,14 @@ if __name__ == "__main__":
     # Add a Bedrock weather agent with custom handler and bedrock's tool format
     weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
         name="Weather Agent",
-        streaming=False,
+        streaming=True,
         description="Specialized agent for giving weather condition from a city.",
         tool_config={
             'tool': [tool.to_bedrock_format() for tool in weather_tool.weather_tools.tools],
             'toolMaxRecursions': 5,
             'useToolHandler': weather_tool.bedrock_weather_tool_handler
-        }
+        },
+        callbacks=LLMAgentCallbacks()
     ))
 
 

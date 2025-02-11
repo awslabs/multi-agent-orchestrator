@@ -6,10 +6,11 @@ import os
 import boto3
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import (ConversationMessage,
-                       ParticipantRole,
-                       BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
-                       TemplateVariables,
-                       AgentProviderType)
+                                            ConversationMessageMetadata,
+                                            ParticipantRole,
+                                            BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
+                                            TemplateVariables,
+                                            AgentProviderType)
 from multi_agent_orchestrator.utils import conversation_to_dict, Logger, AgentTools
 from multi_agent_orchestrator.retrievers import Retriever
 
@@ -144,6 +145,7 @@ class BedrockLLMAgent(Agent):
             continue_with_tools = True
             final_message: ConversationMessage = {'role': ParticipantRole.USER.value, 'content': []}
             max_recursions = self.tool_config.get('toolMaxRecursions', self.default_max_recursions)
+            metadata = ConversationMessageMetadata(usage={'inputTokens':0, 'outputTokens': 0, 'totalTokens':0}, metrics={'latencyMs':0})
 
             while continue_with_tools and max_recursions > 0:
                 if self.streaming:
@@ -152,6 +154,10 @@ class BedrockLLMAgent(Agent):
                     bedrock_response = await self.handle_single_response(converse_cmd)
 
                 conversation.append(bedrock_response)
+
+                if bedrock_response.metadata:
+                    #keep on adding metadata values
+                    metadata = metadata + bedrock_response.metadata
 
                 if any('toolUse' in content for content in bedrock_response.content):
                     if 'useToolHandler' in self.tool_config:
@@ -165,6 +171,7 @@ class BedrockLLMAgent(Agent):
                 else:
                     continue_with_tools = False
                     final_message = bedrock_response
+                    final_message.metadata = metadata
 
                 max_recursions -= 1
                 converse_cmd['messages'] = conversation_to_dict(conversation)
@@ -179,11 +186,15 @@ class BedrockLLMAgent(Agent):
     async def handle_single_response(self, converse_input: dict[str, Any]) -> ConversationMessage:
         try:
             response = self.client.converse(**converse_input)
+            if 'usage' in response and 'metrics' in response:
+                metadata = ConversationMessageMetadata(usage=response['usage'], metrics=response['metrics'])
+
             if 'output' not in response:
                 raise ValueError("No output received from Bedrock model")
             return ConversationMessage(
                 role=response['output']['message']['role'],
-                content=response['output']['message']['content']
+                content=response['output']['message']['content'],
+                metadata=metadata
             )
         except Exception as error:
             Logger.error(f"Error invoking Bedrock model:{str(error)}")
@@ -224,9 +235,13 @@ class BedrockLLMAgent(Agent):
                     else:
                         content.append({'text': text})
                         text = ''
+                elif 'metadata' in chunk:
+                    metadata = ConversationMessageMetadata(usage=chunk['metadata']['usage'], metrics=chunk['metadata']['metrics'])
+
             return ConversationMessage(
                 role=ParticipantRole.ASSISTANT.value,
-                content=message['content']
+                content=message['content'],
+                metadata=metadata
             )
 
         except Exception as error:

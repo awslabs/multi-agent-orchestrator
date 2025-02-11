@@ -1,6 +1,6 @@
 from enum import Enum
-from typing import List, Dict, Union, TypedDict, Optional, Any
-from dataclasses import dataclass
+from typing import Union, TypedDict, Optional, Any
+from dataclasses import dataclass, field
 import time
 
 # Constants
@@ -31,7 +31,7 @@ class RequestMetadata(TypedDict):
     agent_name: str
     user_id: str
     session_id: str
-    additional_params :Optional[Dict[str, str]]
+    additional_params :Optional[dict[str, str]]
     error_type: Optional[str]
 
 
@@ -39,24 +39,69 @@ class ParticipantRole(Enum):
     ASSISTANT = "assistant"
     USER = "user"
 
+class UsageMetrics(TypedDict):
+    inputTokens: int
+    outputTokens: int
+    totalTokens: int
+
+class PerformanceMetrics(TypedDict):
+    latencyMs: int
+
+@dataclass
+class ConversationMessageMetadata:
+    usage: Optional[UsageMetrics] = field(default_factory=dict)
+    metrics: Optional[PerformanceMetrics] = field(default_factory=dict)
+
+    def __add__(self, other: 'ConversationMessageMetadata') -> 'ConversationMessageMetadata':
+        if not isinstance(other, ConversationMessageMetadata):
+            return NotImplemented
+
+        # Add usage metrics if both exist
+        new_usage = None
+        if self.usage and other.usage:
+            new_usage = {
+                'inputTokens': self.usage['inputTokens'] + other.usage['inputTokens'],
+                'outputTokens': self.usage['outputTokens'] + other.usage['outputTokens'],
+                'totalTokens': self.usage['totalTokens'] + other.usage['totalTokens']
+            }
+
+        # Add performance metrics if both exist
+        new_metrics = None
+        if self.metrics and other.metrics:
+            new_metrics = {
+                'latencyMs': self.metrics['latencyMs'] + other.metrics['latencyMs']
+            }
+
+        return ConversationMessageMetadata(
+            usage=new_usage,
+            metrics=new_metrics
+        )
+
 
 class ConversationMessage:
     role: ParticipantRole
-    content: List[Any]
+    content: list[Any]
+    metadata: Optional[ConversationMessageMetadata]
 
-    def __init__(self, role: ParticipantRole, content: Optional[List[Any]] = None):
+    def __init__(self,
+                 role: ParticipantRole,
+                 content: Optional[list[Any]] = None,
+                 metadata: Optional[ConversationMessageMetadata] = None
+                 ):
         self.role = role
         self.content = content
+        if metadata:
+            self.metadata = metadata
 
 class TimestampedMessage(ConversationMessage):
     def __init__(self,
                  role: ParticipantRole,
-                 content: Optional[List[Any]] = None,
+                 content: Optional[list[Any]] = None,
                  timestamp: Optional[int] = None):
         super().__init__(role, content)  # Call the parent constructor
         self.timestamp = timestamp or int(time.time() * 1000)      # Initialize the timestamp attribute (in ms)
 
-TemplateVariables = Dict[str, Union[str, List[str]]]
+TemplateVariables = dict[str, Union[str, list[str]]]
 
 @dataclass
 class OrchestratorConfig:
