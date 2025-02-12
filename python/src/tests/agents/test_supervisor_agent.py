@@ -68,6 +68,8 @@ def supervisor_agent(mock_boto3_client):
     ))
 
     return SupervisorAgent(SupervisorAgentOptions(
+        name="SupervisorAgent",
+        description="My Supervisor agent description",
         lead_agent=lead_agent,
         team=[team_member],
         storage=mock_storage(),
@@ -88,6 +90,8 @@ async def test_supervisor_agent_initialization(mock_boto3_client):
     ))]
 
     agent = SupervisorAgent(SupervisorAgentOptions(
+        name="SupervisorAgent",
+        description="My Supervisor agent description",
         lead_agent=lead_agent,
         team=team
     ))
@@ -115,6 +119,8 @@ async def test_supervisor_agent_validation(mock_boto3_client):
 
     with pytest.raises(ValueError, match="Supervisor tools are managed by SupervisorAgent"):
         SupervisorAgent(SupervisorAgentOptions(
+            name="SupervisorAgent",
+            description="My Supervisor agent description",
             lead_agent=lead_agent,
             team=[]
         ))
@@ -214,6 +220,8 @@ async def test_supervisor_agent_with_custom_tools(mock_boto3_client):
     ))
 
     agent = SupervisorAgent(SupervisorAgentOptions(
+        name="SupervisorAgent",
+        description="My Supervisor agent description",
         lead_agent=lead_agent,
         team=[],
         extra_tools=[custom_tool]
@@ -247,6 +255,8 @@ async def test_supervisor_agent_with_custom_tools_(mock_boto3_client):
     ))
 
     agent = SupervisorAgent(SupervisorAgentOptions(
+        name="SupervisorAgent",
+        description="My Supervisor agent description",
         lead_agent=lead_agent,
         team=[],
         extra_tools=AgentTools(tools=[custom_tool])
@@ -267,6 +277,8 @@ async def test_supervisor_agent_with_extra_tools(mock_boto3_client):
 
     with pytest.raises(Exception, match="extra_tools must be Tools object or list of Tool objects"):
         agent = SupervisorAgent(SupervisorAgentOptions(
+            name="SupervisorAgent",
+            description="My Supervisor agent description",
             lead_agent=lead_agent,
             team=[],
             extra_tools=[{'tool':'here is my tool'}]
@@ -274,6 +286,8 @@ async def test_supervisor_agent_with_extra_tools(mock_boto3_client):
 
     with pytest.raises(Exception, match="extra_tools must be Tools object or list of Tool objects"):
         agent = SupervisorAgent(SupervisorAgentOptions(
+            name="SupervisorAgent",
+            description="My Supervisor agent description",
             lead_agent=lead_agent,
             team=[],
             extra_tools="here is my tool"
@@ -295,6 +309,8 @@ async def test_supervisor_agent_error_handling(mock_boto3_client):
     ))
 
     agent = SupervisorAgent(SupervisorAgentOptions(
+        name="SupervisorAgent",
+        description="My Supervisor agent description",
         lead_agent=lead_agent,
         team=[]
     ))
@@ -326,6 +342,8 @@ async def test_supervisor_agent_parallel_processing(mock_boto3_client):
     ))
 
     agent = SupervisorAgent(SupervisorAgentOptions(
+        name="SupervisorAgent",
+        description="My Supervisor agent description",
         lead_agent=lead_agent,
         team=team
     ))
@@ -352,6 +370,8 @@ async def test_supervisor_agent_memory_management(mock_boto3_client):
     ))
 
     agent = SupervisorAgent(SupervisorAgentOptions(
+        name="SupervisorAgent",
+        description="My Supervisor agent description",
         lead_agent=lead_agent,
         team=[],
         storage=mock_storage()
