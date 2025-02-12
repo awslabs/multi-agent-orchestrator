@@ -6,14 +6,13 @@ import os
 import boto3
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import (ConversationMessage, ConversationMessageMetadata,
+                       Citation,
                        ParticipantRole,
                        BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
                        TemplateVariables,
                        AgentProviderType)
 from multi_agent_orchestrator.utils import conversation_to_dict, Logger, AgentTools
 from multi_agent_orchestrator.retrievers import Retriever
-
-import traceback
 
 @dataclass
 class BedrockLLMAgentOptions(AgentOptions):
@@ -118,10 +117,10 @@ class BedrockLLMAgent(Agent):
         citations = []
 
         if self.retriever:
-            response = await self.retriever.retrieve_and_combine_results(input_text)
-            context_prompt = "\nHere is the context to use to answer the user's question:\n" + response['text']
+            citations = await self.retriever.retrieve_and_combine_results(input_text)
+            combined_citations = " ".join(citation["text"] for citation in citations)
+            context_prompt = "\nHere is the context to use to answer the user's question:\n" + combined_citations
             system_prompt += context_prompt
-            citations = response['sources']
 
         converse_cmd = {
             'modelId': self.model_id,
@@ -196,10 +195,6 @@ class BedrockLLMAgent(Agent):
 
             converse_message.metadata.citations.extend(citations)
 
-        if self.streaming:
-            self.callbacks.on_llm_end(
-                converse_message
-            )
 
         return converse_message
 
@@ -253,12 +248,7 @@ class BedrockLLMAgent(Agent):
 
                     elif 'text' in delta:
                         text += delta['text']
-                        self.callbacks.on_llm_new_token(
-                            ConversationMessage(
-                                role=ParticipantRole.ASSISTANT.value,
-                                content=delta['text']
-                            )
-                        )
+                        self.callbacks.on_llm_new_token(delta['text'])
                 elif 'contentBlockStop' in chunk:
                     if 'input' in tool_use:
                         tool_use['input'] = json.loads(tool_use['input'])
@@ -275,13 +265,11 @@ class BedrockLLMAgent(Agent):
                        metrics=chunk['metadata']['metrics']
                     )
 
-            print('generate message stream :', message)
             return ConversationMessage(
                 **message
             )
 
         except Exception as error:
-            print(traceback.print_exc())
             Logger.error(f"Error getting stream from Bedrock model: {str(error)}")
             raise error
 

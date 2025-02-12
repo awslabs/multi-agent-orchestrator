@@ -2,6 +2,7 @@
 from .types import (
     ConversationMessage,
     ConversationMessageMetadata,
+    Citation,
     ParticipantRole,
     TimestampedMessage,
     RequestMetadata,
@@ -21,6 +22,7 @@ from .types import (
 __all__ = [
     'ConversationMessage',
     'ConversationMessageMetadata'
+    'Citation',
     'ParticipantRole',
     'TimestampedMessage',
     'RequestMetadata',

@@ -48,9 +48,16 @@ class UsageMetrics(TypedDict):
 class PerformanceMetrics(TypedDict):
     latencyMs: int
 
+class Citation(TypedDict):
+    text: str
+    source: str
+    page: Optional[int]
+    score: float
+
+
 @dataclass
 class ConversationMessageMetadata:
-    citations: List[str] = field(default_factory=list)
+    citations: List[Citation] = field(default_factory=list)
     usage: Optional[UsageMetrics] = field(default_factory=dict)
     metrics: Optional[PerformanceMetrics] = field(default_factory=dict)
 

@@ -3,7 +3,7 @@ from typing import List, Optional, Dict, Any
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from multi_agent_orchestrator.utils.helpers import is_tool_input
-from multi_agent_orchestrator.utils import Logger
+from multi_agent_orchestrator.utils import conversation_to_dict, Logger
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
 from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult
 
@@ -91,7 +91,7 @@ class BedrockClassifier(Classifier):
 
         converse_cmd = {
             "modelId": self.model_id,
-            "messages": [user_message.__dict__],
+            "messages": [conversation_to_dict(user_message)],
             "system": [{"text": self.system_prompt}],
             "toolConfig": toolConfig,
             "inferenceConfig": {
