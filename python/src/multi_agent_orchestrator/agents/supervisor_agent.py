@@ -80,6 +80,7 @@ class SupervisorAgent(Agent):
         self.trace = options.trace
         self.user_id = ''
         self.session_id = ''
+        self.additional_params = None
 
         self._configure_supervisor_tools(options.extra_tools)
         self._configure_prompt()
@@ -234,7 +235,7 @@ When communicating with other agents, including the User, please follow these gu
                         message.get('content'),
                         self.user_id,
                         self.session_id,
-                        {}
+                        self.additional_params
                     )
                 )
                 for agent in self.team
@@ -273,6 +274,7 @@ When communicating with other agents, including the User, please follow these gu
         try:
             self.user_id = user_id
             self.session_id = session_id
+            self.additional_params = additional_params
 
             agents_history = await self.storage.fetch_all_chats(user_id, session_id)
             agents_memory = self._format_agents_memory(agents_history)
