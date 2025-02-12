@@ -105,6 +105,8 @@ async def get_current_date():
 
 supervisor = SupervisorAgent(
     SupervisorAgentOptions(
+        name="SupervisorAgent",
+        description="My Supervisor agent description",
         lead_agent=lead_agent,
         team=[airlines_agent, travel_agent, tech_agent, sales_agent, health_agent, claim_agent, weather_agent],
         storage=DynamoDbChatStorage(
