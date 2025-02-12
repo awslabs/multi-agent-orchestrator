@@ -28,6 +28,8 @@ You can use the SupervisorAgent directly, bypassing the classifier, when you wan
     ```typescript
     // Create and configure SupervisorAgent
     const supervisorAgent = new SupervisorAgent({
+      name: "SupervisorAgent",
+      description: "You are a supervisor agent that manages the team of agents for travel purposes",
       leadAgent: new BedrockLLMAgent({
         name: "Support Team Lead",
         description: "Coordinates support inquiries"
@@ -61,6 +63,8 @@ You can use the SupervisorAgent directly, bypassing the classifier, when you wan
     ```python
     # Create and configure SupervisorAgent
     supervisor_agent = SupervisorAgent(SupervisorAgentOptions(
+        name: "SupervisorAgent",
+        description: "You are a supervisor agent that manages the team of agents for travel purposes",
         lead_agent=BedrockLLMAgent(BedrockLLMAgentOptions(
             name="Support Team Lead",
             description="Coordinates support inquiries"
@@ -114,6 +118,8 @@ The SupervisorAgent can also be integrated into a larger system using the classi
 
     // Add a SupervisorAgent for complex support tasks
     orchestrator.addAgent(new SupervisorAgent({
+      name: "SupervisorAgent",
+      description: "You are a supervisor agent that manages the team of agents for product development purposes",
       leadAgent: new BedrockLLMAgent({
         name: "Support Team",
         description: "Coordinates support inquiries requiring multiple specialists"
@@ -150,6 +156,8 @@ The SupervisorAgent can also be integrated into a larger system using the classi
 
     # Add a SupervisorAgent for complex support tasks
     orchestrator.add_agent(SupervisorAgent(SupervisorAgentOptions(
+        name: "SupervisorAgent",
+        description: "You are a supervisor agent that manages the team of agents for product development purposes",
         lead_agent=BedrockLLMAgent(BedrockLLMAgentOptions(
             name="Support Team",
             description="Coordinates support inquiries requiring multiple specialists"
