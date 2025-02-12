@@ -19,10 +19,6 @@ class SupervisorAgentOptions(AgentOptions):
     trace: Optional[bool] = None # enable tracing/logging
     extra_tools: Optional[Union[AgentTools, list[AgentTool]]] = None # add extra tools to the lead_agent
 
-    # Hide inherited fields
-    name: str = field(init=False)
-    description: str = field(init=False)
-
     def validate(self) -> None:
         # Get the actual class names as strings for comparison
         valid_agent_types = []
@@ -197,7 +193,6 @@ When communicating with other agents, including the User, please follow these gu
                 role=ParticipantRole.USER.value,
                 content=[{'text': content}]
             )
-
             response = asyncio.run(agent.process_request(
                 content, user_id, session_id, agent_chat_history, additional_params
             ))
