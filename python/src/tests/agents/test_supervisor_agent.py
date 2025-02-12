@@ -107,6 +107,8 @@ async def test_supervisor_agent_validation(mock_boto3_client):
     """Test SupervisorAgent validation"""
     with pytest.raises(ValueError, match="Supervisor must be BedrockLLMAgent or AnthropicAgent"):
         SupervisorAgent(SupervisorAgentOptions(
+            name="SupervisorAgent",
+            description="My Supervisor agent description",
             lead_agent=MagicMock(spec=Agent),
             team=[]
         ))
