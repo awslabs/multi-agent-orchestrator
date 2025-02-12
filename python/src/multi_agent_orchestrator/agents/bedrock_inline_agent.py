@@ -15,6 +15,8 @@ import re
 # BedrockInlineAgentOptions Dataclass
 @dataclass
 class BedrockInlineAgentOptions(AgentOptions):
+    model_id: Optional[str] = None
+    region: Optional[str] = None
     inference_config: Optional[Dict[str, Any]] = None
     client: Optional[Any] = None
     bedrock_agent_client: Optional[Any] = None
@@ -70,6 +72,8 @@ class BedrockInlineAgent(Agent):
                 )
             else:
                 self.client = boto3.client('bedrock-runtime')
+
+        self.model_id: str = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_HAIKU
 
         # Initialize bedrock agent client
         if options.bedrock_agent_client:

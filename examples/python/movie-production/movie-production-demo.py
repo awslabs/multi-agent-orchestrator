@@ -107,6 +107,8 @@ Your tasks consist of:
 ))
 
 supervisor = SupervisorAgent(SupervisorAgentOptions(
+    name="SupervisorAgent",
+    description="My Supervisor agent description",
     lead_agent=movie_producer_supervisor,
     team=[script_writer_agent, casting_director_agent],
     trace=True

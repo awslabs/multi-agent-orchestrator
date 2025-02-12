@@ -20,13 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9a9194f87191a7e9055e3e9b95b8cfb13023bb08
+        uses: actions/checkout@v4
       - name: Install, build, and upload documentation
-        uses: withastro/action@9a7959a16949e620a22e74f81c10cb7ce3b76924
+        uses: withastro/action@v2
         with:
           path: ./docs
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@027b0ddc3de8dbe7e5a699814c4508ca8ecefc5f
+        uses: actions/upload-artifact@v4
         with:
           path: ./docs/dist
 
