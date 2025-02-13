@@ -1,0 +1,19 @@
+{
+    "agents": [
+        {
+            "name": "booking_agent",
+            "description": "Handles flight and hotel bookings, travel itineraries, and vacation planning",
+            "model_id": "anthropic.claude-3-sonnet-20240229-v1:0"
+        },
+        {
+            "name": "payment_agent",
+            "description": "Handles payment processing, refunds, and billing inquiries",
+            "model_id": "anthropic.claude-3-sonnet-20240229-v1:0"
+        },
+        {
+            "name": "support_agent",
+            "description": "Handles general customer support, technical issues, and product questions",
+            "model_id": "anthropic.claude-3-sonnet-20240229-v1:0"
+        }
+    ]
+}
