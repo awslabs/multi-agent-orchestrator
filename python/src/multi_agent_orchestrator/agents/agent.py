@@ -27,7 +27,6 @@ class AgentCallbacks:
         # Default implementation
         pass
 
-
 @dataclass
 class AgentOptions:
     name: str

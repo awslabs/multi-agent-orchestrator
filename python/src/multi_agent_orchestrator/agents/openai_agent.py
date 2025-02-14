@@ -4,6 +4,7 @@ from openai import OpenAI
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import (
     ConversationMessage,
+    ConversationMessageMetadata,
     ParticipantRole,
     OPENAI_MODEL_ID_GPT_O_MINI,
     TemplateVariables
@@ -28,15 +29,15 @@ class OpenAIAgentOptions(AgentOptions):
 class OpenAIAgent(Agent):
     def __init__(self, options: OpenAIAgentOptions):
         super().__init__(options)
-        if not options.api_key:
-            raise ValueError("OpenAI API key is required")
-        
+
         if options.client:
             self.client = options.client
         else:
+            if not options.api_key:
+                raise ValueError("OpenAI API key is required")
+
             self.client = OpenAI(api_key=options.api_key)
 
-                
         self.model = options.model or OPENAI_MODEL_ID_GPT_O_MINI
         self.streaming = options.streaming or False
         self.retriever: Optional[Retriever] = options.retriever
@@ -83,7 +84,7 @@ class OpenAIAgent(Agent):
                 options.custom_system_prompt.get('template'),
                 options.custom_system_prompt.get('variables')
             )
-        
+
 
 
     def is_streaming_enabled(self) -> bool:
@@ -102,11 +103,13 @@ class OpenAIAgent(Agent):
             self.update_system_prompt()
 
             system_prompt = self.system_prompt
+            citations = None
 
             if self.retriever:
                 response = await self.retriever.retrieve_and_combine_results(input_text)
-                context_prompt = "\nHere is the context to use to answer the user's question:\n" + response
+                context_prompt = "\nHere is the context to use to answer the user's question:\n" + response['text']
                 system_prompt += context_prompt
+                citations = response['sources']
 
 
             messages = [
@@ -118,7 +121,6 @@ class OpenAIAgent(Agent):
                 {"role": "user", "content": input_text}
             ]
 
-
             request_options = {
                 "model": self.model,
                 "messages": messages,
@@ -128,10 +130,20 @@ class OpenAIAgent(Agent):
                 "stop": self.inference_config.get('stopSequences'),
                 "stream": self.streaming
             }
+
             if self.streaming:
-                return await self.handle_streaming_response(request_options)
+                converse_message =  await self.handle_streaming_response(request_options)
             else:
-                return await self.handle_single_response(request_options)
+                converse_message = await self.handle_single_response(request_options)
+
+            if citations:
+                if not converse_message.metadata:
+                    converse_message['metadata'] = ConversationMessageMetadata()
+
+                converse_message.metadata.citations.extend(citations)
+
+
+            return converse_message
 
         except Exception as error:
             Logger.error(f"Error in OpenAI API call: {str(error)}")
@@ -152,7 +164,11 @@ class OpenAIAgent(Agent):
 
             return ConversationMessage(
                 role=ParticipantRole.ASSISTANT.value,
-                content=[{"text": assistant_message}]
+                content=[{"text": assistant_message}],
+                metadata=ConversationMessageMetadata({
+                  'citations': chat_completion.citations,
+                  'usage': chat_completion.usage
+                })
             )
 
         except Exception as error:
@@ -163,19 +179,33 @@ class OpenAIAgent(Agent):
         try:
             stream = self.client.chat.completions.create(**request_options)
             accumulated_message = []
-            
+
             for chunk in stream:
                 if chunk.choices[0].delta.content:
+
+                    metadata = {
+                       'citations': chunk.citations,
+                       'usage': chunk.usage
+                    }
+
                     chunk_content = chunk.choices[0].delta.content
                     accumulated_message.append(chunk_content)
+
                     if self.callbacks:
-                        self.callbacks.on_llm_new_token(chunk_content)
+                        self.callbacks.on_llm_new_token(
+                          ConversationMessage(
+                              role=ParticipantRole.ASSISTANT.value,
+                              content=chunk_content,
+                              metadata=ConversationMessageMetadata(**metadata)
+                          )
+                        )
                     #yield chunk_content
 
             # Store the complete message in the instance for later access if needed
             return ConversationMessage(
-                role=ParticipantRole.ASSISTANT.value,
-                content=[{"text": ''.join(accumulated_message)}]
+               role=ParticipantRole.ASSISTANT.value,
+               content=[{"text": ''.join(accumulated_message)}],
+               metadata=ConversationMessageMetadata(**metadata)
             )
 
         except Exception as error:

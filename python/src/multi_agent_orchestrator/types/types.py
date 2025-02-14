@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import List, Dict, Union, TypedDict, Optional, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import time
 
 # Constants
@@ -40,13 +40,43 @@ class ParticipantRole(Enum):
     USER = "user"
 
 
+class UsageMetrics(TypedDict):
+    inputTokens: int
+    outputTokens: int
+    totalTokens: int
+
+class PerformanceMetrics(TypedDict):
+    latencyMs: int
+
+class Citation(TypedDict):
+    text: str
+    source: str
+    page: Optional[int]
+    score: float
+
+
+@dataclass
+class ConversationMessageMetadata:
+    citations: List[Citation] = field(default_factory=list)
+    usage: Optional[UsageMetrics] = field(default_factory=dict)
+    metrics: Optional[PerformanceMetrics] = field(default_factory=dict)
+
+
 class ConversationMessage:
     role: ParticipantRole
     content: List[Any]
+    metadata: ConversationMessageMetadata
 
-    def __init__(self, role: ParticipantRole, content: Optional[List[Any]] = None):
+    def __init__(
+        self,
+        role: ParticipantRole,
+        content: Optional[List[Any]] = None,
+        metadata: Optional[ConversationMessageMetadata] = None
+    ):
         self.role = role
         self.content = content
+        self.metadata = metadata
+
 
 class TimestampedMessage(ConversationMessage):
     def __init__(self,
