@@ -142,10 +142,6 @@ class OpenAIAgent(Agent):
 
                 converse_message.metadata.citations.extend(citations)
 
-            if self.streaming:
-                self.callbacks.on_llm_end(
-                    converse_message
-                )
 
             return converse_message
 
