@@ -215,7 +215,6 @@ class BedrockLLMAgent(Agent):
     async def handle_streaming_response(self, converse_input: dict[str, Any]) -> ConversationMessage:
         try:
 
-            print('converse input : ', converse_input)
             response = self.client.converse_stream(**converse_input)
 
             message = {}
