@@ -41,6 +41,7 @@
 # 🤖 Looking for details on Amazon Bedrock's multi-agent collaboration capability announced during Matt Garman's keynote at re:Invent 2024?
 
 **🚀 Visit the [Amazon Bedrock Agents](https://aws.amazon.com/bedrock/agents/) page to explore how multi-agent collaboration enables developers to build, deploy, and manage specialized agents designed for tackling complex workflows efficiently and accurately. ⚡**
+![Bedrock Agents](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/bedrock_agents.png)
 <hr/>
 
 
