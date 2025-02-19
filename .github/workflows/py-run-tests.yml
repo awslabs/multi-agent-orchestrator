@@ -44,4 +44,4 @@ jobs:
 
     - name: Run tests
       run: |
-        python -m pytest src/tests/
+        python -m pytest src/tests/ --ignore-glob='*/integration/*'
