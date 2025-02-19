@@ -1,7 +1,8 @@
-from dataclasses import dataclass
-from typing import Any, Optional, Dict
 import boto3
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 from multi_agent_orchestrator.retrievers import Retriever
+from multi_agent_orchestrator.types import Citation
 
 @dataclass
 class AmazonKnowledgeBasesRetrieverOptions:
@@ -47,9 +48,18 @@ class AmazonKnowledgeBasesRetriever(Retriever):
         return self.combine_retrieval_results(retrievalResults)
 
     @staticmethod
-    def combine_retrieval_results(retrieval_results):
-        return "\n".join(
-            result['content']['text']
-            for result in retrieval_results
-            if result and result.get('content') and isinstance(result['content'].get('text'), str)
-        )
+    def combine_retrieval_results(retrieval_results) -> List[Citation]:
+
+        citations = []
+
+        for result in retrieval_results:
+            citation: Citation = {
+                'text': result['content']['text'],
+                'source':  result['location']['s3Location']['uri'],
+                'page': None,
+                'score': result['score']
+            }
+
+            citations.append(citation)
+
+        return citations

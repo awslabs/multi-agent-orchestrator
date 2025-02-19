@@ -117,8 +117,9 @@ class AnthropicAgent(Agent):
         system_prompt = self.system_prompt
 
         if self.retriever:
-            response = await self.retriever.retrieve_and_combine_results(input_text)
-            context_prompt = f"\nHere is the context to use to answer the user's question:\n{response}"
+            citations = await self.retriever.retrieve_and_combine_results(input_text)
+            combined_citations = " ".join(citation["text"] for citation in citations)
+            context_prompt = "\nHere is the context to use to answer the user's question:\n" + combined_citations
             system_prompt += context_prompt
 
         input = {

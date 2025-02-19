@@ -5,14 +5,14 @@ import json
 import os
 import boto3
 from multi_agent_orchestrator.agents import Agent, AgentOptions
-from multi_agent_orchestrator.types import (ConversationMessage,
+from multi_agent_orchestrator.types import (ConversationMessage, ConversationMessageMetadata,
+                       Citation,
                        ParticipantRole,
                        BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
                        TemplateVariables,
                        AgentProviderType)
 from multi_agent_orchestrator.utils import conversation_to_dict, Logger, AgentTools
 from multi_agent_orchestrator.retrievers import Retriever
-
 
 @dataclass
 class BedrockLLMAgentOptions(AgentOptions):
@@ -114,10 +114,12 @@ class BedrockLLMAgent(Agent):
         self.update_system_prompt()
 
         system_prompt = self.system_prompt
+        citations = []
 
         if self.retriever:
-            response = await self.retriever.retrieve_and_combine_results(input_text)
-            context_prompt = "\nHere is the context to use to answer the user's question:\n" + response
+            citations = await self.retriever.retrieve_and_combine_results(input_text)
+            combined_citations = " ".join(citation["text"] for citation in citations)
+            context_prompt = "\nHere is the context to use to answer the user's question:\n" + combined_citations
             system_prompt += context_prompt
 
         converse_cmd = {
@@ -151,6 +153,13 @@ class BedrockLLMAgent(Agent):
                 else:
                     bedrock_response = await self.handle_single_response(converse_cmd)
 
+                if citations:
+                    if not converse_message.metadata:
+                        bedrock_response['metadata'] = ConversationMessageMetadata()
+
+                    bedrock_response.metadata.citations.extend(citations)
+
+
                 conversation.append(bedrock_response)
 
                 if any('toolUse' in content for content in bedrock_response.content):
@@ -172,18 +181,32 @@ class BedrockLLMAgent(Agent):
             return final_message
 
         if self.streaming:
-            return await self.handle_streaming_response(converse_cmd)
+            converse_message = await self.handle_streaming_response(converse_cmd)
+        else:
+            converse_message = await self.handle_single_response(converse_cmd)
 
-        return await self.handle_single_response(converse_cmd)
+        if citations:
+            if not converse_message.metadata:
+                converse_message['metadata'] = ConversationMessageMetadata()
+
+            converse_message.metadata.citations.extend(citations)
+
+
+        return converse_message
 
     async def handle_single_response(self, converse_input: dict[str, Any]) -> ConversationMessage:
         try:
             response = self.client.converse(**converse_input)
             if 'output' not in response:
                 raise ValueError("No output received from Bedrock model")
+
             return ConversationMessage(
-                role=response['output']['message']['role'],
-                content=response['output']['message']['content']
+                role=ParticipantRole.ASSISTANT.value,
+                content=response['output']['message']['content'],
+                metadata=ConversationMessageMetadata({
+                  'usage': response['usage'],
+                  'metrics': response['metrics']
+                })
             )
         except Exception as error:
             Logger.error(f"Error invoking Bedrock model:{str(error)}")
@@ -191,28 +214,35 @@ class BedrockLLMAgent(Agent):
 
     async def handle_streaming_response(self, converse_input: dict[str, Any]) -> ConversationMessage:
         try:
+
             response = self.client.converse_stream(**converse_input)
 
             message = {}
             content = []
             message['content'] = content
+            message['metadata'] = None
             text = ''
             tool_use = {}
 
             #stream the response into a message.
             for chunk in response['stream']:
+
                 if 'messageStart' in chunk:
                     message['role'] = chunk['messageStart']['role']
+
                 elif 'contentBlockStart' in chunk:
                     tool = chunk['contentBlockStart']['start']['toolUse']
                     tool_use['toolUseId'] = tool['toolUseId']
                     tool_use['name'] = tool['name']
+
                 elif 'contentBlockDelta' in chunk:
                     delta = chunk['contentBlockDelta']['delta']
+
                     if 'toolUse' in delta:
                         if 'input' not in tool_use:
                             tool_use['input'] = ''
                         tool_use['input'] += delta['toolUse']['input']
+
                     elif 'text' in delta:
                         text += delta['text']
                         self.callbacks.on_llm_new_token(delta['text'])
@@ -224,9 +254,16 @@ class BedrockLLMAgent(Agent):
                     else:
                         content.append({'text': text})
                         text = ''
+
+                elif 'metadata' in chunk:
+
+                    message['metadata'] = ConversationMessageMetadata(
+                       usage=chunk['metadata']['usage'],
+                       metrics=chunk['metadata']['metrics']
+                    )
+
             return ConversationMessage(
-                role=ParticipantRole.ASSISTANT.value,
-                content=message['content']
+                **message
             )
 
         except Exception as error:
