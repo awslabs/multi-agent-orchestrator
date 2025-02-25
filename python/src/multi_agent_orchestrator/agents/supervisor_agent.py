@@ -13,7 +13,9 @@ from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
 
 @dataclass
 class SupervisorAgentOptions(AgentOptions):
-    lead_agent: Agent = None # The agent that leads the team coordination
+    name: Optional[str] = None  # Inherited from lead agent
+    description: Optional[str] = None  # Inherited from lead agent
+    lead_agent: Agent = None  # The agent that leads the team coordination
     team: list[Agent] = field(default_factory=list) # a team of agents that can help in resolving tasks
     storage: Optional[ChatStorage] = None # memory storage for the team
     trace: Optional[bool] = None # enable tracing/logging
