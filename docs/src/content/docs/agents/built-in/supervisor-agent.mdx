@@ -1,3 +1,5 @@
+from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
+from multi_agent_orchestrator.agents import (
 ---
 title: Supervisor Agent
 description: Documentation for the SupervisorAgent in the Multi-Agent Orchestrator System
@@ -156,8 +158,8 @@ The SupervisorAgent can also be integrated into a larger system using the classi
 
     # Add a SupervisorAgent for complex support tasks
     orchestrator.add_agent(SupervisorAgent(SupervisorAgentOptions(
-        name: "SupervisorAgent",
-        description: "You are a supervisor agent that manages the team of agents for product development purposes",
+        name="SupervisorAgent",
+        description="You are a supervisor agent that manages the team of agents for product development purposes",
         lead_agent=BedrockLLMAgent(BedrockLLMAgentOptions(
             name="Support Team",
             description="Coordinates support inquiries requiring multiple specialists"
