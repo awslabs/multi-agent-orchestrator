@@ -64,9 +64,7 @@ You can use the SupervisorAgent directly, bypassing the classifier, when you wan
   <TabItem label="Python" icon="seti:python">
     ```python
     # Create and configure SupervisorAgent
-    supervisor_agent = SupervisorAgent(SupervisorAgentOptions(
-        name: "SupervisorAgent",
-        description: "You are a supervisor agent that manages the team of agents for travel purposes",
+    supervisor_agent = SupervisorAgent(SupervisorAgentOptions( 
         lead_agent=BedrockLLMAgent(BedrockLLMAgentOptions(
             name="Support Team Lead",
             description="Coordinates support inquiries"
@@ -157,9 +155,7 @@ The SupervisorAgent can also be integrated into a larger system using the classi
     )))
 
     # Add a SupervisorAgent for complex support tasks
-    orchestrator.add_agent(SupervisorAgent(SupervisorAgentOptions(
-        name="SupervisorAgent",
-        description="You are a supervisor agent that manages the team of agents for product development purposes",
+    orchestrator.add_agent(SupervisorAgent(SupervisorAgentOptions( 
         lead_agent=BedrockLLMAgent(BedrockLLMAgentOptions(
             name="Support Team",
             description="Coordinates support inquiries requiring multiple specialists"
