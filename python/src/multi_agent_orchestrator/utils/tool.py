@@ -204,7 +204,10 @@ class AgentTools:
             )
 
             # Process the tool use
-            result = await self._process_tool(tool_name, input_data)
+            try:
+                result = await self._process_tool(tool_name, input_data)
+            except Exception as e:
+                result = str(e)
 
             # Create tool result
             tool_result = AgentToolResult(tool_id, result)
@@ -243,7 +246,9 @@ class AgentTools:
             tool = next(tool for tool in self.tools if tool.name == tool_name)
             return tool.func(**input_data)
         except StopIteration:
-            return (f"Tool '{tool_name}' not found")
+            raise ValueError(f"Tool '{tool_name}' not found")
+        except Exception as e:
+            raise Exception(f"Tool '{tool_name}' returned an error: {str(e)}")
 
     def to_claude_format(self) -> list[dict[str, Any]]:
         """Convert all tools to Claude format"""
