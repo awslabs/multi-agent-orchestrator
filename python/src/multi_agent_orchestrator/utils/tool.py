@@ -1,4 +1,4 @@
-from typing import Any, Optional, Callable, get_type_hints, Union
+from typing import Any, Optional, Callable, get_type_hints, Union, get_origin, get_args
 import inspect
 from functools import wraps
 import re
@@ -66,8 +66,36 @@ class AgentTool:
             if prop_name in self.properties:
                 self.properties[prop_name]["enum"] = enum_vals
 
+    def _get_tool_property(self, param_type: Any, description) -> dict[str, Any]:
+        origin = get_origin(param_type)
+        type_mapping = {
+            int: "integer",
+            float: "number",
+            str: "string",
+            bool: "boolean",
+            list: "array",
+            dict: "object"
+        }
+
+        # Handle generic types like list[str]
+        if origin is not None:
+            args = get_args(param_type)
+
+            if origin == list:
+                return {
+                    "type": "array",
+                    "items": {
+                        "type": type_mapping.get(args[0], "string")
+                    },
+                    "description": description
+                }
+
+        # Handle non-generic types
+        return {"type": type_mapping.get(param_type, "string"), "description": description}
+
     def _extract_properties(self, func: Callable) -> dict[str, dict[str, Any]]:
         """Extract properties from the function's signature and type hints"""
+
         # Get function's type hints and signature
         type_hints = get_type_hints(func)
         sig = inspect.signature(func)
@@ -91,25 +119,10 @@ class AgentTool:
 
             param_type = type_hints.get(param_name, Any)
 
-            # Convert Python types to JSON schema types
-            type_mapping = {
-                int: "integer",
-                float: "number",
-                str: "string",
-                bool: "boolean",
-                list: "array",
-                dict: "object"
-            }
-
-            json_type = type_mapping.get(param_type, "string")
-
             # Use docstring description if available, else create a default one
             description = param_descriptions.get(param_name, f"The {param_name} parameter")
 
-            properties[param_name] = {
-                "type": json_type,
-                "description": description
-            }
+            properties[param_name] = self._get_tool_property(param_type, description)
 
         return properties
 
@@ -252,5 +265,3 @@ class AgentTools:
     def to_bedrock_format(self) -> list[dict[str, Any]]:
         """Convert all tools to Bedrock format"""
         return [tool.to_bedrock_format() for tool in self.tools]
-
-
