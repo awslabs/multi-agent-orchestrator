@@ -1,5 +1,6 @@
+import asyncio
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
 from multi_agent_orchestrator.utils import Logger
@@ -174,5 +175,141 @@ def test_set_system_prompt(bedrock_llm_agent):
     assert bedrock_llm_agent.prompt_template == new_template
     assert bedrock_llm_agent.custom_variables == variables
     assert bedrock_llm_agent.system_prompt == "You are a test agent. Your task is to run tests."
+
+@pytest.mark.asyncio
+async def test_streaming_with_callbacks(bedrock_llm_agent, mock_boto3_client):
+    """Test that callbacks are called correctly during streaming"""
+    bedrock_llm_agent.streaming = True
+    mock_callbacks = Mock()  # Use Mock instead of AsyncMock
+    bedrock_llm_agent.callbacks = mock_callbacks
+    
+    mock_stream_response = {
+        "stream": [
+            {"messageStart": {"role": "assistant"}},
+            {"contentBlockDelta": {"delta": {"text": "First"}}},
+            {"contentBlockDelta": {"delta": {"text": "Second"}}},
+            {"contentBlockStop": {}}
+        ]
+    }
+    mock_boto3_client.return_value.converse_stream.return_value = mock_stream_response
+
+    result = await bedrock_llm_agent.process_request("Test", "user", "session", [])
+    
+    # Verify callbacks were called for each token
+    assert mock_callbacks.on_llm_new_token.call_count == 2
+    mock_callbacks.on_llm_new_token.assert_any_call("First")
+    mock_callbacks.on_llm_new_token.assert_any_call("Second")
+
+@pytest.mark.asyncio
+async def test_streaming_with_tool_use(bedrock_llm_agent, mock_boto3_client):
+    """Test streaming with tool use mixed in"""
+    bedrock_llm_agent.streaming = True
+    mock_callbacks = Mock()  # Use Mock instead of AsyncMock
+    bedrock_llm_agent.callbacks = mock_callbacks
+    
+    mock_stream_response = {
+        "stream": [
+            {"messageStart": {"role": "assistant"}},
+            {"contentBlockStart": {"start": {"toolUse": {"toolUseId": "123", "name": "test_tool"}}}},
+            {"contentBlockDelta": {"delta": {"toolUse": {"input": '{"key": "'}}}},
+            {"contentBlockDelta": {"delta": {"toolUse": {"input": 'value"}'}}}},
+            {"contentBlockStop": {}},
+            {"contentBlockDelta": {"delta": {"text": "Final response"}}},
+            {"contentBlockStop": {}}
+        ]
+    }
+    mock_boto3_client.return_value.converse_stream.return_value = mock_stream_response
+
+    result = await bedrock_llm_agent.process_request("Test", "user", "session", [])
+    
+    assert result.content[0]["toolUse"]["input"] == {"key": "value"}
+    assert result.content[1]["text"] == "Final response"
+    assert mock_callbacks.on_llm_new_token.call_count == 1
+    mock_callbacks.on_llm_new_token.assert_called_with("Final response")
+
+@pytest.mark.asyncio
+async def test_streaming_error_handling(bedrock_llm_agent, mock_boto3_client):
+    """Test handling of errors during streaming"""
+    bedrock_llm_agent.streaming = True
+ 
+    class StreamError(Exception):
+        pass
+
+    def mock_stream(): 
+        yield {"messageStart": {"role": "assistant"}}
+        yield {"contentBlockDelta": {"delta": {"text": "Partial"}}}
+        raise StreamError("Stream failed")
+
+    mock_boto3_client.return_value.converse_stream.return_value = {
+        "stream": mock_stream()
+    }
+
+    with pytest.raises(StreamError):
+        await bedrock_llm_agent.process_request("Test", "user", "session", [])
+
+@pytest.mark.asyncio
+async def test_streaming_cancellation(bedrock_llm_agent, mock_boto3_client):
+    """Test proper cleanup when streaming is cancelled"""
+    bedrock_llm_agent.streaming = True
+    cleanup_called = False
+    processed_tokens = []
+
+    def mock_stream():
+        nonlocal cleanup_called
+        try:
+            yield {"messageStart": {"role": "assistant"}} 
+            for i in range(100):
+                token = {"contentBlockDelta": {"delta": {"text": f"token_{i}"}}}
+                processed_tokens.append(token)
+                yield token
+        finally:
+            cleanup_called = True
+
+    mock_boto3_client.return_value.converse_stream.return_value = {
+        "stream": mock_stream()
+    }
+ 
+    task = asyncio.create_task(
+        bedrock_llm_agent.process_request("Test", "user", "session", [])
+    )
+ 
+    await asyncio.sleep(0.1) 
+    task.cancel()
+
+    try:
+        await task
+    except asyncio.CancelledError: 
+        assert len(processed_tokens) > 0
+        assert len(processed_tokens) < 100
+        assert cleanup_called
+        raise  # Re-raise the CancelledError for the test
+
+
+@pytest.mark.asyncio
+async def test_streaming_concurrent_requests(bedrock_llm_agent, mock_boto3_client):
+    """Test handling multiple concurrent streaming requests"""
+    bedrock_llm_agent.streaming = True
+
+    def create_mock_stream(text):
+        def mock_stream():
+            yield {"messageStart": {"role": "assistant"}}
+            yield {"contentBlockDelta": {"delta": {"text": text}}}
+            yield {"contentBlockStop": {}}
+        return mock_stream
+ 
+    async def make_request(text):
+        mock_boto3_client.return_value.converse_stream.return_value = {
+            "stream": create_mock_stream(text)()
+        }
+        return await bedrock_llm_agent.process_request(text, "user", "session", [])
+
+    results = await asyncio.gather(
+        make_request("First"),
+        make_request("Second"),
+        make_request("Third")
+    )
+
+    assert [r.content[0]["text"] for r in results] == ["First", "Second", "Third"]
+
 
 # Add more tests as needed for other methods and edge cases
