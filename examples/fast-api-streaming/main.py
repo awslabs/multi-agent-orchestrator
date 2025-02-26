@@ -43,18 +43,47 @@ class MyCustomHandler(AgentCallbacks):
         super().__init__()
         self._queue = queue
         self._stop_signal = None
+        self._closed = False
         print("Custom handler Initialized")
 
     def on_llm_new_token(self, token: str, **kwargs) -> None:
-        self._queue.put_nowait(token)
+        if self._closed:
+            return
+
+        try:
+            # Use put_nowait since we can't use async/await here
+            self._queue.put_nowait(token)
+        except asyncio.QueueFull:
+            print("Queue is full, token dropped")
+        except Exception as e:
+            print(f"Error putting token to queue: {e}")
+            self._closed = True
 
     def on_llm_start(self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any) -> None:
         print("generation started")
+        self._closed = False
+
+        while not self._queue.empty():
+            try:
+                self._queue.get_nowait()
+                self._queue.task_done()
+            except asyncio.QueueEmpty:
+                break
 
     def on_llm_end(self, response: Any, **kwargs: Any) -> None:
         print("\n\ngeneration concluded")
 
-        self._queue.put_nowait(self._stop_signal)
+        if self._closed:
+            return
+
+        try:
+            self._queue.put_nowait(self._stop_sig)
+        except asyncio.QueueFull:
+            print("Queue is full, stop signal dropped")
+        except Exception as e:
+            print(f"Error putting stop signal to queue: {e}")
+        finally:
+            self._closed = True
 
 def setup_orchestrator(streamer_queue):
     # Initialize the orchestrator
@@ -116,7 +145,7 @@ async def response_generator(query, user_id, session_id):
     streamer_queue = asyncio.Queue()
 
     # Start the generation process in a separate thread
-    Thread(target=lambda: asyncio.run(start_generation(query, user_id, session_id, streamer_queue))).start()
+    generation_task = asyncio.create_task(start_generation(query, user_id, session_id, streamer_queue))
 
     print("Waiting for the response...")
     while True:
@@ -132,6 +161,21 @@ async def response_generator(query, user_id, session_id):
         except Exception as e:
             print(f"Error in response_generator: {str(e)}")
             break
+
+    try:
+        while True:
+            try:
+                value = await streamer_queue.get()
+                if value is None:
+                    break
+                yield value
+                streamer_queue.task_done()
+            except Exception as e:
+                print(f"Error in response_generator: {str(e)}")
+                break
+    finally:
+        generation_task.cancel()
+
 
 @app.post("/stream_chat/")
 async def stream_chat(body: Body):
