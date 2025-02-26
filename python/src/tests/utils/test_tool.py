@@ -4,7 +4,8 @@ from multi_agent_orchestrator.types import AgentProviderType, ConversationMessag
 from anthropic import Anthropic
 from anthropic.types import ToolUseBlock
 
-def _tool_hanlder(input: str) -> str:
+
+def _tool_handler(input: str) -> str:
     """
     Prints the input string and returns.
     This is a test tool handler.
@@ -29,11 +30,22 @@ async def fetch_weather_data(latitude:str, longitude:str):
 
     return f'Weather data for {latitude}, {longitude}'
 
+
+def fetch_data_generics(input: list[str]):
+    """
+    Fetches data for the given list of inputs.
+    Returns the data or an error message if the request fails.
+
+    :param input: the list of inputs to fetch data for
+
+    :return: The data or an error message.
+    """
+
+    return f"Data for {input}"
+
+
 def test_tools_without_description():
-    tools = AgentTools([AgentTool(
-        name="test",
-        func=_tool_hanlder
-    )])
+    tools = AgentTools([AgentTool(name="test", func=_tool_handler)])
 
     for tool in tools.tools:
         assert tool.name == "test"
@@ -42,11 +54,15 @@ This is a test tool handler."""
         assert tool.properties == {'input': {'description': 'the input string to return within a sentence.','type': 'string'}}
 
 def test_tools_with_description():
-    tools = AgentTools([AgentTool(
-        name="test",
-        description="This is a test description.",
-        func=_tool_hanlder
-    )])
+    tools = AgentTools(
+        [
+            AgentTool(
+                name="test",
+                description="This is a test description.",
+                func=_tool_handler,
+            )
+        ]
+    )
 
     for tool in tools.tools:
         assert tool.name == "test"
@@ -184,10 +200,7 @@ Returns the weather data or an error message if the request fails."""
 
 @pytest.mark.asyncio
 async def test_tool_handler_bedrock():
-    tools = AgentTools([AgentTool(
-        name="test",
-        func=_tool_hanlder
-    )])
+    tools = AgentTools([AgentTool(name="test", func=_tool_handler)])
 
     tool_message = ConversationMessage(
         role=ParticipantRole.ASSISTANT.value,
@@ -230,10 +243,7 @@ async def test_tool_handler_bedrock():
 
 @pytest.mark.asyncio
 async def test_tool_handler_anthropic():
-    tools = AgentTools([AgentTool(
-        name="test",
-        func=_tool_hanlder
-    )])
+    tools = AgentTools([AgentTool(name="test", func=_tool_handler)])
 
     tool_message = ConversationMessage(
         role=ParticipantRole.ASSISTANT.value,
@@ -261,14 +271,12 @@ async def test_tool_handler_anthropic():
 
 
 def test_tools_format():
-    tools = AgentTools([AgentTool(
-        name="weather",
-        func=fetch_weather_data
-    ),
-    AgentTool(
-        name="test",
-        func=_tool_hanlder
-    )])
+    tools = AgentTools(
+        [
+            AgentTool(name="weather", func=fetch_weather_data),
+            AgentTool(name="test", func=_tool_handler),
+        ]
+    )
 
     tools_bedrock_format = tools.to_bedrock_format()
     assert tools_bedrock_format == [
@@ -467,6 +475,74 @@ def test_tool_with_properties():
                     },
                     'required': ['latitude', 'longitude', 'units']
                 }
+            }
+        }
+    }
+
+
+def test_tool_with_generics():
+    tool = AgentTool(name="data_tool", func=fetch_data_generics)
+
+    assert tool.properties["input"]["type"] == "array"
+    assert tool.properties["input"]["items"]["type"] == "string"
+    assert (
+        tool.properties["input"]["description"]
+        == "the list of inputs to fetch data for"
+    )
+    assert tool.to_bedrock_format() == {
+        "toolSpec": {
+            "name": "data_tool",
+            "description": "Fetches data for the given list of inputs.\nReturns the data or an error message if the request fails.",
+            "inputSchema": {
+                "json": {
+                    "type": "object",
+                    "properties": {
+                        "input": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "the list of inputs to fetch data for",
+                        }
+                    },
+                    "required": ["input"],
+                }
+            },
+        }
+    }
+
+    assert tool.to_claude_format() == {
+        "name": "data_tool",
+        "description": "Fetches data for the given list of inputs.\nReturns the data or an error message if the request fails.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "input": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "the list of inputs to fetch data for",
+                }
+            },
+            "required": ["input"],
+        },
+    }
+
+    assert tool.to_openai_format() == {
+        'type': 'function',
+        'function': {
+            'name': 'data',
+            'description': 'Fetches data for the given list of inputs.\nReturns the data or an error message if the request fails.',
+            'parameters': {
+                'type': 'object',
+                'properties': {
+                    'input': {
+                        'description': 'the list of inputs to fetch data for',
+                        'type': 'array',
+                        'items': {
+                            'type': 'string'
+                        }
+                    }
+                },
+                'required': ['input'],
+                'additionalProperties': False
             }
         }
     }
