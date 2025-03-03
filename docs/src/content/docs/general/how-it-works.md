@@ -76,7 +76,7 @@ Each agent needs a name and a description (plus other properties specific to the
 
 It should be detailed and comprehensive, as the orchestrator relies on this description, along with the current user input and the conversation history of all agents, to determine the most appropriate routing for each request.
 
-While the framework's flexibility is a strength, it's important to be mindful of potential overlaps between agents, which could lead to incorrect routing. To help you analyze and prevent such overlaps, we recommend reviewing our [agent overlap analysis](/multi-agent-orchestrator/advanced-features/agent-overlap) section for a deeper understanding.
+While the framework's flexibility is a strength, it's important to be mindful of potential overlaps between agents, which could lead to incorrect routing. To help you analyze and prevent such overlaps, we recommend reviewing our [agent overlap analysis](/multi-agent-orchestrator/cookbook/monitoring/agent-overlap) section for a deeper understanding.
 
 ### Agent abstraction: unified processing across platforms
 
