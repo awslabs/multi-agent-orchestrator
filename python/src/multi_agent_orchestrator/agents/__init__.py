@@ -14,6 +14,7 @@ try:
     from .chain_agent import ChainAgent, ChainAgentOptions
     from .bedrock_inline_agent import BedrockInlineAgent, BedrockInlineAgentOptions
     from .bedrock_flows_agent import BedrockFlowsAgent, BedrockFlowsAgentOptions
+    from .salesforce_agentforce_agent import SalesforceAgentforceAgent, SalesforceAgentforceAgentOptions
     _AWS_AVAILABLE = True
 except ImportError:
     _AWS_AVAILABLE = False
@@ -63,7 +64,9 @@ if _AWS_AVAILABLE :
         'BedrockInlineAgent',
         'BedrockInlineAgentOptions',
         'BedrockFlowsAgent',
-        'BedrockFlowsAgentOptions'
+        'BedrockFlowsAgentOptions',
+        'SalesforceAgentforceAgent',
+        'SalesforceAgentforceAgentOptions'
     ])
 
 

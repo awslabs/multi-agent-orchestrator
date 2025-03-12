@@ -38,6 +38,7 @@
 - 🌐 **Universal deployment** — Run anywhere - from AWS Lambda to your local environment or any cloud platform.
 - 📦 **Pre-built agents and classifiers** — A variety of ready-to-use agents and multiple classifier implementations available.
 - 🔤 **TypeScript support** — Native TypeScript implementation available.
+- 🔗 **Salesforce Agentforce Integration** — Seamlessly integrate Salesforce Agentforce API for enhanced capabilities.
 
 ## What's the Multi-Agent Orchestrator ❓
 
@@ -144,6 +145,19 @@ orchestrator.add_agent(
     ))
 )
 
+# Add a Salesforce Agentforce Agent for handling Salesforce-related queries
+orchestrator.add_agent(
+    SalesforceAgentforceAgent(SalesforceAgentforceAgentOptions(
+        name="Salesforce Agent",
+        description="Handles queries related to Salesforce",
+        client_id=os.environ.get('SALESFORCE_CLIENT_ID'),
+        client_secret=os.environ.get('SALESFORCE_CLIENT_SECRET'),
+        domain_url=os.environ.get('SALESFORCE_DOMAIN_URL'),
+        agent_id=os.environ.get('SALESFORCE_AGENT_ID'),
+        locale_id="en_US",
+    ))
+)
+
 async def main():
     # Example usage
     response = await orchestrator.route_request(
@@ -195,8 +209,9 @@ The following example demonstrates how to use the Multi-Agent Orchestrator with 
 This example showcases:
 1. The use of a Bedrock LLM Agent with Converse API support, allowing for multi-turn conversations.
 2. Integration of a Lex Bot Agent for specialized tasks (in this case, travel-related queries).
-3. The orchestrator's ability to route requests to the most appropriate agent based on the input.
-4. Handling of both streaming and non-streaming responses from different types of agents.
+3. Integration of a Salesforce Agentforce Agent for handling Salesforce-related queries.
+4. The orchestrator's ability to route requests to the most appropriate agent based on the input.
+5. Handling of both streaming and non-streaming responses from different types of agents.
 
 
 ### Working with Anthropic or OpenAI

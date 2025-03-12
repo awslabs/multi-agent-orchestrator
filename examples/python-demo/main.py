@@ -1,4 +1,3 @@
-
 import uuid
 import asyncio
 from typing import Optional, List, Dict, Any
@@ -12,7 +11,8 @@ from multi_agent_orchestrator.agents import (BedrockLLMAgent,
                         BedrockLLMAgentOptions,
                         AgentResponse,
                         AnthropicAgent, AnthropicAgentOptions,
-                        AgentCallbacks)
+                        AgentCallbacks,
+                        SalesforceAgentforceAgent, SalesforceAgentforceAgentOptions)
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
 from multi_agent_orchestrator.utils import AgentTools
@@ -132,9 +132,20 @@ if __name__ == "__main__":
         }
     ))
 
-
     weather_agent.set_system_prompt(weather_tool.weather_tool_prompt)
     orchestrator.add_agent(weather_agent)
+
+    # Add a Salesforce Agentforce Agent for handling Salesforce-related queries
+    salesforce_agent = SalesforceAgentforceAgent(SalesforceAgentforceAgentOptions(
+        name="Salesforce Agent",
+        description="Handles queries related to Salesforce",
+        client_id=os.environ.get('SALESFORCE_CLIENT_ID'),
+        client_secret=os.environ.get('SALESFORCE_CLIENT_SECRET'),
+        domain_url=os.environ.get('SALESFORCE_DOMAIN_URL'),
+        agent_id=os.environ.get('SALESFORCE_AGENT_ID'),
+        locale_id="en_US",
+    ))
+    orchestrator.add_agent(salesforce_agent)
 
     USER_ID = "user123"
     SESSION_ID = str(uuid.uuid4())
