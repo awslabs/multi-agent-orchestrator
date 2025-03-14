@@ -168,14 +168,14 @@ export class OpenAIAgent extends Agent {
     }
     this.updateSystemPrompt();
   }
-  
+
   private updateSystemPrompt(): void {
     const allVariables: TemplateVariables = {
       ...this.customVariables
     };
     this.systemPrompt = this.replaceplaceholders(this.promptTemplate, allVariables);
   }
-  
+
   private replaceplaceholders(template: string, variables: TemplateVariables): string {
     return template.replace(/{{(\w+)}}/g, (match, key) => {
       if (key in variables) {

@@ -36,6 +36,14 @@
   </a>
 </p>
 
+<hr/>
+
+# 🤖 Looking for details on Amazon Bedrock's multi-agent collaboration capability announced during Matt Garman's keynote at re:Invent 2024?
+
+**🚀 Visit the [Amazon Bedrock Agents](https://aws.amazon.com/bedrock/agents/) page to explore how multi-agent collaboration enables developers to build, deploy, and manage specialized agents designed for tackling complex workflows efficiently and accurately. ⚡**
+![Bedrock Agents](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/bedrock_agents.png)
+<hr/>
+
 
 
 ## 🔖 Features
@@ -144,8 +152,7 @@ Get hands-on experience with the Multi-Agent Orchestrator through our diverse se
 
 Examples are available in both Python and TypeScript. Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator framework!
 
-
-## 🌟 Use cases and implementations
+## 📚 Deep Dives: Stories, Blogs & Podcasts
 
 Discover creative implementations and diverse applications of the Multi-Agent Orchestrator:
 
@@ -157,12 +164,9 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 
   This article demonstrates how to build an AI-driven multi-agent system for automated e-commerce customer email support. It covers the architecture and setup of specialized AI agents using the Multi-Agent Orchestrator framework, integrating automated processing with human-in-the-loop oversight. The guide explores email ingestion, intelligent routing, automated response generation, and human verification, providing a comprehensive approach to balancing AI efficiency with human expertise in customer support.
 
-
 - **[Speak Up, AI: Voicing Your Agents with Amazon Connect, Lex, and Bedrock](https://community.aws/content/2mt7CFG7xg4yw6GRHwH9akhg0oD/speak-up-ai-voicing-your-agents-with-amazon-connect-lex-and-bedrock)**
 
   This article demonstrates how to build an AI customer call center. It covers the architecture and setup of specialized AI agents using the Multi-Agent Orchestrator framework interacting with voice via **Amazon Connect** and **Amazon Lex**.
-
-  Here's the section to add under "Use cases and implementations":
 
 - **[Unlock Bedrock InvokeInlineAgent API's Hidden Potential](https://community.aws/content/2pTsHrYPqvAbJBl9ht1XxPOSPjR/unlock-bedrock-invokeinlineagent-api-s-hidden-potential-with-multi-agent-orchestrator)**
 
@@ -171,6 +175,19 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 - **[Supercharging Amazon Bedrock Flows](https://community.aws/content/2phMjQ0bqWMg4PBwejBs1uf4YQE/supercharging-amazon-bedrock-flows-with-aws-multi-agent-orchestrator)**
 
   Learn how to enhance **Amazon Bedrock Flows** with conversation memory and multi-flow orchestration using the Multi-Agent Orchestrator framework. This guide shows how to overcome Bedrock Flows' limitations to build more sophisticated AI workflows with persistent memory and intelligent routing between flows.
+
+### 🎙️ Podcast Discussions
+
+- **🇫🇷 Podcast (French)**: L'orchestrateur multi-agents : Un orchestrateur open source pour vos agents IA
+  - **Platforms**:
+    - [Apple Podcasts](https://podcasts.apple.com/be/podcast/lorchestrateur-multi-agents/id1452118442?i=1000684332612)
+    - [Spotify](https://open.spotify.com/episode/4RdMazSRhZUyW2pniG91Vf)
+
+
+- **🇬🇧 Podcast (English)**: An Orchestrator for Your AI Agents
+  - **Platforms**:
+    - [Apple Podcasts](https://podcasts.apple.com/us/podcast/an-orchestrator-for-your-ai-agents/id1574162669?i=1000677039579)
+    - [Spotify](https://open.spotify.com/episode/2a9DBGZn2lVqVMBLWGipHU)
 
 
 ### TypeScript Version
@@ -407,20 +424,17 @@ Let’s collaborate, learn from each other, and build something incredible toget
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how to get started:
+⚠️ We value your contributions! Before submitting changes, please start a discussion by opening an issue to share your proposal.
+
+Once your proposal is approved, here are the next steps:
 
 1. 📚 Review our [Contributing Guide](CONTRIBUTING.md)
 2. 💡 Create a [GitHub Issue](https://github.com/awslabs/multi-agent-orchestrator/issues)
 3. 🔨 Submit a pull request
 
-⚠️ For major changes, please open an issue first to discuss your proposal.
 
 ✅ Follow existing project structure and include documentation for new features.
 
-
-### Thank You for Your Support! 🙏
-
-[![Star History Chart](https://api.star-history.com/svg?repos=awslabs/multi-agent-orchestrator&type=Date)](https://star-history.com/#awslabs/multi-agent-orchestrator&Date)
 
 🌟 **Stay Updated**: Star the repository to be notified about new features, improvements, and exciting developments in the Multi-Agent Orchestrator framework!
 

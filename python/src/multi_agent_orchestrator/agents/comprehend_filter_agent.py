@@ -4,35 +4,39 @@ from multi_agent_orchestrator.utils.logger import Logger
 from .agent import Agent, AgentOptions
 import boto3
 from botocore.config import Config
+import os
+from dataclasses import dataclass
+
 
 # Type alias for CheckFunction
 CheckFunction = Callable[[str], str]
 
+@dataclass
 class ComprehendFilterAgentOptions(AgentOptions):
-    def __init__(self,
-                 enable_sentiment_check: bool = True,
-                 enable_pii_check: bool = True,
-                 enable_toxicity_check: bool = True,
-                 sentiment_threshold: float = 0.7,
-                 toxicity_threshold: float = 0.7,
-                 allow_pii: bool = False,
-                 language_code: str = 'en',
-                 **kwargs):
-        super().__init__(**kwargs)
-        self.enable_sentiment_check = enable_sentiment_check
-        self.enable_pii_check = enable_pii_check
-        self.enable_toxicity_check = enable_toxicity_check
-        self.sentiment_threshold = sentiment_threshold
-        self.toxicity_threshold = toxicity_threshold
-        self.allow_pii = allow_pii
-        self.language_code = language_code
+    enable_sentiment_check: bool = True
+    enable_pii_check: bool = True
+    enable_toxicity_check: bool = True
+    sentiment_threshold: float = 0.7
+    toxicity_threshold: float = 0.7
+    allow_pii: bool = False
+    language_code: str = 'en'
+    region: Optional[str] = None
+    client: Optional[Any] = None
 
 class ComprehendFilterAgent(Agent):
     def __init__(self, options: ComprehendFilterAgentOptions):
         super().__init__(options)
 
-        config = Config(region_name=options.region) if options.region else None
-        self.comprehend_client = boto3.client('comprehend', config=config)
+        if options.client:
+            self.comprehend_client = options.client
+        else:
+            if options.region:
+                self.client = boto3.client(
+                    'comprehend',
+                    region_name=options.region or os.environ.get('AWS_REGION')
+                )
+            else:
+                self.client = boto3.client('comprehend')
 
         self.custom_checks: list[CheckFunction] = []
 

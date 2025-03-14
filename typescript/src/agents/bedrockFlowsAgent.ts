@@ -6,6 +6,7 @@ import {
 } from "../types";
 
   export interface BedrockFlowsAgentOptions extends AgentOptions {
+    region?: string;
     flowIdentifier: string;
     flowAliasIdentifier: string;
     bedrockAgentClient?: BedrockAgentRuntimeClient;

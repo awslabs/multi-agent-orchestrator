@@ -71,14 +71,32 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 
     # For local SQLite database
     local_storage = SqlChatStorage('file:local.db')
+    await local_storage.initialize()  # Must be called before use
 
     # For remote Turso database
     remote_storage = SqlChatStorage(
-      url='libsql://your-database-url.turso.io',
-      auth_token='your-auth-token'
+        url='libsql://your-database-url.turso.io',
+        auth_token='your-auth-token'
     )
+    await remote_storage.initialize()
 
+    # Create orchestrator with storage
     orchestrator = MultiAgentOrchestrator(storage=local_storage)  # or remote_storage
+
+    # Example usage
+    messages = await local_storage.save_chat_message(
+        user_id="user123",
+        session_id="session456",
+        agent_id="agent789",
+        new_message=ConversationMessage(
+            role="user",
+            content=[{"text": "Hello!"}]
+        )
+    )
+    # messages will contain the updated conversation history
+
+    # Don't forget to close connections when done
+    await local_storage.close()
     ```
   </TabItem>
 </Tabs>
@@ -87,21 +105,44 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 ### Local DB
 For local development, simply provide a file URL:
-```typescript
-const storage = new SqlChatStorage('file:local.db');
-```
+<Tabs syncKey="local-storage">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const storage = new SqlChatStorage('file:local.db');
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python" color="blue">
+    ```python
+    storage = SqlChatStorage('file:local.db')
+    await storage.initialize()  # Must be called before use
+    ```
+  </TabItem>
+</Tabs>
 
 ### Remote DB
 For production with Turso:
 1. Create a Turso database through their platform
 2. Obtain your database URL and authentication token
 3. Configure your storage:
-```typescript
-const storage = new SqlChatStorage(
-  'libsql://your-database-url.com',
-  'your-auth-token'
-);
-```
+<Tabs syncKey="remote-storage">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+    ```typescript
+    const storage = new SqlChatStorage(
+      'libsql://your-database-url.turso.io',
+      'your-auth-token'
+    );
+    ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python" color="blue">
+    ```python
+    storage = SqlChatStorage(
+        url='libsql://your-database-url.turso.io',
+        auth_token='your-auth-token'
+    )
+    await storage.initialize()  # Required initialization
+    ```
+  </TabItem>
+</Tabs>
 
 ## Database Schema
 
@@ -131,14 +172,50 @@ ON conversations(user_id, session_id, agent_id);
 - Support for message history size limits
 - Automatic JSON serialization/deserialization of message content
 
-## Best Practices
+## Best Practices (Python)
 
-- Use a single instance of SqlChatStorage throughout your application
-- Regularly backup your database
-- Implement data cleanup strategies for old conversations
-- Monitor database size and performance
-- Keep your authentication tokens secure
-- Implement proper access controls at the application level
-- Close the database connections when done
+1. **Initialization**:
+   ```python
+   storage = SqlChatStorage('file:local.db')
+   await storage.initialize()  # Always call initialize after creation
+   ```
+
+2. **Error Handling**:
+   ```python
+   try:
+       messages = await storage.save_chat_message(...)
+   except Exception as e:
+       logger.error(f"Storage error: {e}")
+   ```
+
+3. **Resource Cleanup**:
+   ```python
+   try:
+       storage = SqlChatStorage('file:local.db')
+       await storage.initialize()
+       # ... use storage ...
+   finally:
+       await storage.close()  # Always close when done
+   ```
+
+4. **Message History Management**:
+   ```python
+   # Limit conversation history
+   messages = await storage.save_chat_message(
+       ...,
+       max_history_size=50  # Keep last 50 messages
+   )
+   ```
+
+5. **Batch Operations**:
+   ```python
+   # Save multiple messages efficiently
+   messages = await storage.save_chat_messages(
+       user_id="user123",
+       session_id="session456",
+       agent_id="agent789",
+       new_messages=[message1, message2, message3]
+   )
+   ```
 
 SQL storage provides a robust and flexible solution for managing conversation history in the Multi-Agent Orchestrator System. It offers a good balance between simplicity and features, making it suitable for both development and production environments.
