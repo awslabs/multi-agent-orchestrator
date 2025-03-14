@@ -1,7 +1,7 @@
 
 import uuid
 import asyncio
-from typing import Optional, List, Dict, Any
+from typing import Optional, Any
 import json
 import sys
 
@@ -42,15 +42,15 @@ async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input:str,
             print(response.output)
 
 def custom_input_payload_encoder(input_text: str,
-                                 chat_history: List[Any],
+                                 chat_history: list[Any],
                                  user_id: str,
                                  session_id: str,
-                                 additional_params: Optional[Dict[str, str]] = None) -> str:
+                                 additional_params: Optional[dict[str, str]] = None) -> str:
     return json.dumps({
         'hello':'world'
     })
 
-def custom_output_payload_decoder(response: Dict[str, Any]) -> Any:
+def custom_output_payload_decoder(response: dict[str, Any]) -> Any:
     decoded_response = json.loads(
         json.loads(
             response['Payload'].read().decode('utf-8')
