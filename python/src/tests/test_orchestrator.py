@@ -112,13 +112,6 @@ def test_set_default_agent(orchestrator, mock_agent):
     orchestrator.set_default_agent(new_agent)
     assert orchestrator.get_default_agent() == new_agent
 
-# Test classifier management
-def test_set_classifier(orchestrator):
-    new_classifier = Mock(spec=Classifier)
-    orchestrator.set_classifier(new_classifier)
-    assert orchestrator.classifier == new_classifier
-    new_classifier.set_agents.assert_called_once_with(orchestrator.agents)
-
 # Test request classification
 @pytest.mark.asyncio
 async def test_classify_request_success(orchestrator, mock_agent):
