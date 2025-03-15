@@ -141,7 +141,7 @@ class ComprehendFilterAgent(Agent):
 
     def get_toxic_labels(self, toxicity_result: dict[str, Any]) -> list[str]:
         toxic_labels = []
-        for result in toxicity_result.get('Resultlist', []):
+        for result in toxicity_result.get('ResultList', []):
             for label in result.get('Labels', []):
                 if label['Score'] > self.toxicity_threshold:
                     toxic_labels.append(label['Name'])
