@@ -1,0 +1,3 @@
+python-dotenv
+boto3==1.36.24
+requests
