@@ -471,13 +471,14 @@ def test_tool_with_properties():
         }
     }
 
-def test_tool_not_found():
+@pytest.mark.asyncio
+async def test_tool_not_found():
     try:
         tools = AgentTools([AgentTool(
             name="weather",
             func=fetch_weather_data
         )])
-        tools._process_tool("test", {'test':'value'})
+        await tools._process_tool("test", {'test':'value'})
     except Exception as e:
         assert str(e) == f"Tool weather not found"
 
