@@ -238,10 +238,10 @@ class AgentTools:
             return block
         return None
 
-    def _process_tool(self, tool_name, input_data):
+    async def _process_tool(self, tool_name, input_data):
         try:
             tool = next(tool for tool in self.tools if tool.name == tool_name)
-            return tool.func(**input_data)
+            return await tool.func(**input_data)
         except StopIteration:
             return (f"Tool '{tool_name}' not found")
 
