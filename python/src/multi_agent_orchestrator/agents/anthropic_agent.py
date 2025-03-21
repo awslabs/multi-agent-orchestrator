@@ -185,14 +185,18 @@ class AnthropicAgent(Agent):
 
                 async for chunk in response:
                     if chunk.final_message:
-                        final_response = chunk.final_message
-                    yield chunk
+                        final_response = chunk.final_message # do not yield the full message as it need to be converted in Conversation Message
+                    else:
+                        yield chunk
 
-                if any('toolUse' in content for content in final_response.content):
+                if any('tool_use' in content.type for content in final_response.content):
+                    input['messages'].append({"role": "assistant", "content": final_response.content})
                     tool_response = await self._process_tool_block(final_response, messages)
                     input['messages'].append(tool_response)
                 else:
                     continue_with_tools = False
+                    # yield las message
+                    yield AgentStreamResponse(final_message=ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{"text": final_response.content[0].text}]))
 
                 max_recursions -= 1
 
@@ -283,8 +287,6 @@ class AnthropicAgent(Agent):
                     if event.type == "text":
                         self.callbacks.on_llm_new_token(event.text)
                         yield AgentStreamResponse(text=event.text)
-                    elif event.type == "input_json":
-                        message['input'] = json.loads(event.partial_json)
                     elif event.type == "content_block_stop":
                         recursions = 0
                         break
@@ -292,10 +294,12 @@ class AnthropicAgent(Agent):
                 # you can still get the accumulated final message outside of
                 # the context manager, as long as the entire stream was consumed
                 # inside of the context manager
+
                 accumulated = await stream.get_final_message()
+            # we need to yield the whole content to keep the tool use block
             yield AgentStreamResponse(
                 final_message=ConversationMessage(role=ParticipantRole.ASSISTANT.value,
-                                                  content=[{"text": accumulated.content[0].text}]))
+                                                  content=accumulated.content))
 
         except Exception as error:
             Logger.error(f"Error getting stream from Anthropic model: {str(error)}")
