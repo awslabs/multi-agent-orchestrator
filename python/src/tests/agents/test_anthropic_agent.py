@@ -495,20 +495,15 @@ async def test_handle_streaming_response():
 
     anthropic_agent = AnthropicAgent(options)
 
-    # Create a conversation message for the final response
-    final_message = ConversationMessage(
-        role=ParticipantRole.ASSISTANT.value,
-        content=[{"text": "Final accumulated response"}]
-    )
-
     # Create a simple async generator function that mimics the behavior of handle_streaming_response
     async def mock_streaming_response(input_data):
+        mock_content = [MagicMock(type="text", text="Final accumulated response")]
+        mock_final_message = MagicMock()
+        mock_final_message.content = mock_content
         # First yield: text chunk with no final_message
         yield AgentStreamResponse(text="Streaming chunk 1", final_message=None)
         yield AgentStreamResponse(text="Streaming chunk 2", final_message=None)
-
-        # Last yield: empty text with final_message
-        yield AgentStreamResponse(text="", final_message=final_message)
+        yield AgentStreamResponse(text="", final_message=mock_final_message)
 
     # Patch the handle_streaming_response method
     with patch.object(anthropic_agent, 'handle_streaming_response', return_value=mock_streaming_response({})):
@@ -531,7 +526,6 @@ async def test_handle_streaming_response():
         assert responses[1].final_message is None
 
         assert responses[2].text == ""
-        assert responses[2].final_message == final_message
         assert responses[2].final_message.content[0]["text"] == "Final accumulated response"
 
 
@@ -669,9 +663,7 @@ async def test_handle_streaming_response_implementation():
 
         async def get_final_message(self):
             message = MagicMock()
-            content = MagicMock()
-            content.text = "Final message text"
-            message.content = [content]
+            message.content = [{"text": "Final message text"}]
             return message
 
     # Test successful streaming
@@ -736,23 +728,19 @@ async def test_handle_streaming_with_tool_use():
         # Regular chunks
         yield AgentStreamResponse(text="Streaming with tool", final_message=None)
 
-        # Final message with toolUse
-        final_message = MagicMock()
-        # Create content with 'toolUse' string in it
-        content = MagicMock()
-        content.__contains__ = MagicMock(side_effect=lambda x: x == 'toolUse')
-        final_message.content = [content]
-        yield AgentStreamResponse(text="", final_message=final_message)
+        mock_content = [MagicMock(type="tool_use", text="Final accumulated response")]
+        mock_final_message = MagicMock()
+        mock_final_message.content = mock_content
+        yield AgentStreamResponse(text="", final_message=mock_final_message)
 
     # Second response generator - no toolUse
     async def stream_generator_final():
         yield AgentStreamResponse(text="Final streaming", final_message=None)
 
-        final_message = ConversationMessage(
-            role=ParticipantRole.ASSISTANT.value,
-            content=[{"text": "Final response after tool"}]
-        )
-        yield AgentStreamResponse(text="", final_message=final_message)
+        mock_content = [MagicMock(type="text", text="Final accumulated response")]
+        mock_final_message = MagicMock()
+        mock_final_message.content = mock_content
+        yield AgentStreamResponse(text="", final_message=mock_final_message)
 
     # Mock handle_streaming_response to return our generators
     anthropic_agent.handle_streaming_response = MagicMock(
@@ -771,11 +759,10 @@ async def test_handle_streaming_with_tool_use():
         responses.append(response)
 
     # Verify we got all the expected responses (4 total)
-    assert len(responses) == 4
+    assert len(responses) == 3
     assert responses[0].text == "Streaming with tool"
-    assert responses[1].final_message is not None  # The first final message with toolUse
-    assert responses[2].text == "Final streaming"
-    assert responses[3].final_message.content[0]["text"] == "Final response after tool"
+    assert responses[1].final_message is None
+    assert responses[2].final_message.content[0]["text"] == "Final accumulated response"
 
     # Verify _process_tool_block was called with the right parameters
     anthropic_agent._process_tool_block.assert_called_once()
