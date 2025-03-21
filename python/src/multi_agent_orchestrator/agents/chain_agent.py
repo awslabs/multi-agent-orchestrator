@@ -1,10 +1,10 @@
-from typing import List, Dict, Union, AsyncIterable, Optional, Any
+from typing import Union, AsyncIterable, Optional, Any
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils.logger import Logger
 from .agent import Agent, AgentOptions
 
 class ChainAgentOptions(AgentOptions):
-    def __init__(self, agents: List[Agent], default_output: Optional[str] = None, **kwargs):
+    def __init__(self, agents: list[Agent], default_output: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
         self.agents = agents
         self.default_output = default_output
@@ -22,8 +22,8 @@ class ChainAgent(Agent):
         input_text: str,
         user_id: str,
         session_id: str,
-        chat_history: List[ConversationMessage],
-        additional_params: Optional[Dict[str, str]] = None
+        chat_history: list[ConversationMessage],
+        additional_params: Optional[dict[str, str]] = None
     ) -> Union[ConversationMessage, AsyncIterable[Any]]:
         current_input = input_text
         final_response: Union[ConversationMessage, AsyncIterable[Any]]

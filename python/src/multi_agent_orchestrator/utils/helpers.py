@@ -1,7 +1,7 @@
 """
 Helpers method
 """
-from typing import Any, List, Dict, Union
+from typing import Any
 from multi_agent_orchestrator.types import ConversationMessage, TimestampedMessage
 
 def is_tool_input(input_obj: Any) -> bool:
@@ -13,18 +13,17 @@ def is_tool_input(input_obj: Any) -> bool:
     )
 
 def conversation_to_dict(
-    conversation: Union[
-        ConversationMessage,
-        TimestampedMessage,
-        List[Union[ConversationMessage, TimestampedMessage]]
-    ]
-) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    conversation:
+        ConversationMessage |
+        TimestampedMessage |
+        list[ConversationMessage | TimestampedMessage]
+) -> dict[str, Any] | list[dict[str, Any]]:
     """Convert conversation to dictionary format."""
     if isinstance(conversation, list):
         return [message_to_dict(msg) for msg in conversation]
     return message_to_dict(conversation)
 
-def message_to_dict(message: Union[ConversationMessage, TimestampedMessage]) -> Dict[str, Any]:
+def message_to_dict(message: ConversationMessage | TimestampedMessage) -> dict[str, Any]:
     """Convert a single message to dictionary format."""
     result = {
         "role": message.role.value if hasattr(message.role, 'value') else str(message.role),

@@ -470,3 +470,69 @@ def test_tool_with_properties():
             }
         }
     }
+
+@pytest.mark.asyncio
+async def test_tool_not_found():
+    try:
+        tools = AgentTools([AgentTool(
+            name="weather",
+            func=fetch_weather_data
+        )])
+        await tools._process_tool("test", {'test':'value'})
+    except Exception as e:
+        assert str(e) == f"Tool weather not found"
+
+
+def test_get_tool_use_block():
+    tools = AgentTools([AgentTool(
+        name="weather",
+        func=fetch_weather_data
+    )])
+    response = tools._get_tool_use_block("test", {'test':'value'})
+    assert response == None
+
+
+def test_no_func():
+    try:
+        tools = AgentTools([AgentTool(
+            name="weather",
+        )])
+    except Exception as e:
+        assert str(e) == "Function must be provided"
+
+@pytest.mark.asyncio
+async def test_no_tool_block():
+    try:
+        tools = AgentTools([AgentTool(
+            name="weather",
+            func=fetch_weather_data
+        )])
+        message = ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=None)
+        response = await tools.tool_handler(AgentProviderType.BEDROCK.value, message, [])
+    except Exception as e:
+        assert str(e) == "No content blocks in response"
+
+@pytest.mark.asyncio
+async def test_no_tool_use_block():
+    tools = AgentTools([AgentTool(
+        name="weather",
+        func=fetch_weather_data
+    )])
+    message = ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text'}])
+    response = await tools.tool_handler(AgentProviderType.BEDROCK.value, message, [])
+    assert isinstance(response, ConversationMessage)
+    assert response.role == ParticipantRole.USER.value
+    assert response.content == []
+
+
+def test_self_param():
+    def _handler(self, tool_input):
+        return tool_input
+    tools = AgentTools([AgentTool(
+        name="test",
+        func=_handler
+    )])
+
+
+
+
