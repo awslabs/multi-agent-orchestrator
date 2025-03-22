@@ -12,6 +12,7 @@ from multi_agent_orchestrator.types import (ConversationMessage,
                        AgentProviderType)
 from multi_agent_orchestrator.utils import conversation_to_dict, Logger, AgentTools
 from multi_agent_orchestrator.retrievers import Retriever
+import asyncio
 
 
 @dataclass
@@ -91,6 +92,13 @@ class BedrockLLMAgent(Agent):
                 options.custom_system_prompt.get('template'),
                 options.custom_system_prompt.get('variables')
             )
+
+    async def _aiter(self, iterable):
+        """Convert a sync iterable to an async iterable."""
+        for item in iterable:
+            yield item
+            # Give control back to event loop
+            await asyncio.sleep(0)
 
     def is_streaming_enabled(self) -> bool:
         return self.streaming is True
@@ -199,8 +207,9 @@ class BedrockLLMAgent(Agent):
             text = ''
             tool_use = {}
 
-            #stream the response into a message.
-            for chunk in response['stream']:
+            # stream the response
+            stream = response["stream"]
+            async for chunk in self._aiter(stream):
                 if 'messageStart' in chunk:
                     message['role'] = chunk['messageStart']['role']
                 elif 'contentBlockStart' in chunk:
