@@ -36,12 +36,8 @@
   </a>
 </p>
 
-<hr/>
 
-### 🤖 Looking for details on Amazon Bedrock's multi-agent collaboration capability announced during Matt Garman's keynote at re:Invent 2024?
 
-**🚀 Visit the [Amazon Bedrock Agents](https://aws.amazon.com/bedrock/agents/) page to explore how multi-agent collaboration enables developers to build, deploy, and manage specialized agents designed for tackling complex workflows efficiently and accurately. ⚡**
-<hr/>
 
 
 
@@ -63,6 +59,13 @@ The Multi-Agent Orchestrator is a flexible framework for managing multiple AI ag
 The system offers pre-built components for quick deployment, while also allowing easy integration of custom agents and conversation messages storage solutions.
 
 This adaptability makes it suitable for a wide range of applications, from simple chatbots to sophisticated AI systems, accommodating diverse requirements and scaling efficiently.
+
+<hr/>
+### 🤖 Looking for details on Amazon Bedrock's multi-agent collaboration capability announced during Matt Garman's keynote at re:Invent 2024?
+
+**🚀 Visit the [Amazon Bedrock Agents](https://aws.amazon.com/bedrock/agents/) page to explore how multi-agent collaboration enables developers to build, deploy, and manage specialized agents designed for tackling complex workflows efficiently and accurately. ⚡**
+<hr/>
+
 
 ## 🏗️ High-level architecture flow diagram
 
