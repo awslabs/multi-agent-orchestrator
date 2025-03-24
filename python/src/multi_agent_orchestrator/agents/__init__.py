@@ -1,7 +1,7 @@
 """
 Code for Agents.
 """
-from .agent import Agent, AgentOptions, AgentCallbacks, AgentProcessingResult, AgentResponse
+from .agent import Agent, AgentOptions, AgentCallbacks, AgentProcessingResult, AgentResponse, AgentStreamResponse
 
 
 try:
@@ -32,16 +32,16 @@ except ImportError:
 
 from .supervisor_agent import SupervisorAgent, SupervisorAgentOptions
 
-
 __all__ = [
     'Agent',
     'AgentOptions',
     'AgentCallbacks',
     'AgentProcessingResult',
     'AgentResponse',
+    'AgentStreamResponse',
     'SupervisorAgent',
     'SupervisorAgentOptions'
-    ]
+]
 
 
 if _AWS_AVAILABLE :

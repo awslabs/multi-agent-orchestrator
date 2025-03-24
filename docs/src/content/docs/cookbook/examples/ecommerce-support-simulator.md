@@ -221,7 +221,7 @@ For production usage, it is crucial to implement proper security measures to pro
 
 - [Multi-Agent Orchestrator Documentation](https://github.com/awslabs/multi-agent-orchestrator)
 - [AWS AppSync Documentation](https://docs.aws.amazon.com/appsync)
-- [Claude API Documentation](https://docs.anthropic.com/claude/reference)
+- [Claude API Documentation](https://docs.anthropic.com/en/api/getting-started)
 
 
 Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/ecommerce-support-simulator) in our GitHub repository.

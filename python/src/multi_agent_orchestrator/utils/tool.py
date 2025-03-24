@@ -1,4 +1,4 @@
-from typing import Any, Optional, Callable, get_type_hints, Union
+from typing import Any, Optional, Callable, get_type_hints
 import inspect
 from functools import wraps
 import re
@@ -230,7 +230,7 @@ class AgentTools:
                 'content': tool_results
             }
 
-    def _get_tool_use_block(self, provider_type:AgentProviderType, block: dict) -> Union[dict, None]:
+    def _get_tool_use_block(self, provider_type:AgentProviderType, block: dict) -> dict | None:
         """Extract tool use block based on platform format."""
         if provider_type == AgentProviderType.BEDROCK.value and "toolUse" in block:
             return block["toolUse"]
@@ -238,10 +238,10 @@ class AgentTools:
             return block
         return None
 
-    def _process_tool(self, tool_name, input_data):
+    async def _process_tool(self, tool_name, input_data):
         try:
             tool = next(tool for tool in self.tools if tool.name == tool_name)
-            return tool.func(**input_data)
+            return await tool.func(**input_data)
         except StopIteration:
             return (f"Tool '{tool_name}' not found")
 

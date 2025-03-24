@@ -100,7 +100,7 @@ class DynamoDbChatStorage(ChatStorage):
             max_history_size
         )
 
-        item: dict[str, Union[str, list[TimestampedMessage], int]] = {
+        item: dict[str, str | list[TimestampedMessage] | int] = {
             'PK': user_id,
             'SK': key,
             'conversation': conversation_to_dict(trimmed_conversation),

@@ -1,7 +1,8 @@
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
+from typing import AsyncIterable
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.agents import OpenAIAgent, OpenAIAgentOptions
+from multi_agent_orchestrator.agents import OpenAIAgent, OpenAIAgentOptions, AgentStreamResponse
 
 @pytest.fixture
 def mock_openai_client():
@@ -89,21 +90,25 @@ async def test_process_request_streaming(openai_agent, mock_openai_client):
     ]
     mock_openai_client.chat.completions.create.return_value = mock_stream
 
-    result = await openai_agent.process_request(
+    result:AgentStreamResponse = await openai_agent.process_request(
         "Test question",
         "test_user",
         "test_session",
         []
     )
 
-    # chunks = []
-    # async for chunk in result:
-    #     chunks.append(chunk)
 
-    # assert chunks == ["This ", "is ", "a ", "test response"]
-    assert isinstance(result, ConversationMessage)
-    assert result.role == ParticipantRole.ASSISTANT.value
-    assert result.content[0]['text'] == 'This is a test response'
+    assert isinstance(result, AsyncIterable)
+    chunks = []
+    async for chunk in result:
+        assert isinstance(chunk, AgentStreamResponse)
+        if chunk.text:
+            chunks.append(chunk.text)
+        elif chunk.final_message:
+            assert chunk.final_message.role == ParticipantRole.ASSISTANT.value
+            assert chunk.final_message.content[0]['text'] == 'This is a test response'
+    assert chunks == ["This ", "is ", "a ", "test response"]
+
 
 
 @pytest.mark.asyncio
@@ -165,3 +170,4 @@ def test_is_streaming_enabled(openai_agent):
     assert not openai_agent.is_streaming_enabled()
     openai_agent.streaming = True
     assert openai_agent.is_streaming_enabled()
+

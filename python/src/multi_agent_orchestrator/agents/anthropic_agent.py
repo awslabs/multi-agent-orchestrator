@@ -1,14 +1,15 @@
 import json
-from typing import List, Dict, Any, AsyncIterable, Optional, Union
+from typing import AsyncIterable, Optional, Any, AsyncGenerator
+from typing import Any, AsyncIterable, Optional
 from dataclasses import dataclass, field
 import re
 from anthropic import AsyncAnthropic, Anthropic
-from multi_agent_orchestrator.agents import Agent, AgentOptions
+from multi_agent_orchestrator.agents import Agent, AgentOptions, AgentStreamResponse
 from multi_agent_orchestrator.types import (ConversationMessage,
                        ParticipantRole,
                        TemplateVariables,
                        AgentProviderType)
-from multi_agent_orchestrator.utils import Logger, AgentTools
+from multi_agent_orchestrator.utils import Logger, AgentTools, AgentTool
 from multi_agent_orchestrator.retrievers import Retriever
 
 @dataclass
@@ -17,10 +18,10 @@ class AnthropicAgentOptions(AgentOptions):
     client: Optional[Any] = None
     model_id: str = "claude-3-5-sonnet-20240620"
     streaming: Optional[bool] = False
-    inference_config: Optional[Dict[str, Any]] = None
+    inference_config: Optional[dict[str, Any]] = None
     retriever: Optional[Retriever] = None
-    tool_config: Optional[Union[dict[str, Any], AgentTools]] = None
-    custom_system_prompt: Optional[Dict[str, Any]] = None
+    tool_config: Optional[dict[str, Any] | AgentTools] = None
+    custom_system_prompt: Optional[dict[str, Any]] = None
 
 
 
@@ -100,27 +101,51 @@ class AnthropicAgent(Agent):
     def is_streaming_enabled(self) -> bool:
         return self.streaming is True
 
-    async def process_request(
-        self,
-        input_text: str,
-        user_id: str,
-        session_id: str,
-        chat_history: List[ConversationMessage],
-        additional_params: Optional[Dict[str, str]] = None
-    ) -> Union[ConversationMessage, AsyncIterable[Any]]:
-
-        messages = [{"role": "user" if msg.role == ParticipantRole.USER.value else "assistant",
-                     "content": msg.content[0]['text'] if msg.content else ''} for msg in chat_history]
-        messages.append({"role": "user", "content": input_text})
+    async def _prepare_system_prompt(self, input_text: str) -> str:
+        """Prepare the system prompt with optional retrieval context."""
 
         self.update_system_prompt()
         system_prompt = self.system_prompt
 
         if self.retriever:
             response = await self.retriever.retrieve_and_combine_results(input_text)
-            context_prompt = f"\nHere is the context to use to answer the user's question:\n{response}"
-            system_prompt += context_prompt
+            system_prompt += f"\nHere is the context to use to answer the user's question:\n{response}"
 
+        return system_prompt
+
+    def _prepare_conversation(
+        self,
+        input_text: str,
+        chat_history: list[ConversationMessage]
+    ) -> list[Any]:
+        """Prepare the conversation history with the new user message."""
+
+        messages = [{"role": "user" if msg.role == ParticipantRole.USER.value else "assistant",
+                     "content": msg.content[0]['text'] if msg.content else ''} for msg in chat_history]
+        messages.append({"role": "user", "content": input_text})
+
+        return messages
+
+    def _prepare_tool_config(self) -> dict:
+        """Prepare tool configuration based on the tool type."""
+
+        if isinstance(self.tool_config["tool"], AgentTools):
+            return self.tool_config["tool"].to_claude_format()
+
+        if isinstance(self.tool_config["tool"], list):
+            return [
+                    tool.to_claude_format() if isinstance(tool, AgentTool) else tool
+                    for tool in self.tool_config['tool']
+                ]
+
+        raise RuntimeError("Invalid tool config")
+
+    def _build_input(
+            self,
+            messages: list[Any],
+            system_prompt: str
+            ) -> dict:
+        """Build the conversation command with all necessary configurations."""
         input = {
             "model": self.model_id,
             "max_tokens": self.inference_config.get('maxTokens'),
@@ -131,63 +156,118 @@ class AnthropicAgent(Agent):
             "stop_sequences": self.inference_config.get('stopSequences'),
         }
 
-        try:
-            if self.tool_config:
-                tools = self.tool_config["tool"] if not isinstance(self.tool_config["tool"], AgentTools) else self.tool_config["tool"].to_claude_format()
+        if self.tool_config:
+            input["tools"] = self._prepare_tool_config()
 
-                input['tools'] = tools
-                final_message = ''
-                tool_use = True
-                recursions = self.tool_config.get('toolMaxRecursions', self.default_max_recursions)
+        return input
 
-                while tool_use and recursions > 0:
-                    if self.streaming:
-                        response = await self.handle_streaming_response(input)
+    def _get_max_recursions(self) -> int:
+        """Get the maximum number of recursions based on tool configuration."""
+        if not self.tool_config:
+            return 1
+        return self.tool_config.get('toolMaxRecursions', self.default_max_recursions)
+
+    async def _handle_streaming(
+        self,
+        input: dict,
+        messages: list[Any],
+        max_recursions: int
+    ) -> AsyncIterable[Any]:
+        """Handle streaming response processing with tool recursion."""
+        continue_with_tools = True
+        final_response = None
+
+        async def stream_generator():
+            nonlocal continue_with_tools, final_response, max_recursions
+
+            while continue_with_tools and max_recursions > 0:
+                response = self.handle_streaming_response(input)
+
+                async for chunk in response:
+                    if chunk.final_message:
+                        final_response = chunk.final_message # do not yield the full message as it need to be converted in Conversation Message
                     else:
-                        response = await self.handle_single_response(input)
+                        yield chunk
 
-                    tool_use_blocks = [content for content in response.content if content.type == 'tool_use']
-
-                    if tool_use_blocks:
-                        input['messages'].append({"role": "assistant", "content": response.content})
-                        if not self.tool_config:
-                            raise ValueError("No tools available for tool use")
-
-                        if self.tool_config.get('useToolHandler'):
-                            # user is handling the tool blocks itself
-                            tool_response = await self.tool_config['useToolHandler'](response, input['messages'])
-                        else:
-                            tools:AgentTools = self.tool_config["tool"]
-                            # no handler has been provided, we can use the default implementation
-                            tool_response = await tools.tool_handler(AgentProviderType.ANTHROPIC.value, response, messages)
-                        input['messages'].append(tool_response)
-                        tool_use = True
-                    else:
-                        text_content = next((content for content in response.content if content.type == 'text'), None)
-                        final_message = text_content.text if text_content else ''
-
-                    if response.stop_reason == 'end_turn':
-                        tool_use = False
-
-                    recursions -= 1
-
-                return ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{'text': final_message}])
-            else:
-                if self.streaming:
-                    response = await self.handle_streaming_response(input)
+                if any('tool_use' in content.type for content in final_response.content):
+                    input['messages'].append({"role": "assistant", "content": final_response.content})
+                    tool_response = await self._process_tool_block(final_response, messages)
+                    input['messages'].append(tool_response)
                 else:
-                    response = await self.handle_single_response(input)
+                    continue_with_tools = False
+                    # yield las message
+                    yield AgentStreamResponse(final_message=ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{"text": final_response.content[0].text}]))
 
-            return ConversationMessage(
-                role=ParticipantRole.ASSISTANT.value,
-                content=[{'text':response.content[0].text}]
-            )
+                max_recursions -= 1
 
-        except Exception as error:
-            Logger.error(f"Error processing request: {error}")
-            raise error
+        return stream_generator()
 
-    async def handle_single_response(self, input_data: Dict) -> Any:
+    async def _process_with_strategy(
+        self,
+        streaming: bool,
+        input: dict,
+        messages: list[Any]
+    ) -> ConversationMessage | AsyncIterable[Any]:
+        """Process the request using the specified strategy."""
+
+        max_recursions = self._get_max_recursions()
+
+        if streaming:
+            return await self._handle_streaming(input, messages, max_recursions)
+        return await self._handle_single_response_loop(input, messages, max_recursions)
+
+    async def _process_tool_block(self, llm_response: Any, conversation: list[Any]) -> (Any):
+        if 'useToolHandler' in  self.tool_config:
+            # tool process logic is handled elsewhere
+            tool_response = await self.tool_config['useToolHandler'](llm_response, conversation)
+        else:
+            # tool process logic is handled in AgentTools class
+            if isinstance(self.tool_config['tool'], AgentTools):
+                tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.ANTHROPIC.value, llm_response, conversation)
+            else:
+                raise ValueError("You must use class when not providing a custom tool handler")
+        return tool_response
+
+    async def _handle_single_response_loop(
+        self,
+        input: Any,
+        messages: list[Any],
+        max_recursions: int
+    ) -> ConversationMessage:
+        """Handle single response processing with tool recursion."""
+
+        continue_with_tools = True
+        llm_response = None
+
+        while continue_with_tools and max_recursions > 0:
+            llm_response = await self.handle_single_response(input)
+            if any('tool_use' in content.type for content in llm_response.content):
+                input['messages'].append({"role": "assistant", "content": llm_response.content})
+                tool_response = await self._process_tool_block(llm_response, messages)
+                input['messages'].append(tool_response)
+            else:
+                continue_with_tools = False
+
+            max_recursions -= 1
+
+        return ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{"text": llm_response.content[0].text}])
+
+    async def process_request(
+        self,
+        input_text: str,
+        user_id: str,
+        session_id: str,
+        chat_history: list[ConversationMessage],
+        additional_params: Optional[dict[str, str]] = None
+    ) -> ConversationMessage | AsyncIterable[Any]:
+
+        messages = self._prepare_conversation(input_text, chat_history)
+        system_prompt = await self._prepare_system_prompt(input_text)
+        input = self._build_input(messages, system_prompt)
+
+        return await self._process_with_strategy(self.streaming, input, messages)
+
+    async def handle_single_response(self, input_data: dict) -> Any:
         try:
             response = self.client.messages.create(**input_data)
             return response
@@ -195,7 +275,7 @@ class AnthropicAgent(Agent):
             Logger.error(f"Error invoking Anthropic: {error}")
             raise error
 
-    async def handle_streaming_response(self, input) -> Any:
+    async def handle_streaming_response(self, input) -> AsyncGenerator[AgentStreamResponse, None]:
         message = {}
         content = []
         accumulated = {}
@@ -206,8 +286,7 @@ class AnthropicAgent(Agent):
                 async for event in stream:
                     if event.type == "text":
                         self.callbacks.on_llm_new_token(event.text)
-                    elif event.type == "input_json":
-                        message['input'] = json.loads(event.partial_json)
+                        yield AgentStreamResponse(text=event.text)
                     elif event.type == "content_block_stop":
                         recursions = 0
                         break
@@ -215,8 +294,12 @@ class AnthropicAgent(Agent):
                 # you can still get the accumulated final message outside of
                 # the context manager, as long as the entire stream was consumed
                 # inside of the context manager
+
                 accumulated = await stream.get_final_message()
-            return accumulated
+            # we need to yield the whole content to keep the tool use block
+            yield AgentStreamResponse(
+                final_message=ConversationMessage(role=ParticipantRole.ASSISTANT.value,
+                                                  content=accumulated.content))
 
         except Exception as error:
             Logger.error(f"Error getting stream from Anthropic model: {str(error)}")

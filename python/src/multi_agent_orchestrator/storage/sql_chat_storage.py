@@ -1,6 +1,6 @@
-from typing import List, Dict, Optional, Union
 import time
 import json
+from typing import Optional, Union
 from libsql_client import create_client
 from multi_agent_orchestrator.storage import ChatStorage
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, TimestampedMessage
@@ -8,14 +8,14 @@ from multi_agent_orchestrator.utils import Logger
 
 class SqlChatStorage(ChatStorage):
     """SQL-based chat storage implementation supporting both local SQLite and remote Turso databases."""
-    
+
     def __init__(
         self,
         url: str,
-        auth_token: Optional[str] = None
+        auth_token: str | None = None
     ):
         """Initialize SQL storage.
-        
+
         Args:
             url: Database URL (e.g., 'file:local.db' or 'libsql://your-db-url.com')
             auth_token: Authentication token for remote databases (optional)
@@ -49,7 +49,7 @@ class SqlChatStorage(ChatStorage):
 
             # Create index for faster queries
             await self.client.execute("""
-                CREATE INDEX IF NOT EXISTS idx_conversations_lookup 
+                CREATE INDEX IF NOT EXISTS idx_conversations_lookup
                 ON conversations(user_id, session_id, agent_id)
             """)
         except Exception as error:
@@ -63,7 +63,7 @@ class SqlChatStorage(ChatStorage):
         agent_id: str,
         new_message: Union[ConversationMessage, TimestampedMessage],
         max_history_size: Optional[int] = None
-    ) -> List[ConversationMessage]:
+    ) -> list[ConversationMessage]:
         """Save a new chat message."""
         try:
             # Fetch existing conversation
@@ -86,7 +86,6 @@ class SqlChatStorage(ChatStorage):
                 FROM conversations
                 WHERE user_id = ? AND session_id = ? AND agent_id = ?
             """, [user_id, session_id, agent_id])
-            
             next_index = result[0]['next_index']
             content = json.dumps(new_message.content)
 
@@ -128,7 +127,7 @@ class SqlChatStorage(ChatStorage):
             Logger.error(f"Error saving message: {str(error)}")
             raise error
 
-    def _validate_message_content(self, content: Optional[List[Dict[str, str]]]) -> None:
+    def _validate_message_content(self, content: Optional[list[dict[str, str]]]) -> None:
         """Validate message content before serialization."""
         if content is None:
             raise ValueError("Message content cannot be None")
@@ -142,9 +141,9 @@ class SqlChatStorage(ChatStorage):
         user_id: str,
         session_id: str,
         agent_id: str,
-        new_messages: Union[List[ConversationMessage], List[TimestampedMessage]],
+        new_messages: Union[list[ConversationMessage], list[TimestampedMessage]],
         max_history_size: Optional[int] = None
-    ) -> List[ConversationMessage]:
+    ) -> list[ConversationMessage]:
         """Save multiple chat messages in a single transaction."""
         try:
             if not new_messages:
@@ -153,7 +152,7 @@ class SqlChatStorage(ChatStorage):
             # Convert messages to TimestampedMessage if needed
             timestamped_messages = []
             base_timestamp = int(time.time() * 1000)
-            
+
             for i, message in enumerate(new_messages):
                 if isinstance(message, ConversationMessage):
                     timestamped_messages.append(TimestampedMessage(
@@ -170,7 +169,7 @@ class SqlChatStorage(ChatStorage):
                 FROM conversations
                 WHERE user_id = ? AND session_id = ? AND agent_id = ?
             """, [user_id, session_id, agent_id])
-            
+
             next_index = result[0]['next_index']
 
             # Validate and prepare all messages first to catch any errors
@@ -224,8 +223,8 @@ class SqlChatStorage(ChatStorage):
         user_id: str,
         session_id: str,
         agent_id: str,
-        max_history_size: Optional[int] = None
-    ) -> List[ConversationMessage]:
+        max_history_size: int | None = None
+    ) -> list[ConversationMessage]:
         """Fetch chat messages."""
         try:
             query = """
@@ -236,7 +235,7 @@ class SqlChatStorage(ChatStorage):
             """.format('DESC' if max_history_size else 'ASC')
 
             params = [user_id, session_id, agent_id]
-            
+
             result = await self.client.execute(query, params)
             messages = list(result)  # Convert ResultSet to list
 
@@ -258,7 +257,7 @@ class SqlChatStorage(ChatStorage):
         self,
         user_id: str,
         session_id: str
-    ) -> List[ConversationMessage]:
+    ) -> list[ConversationMessage]:
         """Fetch all chat messages for a user and session."""
         try:
             result = await self.client.execute("""
@@ -285,9 +284,9 @@ class SqlChatStorage(ChatStorage):
     def _format_content(
         self,
         role: str,
-        content: Union[List, str],
+        content: list | str,
         agent_id: str
-    ) -> List[Dict[str, str]]:
+    ) -> list[dict[str, str]]:
         """Format message content with agent ID for assistant messages."""
         if role == ParticipantRole.ASSISTANT.value:
             text = content[0]['text'] if isinstance(content, list) else content
