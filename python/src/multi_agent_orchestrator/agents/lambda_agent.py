@@ -5,6 +5,7 @@ import boto3
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils import conversation_to_dict
+from multi_agent_orchestrator.shared import user_agent
 
 @dataclass
 class LambdaAgentOptions(AgentOptions):
@@ -25,7 +26,13 @@ class LambdaAgent(Agent):
     def __init__(self, options: LambdaAgentOptions):
         super().__init__(options)
         self.options = options
-        self.lambda_client = boto3.client('lambda', region_name=self.options.function_region)
+
+        boto3_session = boto3.session.Session()
+        boto3_client = boto3_session.client('lambda', region_name=self.options.function_region)
+        self.lambda_client = boto3_client
+
+        user_agent.register_feature_to_client(self.lambda_client, feature="lambda-agent")
+
         if self.options.input_payload_encoder is None:
             self.encoder = self.__default_input_payload_encoder
         else:

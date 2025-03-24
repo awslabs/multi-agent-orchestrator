@@ -1,11 +1,11 @@
 from typing import List, Dict, Any, Optional, Callable
 from dataclasses import dataclass
 import os
-import json
 import boto3
 from multi_agent_orchestrator.utils import (Logger, conversation_to_dict)
 from multi_agent_orchestrator.agents import (Agent, AgentOptions)
 from multi_agent_orchestrator.types import (ConversationMessage, ParticipantRole)
+from multi_agent_orchestrator.shared import user_agent
 
 # BedrockFlowsAgentOptions Dataclass
 @dataclass
@@ -28,13 +28,11 @@ class BedrockFlowsAgent(Agent):
         if options.bedrock_agent_client:
             self.bedrock_agent_client = options.bedrock_agent_client
         else:
-            if options.region:
-                self.bedrock_agent_client = boto3.client(
-                    'bedrock-agent-runtime',
-                    region_name=options.region or os.environ.get('AWS_REGION')
-                )
-            else:
-                self.bedrock_agent_client = boto3.client('bedrock-agent-runtime')
+            boto3_session = boto3.session.Session()
+            boto3_client = boto3_session.client('bedrock-agent-runtime')
+            self.bedrock_agent_client = boto3_client
+
+        user_agent.register_feature_to_client(self.bedrock_agent_client, feature="bedrock-flows-agent")
 
         self.enableTrace = options.enableTrace
         self.flowAliasIdentifier = options.flowAliasIdentifier
