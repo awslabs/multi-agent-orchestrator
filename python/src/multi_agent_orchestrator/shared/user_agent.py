@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 
 EXEC_ENV = os.environ.get("AWS_EXECUTION_ENV", "NA")
 TARGET_SDK_EVENT = "request-created"
-FEATURE_PREFIX = "MAO"
+FEATURE_PREFIX = "MAOPY"
 DEFAULT_FEATURE = "no-op"
-HEADER_NO_OP = f"{FEATURE_PREFIX}/{DEFAULT_FEATURE}/{mao_version} MAOEnv/{EXEC_ENV}"
+HEADER_NO_OP = f"{FEATURE_PREFIX}/{DEFAULT_FEATURE}/{mao_version} MAOPYEnv/{EXEC_ENV}"
 
 
 def _initializer_botocore_session(session):
