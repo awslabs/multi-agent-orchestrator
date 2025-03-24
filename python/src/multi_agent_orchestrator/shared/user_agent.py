@@ -77,7 +77,6 @@ def _create_feature_function(feature):
                 header_user_agent = header_user_agent.replace(f"{HEADER_NO_OP} ", "")
 
             headers["User-Agent"] = f"{header_user_agent}"
-            print(headers["User-Agent"])
         except Exception:
             logger.debug("Can't find User-Agent header")
 
