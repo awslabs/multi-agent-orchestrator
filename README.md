@@ -293,17 +293,12 @@ pip install multi-agent-orchestrator[aws]
 Here's an equivalent Python example demonstrating the use of the Multi-Agent Orchestrator with a Bedrock LLM Agent and a Lex Bot Agent:
 
 ```python
-import os
+import sys
 import asyncio
 from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
-from multi_agent_orchestrator.agents import BedrockLLMAgent, LexBotAgent, BedrockLLMAgentOptions, LexBotAgentOptions, AgentCallbacks
+from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentStreamResponse
 
 orchestrator = MultiAgentOrchestrator()
-
-class BedrockLLMAgentCallbacks(AgentCallbacks):
-    def on_llm_new_token(self, token: str) -> None:
-        # handle response streaming here
-        print(token, end='', flush=True)
 
 tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
   name="Tech Agent",
@@ -312,28 +307,25 @@ tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
   cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs \
   related to technology products and services.",
   model_id="anthropic.claude-3-sonnet-20240229-v1:0",
-  callbacks=BedrockLLMAgentCallbacks()
 ))
 orchestrator.add_agent(tech_agent)
 
 
-# Add a Lex Bot Agent for handling travel-related queries
-orchestrator.add_agent(
-    LexBotAgent(LexBotAgentOptions(
-        name="Travel Agent",
-        description="Helps users book and manage their flight reservations",
-        bot_id=os.environ.get('LEX_BOT_ID'),
-        bot_alias_id=os.environ.get('LEX_BOT_ALIAS_ID'),
-        locale_id="en_US",
-    ))
-)
+health_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+  name="Health Agent",
+  streaming=True,
+  description="Specializes in health and well being",
+))
+orchestrator.add_agent(health_agent)
 
 async def main():
     # Example usage
     response = await orchestrator.route_request(
-        "I want to book a flight",
+        "What is AWS Lambda?",
         'user123',
-        'session456'
+        'session456',
+        {},
+        True
     )
 
     # Handle the response (streaming or non-streaming)
@@ -350,10 +342,11 @@ async def main():
 
         # Stream the content
         async for chunk in response.output:
-            if isinstance(chunk, str):
-                print(chunk, end='', flush=True)
-            else:
-                print(f"Received unexpected chunk type: {type(chunk)}", file=sys.stderr)
+            async for chunk in response.output:
+              if isinstance(chunk, AgentStreamResponse):
+                  print(chunk.text, end='', flush=True)
+              else:
+                  print(f"Received unexpected chunk type: {type(chunk)}", file=sys.stderr)
 
     else:
         # Handle non-streaming response (AgentProcessingResult)
@@ -367,7 +360,7 @@ async def main():
         print(f"\n> Response: {response.output.content}")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+  asyncio.run(main())
 ```
 
 These examples showcase:
