@@ -172,7 +172,7 @@ The MultiAgentOrchestrator provides several key functions to manage agents, proc
     2. get_default_agent() -> Agent
     3. set_default_agent(agent: Agent) -> None
     4. get_all_agents() -> Dict[str, Dict[str, str]]
-    5. route_request(user_input: str, user_id: str, session_id: str, additional_params: Dict[str, str] = {}) -> AgentResponse
+    5. route_request(user_input: str, user_id: str, session_id: str, additional_params: Dict[str, str] = {}, stream_response: bool | None = False) -> AgentResponse
     ```
   </TabItem>
 </Tabs>
@@ -268,7 +268,7 @@ Here are practical examples of how to use each function:
   <TabItem label="Python" icon="seti:python">
     ```python
     from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
-    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentStreamResponse
     from multi_agent_orchestrator.classifiers import AnthropicClassifier, AnthropicClassifierOptions
     import asyncio
     orchestrator = MultiAgentOrchestrator()
@@ -305,12 +305,14 @@ async def handle_user_query():
         "How do I optimize a Python script?",
         "user123",
         "session456",
-        {"priority": "high"}  # Additional parameters
+        {"priority": "high"}  # Additional parameters,
+        True,
     )
 
     if response.streaming:
         async for chunk in response.output:
-            print(chunk, end='', flush=True)
+          if isinstance(chunk, AgentStreamResponse):
+            print(chunk.text, end='', flush=True)
     else:
         print(response.output)
 
