@@ -27,9 +27,7 @@ class LambdaAgent(Agent):
         super().__init__(options)
         self.options = options
 
-        boto3_session = boto3.session.Session()
-        boto3_client = boto3_session.client('lambda', region_name=self.options.function_region)
-        self.lambda_client = boto3_client
+        self.lambda_client = boto3.client('lambda', region_name=self.options.function_region)
 
         user_agent.register_feature_to_client(self.lambda_client, feature="lambda-agent")
 

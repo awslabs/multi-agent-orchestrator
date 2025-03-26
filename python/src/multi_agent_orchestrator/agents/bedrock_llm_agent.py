@@ -33,13 +33,10 @@ class BedrockLLMAgent(Agent):
         if options.client:
             self.client = options.client
         else:
-            boto3_session = boto3.session.Session()
 
-            boto3_client = boto3_session.client(
+            self.client = boto3.client(
                     'bedrock-runtime',
                     region_name=options.region or os.environ.get('AWS_REGION'))
-
-            self.client = boto3_client
 
         user_agent.register_feature_to_client(self.client, feature="bedrock-llm-agent")
 

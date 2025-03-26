@@ -29,9 +29,7 @@ class BedrockClassifier(Classifier):
         if options.client:
             self.client = options.client
         else:
-            boto3_session = boto3.session.Session()
-            boto3_client = boto3_session.client('bedrock-runtime',region_name=self.region)
-            self.client = boto3_client
+            self.client = boto3.client('bedrock-runtime',region_name=self.region)
 
         user_agent.register_feature_to_client(self.client, feature="bedrock-classifier")
 

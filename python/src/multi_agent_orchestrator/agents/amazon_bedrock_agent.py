@@ -69,12 +69,8 @@ class AmazonBedrockAgent(Agent):
             self.client = options.client
         else:
             # Create default client using AWS region from options or environment
-            boto3_session = boto3.session.Session()
-
-            boto3_client = boto3_session.client('bedrock-agent-runtime',
+            self.client = boto3.client('bedrock-agent-runtime',
                                         region_name=options.region or os.environ.get('AWS_REGION'))
-
-            self.client = boto3_client
 
         user_agent.register_feature_to_client(self.client, feature="bedrock-agent")
 

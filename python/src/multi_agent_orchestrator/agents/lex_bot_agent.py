@@ -28,8 +28,7 @@ class LexBotAgent(Agent):
             self.lex_client = options.client
 
         else:
-            boto3_session = boto3.session.Session()
-            self.lex_client = boto3_session.client('lexv2-runtime', region_name=self.region)
+            self.lex_client = boto3.client('lexv2-runtime', region_name=self.region)
 
         user_agent.register_feature_to_client(self.lex_client, feature="lex-agent")
 

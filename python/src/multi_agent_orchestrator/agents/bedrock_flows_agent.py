@@ -28,9 +28,7 @@ class BedrockFlowsAgent(Agent):
         if options.bedrock_agent_client:
             self.bedrock_agent_client = options.bedrock_agent_client
         else:
-            boto3_session = boto3.session.Session()
-            boto3_client = boto3_session.client('bedrock-agent-runtime')
-            self.bedrock_agent_client = boto3_client
+            self.bedrock_agent_client = boto3.client('bedrock-agent-runtime')
 
         user_agent.register_feature_to_client(self.bedrock_agent_client, feature="bedrock-flows-agent")
 
