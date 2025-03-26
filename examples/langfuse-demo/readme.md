@@ -61,6 +61,7 @@ AWS_DEFAULREGION=your_aws_region
 ├── tools/
 │   └── weather_tool.py     # Weather tool implementation
 ├── .env                    # Environment variables (not in repository)
+├── trace.png               # Example of a Lgnfuse trace
 └── README.md               # This file
 ```
 
@@ -80,6 +81,10 @@ The system will start an interactive session where you can input queries. The or
 4. Log the entire interaction flow to Langfuse
 
 Type `quit` to exit the application.
+
+## Trace example
+
+![Langfuse trace](./trace.png)
 
 ## Agent Capabilities
 
