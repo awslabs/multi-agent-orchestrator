@@ -1,12 +1,12 @@
-from typing import List, Dict, Optional
+import os
+from typing import Any, Optional
 from dataclasses import dataclass
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from multi_agent_orchestrator.agents import Agent, AgentOptions
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils import Logger
-import os
-from typing import Any
+from multi_agent_orchestrator.shared import user_agent
 
 @dataclass
 class LexBotAgentOptions(AgentOptions):
@@ -30,6 +30,9 @@ class LexBotAgent(Agent):
         else:
             self.lex_client = boto3.client('lexv2-runtime', region_name=self.region)
 
+        user_agent.register_feature_to_client(self.lex_client, feature="lex-agent")
+
+
         self.bot_id = options.bot_id
         self.bot_alias_id = options.bot_alias_id
         self.locale_id = options.locale_id
@@ -38,8 +41,8 @@ class LexBotAgent(Agent):
             raise ValueError("bot_id, bot_alias_id, and locale_id are required for LexBotAgent")
 
     async def process_request(self, input_text: str, user_id: str, session_id: str,
-                        chat_history: List[ConversationMessage],
-                        additional_params: Optional[Dict[str, str]] = None) -> ConversationMessage:
+                        chat_history: list[ConversationMessage],
+                        additional_params: Optional[dict[str, str]] = None) -> ConversationMessage:
         try:
             params = {
                 'botId': self.bot_id,

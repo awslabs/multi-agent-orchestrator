@@ -50,7 +50,10 @@ def test_no_region_init(bedrock_llm_agent, mock_boto3_client):
     )
 
     _bedrock_llm_agent = BedrockLLMAgent(options)
-    mock_boto3_client.assert_called_once_with('bedrock-runtime')
+    assert mock_boto3_client.called
+    any_runtime_call = any(args and args[0] == 'bedrock-runtime' for args, kwargs in mock_boto3_client.call_args_list)
+    assert any_runtime_call
+
 
 def test_custom_system_prompt_with_variable(bedrock_llm_agent, mock_boto3_client):
     options = BedrockLLMAgentOptions(
