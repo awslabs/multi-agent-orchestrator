@@ -1,10 +1,33 @@
 from abc import ABC, abstractmethod
 import re
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
-from multi_agent_orchestrator.types import ConversationMessage, AgentTypes, TemplateVariables
+from uuid import UUID
+from multi_agent_orchestrator.types import ConversationMessage, TemplateVariables
 from multi_agent_orchestrator.agents import Agent
 
+class ClassifierCallbacks():
+    async def on_classifier_start(
+        self,
+        name,
+        input: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
+    async def on_classifier_stop(
+        self,
+        name,
+        output: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
 
 @dataclass
 class ClassifierResult:
@@ -35,20 +58,20 @@ If you are unable to select an agent put "unknown"
 
 Guidelines for classification:
 
-    Agent Type: Choose the most appropriate agent type based on the nature of the query.
-    For follow-up responses, use the same agent type as the previous interaction.
-    Priority: Assign based on urgency and impact.
-        High: Issues affecting service, billing problems, or urgent technical issues
-        Medium: Non-urgent product inquiries, sales questions
-        Low: General information requests, feedback
-    Key Entities: Extract important nouns, product names, or specific issues mentioned.
-    For follow-up responses, include relevant entities from the previous interaction if applicable.
-    For follow-ups, relate the intent to the ongoing conversation.
-    Confidence: Indicate how confident you are in the classification.
-        High: Clear, straightforward requests or clear follow-ups
-        Medium: Requests with some ambiguity but likely classification
-        Low: Vague or multi-faceted requests that could fit multiple categories
-    Is Followup: Indicate whether the input is a follow-up to a previous interaction.
+Agent Type: Choose the most appropriate agent type based on the nature of the query.
+For follow-up responses, use the same agent type as the previous interaction.
+Priority: Assign based on urgency and impact.
+    High: Issues affecting service, billing problems, or urgent technical issues
+    Medium: Non-urgent product inquiries, sales questions
+    Low: General information requests, feedback
+Key Entities: Extract important nouns, product names, or specific issues mentioned.
+For follow-up responses, include relevant entities from the previous interaction if applicable.
+For follow-ups, relate the intent to the ongoing conversation.
+Confidence: Indicate how confident you are in the classification.
+    High: Clear, straightforward requests or clear follow-ups
+    Medium: Requests with some ambiguity but likely classification
+    Low: Vague or multi-faceted requests that could fit multiple categories
+Is Followup: Indicate whether the input is a follow-up to a previous interaction.
 
 Handle variations in user input, including different phrasings, synonyms,
 and potential spelling errors.

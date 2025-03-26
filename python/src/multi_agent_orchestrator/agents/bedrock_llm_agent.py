@@ -225,6 +225,7 @@ class BedrockLLMAgent(Agent):
                     command['messages'] = conversation_to_dict(conversation)
                 else:
                     continue_with_tools = False
+                    await self.callbacks.on_agent_stop(self.name, final_response, messages=conversation)
 
                 max_recursions -= 1
 
@@ -242,7 +243,9 @@ class BedrockLLMAgent(Agent):
 
         if streaming:
             return await self._handle_streaming(command, conversation, max_recursions)
-        return await self._handle_single_response_loop(command, conversation, max_recursions)
+        response = await self._handle_single_response_loop(command, conversation, max_recursions)
+        await self.callbacks.on_agent_stop(self.name, response, messages=conversation)
+        return response
 
     async def process_request(
         self,
@@ -255,6 +258,13 @@ class BedrockLLMAgent(Agent):
         """
         Process a conversation request either in streaming or single response mode.
         """
+        kwargs = {
+            'additional_params':additional_params,
+            'user_id':user_id,
+            'session_id':session_id
+        }
+        await self.callbacks.on_agent_start(self.name, input_text, messages=[*chat_history], **kwargs)
+
         conversation = self._prepare_conversation(input_text, chat_history)
         system_prompt = await self._prepare_system_prompt(input_text)
 
@@ -276,9 +286,17 @@ class BedrockLLMAgent(Agent):
 
     async def handle_single_response(self, converse_input: dict[str, Any]) -> ConversationMessage:
         try:
+            await self.callbacks.on_llm_start(input=converse_input.get('messages')[-1], **converse_input)
+
             response = self.client.converse(**converse_input)
             if 'output' not in response:
                 raise ValueError("No output received from Bedrock model")
+
+            kwargs = {
+                'usage':response.get('usage'),
+                'converse_input': converse_input
+            }
+            await self.callbacks.on_llm_stop(output=response.get('output',{}).get('message'), **kwargs)
 
             return ConversationMessage(
                 role=response['output']['message']['role'],
@@ -303,6 +321,7 @@ class BedrockLLMAgent(Agent):
             StreamChunk: Contains either a text chunk or the final complete message
         """
         try:
+            await self.callbacks.on_llm_start(input=converse_input.get('messages')[-1], **converse_input)
             response = self.client.converse_stream(**converse_input)
 
             message = {}
@@ -326,7 +345,7 @@ class BedrockLLMAgent(Agent):
                         tool_use['input'] += delta['toolUse']['input']
                     elif 'text' in delta:
                         text += delta['text']
-                        self.callbacks.on_llm_new_token(delta['text'])
+                        await self.callbacks.on_llm_new_token(delta['text'])
                         # yield the text chunk
                         yield AgentStreamResponse(text=delta['text'])
                 elif 'contentBlockStop' in chunk:
@@ -337,6 +356,8 @@ class BedrockLLMAgent(Agent):
                     else:
                         content.append({'text': text})
                         text = ''
+                elif 'metadata' in chunk:
+                    message['metadata'] = chunk.get('metadata')
 
             final_message = ConversationMessage(
                 role=ParticipantRole.ASSISTANT.value,
@@ -344,7 +365,11 @@ class BedrockLLMAgent(Agent):
             )
             # yield the final message
             yield AgentStreamResponse(final_message=final_message)
-
+            kwargs = {
+                'usage':message['metadata'].get('usage'),
+                'converse_input': converse_input
+            }
+            await self.callbacks.on_llm_stop(output=message['content'], **kwargs)
         except Exception as error:
             Logger.error(f"Error getting stream from Bedrock model: {str(error)}")
             raise error

@@ -4,6 +4,7 @@ from functools import wraps
 import re
 from dataclasses import dataclass
 from multi_agent_orchestrator.types import AgentProviderType, ConversationMessage, ParticipantRole
+from uuid import UUID
 
 @dataclass
 class PropertyDefinition:
@@ -30,6 +31,40 @@ class AgentToolResult:
                 "content": [{"text": self.content}]
             }
         }
+
+class AgentToolCallbacks:
+    def on_tool_start(
+        self,
+        tool_name,
+        input: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
+    def on_tool_end(
+        self,
+        tool_name,
+        output: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
+    def on_tool_error(
+        self,
+        tool_name,
+        error: Exception,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
 
 class AgentTool:
     def __init__(self,
@@ -168,8 +203,9 @@ class AgentTool:
         }
 
 class AgentTools:
-    def __init__(self, tools:list[AgentTool]):
+    def __init__(self, tools:list[AgentTool], callbacks:AgentToolCallbacks):
         self.tools:list[AgentTool] = tools
+        self.callbacks = callbacks
 
     async def tool_handler(self, provider_type, response: Any, _conversation: list[dict[str, Any]]) -> Any:
         if not response.content:
@@ -204,7 +240,9 @@ class AgentTools:
             )
 
             # Process the tool use
+            self.callbacks.on_tool_start(tool_name, tool_use_block)
             result = await self._process_tool(tool_name, input_data)
+            self.callbacks.on_tool_end(tool_name, result, **tool_use_block)
 
             # Create tool result
             tool_result = AgentToolResult(tool_id, result)

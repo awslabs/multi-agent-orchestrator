@@ -5,7 +5,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from multi_agent_orchestrator.utils.helpers import is_tool_input
 from multi_agent_orchestrator.utils import Logger
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
-from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult
+from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult, ClassifierCallbacks
 
 
 class BedrockClassifierOptions:
@@ -14,12 +14,14 @@ class BedrockClassifierOptions:
         model_id: Optional[str] = None,
         region: Optional[str] = None,
         inference_config: Optional[Dict] = None,
-        client: Optional[Any] = None
+        client: Optional[Any] = None,
+        callbacks: Optional[ClassifierCallbacks] = None
     ):
         self.model_id = model_id
         self.region = region
         self.inference_config = inference_config if inference_config is not None else {}
         self.client = client
+        self.callbacks = callbacks
 
 
 class BedrockClassifier(Classifier):
@@ -30,6 +32,7 @@ class BedrockClassifier(Classifier):
             self.client = options.client
         else:
             self.client = boto3.client('bedrock-runtime', region_name=self.region)
+        self.callbacks = options.callbacks
         self.model_id = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
         self.system_prompt: str
         self.inference_config = {
@@ -103,6 +106,7 @@ class BedrockClassifier(Classifier):
         }
 
         try:
+            await self.callbacks.on_classifier_start('BedrockClassifier', input_text, **converse_cmd)
             response = self.client.converse(**converse_cmd)
 
             if not response.get('output'):
@@ -124,6 +128,10 @@ class BedrockClassifier(Classifier):
                             selected_agent=self.get_agent_by_id(tool_use['input']['selected_agent']),
                             confidence=float(tool_use['input']['confidence'])
                         )
+                        kwargs = {
+                            "usage": response.get('usage'),
+                        }
+                        await self.callbacks.on_classifier_stop('BedrockClassifier', intent_classifier_result, **kwargs)
                         return intent_classifier_result
 
             raise ValueError("No valid tool use found in the response")
