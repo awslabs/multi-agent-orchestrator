@@ -21,7 +21,7 @@ class BedrockClassifierOptions:
         self.region = region
         self.inference_config = inference_config if inference_config is not None else {}
         self.client = client
-        self.callbacks = callbacks
+        self.callbacks = callbacks or ClassifierCallbacks()
 
 
 class BedrockClassifier(Classifier):
