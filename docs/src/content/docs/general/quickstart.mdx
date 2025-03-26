@@ -179,7 +179,7 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
   <TabItem label="Python" icon="seti:python">
     ```python
     class BedrockLLMAgentCallbacks(AgentCallbacks):
-        def on_llm_new_token(self, token: str) -> None:
+        async def on_llm_new_token(self, token: str) -> None:
             # handle response streaming here
             print(token, end='', flush=True)
 

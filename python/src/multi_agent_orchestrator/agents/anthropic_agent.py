@@ -285,7 +285,7 @@ class AnthropicAgent(Agent):
             async with self.client.messages.stream(**input) as stream:
                 async for event in stream:
                     if event.type == "text":
-                        self.callbacks.on_llm_new_token(event.text)
+                        await self.callbacks.on_llm_new_token(event.text)
                         yield AgentStreamResponse(text=event.text)
                     elif event.type == "content_block_stop":
                         recursions = 0

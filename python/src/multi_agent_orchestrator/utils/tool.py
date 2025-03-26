@@ -47,6 +47,7 @@ class AgentToolCallbacks:
     def on_tool_end(
         self,
         tool_name,
+        input:Any,
         output: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
@@ -203,9 +204,9 @@ class AgentTool:
         }
 
 class AgentTools:
-    def __init__(self, tools:list[AgentTool], callbacks:AgentToolCallbacks):
+    def __init__(self, tools:list[AgentTool], callbacks:Optional[AgentToolCallbacks] = None):
         self.tools:list[AgentTool] = tools
-        self.callbacks = callbacks
+        self.callbacks = callbacks or AgentToolCallbacks()
 
     async def tool_handler(self, provider_type, response: Any, _conversation: list[dict[str, Any]]) -> Any:
         if not response.content:
@@ -242,7 +243,7 @@ class AgentTools:
             # Process the tool use
             self.callbacks.on_tool_start(tool_name, tool_use_block)
             result = await self._process_tool(tool_name, input_data)
-            self.callbacks.on_tool_end(tool_name, result, **tool_use_block)
+            self.callbacks.on_tool_end(tool_name, input_data, result)
 
             # Create tool result
             tool_result = AgentToolResult(tool_id, result)

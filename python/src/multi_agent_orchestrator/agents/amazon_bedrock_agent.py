@@ -153,7 +153,7 @@ class AmazonBedrockAgent(Agent):
                     if 'chunk' in event:
                         chunk = event['chunk']
                         decoded_response = chunk['bytes'].decode('utf-8')
-                        self.callbacks.on_llm_new_token(decoded_response)
+                        await self.callbacks.on_llm_new_token(decoded_response)
                         completion += decoded_response
                     elif 'trace' in event and self.enableTrace:
                         Logger.info(f"Received event: {event}")

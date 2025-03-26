@@ -168,13 +168,14 @@ class ToolsCallbacks(AgentToolCallbacks):
     def on_tool_end(
         self,
         tool_name,
+        input:Any,
         output: dict,
         run_id: Optional[UUID] = None,
         **kwargs: Any,
     ) -> Any:
         langfuse_context.update_current_observation(
             name=tool_name,
-            input=kwargs.get('input'),
+            input=input,
             output=output
         )
 

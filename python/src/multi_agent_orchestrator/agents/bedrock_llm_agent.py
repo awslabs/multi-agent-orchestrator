@@ -324,6 +324,7 @@ class BedrockLLMAgent(Agent):
             await self.callbacks.on_llm_start(input=converse_input.get('messages')[-1], **converse_input)
             response = self.client.converse_stream(**converse_input)
 
+            metadata = {}
             message = {}
             content = []
             message['content'] = content
@@ -357,7 +358,7 @@ class BedrockLLMAgent(Agent):
                         content.append({'text': text})
                         text = ''
                 elif 'metadata' in chunk:
-                    message['metadata'] = chunk.get('metadata')
+                    metadata = chunk.get('metadata')
 
             final_message = ConversationMessage(
                 role=ParticipantRole.ASSISTANT.value,
@@ -366,7 +367,7 @@ class BedrockLLMAgent(Agent):
             # yield the final message
             yield AgentStreamResponse(final_message=final_message)
             kwargs = {
-                'usage':message['metadata'].get('usage'),
+                'usage':metadata.get('usage'),
                 'converse_input': converse_input
             }
             await self.callbacks.on_llm_stop(output=message['content'], **kwargs)
