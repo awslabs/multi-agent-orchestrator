@@ -6,7 +6,7 @@ from multi_agent_orchestrator.utils.helpers import is_tool_input
 from multi_agent_orchestrator.utils import Logger
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
 from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult
-
+from multi_agent_orchestrator.shared import user_agent
 
 class BedrockClassifierOptions:
     def __init__(
@@ -29,7 +29,10 @@ class BedrockClassifier(Classifier):
         if options.client:
             self.client = options.client
         else:
-            self.client = boto3.client('bedrock-runtime', region_name=self.region)
+            self.client = boto3.client('bedrock-runtime',region_name=self.region)
+
+        user_agent.register_feature_to_client(self.client, feature="bedrock-classifier")
+
         self.model_id = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
         self.system_prompt: str
         self.inference_config = {

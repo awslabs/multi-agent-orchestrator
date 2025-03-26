@@ -12,7 +12,7 @@ from multi_agent_orchestrator.types import (ConversationMessage,
                        AgentProviderType)
 from multi_agent_orchestrator.utils import conversation_to_dict, Logger, AgentTools, AgentTool
 from multi_agent_orchestrator.retrievers import Retriever
-
+from multi_agent_orchestrator.shared import user_agent
 
 @dataclass
 class BedrockLLMAgentOptions(AgentOptions):
@@ -36,10 +36,12 @@ class BedrockLLMAgent(Agent):
             if options.region:
                 self.client = boto3.client(
                     'bedrock-runtime',
-                    region_name=options.region or os.environ.get('AWS_REGION')
-                )
+                    region_name=options.region)
             else:
                 self.client = boto3.client('bedrock-runtime')
+
+        user_agent.register_feature_to_client(self.client, feature="bedrock-llm-agent")
+
 
         self.model_id: str = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_HAIKU
         self.streaming: bool = options.streaming
