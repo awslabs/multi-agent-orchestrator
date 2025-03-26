@@ -12,6 +12,7 @@ from multi_agent_orchestrator.shared import user_agent
 class BedrockFlowsAgentOptions(AgentOptions):
     flowIdentifier: str = None
     flowAliasIdentifier: str = None
+    region: Optional[str] = None
     bedrock_agent_client: Optional[Any] = None
     enableTrace: Optional[bool] = False
     flow_input_encoder: Optional[Callable] = None
@@ -28,7 +29,8 @@ class BedrockFlowsAgent(Agent):
         if options.bedrock_agent_client:
             self.bedrock_agent_client = options.bedrock_agent_client
         else:
-            self.bedrock_agent_client = boto3.client('bedrock-agent-runtime')
+            self.client = boto3.client('bedrock-agent-runtime',
+                                       region_name=options.region or os.environ.get('AWS_REGION'))
 
         user_agent.register_feature_to_client(self.bedrock_agent_client, feature="bedrock-flows-agent")
 
