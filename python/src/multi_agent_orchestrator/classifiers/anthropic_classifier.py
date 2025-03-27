@@ -85,7 +85,7 @@ class AnthropicClassifier(Classifier):
                     "stopSequences": self.inference_config['stop_sequences'],
                 },
             }
-            await self.callbacks.on_classifier_start('AnthropicClassifier', input_text, **kwargs)
+            await self.callbacks.on_classifier_start('on_classifier_start', input_text, **kwargs)
 
             response:Message = self.client.messages.create(
                 model=self.model_id,
@@ -118,7 +118,7 @@ class AnthropicClassifier(Classifier):
                 },
             }
 
-            await self.callbacks.on_classifier_stop('AnthropicClassifier', intent_classifier_result, **kwargs)
+            await self.callbacks.on_classifier_stop('on_classifier_stop', intent_classifier_result, **kwargs)
 
             return intent_classifier_result
 

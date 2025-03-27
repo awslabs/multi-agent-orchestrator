@@ -241,9 +241,9 @@ class AgentTools:
             )
 
             # Process the tool use
-            self.callbacks.on_tool_start(tool_name, tool_use_block)
+            self.callbacks.on_tool_start(tool_name + '_on_tool_start', tool_use_block)
             result = await self._process_tool(tool_name, input_data)
-            self.callbacks.on_tool_end(tool_name, input_data, result)
+            self.callbacks.on_tool_end(tool_name + '_on_tool_end', input_data, result)
 
             # Create tool result
             tool_result = AgentToolResult(tool_id, result)

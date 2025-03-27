@@ -197,7 +197,7 @@ class AnthropicAgent(Agent):
                 else:
                     continue_with_tools = False
                     # yield las message
-                    await self.callbacks.on_agent_stop(self.name+'_stop', final_response, messages=messages)
+                    await self.callbacks.on_agent_stop(self.name+'_on_agent_stop', final_response, messages=messages)
 
                     yield AgentStreamResponse(final_message=ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{"text": final_response.content[0].text}]))
 
@@ -218,7 +218,7 @@ class AnthropicAgent(Agent):
         if streaming:
             return await self._handle_streaming(input, messages, max_recursions)
         response = await self._handle_single_response_loop(input, messages, max_recursions)
-        await self.callbacks.on_agent_stop(self.name+'_stop', response, messages=messages)
+        await self.callbacks.on_agent_stop(self.name+'_on_agent_stop', response, messages=messages)
         return response
 
     async def _process_tool_block(self, llm_response: Any, conversation: list[Any]) -> (Any):
@@ -272,7 +272,7 @@ class AnthropicAgent(Agent):
             'session_id':session_id
         }
 
-        await self.callbacks.on_agent_start(self.name+'_start', input_text, messages=[*chat_history], **kwargs)
+        await self.callbacks.on_agent_start(self.name+'_on_agent_start', input_text, messages=[*chat_history], **kwargs)
 
         messages = self._prepare_conversation(input_text, chat_history)
         system_prompt = await self._prepare_system_prompt(input_text)
@@ -282,7 +282,7 @@ class AnthropicAgent(Agent):
 
     async def handle_single_response(self, input_data: dict) -> Any:
         try:
-            await self.callbacks.on_llm_start(self.name + '_Anthropic_start', input=input_data.get('messages')[-1], **input_data)
+            await self.callbacks.on_llm_start(self.name + '_on_llm_start', input=input_data.get('messages')[-1], **input_data)
             response:Message = self.client.messages.create(**input_data)
 
             kwargs = {
@@ -302,7 +302,7 @@ class AnthropicAgent(Agent):
                     "stop_sequences": input_data.get('stop_sequences'),
                 }
             }
-            await self.callbacks.on_llm_stop(self.name + '_Anthropic_stop', output=response.content, **kwargs)
+            await self.callbacks.on_llm_stop(self.name + '_on_llm_stop', output=response.content, **kwargs)
 
             return response
         except Exception as error:
@@ -316,7 +316,7 @@ class AnthropicAgent(Agent):
         message['content'] = content
 
         try:
-            await self.callbacks.on_llm_start(self.name + '_Anthropic_start', input=input.get('messages')[-1], **input)
+            await self.callbacks.on_llm_start(self.name + '_on_llm_start', input=input.get('messages')[-1], **input)
             async with self.client.messages.stream(**input) as stream:
                 async for event in stream:
                     if event.type == "text":
@@ -355,7 +355,7 @@ class AnthropicAgent(Agent):
                     "max_tokens": input.get('max_tokens')
                 }
             }
-            await self.callbacks.on_llm_stop(self.name + '_Anthropic_stop', output=accumulated.content[0].text, **kwargs)
+            await self.callbacks.on_llm_stop(self.name + '_on_llm_stop', output=accumulated.content[0].text, **kwargs)
 
         except Exception as error:
             Logger.error(f"Error getting stream from Anthropic model: {str(error)}")

@@ -119,7 +119,7 @@ class BedrockClassifier(Classifier):
                     "stopSequences": self.inference_config['stopSequences'],
                 },
             }
-            await self.callbacks.on_classifier_start('BedrockClassifier', input_text, **kwargs)
+            await self.callbacks.on_classifier_start('on_classifier_start', input_text, **kwargs)
             response = self.client.converse(**converse_cmd)
 
             if not response.get('output'):
@@ -144,7 +144,7 @@ class BedrockClassifier(Classifier):
                         kwargs = {
                             "usage": response.get('usage'),
                         }
-                        await self.callbacks.on_classifier_stop('BedrockClassifier', intent_classifier_result, **kwargs)
+                        await self.callbacks.on_classifier_stop('on_classifier_stop', intent_classifier_result, **kwargs)
                         return intent_classifier_result
 
             raise ValueError("No valid tool use found in the response")
