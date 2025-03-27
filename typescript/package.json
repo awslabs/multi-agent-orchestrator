@@ -1,6 +1,6 @@
 {
   "name": "multi-agent-orchestrator",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Multi-Agent Orchestrator framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,8 +20,10 @@
   },
   "homepage": "https://github.com/awslabs/multi-agent-orchestrator",
   "scripts": {
+    "prebuild": "npm run generateVersionFile",
     "build": "tsc",
     "test": "jest",
+    "generateVersionFile": "echo \"// this file is auto generated, do not modify\nexport const MAOTS_VERSION = '$(jq -r '.version' package.json)';\" > src/common/src/version.ts",
     "lint": "eslint 'src/**/*.ts' 'tests/**/*.ts'",
     "coverage": "jest --coverage"
   },
