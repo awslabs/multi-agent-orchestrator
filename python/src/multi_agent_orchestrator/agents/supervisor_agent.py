@@ -116,6 +116,8 @@ class SupervisorAgent(Agent):
                 self.supervisor_tools.tools.extend(extra_tools.tools)
             else:
                 self.supervisor_tools.tools.extend(extra_tools)
+            if extra_tools.callbacks:
+                self.supervisor_tools.callbacks = extra_tools.callbacks
 
         self.lead_agent.tool_config = {
             'tool': self.supervisor_tools,
