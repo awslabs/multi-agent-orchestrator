@@ -32,7 +32,7 @@ class BedrockClassifier(Classifier):
             self.client = options.client
         else:
             self.client = boto3.client('bedrock-runtime', region_name=self.region)
-            
+
         self.callbacks = options.callbacks
         user_agent.register_feature_to_client(self.client, feature="bedrock-classifier")
 
@@ -125,7 +125,7 @@ class BedrockClassifier(Classifier):
                             raise ValueError("No tool use found in the response")
 
                         if not is_tool_input(tool_use['input']):
-                            raise ValueError("Tool input does not match expected structure")
+                            raise ValueError(f"Tool input does not match expected structure: {str(tool_use)}")
 
                         intent_classifier_result: ClassifierResult = ClassifierResult(
                             selected_agent=self.get_agent_by_id(tool_use['input']['selected_agent']),
