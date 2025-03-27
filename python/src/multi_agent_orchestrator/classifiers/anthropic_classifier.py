@@ -77,11 +77,13 @@ class AnthropicClassifier(Classifier):
 
             kwargs = {
                 "modelId": self.model_id,
-                "maxTokens": self.inference_config['max_tokens'],
                 "system": self.system_prompt,
-                "temperature": self.inference_config['temperature'],
-                "topP": self.inference_config['top_p'],
-                'stopSequences':self.inference_config['stop_sequences'],
+                "inferenceConfig": {
+                    "maxTokens": self.inference_config['max_tokens'],
+                    "temperature": self.inference_config['temperature'],
+                    "topP": self.inference_config['top_p'],
+                    "stopSequences": self.inference_config['stop_sequences'],
+                },
             }
             await self.callbacks.on_classifier_start('AnthropicClassifier', input_text, **kwargs)
 
