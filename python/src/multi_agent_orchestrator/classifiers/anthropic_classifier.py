@@ -1,11 +1,10 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Any
 from anthropic import Anthropic
+from anthropic.types import Message
 from multi_agent_orchestrator.utils.helpers import is_tool_input
 from multi_agent_orchestrator.utils.logger import Logger
 from multi_agent_orchestrator.types import ConversationMessage
-from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult
-import logging
-logging.getLogger("httpx").setLevel(logging.WARNING)
+from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult, ClassifierCallbacks
 
 ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20240620"
 
@@ -13,10 +12,13 @@ class AnthropicClassifierOptions:
     def __init__(self,
                  api_key: str,
                  model_id: Optional[str] = None,
-                 inference_config: Optional[Dict[str, Any]] = None):
+                 inference_config: Optional[dict[str, Any]] = None,
+                callbacks: Optional[ClassifierCallbacks] = None
+                 ):
         self.api_key = api_key
         self.model_id = model_id
         self.inference_config = inference_config or {}
+        self.callbacks = callbacks or ClassifierCallbacks()
 
 class AnthropicClassifier(Classifier):
     def __init__(self, options: AnthropicClassifierOptions):
@@ -28,6 +30,8 @@ class AnthropicClassifier(Classifier):
         self.client = Anthropic(api_key=options.api_key)
         self.model_id = options.model_id or ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET
 
+        self.callbacks = options.callbacks
+
         default_max_tokens = 1000
         self.inference_config = {
             'max_tokens': options.inference_config.get('max_tokens', default_max_tokens),
@@ -36,7 +40,7 @@ class AnthropicClassifier(Classifier):
             'stop_sequences': options.inference_config.get('stop_sequences', []),
         }
 
-        self.tools: List[Dict] = [
+        self.tools: List[dict] = [
             {
                 'name': 'analyzePrompt',
                 'description': 'Analyze the user input and provide structured output',
@@ -70,7 +74,18 @@ class AnthropicClassifier(Classifier):
         user_message = {"role": "user", "content": input_text}
 
         try:
-            response = self.client.messages.create(
+
+            kwargs = {
+                "modelId": self.model_id,
+                "maxTokens": self.inference_config['max_tokens'],
+                "system": self.system_prompt,
+                "temperature": self.inference_config['temperature'],
+                "topP": self.inference_config['top_p'],
+                'stopSequences':self.inference_config['stop_sequences'],
+            }
+            await self.callbacks.on_classifier_start('AnthropicClassifier', input_text, **kwargs)
+
+            response:Message = self.client.messages.create(
                 model=self.model_id,
                 max_tokens=self.inference_config['max_tokens'],
                 messages=[user_message],
@@ -92,6 +107,16 @@ class AnthropicClassifier(Classifier):
                 selected_agent=self.get_agent_by_id(tool_use.input['selected_agent']),
                 confidence=float(tool_use.input['confidence'])
             )
+
+            kwargs = {
+                "usage": {
+                    'inputTokens':response.usage.input_tokens,
+                    'outputTokens':response.usage.output_tokens,
+                    'totalTokens':response.usage.input_tokens + response.usage.output_tokens
+                },
+            }
+
+            await self.callbacks.on_classifier_stop('AnthropicClassifier', intent_classifier_result, **kwargs)
 
             return intent_classifier_result
 

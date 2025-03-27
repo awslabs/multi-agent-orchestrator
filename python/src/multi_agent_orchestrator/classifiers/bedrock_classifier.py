@@ -109,7 +109,15 @@ class BedrockClassifier(Classifier):
         }
 
         try:
-            await self.callbacks.on_classifier_start('BedrockClassifier', input_text, **converse_cmd)
+            kwargs = {
+                "modelId": self.model_id,
+                "maxTokens": self.inference_config['maxTokens'],
+                "system": self.system_prompt,
+                "temperature": self.inference_config['temperature'],
+                "topP": self.inference_config['topP'],
+                "stopSequences": self.inference_config['stopSequences'],
+            }
+            await self.callbacks.on_classifier_start('BedrockClassifier', input_text, **kwargs)
             response = self.client.converse(**converse_cmd)
 
             if not response.get('output'):
