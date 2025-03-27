@@ -1,7 +1,7 @@
 from typing import Optional, Any, AsyncIterable, Union, TYPE_CHECKING
 from dataclasses import dataclass, field
 import asyncio
-from multi_agent_orchestrator.agents import Agent, AgentOptions
+from multi_agent_orchestrator.agents import Agent, AgentOptions, AgentStreamResponse
 if TYPE_CHECKING:
     from multi_agent_orchestrator.agents import AnthropicAgent, BedrockLLMAgent
 
@@ -173,6 +173,15 @@ When communicating with other agents, including the User, please follow these gu
 """
         self.lead_agent.set_system_prompt(self.prompt_template)
 
+
+    async def process_agent_streaming_response(self, response):
+        async for chunk in response:
+            if isinstance(chunk, AgentStreamResponse):
+                if chunk.final_message:
+                    final_response = chunk.final_message.content[0].get('text', '')
+                    return final_response
+
+
     def send_message(
         self,
         agent: Agent,
@@ -195,27 +204,34 @@ When communicating with other agents, including the User, please follow these gu
                 role=ParticipantRole.USER.value,
                 content=[{'text': content}]
             )
+
+            final_response = ''
+
             response = asyncio.run(agent.process_request(
                 content, user_id, session_id, agent_chat_history, additional_params
             ))
+            if agent.is_streaming_enabled():
+                final_response = asyncio.run(self.process_agent_streaming_response(response))
+
+            else:
+                final_response = response.content[0].get('text', '')
 
             assistant_message = TimestampedMessage(
                 role=ParticipantRole.ASSISTANT.value,
-                content=[{'text': response.content[0].get('text', '')}]
+                content=[{'text': final_response}]
             )
-
 
             if agent.save_chat:
                 asyncio.run(self.storage.save_chat_messages(
-                user_id, session_id, agent.id,[user_message, assistant_message]
+                    user_id, session_id, agent.id, [user_message, assistant_message]
                 ))
 
             if self.trace:
                 Logger.info(
-                    f"\033[33m\n<<<<<===Supervisor received from {agent.name}:\n{response.content[0].get('text','')[:500]}...\033[0m"
+                    f"\033[33m\n<<<<<===Supervisor received from {agent.name}:\n{final_response[:500]}...\033[0m"
                 )
 
-            return f"{agent.name}: {response.content[0].get('text', '')}"
+            return f"{agent.name}: {final_response}"
 
         except Exception as e:
             Logger.error(f"Error in send_message: {e}")
@@ -241,7 +257,7 @@ When communicating with other agents, including the User, please follow these gu
             ]
 
             if not tasks:
-                return ''
+                return f"No agent matches for the request:{str(messages)}"
 
             responses = await asyncio.gather(*tasks)
             return ''.join(responses)
