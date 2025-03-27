@@ -175,11 +175,12 @@ When communicating with other agents, including the User, please follow these gu
 
 
     async def process_agent_streaming_response(self, response):
+        final_response = ''
         async for chunk in response:
             if isinstance(chunk, AgentStreamResponse):
                 if chunk.final_message:
                     final_response = chunk.final_message.content[0].get('text', '')
-                    return final_response
+        return final_response
 
 
     def send_message(

@@ -214,9 +214,10 @@ class BedrockLLMAgent(Agent):
                 response = self.handle_streaming_response(command)
 
                 async for chunk in response:
-                    if chunk.final_message:
-                        final_response = chunk.final_message
-                    yield chunk
+                    if isinstance(chunk, AgentStreamResponse):
+                        yield chunk
+                        if chunk.final_message:
+                            final_response = chunk.final_message
 
                 conversation.append(final_response)
 
@@ -227,9 +228,12 @@ class BedrockLLMAgent(Agent):
                     command['messages'] = conversation_to_dict(conversation)
                 else:
                     continue_with_tools = False
-                    await self.callbacks.on_agent_stop(self.name+'_stop', final_response, messages=conversation)
 
                 max_recursions -= 1
+
+
+
+            await self.callbacks.on_agent_stop(self.name+'_stop', final_response, messages=conversation)
 
         return stream_generator()
 
@@ -368,14 +372,16 @@ class BedrockLLMAgent(Agent):
                 role=ParticipantRole.ASSISTANT.value,
                 content=message['content']
             )
-            # yield the final message
-            yield AgentStreamResponse(final_message=final_message)
+
             kwargs = {
                 'usage':metadata.get('usage'),
                 'system': converse_input.get('system')[0].get('text'),
                 'input': converse_input
             }
             await self.callbacks.on_llm_stop(self.name + '_Bedrock_stop', output=message['content'], **kwargs)
+
+            # yield the final message
+            yield AgentStreamResponse(final_message=final_message)
         except Exception as error:
             Logger.error(f"Error getting stream from Bedrock model: {str(error)}")
             raise error
