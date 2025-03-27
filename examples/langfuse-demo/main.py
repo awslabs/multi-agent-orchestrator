@@ -37,7 +37,7 @@ class BedrockClassifierCallbacks(ClassifierCallbacks):
     ) -> Any:
         try:
             inputs = []
-            inputs.append({'role':'system', 'content':kwargs.get('system')[0].get('text')})
+            inputs.append({'role':'system', 'content':kwargs.get('system')})
             inputs.extend([{'role':'user', 'content':input}])
             langfuse_context.update_current_observation(
                 name=name,
@@ -64,7 +64,7 @@ class BedrockClassifierCallbacks(ClassifierCallbacks):
         try:
             langfuse_context.update_current_observation(
                 output={'role':'assistant', 'content':{
-                            'selected_agent' : output.selected_agent.name,
+                            'selected_agent' : output.selected_agent.name if output.selected_agent is not None else 'No agent selected',
                             'confidence' : output.confidence,
                         }
                 },
@@ -131,10 +131,23 @@ class LLMAgentCallbacks(AgentCallbacks):
             print(e)
             pass
 
+    async def on_llm_start(
+        self,
+        name:str,
+        input: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        print('on_llm_start')
+
+
     @observe(as_type='generation', capture_input=False)
     async def on_llm_stop(
         self,
-        output: dict,
+        name:str,
+        output: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
         metadata: Optional[dict[str, Any]] = None,
@@ -142,13 +155,14 @@ class LLMAgentCallbacks(AgentCallbacks):
     ) -> Any:
         try:
             msgs = []
-            msgs.append({'role':'system', 'content': kwargs.get('converse_input').get('system')[0].get('text')})
-            msgs.extend(kwargs.get('converse_input').get('messages'))
+            msgs.append({'role':'system', 'content': kwargs.get('input').get('system')})
+            msgs.extend(kwargs.get('input').get('messages'))
             langfuse_context.update_current_observation(
-                name='Bedrock',
+                name=name,
                 input=msgs,
                 output=output,
-                model=kwargs.get('converse_input').get('modelId'),
+                model=kwargs.get('input').get('modelId'),
+                model_parameters=kwargs.get('inferenceConfig'),
                 usage={
                     'input':kwargs.get('usage',{}).get('inputTokens'),
                     "output": kwargs.get('usage', {}).get('outputTokens'),
@@ -221,6 +235,8 @@ async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input:str,
 
     stream_response = True
     classification_result:ClassifierResult = await classify_request(_orchestrator, _user_input, _user_id, _session_id)
+    if classification_result.selected_agent is None:
+        return "No agent selected. Please try again."
     return await agent_process_request(_orchestrator, _user_input, _user_id, _session_id, classification_result,{}, stream_response)
 
 
@@ -252,6 +268,11 @@ weather_tools:AgentTools = AgentTools(tools=[AgentTool(name="Weather_Tool",
 
 @observe(as_type="generation", name="python-demo")
 def run_main():
+
+    classifier = BedrockClassifier(BedrockClassifierOptions(
+        model_id="anthropic.claude-3-haiku-20240307-v1:0",
+        callbacks=BedrockClassifierCallbacks()
+    ))
     # Initialize the orchestrator with some options
     orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
         LOG_AGENT_CHAT=True,
@@ -263,10 +284,7 @@ def run_main():
         USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED=True,
         MAX_MESSAGE_PAIRS_PER_AGENT=10,
     ),
-    classifier=BedrockClassifier(BedrockClassifierOptions(
-        model_id="anthropic.claude-3-haiku-20240307-v1:0",
-        callbacks=BedrockClassifierCallbacks()
-    )))
+    classifier=classifier)
 
     # Add some agents
     tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
@@ -281,14 +299,14 @@ def run_main():
     orchestrator.add_agent(tech_agent)
 
     # Add Health agents
-    tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
+    health_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
         name="Health Agent",
         streaming=False,
         description="Specializes in health and well being.",
         model_id="anthropic.claude-3-sonnet-20240229-v1:0",
         callbacks=LLMAgentCallbacks(),
     ))
-    orchestrator.add_agent(tech_agent)
+    orchestrator.add_agent(health_agent)
 
     # Add a Bedrock weather agent with custom handler and bedrock's tool format
     weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
