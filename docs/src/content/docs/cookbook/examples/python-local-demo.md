@@ -52,7 +52,7 @@ orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
 3. Set up agent callbacks and add an agent:
 ```python
 class BedrockLLMAgentCallbacks(AgentCallbacks):
-    def on_llm_new_token(self, token: str) -> None:
+    async def on_llm_new_token(self, token: str) -> None:
         # handle response streaming here
         print(token, end='', flush=True)
 
