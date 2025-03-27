@@ -288,7 +288,7 @@ class BedrockLLMAgent(Agent):
 
     async def handle_single_response(self, converse_input: dict[str, Any]) -> ConversationMessage:
         try:
-            await self.callbacks.on_llm_start(input=converse_input.get('messages')[-1], **converse_input)
+            await self.callbacks.on_llm_start('Bedrock', input=converse_input.get('messages')[-1], **converse_input)
 
             response = self.client.converse(**converse_input)
             if 'output' not in response:
@@ -296,9 +296,11 @@ class BedrockLLMAgent(Agent):
 
             kwargs = {
                 'usage':response.get('usage'),
-                'converse_input': converse_input
+                'system': converse_input.get('system')[0].get('text'),
+                'input': converse_input,
+                'inferenceConfig':converse_input.get('inferenceConfig')
             }
-            await self.callbacks.on_llm_stop(output=response.get('output',{}).get('message'), **kwargs)
+            await self.callbacks.on_llm_stop('Bedrock', output=response.get('output',{}).get('message'), **kwargs)
 
             return ConversationMessage(
                 role=response['output']['message']['role'],
@@ -323,7 +325,7 @@ class BedrockLLMAgent(Agent):
             StreamChunk: Contains either a text chunk or the final complete message
         """
         try:
-            await self.callbacks.on_llm_start(input=converse_input.get('messages')[-1], **converse_input)
+            await self.callbacks.on_llm_start('Bedrock', input=converse_input.get('messages')[-1], **converse_input)
             response = self.client.converse_stream(**converse_input)
 
             metadata = {}
@@ -370,9 +372,10 @@ class BedrockLLMAgent(Agent):
             yield AgentStreamResponse(final_message=final_message)
             kwargs = {
                 'usage':metadata.get('usage'),
-                'converse_input': converse_input
+                'system': converse_input.get('system')[0].get('text'),
+                'input': converse_input
             }
-            await self.callbacks.on_llm_stop(output=message['content'], **kwargs)
+            await self.callbacks.on_llm_stop('Bedrock', output=message['content'], **kwargs)
         except Exception as error:
             Logger.error(f"Error getting stream from Bedrock model: {str(error)}")
             raise error

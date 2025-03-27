@@ -4,6 +4,7 @@ from typing import Any, AsyncIterable, Optional
 from dataclasses import dataclass, field
 import re
 from anthropic import AsyncAnthropic, Anthropic
+from anthropic.types import Message
 from multi_agent_orchestrator.agents import Agent, AgentOptions, AgentStreamResponse
 from multi_agent_orchestrator.types import (ConversationMessage,
                        ParticipantRole,
@@ -196,6 +197,8 @@ class AnthropicAgent(Agent):
                 else:
                     continue_with_tools = False
                     # yield las message
+                    await self.callbacks.on_agent_stop(self.name, final_response, messages=messages)
+
                     yield AgentStreamResponse(final_message=ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{"text": final_response.content[0].text}]))
 
                 max_recursions -= 1
@@ -214,7 +217,9 @@ class AnthropicAgent(Agent):
 
         if streaming:
             return await self._handle_streaming(input, messages, max_recursions)
-        return await self._handle_single_response_loop(input, messages, max_recursions)
+        response = await self._handle_single_response_loop(input, messages, max_recursions)
+        await self.callbacks.on_agent_stop(self.name, response, messages=messages)
+        return response
 
     async def _process_tool_block(self, llm_response: Any, conversation: list[Any]) -> (Any):
         if 'useToolHandler' in  self.tool_config:
@@ -261,6 +266,14 @@ class AnthropicAgent(Agent):
         additional_params: Optional[dict[str, str]] = None
     ) -> ConversationMessage | AsyncIterable[Any]:
 
+        kwargs = {
+            'additional_params':additional_params,
+            'user_id':user_id,
+            'session_id':session_id
+        }
+
+        await self.callbacks.on_agent_start(self.name, input_text, messages=[*chat_history], **kwargs)
+
         messages = self._prepare_conversation(input_text, chat_history)
         system_prompt = await self._prepare_system_prompt(input_text)
         input = self._build_input(messages, system_prompt)
@@ -269,7 +282,28 @@ class AnthropicAgent(Agent):
 
     async def handle_single_response(self, input_data: dict) -> Any:
         try:
-            response = self.client.messages.create(**input_data)
+            await self.callbacks.on_llm_start('Anthropic', input=input_data.get('messages')[-1], **input_data)
+            response:Message = self.client.messages.create(**input_data)
+
+            kwargs = {
+                'usage':{
+                    'inputTokens':response.usage.input_tokens,
+                    'outputTokens':response.usage.output_tokens,
+                    'totalTokens':response.usage.input_tokens + response.usage.output_tokens
+                },
+                'input': {
+                    'modelId': response.model,
+                    'messages': input_data.get('messages'),
+                    'system': input_data.get('system'),
+                },
+                'inferenceConfig':{
+                    "temperature": input_data.get('temperature'),
+                    "top_p": input_data.get('top_p'),
+                    "stop_sequences": input_data.get('stop_sequences'),
+                }
+            }
+            await self.callbacks.on_llm_stop('Anthropic', output=response.content[0].text, **kwargs)
+
             return response
         except Exception as error:
             Logger.error(f"Error invoking Anthropic: {error}")
@@ -282,6 +316,7 @@ class AnthropicAgent(Agent):
         message['content'] = content
 
         try:
+            await self.callbacks.on_llm_start('Anthropic', input=input.get('messages')[-1], **input)
             async with self.client.messages.stream(**input) as stream:
                 async for event in stream:
                     if event.type == "text":
@@ -295,11 +330,32 @@ class AnthropicAgent(Agent):
                 # the context manager, as long as the entire stream was consumed
                 # inside of the context manager
 
-                accumulated = await stream.get_final_message()
+                accumulated:Message = await stream.get_final_message()
             # we need to yield the whole content to keep the tool use block
             yield AgentStreamResponse(
                 final_message=ConversationMessage(role=ParticipantRole.ASSISTANT.value,
                                                   content=accumulated.content))
+
+
+            kwargs = {
+                'usage':{
+                    'inputTokens':accumulated.usage.input_tokens,
+                    'outputTokens':accumulated.usage.output_tokens,
+                    'totalTokens':accumulated.usage.input_tokens + accumulated.usage.output_tokens
+                },
+                'input': {
+                    'modelId': accumulated.model,
+                    'messages': input.get('messages'),
+                    'system': input.get('system'),
+                },
+                'inferenceConfig':{
+                    "temperature": input.get('temperature'),
+                    "top_p": input.get('top_p'),
+                    "stop_sequences": input.get('stop_sequences'),
+                    "max_tokens": input.get('max_tokens')
+                }
+            }
+            await self.callbacks.on_llm_stop('Anthropic', output=accumulated.content[0].text, **kwargs)
 
         except Exception as error:
             Logger.error(f"Error getting stream from Anthropic model: {str(error)}")

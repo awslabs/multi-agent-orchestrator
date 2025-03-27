@@ -138,7 +138,8 @@ class AgentCallbacks:
 
     async def on_llm_start(
         self,
-        input: dict,
+        name:str,
+        input: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
         metadata: Optional[dict[str, Any]] = None,
@@ -168,7 +169,8 @@ class AgentCallbacks:
 
     async def on_llm_stop(
         self,
-        output: dict,
+        name:str,
+        output: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
         metadata: Optional[dict[str, Any]] = None,
