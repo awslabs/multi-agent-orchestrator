@@ -14,6 +14,8 @@ import { Classifier, ClassifierResult } from "./classifier";
 import { isClassifierToolInput } from "../utils/helpers";
 import { Logger } from "../utils/logger";
 
+import { addUserAgentMiddleware } from '../common/src/awsSdkUtils'
+
 
 export interface BedrockClassifierOptions {
   // Optional: The ID of the Bedrock model to use for classification
@@ -96,6 +98,7 @@ export class BedrockClassifier extends Classifier{
     // Initialize default values or use provided options
     this.region = options.region || process.env.REGION;
     this.client = new BedrockRuntimeClient({region:this.region});
+    addUserAgentMiddleware(this.client, "bedrock-classifier");
     this.modelId = options.modelId || BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET;
     // Initialize inferenceConfig only if it's provided in options
     this.inferenceConfig = {

@@ -15,6 +15,7 @@ import { Retriever } from "../retrievers/retriever";
 import { Logger } from "../utils/logger";
 import { AgentToolResult, AgentTools } from "../utils/tool";
 import { isConversationMessage } from "../utils/helpers";
+import { addUserAgentMiddleware } from '../common/src/awsSdkUtils';
 
 export interface BedrockLLMAgentOptions extends AgentOptions {
   modelId?: string;
@@ -100,6 +101,8 @@ export class BedrockLLMAgent extends Agent {
       : options.region
         ? new BedrockRuntimeClient({ region: options.region })
         : new BedrockRuntimeClient();
+
+    addUserAgentMiddleware(this.client, "bedrock-llm-agent")
 
     // Initialize the modelId
     this.modelId = options.modelId ?? BEDROCK_MODEL_ID_CLAUDE_3_HAIKU;

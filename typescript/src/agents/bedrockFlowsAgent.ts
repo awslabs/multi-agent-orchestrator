@@ -4,6 +4,7 @@ import {
   ConversationMessage,
   ParticipantRole
 } from "../types";
+import { addUserAgentMiddleware } from '../common/src/awsSdkUtils';
 
   export interface BedrockFlowsAgentOptions extends AgentOptions {
     region?: string;
@@ -33,6 +34,8 @@ import {
           ? new BedrockAgentRuntimeClient({ region: options.region })
           : new BedrockAgentRuntimeClient()
       );
+
+      addUserAgentMiddleware(this.bedrockAgentClient, "bedrock-flows-agent");
 
       this.flowIdentifier = options.flowIdentifier;
       this.flowAliasIdentifier = options.flowAliasIdentifier;
