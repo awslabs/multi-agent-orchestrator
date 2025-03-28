@@ -6,6 +6,7 @@ import {
   RecognizeTextCommandOutput,
 } from "@aws-sdk/client-lex-runtime-v2";
 import { Logger } from "../utils/logger";
+import { addUserAgentMiddleware } from '../common/src/awsSdkUtils';
 
 /**
  * Options for configuring an Amazon Lex Bot agent.
@@ -38,6 +39,8 @@ export class LexBotAgent extends Agent {
     this.botId = options.botId;
     this.botAliasId = options.botAliasId;
     this.localeId = options.localeId;
+
+    addUserAgentMiddleware(this.lexClient, "lex-agent");
 
     // Validate required fields
     if (!this.botId || !this.botAliasId || !this.localeId) {

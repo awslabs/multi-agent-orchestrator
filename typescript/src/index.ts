@@ -33,3 +33,10 @@ export { AgentOverlapAnalyzer, AnalysisResult } from "./agentOverlapAnalyzer";
 export { ConversationMessage, ParticipantRole } from "./types"
 
 export { isClassifierToolInput } from './utils/helpers'
+
+
+import { MAOTS_VERSION } from "./common/src/version";
+
+if (!process.env.AWS_SDK_UA_APP_ID) {
+    process.env.AWS_SDK_UA_APP_ID = `MAOTS/NO-OP/${MAOTS_VERSION}`;
+}
