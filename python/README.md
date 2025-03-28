@@ -217,19 +217,21 @@ This guide explains how to build and install the multi-agent-orchestrator packag
 
 ### Building the Package
 
-1. Navigate to the Python package directory:
+1. Navigate to the Python package directory and create a virtual environment:
    ```bash
    cd python
+   python3.11 -m venv venv
+   source venv/bin/activate
    ```
 
 2. Install the build dependencies:
    ```bash
-   python -m pip install build
+   python3.11 -m pip install build
    ```
 
 3. Build the package:
    ```bash
-   python -m build
+   python3.11 -m build
    ```
 
 This process will create distribution files in the `python/dist` directory, including a wheel (`.whl`) file.
@@ -258,11 +260,28 @@ pip install ./dist/multi_agent_orchestrator-1.2.3-py3-none-any.whl
 - Clean the `dist` directory before rebuilding if you encounter issues: `rm -rf python/dist/*`
 
 
-
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/CONTRIBUTING.md) for more details.
 
+### How to run Unit Tests
+
+1. Install pytest and pytest-asyncio
+```bash
+source venv/bin/activate
+pip3.11 install -r test_requirements.txt
+```
+2. Run all unit tests
+```bash
+pytest python/src/tests --ignore-glob='*/integration/*'
+```
+
+
+### How to run Integration Tests
+
+```bash
+pytest python/src/tests/integration
+```
 ## 📄 LICENSE
 
 This project is licensed under the Apache 2.0 licence - see the [LICENSE](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/LICENSE) file for details.
