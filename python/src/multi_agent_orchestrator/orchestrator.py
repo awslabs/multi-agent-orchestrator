@@ -142,7 +142,7 @@ class MultiAgentOrchestrator:
     ) -> AgentResponse:
         """Process agent response and handle chat storage."""
         try:
-            agent_response = await self.dispatch_to_agent({
+            agent_response = await self.dispatch_to_agent(params={
                 "user_input": user_input,
                 "user_id": user_id,
                 "session_id": session_id,
