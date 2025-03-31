@@ -26,6 +26,7 @@
 <p align="center">
   <!-- Package Stats -->
   <a href="https://pypi.org/project/multi-agent-orchestrator/"><img src="https://img.shields.io/pypi/dm/multi-agent-orchestrator?label=pypi%20downloads" alt="PyPI Monthly Downloads"></a>
+  <img src="https://img.shields.io/static/v1?label=python&message=%203.11|%203.12|%203.13&color=blue?style=flat-square&logo=python" alt="Python versions">
 
 </p>
 
