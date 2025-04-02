@@ -8,6 +8,80 @@ export class AgentToolResult {
   ) {}
 }
 
+export class AgentToolCallbacks {
+  /**
+   * Defines callbacks that can be triggered during agent tool processing.
+   */
+
+  onToolStart(
+      _toolName: string,
+      _input: any,
+      _runId?: string,
+      _tags?: string[],
+      _metadata?: Record<string, any>,
+      ..._kwargs: any[]
+  ): any {
+      /**
+       * Callback method that runs when a tool starts processing.
+       *
+       * @param toolName Name of the tool that is starting
+       * @param input Object containing the tool's input
+       * @param runId Unique identifier for this specific tool run
+       * @param tags Optional list of string tags associated with this tool run
+       * @param metadata Optional dictionary containing additional metadata about the run
+       * @param kwargs Additional keyword arguments that might be passed to the callback
+       * @returns The return value is implementation-dependent
+       */
+      // Default implementation does nothing
+  }
+
+  onToolEnd(
+      _toolName: string,
+      _input: any,
+      _output: any,
+      _runId?: string,
+      _tags?: string[],
+      _metadata?: Record<string, any>,
+      ..._kwargs: any[]
+  ): any {
+      /**
+       * Callback method that runs when a tool completes its processing.
+       *
+       * @param toolName Name of the tool that is completing
+       * @param input Object containing the tool's input
+       * @param output Object containing the tool's output
+       * @param runId Unique identifier for this specific tool run
+       * @param tags Optional list of string tags associated with this tool run
+       * @param metadata Optional dictionary containing additional metadata about the run
+       * @param kwargs Additional keyword arguments that might be passed to the callback
+       * @returns The return value is implementation-dependent
+       */
+      // Default implementation does nothing
+  }
+
+  onToolError(
+      _toolName: string,
+      _error: Error,
+      _runId?: string,
+      _tags?: string[],
+      _metadata?: Record<string, any>,
+      ..._kwargs: any[]
+  ): any {
+      /**
+       * Callback method that runs when a tool encounters an error.
+       *
+       * @param toolName Name of the tool that encountered an error
+       * @param error The error that occurred
+       * @param runId Unique identifier for this specific tool run
+       * @param tags Optional list of string tags associated with this tool run
+       * @param metadata Optional dictionary containing additional metadata about the run
+       * @param kwargs Additional keyword arguments that might be passed to the callback
+       * @returns The return value is implementation-dependent
+       */
+      // Default implementation does nothing
+  }
+}
+
 type ToolFunction = (...args: any[]) => Promise<any> | any;
 
 /**
@@ -87,9 +161,11 @@ export class AgentTool {
  */
 export class AgentTools {
   public tools: AgentTool[];
+  protected callbacks?: AgentToolCallbacks;
 
-  constructor(tools: AgentTool[]) {
+  constructor(tools: AgentTool[], callbacks: AgentToolCallbacks) {
     this.tools = tools;
+    this.callbacks = callbacks ?? new AgentToolCallbacks()
   }
 
   async toolHandler(

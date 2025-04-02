@@ -42,6 +42,7 @@ export interface BedrockLLMAgentOptions extends AgentOptions {
     variables?: TemplateVariables;
   };
   client?: BedrockRuntimeClient;
+  callbacks?: Agent
 }
 
 /**
