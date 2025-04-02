@@ -11,7 +11,7 @@ from dataclasses import dataclass
 import os
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-from multi_agent_orchestrator.agents import Agent, AgentOptions, AgentStreamResponse
+from multi_agent_orchestrator.agents import Agent, AgentOptions, AgentStreamResponse, AgentCallbacks
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils import Logger
 from multi_agent_orchestrator.shared import user_agent
@@ -35,6 +35,7 @@ class AmazonBedrockAgentOptions(AgentOptions):
     client: Any | None = None
     streaming: bool | None = False
     enableTrace: bool | None = False
+    callbacks: AgentCallbacks | None
 
 
 class AmazonBedrockAgent(Agent):
@@ -78,6 +79,8 @@ class AmazonBedrockAgent(Agent):
         # Configure response handling modes
         self.streaming = options.streaming
         self.enableTrace = options.enableTrace
+
+        self.callbacks = options.callbacks or AgentCallbacks()
 
     def is_streaming_enabled(self) -> bool:
         """
@@ -142,7 +145,7 @@ class AmazonBedrockAgent(Agent):
                         if 'chunk' in event:
                             chunk = event['chunk']
                             decoded_response = chunk['bytes'].decode('utf-8')
-                            self.callbacks.on_llm_new_token(decoded_response)
+                            await self.callbacks.on_llm_new_token(decoded_response)
                             completion += decoded_response
                             yield AgentStreamResponse(text=decoded_response)
                         elif 'trace' in event and self.enableTrace:
