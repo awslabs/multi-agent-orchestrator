@@ -616,7 +616,7 @@ async def test_handle_single_response_error():
 
     # Test error handling
     with pytest.raises(Exception, match="API error"):
-        await anthropic_agent.handle_single_response({"messages": []})
+        await anthropic_agent.handle_single_response({"messages": [{'text':'this is the question'}]})
 
 
 @pytest.mark.asyncio
@@ -636,7 +636,8 @@ async def test_handle_streaming_response_implementation():
     anthropic_agent.callbacks = MagicMock()
 
     anthropic_agent.callbacks.on_llm_new_token = AsyncMock()
-
+    anthropic_agent.callbacks.on_llm_start = AsyncMock()
+    anthropic_agent.callbacks.on_llm_stop = AsyncMock()
 
     # Create a mock custom stream class that acts as both async iterator and context manager
     class MockStream:

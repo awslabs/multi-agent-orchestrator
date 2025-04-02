@@ -158,7 +158,7 @@ async def test_send_messages(supervisor_agent):
     assert "Team Member: Mock response" in response
 
     response = await supervisor_agent.send_messages([])
-    assert response == ''
+    assert response == 'No agent matches for the request:[]'
 
 @pytest.mark.asyncio
 async def test_process_request(supervisor_agent):

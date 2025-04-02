@@ -448,9 +448,15 @@ async def test_handle_streaming_with_text_response(bedrock_llm_agent, mock_boto3
     # Initialize callbacks
     bedrock_llm_agent.callbacks = AsyncMock()
 
+    converse_input = {
+        'system':[{'text':'this is the system messages'}],
+        'messages':[{'text'}]
+    }
+
     # Call the method
     chunks = []
-    response = bedrock_llm_agent.handle_streaming_response({'messages':[{'text'}]})
+    response = bedrock_llm_agent.handle_streaming_response(converse_input)
+
     async for chunk in response:
         chunks.append(chunk)
 
