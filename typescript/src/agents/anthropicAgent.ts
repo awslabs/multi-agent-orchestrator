@@ -1,4 +1,4 @@
-import { Agent, AgentOptions } from "./agent";
+import { Agent, AgentCallbacks, AgentOptions } from "./agent";
 import {
   ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET,
   ConversationMessage,
@@ -40,6 +40,7 @@ export interface AnthropicAgentOptions extends AgentOptions {
     template: string;
     variables?: TemplateVariables;
   };
+  callbacks?: AgentCallbacks;
 }
 
 type WithApiKey = {
@@ -80,6 +81,8 @@ export class AnthropicAgent extends Agent {
   private customVariables: TemplateVariables;
   private defaultMaxRecursions: number = 20;
 
+  protected callbacks?: AgentCallbacks;
+
   constructor(options: AnthropicAgentOptionsWithAuth) {
     super(options);
 
@@ -111,6 +114,8 @@ export class AnthropicAgent extends Agent {
     this.retriever = options.retriever;
 
     this.toolConfig = options.toolConfig;
+
+    this.callbacks = options.callbacks ?? new AgentCallbacks();
 
     this.promptTemplate = `You are a ${this.name}. ${this.description} Provide helpful and accurate information based on your expertise.
     You will engage in an open-ended conversation, providing helpful and accurate information based on your expertise.

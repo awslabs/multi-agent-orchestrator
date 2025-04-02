@@ -4,7 +4,7 @@ import {
   ConverseStreamCommand,
   Tool,
 } from "@aws-sdk/client-bedrock-runtime";
-import { Agent, AgentOptions } from "./agent";
+import { Agent, AgentCallbacks, AgentOptions } from "./agent";
 import {
   BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
   ConversationMessage,
@@ -42,7 +42,7 @@ export interface BedrockLLMAgentOptions extends AgentOptions {
     variables?: TemplateVariables;
   };
   client?: BedrockRuntimeClient;
-  callbacks?: Agent
+  callbacks?: AgentCallbacks
 }
 
 /**
@@ -90,6 +90,8 @@ export class BedrockLLMAgent extends Agent {
   private customVariables: TemplateVariables;
   private defaultMaxRecursions: number = 20;
 
+  protected callbacks?: AgentCallbacks;
+
   /**
    * Constructs a new BedrockAgent instance.
    * @param options - Configuration options for the agent, inherited from AgentOptions.
@@ -117,6 +119,8 @@ export class BedrockLLMAgent extends Agent {
     this.retriever = options.retriever ?? null;
 
     this.toolConfig = options.toolConfig ?? null;
+
+    this.callbacks = options.callbacks ?? new AgentCallbacks();
 
     this.promptTemplate = `You are a ${this.name}. ${this.description} Provide helpful and accurate information based on your expertise.
     You will engage in an open-ended conversation, providing helpful and accurate information based on your expertise.

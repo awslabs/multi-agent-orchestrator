@@ -161,7 +161,7 @@ export class AgentTool {
  */
 export class AgentTools {
   public tools: AgentTool[];
-  protected callbacks?: AgentToolCallbacks;
+  protected callbacks: AgentToolCallbacks;
 
   constructor(tools: AgentTool[], callbacks?: AgentToolCallbacks) {
     this.tools = tools;

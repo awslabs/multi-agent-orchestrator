@@ -86,7 +86,7 @@ export class BedrockClassifier extends Classifier{
       },
     },
   ];
-  protected callbacks?: ClassifierCallbacks;
+  protected callbacks: ClassifierCallbacks;
 
 
 
