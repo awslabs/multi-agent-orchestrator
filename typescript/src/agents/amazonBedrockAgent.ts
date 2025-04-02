@@ -2,6 +2,7 @@ import { BedrockAgentRuntimeClient, InvokeAgentCommand, InvokeAgentCommandOutput
 import { ConversationMessage, ParticipantRole } from "../types";
 import { Agent, AgentOptions } from "./agent";
 import { Logger } from "../utils/logger";
+import { addUserAgentMiddleware } from '../common/src/awsSdkUtils';
 
 /**
  * Options for configuring an Amazon Bedrock agent.
@@ -40,6 +41,7 @@ export class AmazonBedrockAgent extends Agent {
     this.client = options.client ? options.client : options.region
     ? new BedrockAgentRuntimeClient({ region: options.region })
     : new BedrockAgentRuntimeClient();
+    addUserAgentMiddleware(this.client, "bedrock-agent");
     this.enableTrace = options.enableTrace || false;
     this.streaming = options.streaming || false;
   }

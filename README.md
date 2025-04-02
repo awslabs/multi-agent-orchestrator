@@ -418,6 +418,38 @@ Have something to share, discuss, or brainstorm? We’d love to connect with you
 
 Let’s collaborate, learn from each other, and build something incredible together! 🚀
 
+## 📝 Pull Request Guidelines
+
+### Issue-First Policy
+
+This repository follows an **Issue-First** policy:
+
+- **Every pull request must be linked to an existing issue**
+- If there isn't an issue for the changes you want to make, please create one first
+- Use the issue to discuss proposed changes before investing time in implementation
+
+### How to Link Pull Requests to Issues
+
+When creating a pull request, you must link it to an issue using one of these methods:
+
+1. Include a reference in the PR description using keywords:
+   - `Fixes #123`
+   - `Resolves #123`
+   - `Closes #123`
+
+2. Manually link the PR to an issue through GitHub's UI:
+   - On the right sidebar of your PR, click "Development" and then "Link an issue"
+
+### Automated Enforcement
+
+We use GitHub Actions to automatically verify that each PR is linked to an issue. PRs without linked issues will not pass required checks and cannot be merged.
+
+This policy helps us:
+- Maintain clear documentation of changes and their purposes
+- Ensure community discussion before implementation
+- Keep a structured development process
+- Make project history more traceable and understandable
+
 ## 🤝 Contributing
 
 ⚠️ We value your contributions! Before submitting changes, please start a discussion by opening an issue to share your proposal.

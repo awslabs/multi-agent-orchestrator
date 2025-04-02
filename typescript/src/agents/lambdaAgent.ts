@@ -1,11 +1,12 @@
 import {  ConversationMessage, ParticipantRole } from "../types";
 import { Agent, AgentOptions } from "./agent";
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
+import { addUserAgentMiddleware } from '../common/src/awsSdkUtils';
 
 export interface LambdaAgentOptions extends AgentOptions {
     functionName: string;
     functionRegion: string;
-    inputPayloadEncoder?: (inputText: string, ...additionalParams: any) => any; 
+    inputPayloadEncoder?: (inputText: string, ...additionalParams: any) => any;
     outputPayloadDecoder?: (response: any) => ConversationMessage;
 }
 
@@ -17,6 +18,7 @@ export class LambdaAgent extends Agent {
         super(options);
         this.options = options;
         this.lambdaClient = new LambdaClient({region:this.options.functionRegion});
+        addUserAgentMiddleware(this.lambdaClient, "lambda-agent");
     }
 
     private defaultInputPayloadEncoder(inputText: string, chatHistory: ConversationMessage[], userId: string, sessionId:string, additionalParams?: Record<string, string>):string {
@@ -51,9 +53,9 @@ export class LambdaAgent extends Agent {
             FunctionName: this.options.functionName,
             Payload: payload,
         };
-        
+
         const response = await this.lambdaClient.send(new InvokeCommand(invokeParams));
-        
+
         return new Promise((resolve) => {
             const message = this.options.outputPayloadDecoder ? this.options.outputPayloadDecoder(response) : this.defaultOutputPayloaderDecoder(response);
             resolve(message);

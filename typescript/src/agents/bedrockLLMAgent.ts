@@ -15,7 +15,7 @@ import { Retriever } from "../retrievers/retriever";
 import { Logger } from "../utils/logger";
 import { AgentToolResult, AgentTools } from "../utils/tool";
 import { isConversationMessage } from "../utils/helpers";
-import { addUserAgentMiddleware } from '../common/src/awsSdkUtils'
+import { addUserAgentMiddleware } from '../common/src/awsSdkUtils';
 
 export interface BedrockLLMAgentOptions extends AgentOptions {
   modelId?: string;

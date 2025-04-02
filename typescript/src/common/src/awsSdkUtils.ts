@@ -1,5 +1,5 @@
-import type { MiddlewareArgsLike, SdkClient } from './types/awsSdk.ts';
-import { MAOTS_VERSION } from './version.js';
+import type { MiddlewareArgsLike, SdkClient } from './types/awsSdk';
+import { MAOTS_VERSION } from './version';
 
 const EXEC_ENV = process.env.AWS_EXECUTION_ENV || 'NA';
 const middlewareOptions = {
