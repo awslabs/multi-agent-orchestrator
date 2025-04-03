@@ -5,8 +5,6 @@ from multi_agent_orchestrator.utils.helpers import is_tool_input
 from multi_agent_orchestrator.utils.logger import Logger
 from multi_agent_orchestrator.types import ConversationMessage
 from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult
-import logging
-logging.getLogger("httpx").setLevel(logging.WARNING)
 
 OPENAI_MODEL_ID_GPT_O_MINI = "gpt-4o-mini"
 

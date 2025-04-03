@@ -172,7 +172,7 @@ class OpenAIAgent(Agent):
                 if chunk.choices[0].delta.content:
                     chunk_content = chunk.choices[0].delta.content
                     accumulated_message.append(chunk_content)
-                    self.callbacks.on_llm_new_token(chunk_content)
+                    await self.callbacks.on_llm_new_token(chunk_content)
                     yield AgentStreamResponse(text=chunk_content)
 
             # Store the complete message in the instance for later access if needed

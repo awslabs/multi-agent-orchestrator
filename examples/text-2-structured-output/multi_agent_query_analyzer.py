@@ -26,14 +26,14 @@ class MyCustomHandler(AgentCallbacks):
         super().__init__()
         self._queue = queue
         self._stop_signal = None
-    
-    def on_llm_new_token(self, token: str, **kwargs) -> None:
+
+    async def on_llm_new_token(self, token: str, **kwargs) -> None:
         self._queue.put(token)
-    
-    def on_llm_start(self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any) -> None:
+
+    async def on_llm_start(self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any) -> None:
         print("generation started")
-    
-    def on_llm_end(self, response: Any, **kwargs: Any) -> None:
+
+    async def on_llm_end(self, response: Any, **kwargs: Any) -> None:
         print("\n\ngeneration concluded")
         self._queue.put(self._stop_signal)
 
@@ -65,11 +65,11 @@ If you're unsure where to start, try saying **"hello"** to see:
 
 This will help you understand the kinds of questions and topics our system can assist you with.
 """,
-        MAX_MESSAGE_PAIRS_PER_AGENT=10       
+        MAX_MESSAGE_PAIRS_PER_AGENT=10
     ),
     classifier = classifier
      )
-    
+
     product_search_agent = ProductSearchAgent(ProductSearchAgentOptions(
         name="Product Search Agent",
         description="Specializes in e-commerce product searches and listings. Handles queries about finding specific products, product rankings, specifications, price comparisons within an online shopping context. Use this agent for shopping-related queries and product discovery in a retail environment.",
@@ -132,7 +132,7 @@ async def response_generator(query, user_id, session_id):
 
     # Start the generation process in a separate thread
     Thread(target=lambda: asyncio.run(start_generation(query, user_id, session_id, streamer_queue))).start()
-    
+
     #print("Waiting for the response...")
     while True:
         try:

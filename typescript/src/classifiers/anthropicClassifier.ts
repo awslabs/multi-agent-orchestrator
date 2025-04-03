@@ -5,7 +5,7 @@ import {
 } from "../types";
 import { isClassifierToolInput } from "../utils/helpers";
 import { Logger } from "../utils/logger";
-import { Classifier, ClassifierResult } from "./classifier";
+import { Classifier, ClassifierCallbacks, ClassifierResult } from "./classifier";
 import { Anthropic } from "@anthropic-ai/sdk";
 
 export interface AnthropicClassifierOptions {
@@ -32,6 +32,8 @@ export interface AnthropicClassifierOptions {
 
   // The API key for authenticating with Anthropic's services
   apiKey: string;
+
+  callbacks?: ClassifierCallbacks
 }
 
 export class AnthropicClassifier extends Classifier {
@@ -68,6 +70,8 @@ export class AnthropicClassifier extends Classifier {
     },
   ];
 
+  protected callbacks: ClassifierCallbacks;
+
 
   constructor(options: AnthropicClassifierOptions) {
     super();
@@ -85,6 +89,8 @@ export class AnthropicClassifier extends Classifier {
       topP: options.inferenceConfig?.topP,
       stopSequences: options.inferenceConfig?.stopSequences,
     };
+
+    this.callbacks = options.callbacks ?? new ClassifierCallbacks();
 
 }
 
