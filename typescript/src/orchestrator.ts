@@ -340,22 +340,22 @@ export class MultiAgentOrchestrator {
         "Classifying user intent",
         () => this.classifier.classify(userInput, chatHistory)
       );
-  
+
       this.logger.printIntent(userInput, classifierResult);
-  
+
       if (!classifierResult.selectedAgent && this.config.USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED && this.defaultAgent) {
         const fallbackResult = this.getFallbackResult();
         this.logger.info("Using default agent as no agent was selected");
         return fallbackResult;
       }
-  
+
       return classifierResult;
     } catch (error) {
       this.logger.error("Error during intent classification:", error);
       throw error;
     }
   }
-  
+
   async agentProcessRequest(
     userInput: string,
     userId: string,
@@ -371,9 +371,9 @@ export class MultiAgentOrchestrator {
         classifierResult,
         additionalParams,
       });
-  
+
       const metadata = this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams);
-  
+
       if (this.isAsyncIterable(agentResponse)) {
         const accumulatorTransform = new AccumulatorTransform();
         this.processStreamInBackground(
@@ -390,7 +390,7 @@ export class MultiAgentOrchestrator {
           streaming: true,
         };
       }
-  
+
       if (classifierResult?.selectedAgent.saveChat) {
         await saveConversationExchange(
           userInput,
@@ -402,7 +402,7 @@ export class MultiAgentOrchestrator {
           this.config.MAX_MESSAGE_PAIRS_PER_AGENT
         );
       }
-  
+
       return {
         metadata,
         output: agentResponse,
@@ -413,7 +413,7 @@ export class MultiAgentOrchestrator {
       throw error;
     }
   }
-  
+
   async routeRequest(
     userInput: string,
     userId: string,
@@ -421,10 +421,10 @@ export class MultiAgentOrchestrator {
     additionalParams: Record<any, any> = {}
   ): Promise<AgentResponse> {
     this.executionTimes = new Map();
-  
+
     try {
       const classifierResult = await this.classifyRequest(userInput, userId, sessionId);
-  
+
       if (!classifierResult.selectedAgent) {
         return {
           metadata: this.createMetadata(classifierResult, userInput, userId, sessionId, additionalParams),
@@ -432,7 +432,7 @@ export class MultiAgentOrchestrator {
           streaming: false,
         };
       }
-  
+
       return await this.agentProcessRequest(userInput, userId, sessionId, classifierResult, additionalParams);
     } catch (error) {
       return {
@@ -444,7 +444,7 @@ export class MultiAgentOrchestrator {
       this.logger.printExecutionTimes(this.executionTimes);
     }
   }
-  
+
 
   private async processStreamInBackground(
     agentResponse: AsyncIterable<any>,
@@ -470,7 +470,7 @@ export class MultiAgentOrchestrator {
       }
 
       accumulatorTransform.end();
-      this.logger.debug(`Streaming completed: ${chunkCount} chunks received`);
+      this.logger.debug(`\nStreaming completed: ${chunkCount} chunks received`);
 
       const fullResponse = accumulatorTransform.getAccumulatedData();
       if (fullResponse) {
