@@ -425,11 +425,31 @@ export class AnthropicAgent extends Agent {
               toolBlock.input = JSON.parse(inputString);
               const message = { role: "assistant", content: [toolBlock] };
               messages.push(message);
-              const toolResponse = await this.toolConfig!.useToolHandler(
-                message,
-                messages
-              );
-              messages.push(toolResponse);
+              const tools = this.toolConfig.tool;
+              const toolHandler =
+                this.toolConfig.useToolHandler ??
+                (async (response, conversationHistory) => {
+                  if (this.isAgentTools(tools)) {
+                    return tools.toolHandler(
+                      response,
+                      this.getToolUseBlock.bind(this),
+                      this.getToolName.bind(this),
+                      this.getToolId.bind(this),
+                      this.getInputData.bind(this)
+                    );
+                  }
+                  // Only use legacy handler when it's not AgentTools
+                  return this.toolConfig.useToolHandler(
+                    response,
+                    conversationHistory
+                  );
+                });
+
+              const toolResponse = await toolHandler(message, messages);
+              const formattedResponse = this.formatToolResults(toolResponse);
+
+              // Add the formatted response to messages
+              messages.push(formattedResponse);
               toolUse = true;
             }
           } else {

@@ -428,11 +428,34 @@ export class BedrockLLMAgent extends Agent {
               content: [{ toolUse: toolBlock }],
             };
             input.messages.push(message);
-            const toolResponse = await this.toolConfig!.useToolHandler(
+
+            const tools = this.toolConfig.tool;
+            const toolHandler =
+              this.toolConfig.useToolHandler ??
+              (async (response, conversationHistory) => {
+                if (this.isAgentTools(tools)) {
+                  return tools.toolHandler(
+                    response,
+                    this.getToolUseBlock.bind(this),
+                    this.getToolName.bind(this),
+                    this.getToolId.bind(this),
+                    this.getInputData.bind(this)
+                  );
+                }
+                // Only use legacy handler when it's not AgentTools
+                return this.toolConfig.useToolHandler(
+                  response,
+                  conversationHistory
+                );
+              });
+
+            const toolResponse = await toolHandler(
               message,
               input.messages
             );
-            input.messages.push(toolResponse);
+            const formattedResponse = this.formatToolResults(toolResponse);
+
+            input.messages.push(formattedResponse);
             toolUse = true;
           } else if (chunk.messageStop?.stopReason === "end_turn") {
             toolUse = false;
