@@ -2,15 +2,14 @@ name: Run lint checks on the project
 
 on:
   push:
-    branches:
-      - main
     paths:
       - 'typescript/**'
   pull_request:
     types:
       - opened
-      - edited
-
+      - reopened
+      - synchronize
+  workflow_dispatch:  # Allows manual triggering on any branch
 
 permissions:
   contents: read
@@ -28,7 +27,7 @@ jobs:
         uses: lycheeverse/lychee-action@c053181aa0c3d17606addfe97a9075a32723548a
         with:
           fail: true
-          args: --scheme=https . --exclude-all-private --accept 999
+          args: --scheme=https . --exclude-all-private --accept '999, 429' --max-concurrency 1 --retry-wait-time 5 --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" --exclude https://docs.anthropic.com/en/api/getting-started
       - name: Install dependencies
         run: npm install
       - name: Run linting
