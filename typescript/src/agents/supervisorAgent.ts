@@ -108,8 +108,6 @@ export class SupervisorAgent extends Agent {
       this.supervisorTools.tools.push(...additionalTools);
     }
 
-    console.log();
-
     this.leadAgent.toolConfig = {
       tool: this.supervisorTools,
       toolMaxRecursions: SupervisorAgent.DEFAULT_TOOL_MAX_RECURSIONS,
