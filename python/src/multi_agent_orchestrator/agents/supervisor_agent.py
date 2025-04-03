@@ -277,6 +277,9 @@ When communicating with other agents, including the User, please follow these gu
             if self.id not in asst_msg.content[0].get('text', '')
         )
 
+    def is_streaming_enabled(self):
+        return self.lead_agent.is_streaming_enabled()
+
     async def process_request(
         self,
         input_text: str,
