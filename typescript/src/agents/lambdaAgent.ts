@@ -6,8 +6,8 @@ import { addUserAgentMiddleware } from '../common/src/awsSdkUtils';
 export interface LambdaAgentOptions extends AgentOptions {
     functionName: string;
     functionRegion: string;
-    inputPayloadEncoder?: (inputText: string, ...additionalParams: any) => any;
-    outputPayloadDecoder?: (response: any) => ConversationMessage;
+    inputPayloadEncoder?: (inputText: string, ...additionalParams: any) => any | Promise<any>;
+    outputPayloadDecoder?: (response: any) => ConversationMessage | Promise<ConversationMessage>;
 }
 
 export class LambdaAgent extends Agent {
@@ -48,7 +48,9 @@ export class LambdaAgent extends Agent {
         additionalParams?: Record<string, string>
       ): Promise<ConversationMessage>{
 
-        const payload = this.options.inputPayloadEncoder ? this.options.inputPayloadEncoder(inputText, chatHistory, userId, sessionId, additionalParams) : this.defaultInputPayloadEncoder(inputText, chatHistory, userId, sessionId, additionalParams);
+        // Use encoder (handling both sync and async versions)
+        const payloadEncoder = this.options.inputPayloadEncoder || this.defaultInputPayloadEncoder;
+        const payload = await Promise.resolve(payloadEncoder(inputText, chatHistory, userId, sessionId, additionalParams));
         const invokeParams = {
             FunctionName: this.options.functionName,
             Payload: payload,
@@ -56,9 +58,9 @@ export class LambdaAgent extends Agent {
 
         const response = await this.lambdaClient.send(new InvokeCommand(invokeParams));
 
-        return new Promise((resolve) => {
-            const message = this.options.outputPayloadDecoder ? this.options.outputPayloadDecoder(response) : this.defaultOutputPayloaderDecoder(response);
-            resolve(message);
-          });
+        // Use decoder (handling both sync and async versions)
+        const payloadDecoder = this.options.outputPayloadDecoder || this.defaultOutputPayloaderDecoder;
+
+        return Promise.resolve(payloadDecoder(response));
       }
 }
