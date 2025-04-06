@@ -55,8 +55,30 @@ pip install -r test_requirements.txt
 
 ### Development Workflows
 
-#### Running Tests
+Before submitting a Pull Request (PR), please ensure your code complies with our formatting and linting standards, and that all tests pass successfully.
+
+#### Code format and linter
+
+To check and format your code according to our standards, run:
+
 ```bash
+# Linux/macOS
+make code-quality
+
+# Windows
+ruff check src/multi_agent_orchestrator
+ruff format --check src/multi_agent_orchestrator
+```
+
+#### Running Tests
+
+To execute the test suite and verify all tests pass:
+
+```bash
+# Linux/macOS
+make test
+
+# Windows
 python -m pytest src/tests/
 ```
 

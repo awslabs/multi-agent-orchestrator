@@ -47,6 +47,8 @@ jobs:
         pip install --upgrade pip
         pip install -r test_requirements.txt
 
+    - name: Code format and linter with Ruff
+      run: make code-quality
+
     - name: Run tests
-      run: |
-        python -m pytest src/tests/
+      run: make test

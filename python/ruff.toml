@@ -1,0 +1,81 @@
+# Enable rules.
+lint.select = [
+    #"A",   # flake8-builtins - https://docs.astral.sh/ruff/rules/#flake8-builtins-a
+    #"B",   # flake8-bugbear-b - https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
+    #"C4",  # flake8-comprehensions - https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
+    #"C90", # mccabe - https://docs.astral.sh/ruff/rules/#mccabe-c90
+    #"COM", # flak8-commas - https://docs.astral.sh/ruff/rules/#flake8-commas-com
+    #"D", # pydocstyle - https://docs.astral.sh/ruff/rules/#pydocstyle-d
+    #"E",   # pycodestyle error - https://docs.astral.sh/ruff/rules/#error-e
+    #"ERA", # flake8-eradicate - https://docs.astral.sh/ruff/rules/#eradicate-era
+    #"FA",  # flake8-future-annotations - https://docs.astral.sh/ruff/rules/#flake8-future-annotations-fa
+    #"FIX", # flake8-fixme - https://docs.astral.sh/ruff/rules/#flake8-fixme-fix
+    #"F",   # pyflakes - https://docs.astral.sh/ruff/rules/#pyflakes-f
+    #"I",   # isort - https://docs.astral.sh/ruff/rules/#isort-i
+    #"ICN", # flake8-import-conventions - https://docs.astral.sh/ruff/rules/#flake8-import-conventions-icn
+    #"ISC", # flake8-implicit-str-concat - https://docs.astral.sh/ruff/rules/#flake8-implicit-str-concat-isc
+    #"PLE", # pylint error - https://docs.astral.sh/ruff/rules/#error-ple
+    #"PLC", # pylint convention - https://docs.astral.sh/ruff/rules/#convention-plc
+    #"PLR", # pylint refactoring - https://docs.astral.sh/ruff/rules/#refactor-plr
+    #"PLW", # pylint warning - https://docs.astral.sh/ruff/rules/#warning-plw
+    #"PL",  # pylint - https://docs.astral.sh/ruff/rules/#pylint-pl
+    #"PYI", # flake8-pyi - https://docs.astral.sh/ruff/rules/#flake8-pyi-pyi
+    #"Q",   # flake8-quotes - https://docs.astral.sh/ruff/rules/#flake8-quotes-q
+    #"PTH", # flake8-use-pathlib - https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
+    #"T10", # flake8-debugger https://docs.astral.sh/ruff/rules/#flake8-debugger-t10
+    #"TCH", # flake8-type-checking - https://docs.astral.sh/ruff/rules/#flake8-type-checking-tch
+    #"TD",  # flake8-todo - https://docs.astral.sh/ruff/rules/#flake8-todos-td
+    #"UP",  # pyupgrade - https://docs.astral.sh/ruff/rules/#pyupgrade-up
+    #"W",   # pycodestyle warning - https://docs.astral.sh/ruff/rules/#warning-w
+]
+
+# Ignore specific rules
+lint.ignore = [
+    #"W291",    # https://docs.astral.sh/ruff/rules/trailing-whitespace/
+    #"PLR0913", # https://docs.astral.sh/ruff/rules/too-many-arguments/
+    #"PLR2004", #https://docs.astral.sh/ruff/rules/magic-value-comparison/
+    #"PLW0603", #https://docs.astral.sh/ruff/rules/global-statement/
+    #"B904",    # raise-without-from-inside-except - disabled temporarily
+    #"PLC1901", # Compare-to-empty-string - disabled temporarily
+    #"PYI024",
+    #"A005",
+    #"TC006" # https://docs.astral.sh/ruff/rules/runtime-cast-value/
+]
+
+# Exclude files and directories
+exclude = [
+    "docs",
+    ".eggs",
+    "setup.py",
+    "example",
+    ".aws-sam",
+    ".git",
+    "dist",
+    ".md",
+    ".yaml",
+    "example/samconfig.toml",
+    ".txt",
+    ".ini",
+]
+
+# Maximum line length
+line-length = 120
+
+target-version = "py311"
+
+fix = false
+lint.fixable = ["I", "COM812", "W"]
+
+
+[lint.mccabe]
+# Maximum cyclomatic complexity
+max-complexity = 15
+
+[lint.pylint]
+# Maximum number of nested blocks
+max-branches = 15
+# Maximum number of if statements in a function
+max-statements = 70
+
+[lint.isort]
+split-on-trailing-comma = true
