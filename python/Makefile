@@ -1,3 +1,4 @@
+# Commands
 .PHONY: code-quality test
 
 check_dirs := src/multi_agent_orchestrator
