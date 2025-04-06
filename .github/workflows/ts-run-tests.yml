@@ -10,8 +10,6 @@ on:
     types:
       - opened
       - edited
-    paths:
-      - 'typescript/**'
   workflow_dispatch:
 
 permissions:
