@@ -5,13 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'python/**'
+      - "python/**"
   pull_request:
     paths:
-      - python/**
-    types:
-      - opened
-      - edited
+      - "python/**"
   workflow_dispatch:
 
 
