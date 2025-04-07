@@ -47,7 +47,6 @@ class SupervisorToolsCallbacks (AgentToolCallbacks):
     def on_tool_end(
         self,
         tool_name,
-        input:Any,
         output: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,

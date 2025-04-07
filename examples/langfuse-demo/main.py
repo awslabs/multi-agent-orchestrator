@@ -95,6 +95,7 @@ class LLMAgentCallbacks(AgentCallbacks):
         metadata: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Any:
+        print(kwargs)
         try:
             langfuse_context.update_current_observation(
                 input=input,
@@ -107,7 +108,7 @@ class LLMAgentCallbacks(AgentCallbacks):
             print(e)
             pass
 
-    async def on_agent_stop(
+    async def on_agent_end(
         self,
         agent_name,
         response: Any,
@@ -118,6 +119,7 @@ class LLMAgentCallbacks(AgentCallbacks):
         **kwargs: Any,
     ) -> Any:
         try:
+            print(kwargs)
             langfuse_context.update_current_observation(
                 end_time=datetime.now(timezone.utc),
                 name=agent_name,
@@ -141,10 +143,11 @@ class LLMAgentCallbacks(AgentCallbacks):
         **kwargs: Any,
     ) -> Any:
         print('on_llm_start')
+        print(kwargs)
 
 
     @observe(as_type='generation', capture_input=False)
-    async def on_llm_stop(
+    async def on_llm_end(
         self,
         name:str,
         output: Any,
@@ -154,6 +157,7 @@ class LLMAgentCallbacks(AgentCallbacks):
         **kwargs: Any,
     ) -> Any:
         try:
+            print(kwargs)
             msgs = []
             msgs.append({'role':'system', 'content': kwargs.get('input').get('system')})
             msgs.extend(kwargs.get('input').get('messages'))
@@ -178,18 +182,31 @@ class LLMAgentCallbacks(AgentCallbacks):
 
 class ToolsCallbacks(AgentToolCallbacks):
 
-    @observe(as_type='span', name='on_tool_end', capture_input=False)
-    def on_tool_end(
+    @observe(as_type='span', name='on_tool_start', capture_input=False)
+    async  def on_tool_start(
         self,
         tool_name,
-        input:Any,
+        input: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        langfuse_context.update_current_observation(
+            name=tool_name,
+            input=input
+        )
+
+    @observe(as_type='span', name='on_tool_end', capture_input=False)
+    async def on_tool_end(
+        self,
+        tool_name,
         output: dict,
         run_id: Optional[UUID] = None,
         **kwargs: Any,
     ) -> Any:
         langfuse_context.update_current_observation(
             name=tool_name,
-            input=input,
             output=output
         )
 

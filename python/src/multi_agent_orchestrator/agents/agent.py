@@ -97,7 +97,7 @@ class AgentCallbacks:
         """
         return {}
 
-    async def on_agent_stop(
+    async def on_agent_end(
         self,
         agent_name,
         response: Any,
@@ -175,7 +175,7 @@ class AgentCallbacks:
         pass  # Default implementation does nothing
 
 
-    async def on_llm_stop(
+    async def on_llm_end(
         self,
         name: str,
         output: Any,
@@ -201,8 +201,8 @@ class AgentCallbacks:
 
         Returns:
             Any: The return value is implementation-dependent.
-        """
-        pass
+    """
+    pass
 
 
 @dataclass

@@ -197,7 +197,7 @@ class AnthropicAgent(Agent):
                 else:
                     continue_with_tools = False
                     # yield las message
-                    await self.callbacks.on_agent_stop(self.name, final_response, messages=messages)
+                    await self.callbacks.on_agent_end(self.name, final_response, messages=messages)
 
                     yield AgentStreamResponse(final_message=ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{"text": final_response.content[0].text}]))
 
@@ -218,7 +218,7 @@ class AnthropicAgent(Agent):
         if streaming:
             return await self._handle_streaming(input, messages, max_recursions)
         response = await self._handle_single_response_loop(input, messages, max_recursions)
-        await self.callbacks.on_agent_stop(self.name, response, messages=messages)
+        await self.callbacks.on_agent_end(self.name, response, messages=messages)
         return response
 
     async def _process_tool_block(self, llm_response: Any, conversation: list[Any]) -> (Any):
@@ -306,7 +306,7 @@ class AnthropicAgent(Agent):
                     "stop_sequences": input_data.get('stop_sequences'),
                 }
             }
-            await self.callbacks.on_llm_stop(self.name, output=response.content, **kwargs)
+            await self.callbacks.on_llm_end(self.name, output=response.content, **kwargs)
 
             return response
         except Exception as error:
@@ -359,7 +359,7 @@ class AnthropicAgent(Agent):
                     "max_tokens": input.get('max_tokens')
                 }
             }
-            await self.callbacks.on_llm_stop(self.name, output=accumulated, **kwargs)
+            await self.callbacks.on_llm_end(self.name, output=accumulated, **kwargs)
 
         except Exception as error:
             Logger.error(f"Error getting stream from Anthropic model: {str(error)}")

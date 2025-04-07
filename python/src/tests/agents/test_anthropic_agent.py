@@ -637,7 +637,7 @@ async def test_handle_streaming_response_implementation():
 
     anthropic_agent.callbacks.on_llm_new_token = AsyncMock()
     anthropic_agent.callbacks.on_llm_start = AsyncMock()
-    anthropic_agent.callbacks.on_llm_stop = AsyncMock()
+    anthropic_agent.callbacks.on_llm_end = AsyncMock()
 
     # Create a mock custom stream class that acts as both async iterator and context manager
     class MockStream:

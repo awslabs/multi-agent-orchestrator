@@ -243,12 +243,13 @@ class BedrockLLMAgent(Agent):
 
                 max_recursions -= 1
 
-            await self.callbacks.on_agent_stop(
-                self.name,
-                final_response,
-                messages=conversation,
-                agent_tracking_info=agent_tracking_info,
-            )
+            kwargs = {
+                "agent_name": self.name,
+                "response": final_response,
+                "messages": conversation,
+                "agent_tracking_info": agent_tracking_info
+            }
+            await self.callbacks.on_agent_end(**kwargs)
 
         return stream_generator()
 
@@ -272,15 +273,13 @@ class BedrockLLMAgent(Agent):
         )
 
         kwargs = {
+            "agent_name": self.name,
+            "response": response,
+            "messages": conversation,
             "agent_tracking_info": agent_tracking_info
         }
 
-        await self.callbacks.on_agent_stop(
-            self.name,
-            response,
-            messages=conversation,
-            **kwargs,
-        )
+        await self.callbacks.on_agent_end(**kwargs)
         return response
 
     async def process_request(
@@ -295,13 +294,14 @@ class BedrockLLMAgent(Agent):
         Process a conversation request either in streaming or single response mode.
         """
         kwargs = {
+            "agent_name": self.name,
+            "input": input_text,
+            "messages": [*chat_history],
             "additional_params": additional_params,
             "user_id": user_id,
             "session_id": session_id,
         }
-        agent_tracking_info = await self.callbacks.on_agent_start(
-            self.name, input_text, messages=[*chat_history], **kwargs
-        )
+        agent_tracking_info = await self.callbacks.on_agent_start(**kwargs)
 
         conversation = self._prepare_conversation(input_text, chat_history)
         system_prompt = await self._prepare_system_prompt(input_text)
@@ -336,27 +336,28 @@ class BedrockLLMAgent(Agent):
         self, converse_input: dict[str, Any], agent_tracking_info: dict
     ) -> ConversationMessage:
         try:
-            await self.callbacks.on_llm_start(
-                self.name,
-                input=converse_input.get("messages")[-1],
-                converse_input=converse_input,
-                agent_tracking_info=agent_tracking_info,
-            )
+            kwargs = {
+                "name": self.name,
+                "input": converse_input.get("messages")[-1],
+                "converse_input": converse_input,
+                "agent_tracking_info": agent_tracking_info,
+            }
+            await self.callbacks.on_llm_start(**kwargs)
 
             response = self.client.converse(**converse_input)
             if "output" not in response:
                 raise ValueError("No output received from Bedrock model")
 
             kwargs = {
+                "name": self.name,
+                "output": response.get("output", {}).get("message"),
                 "usage": response.get("usage"),
                 "system": converse_input.get("system")[0].get("text"),
                 "input": converse_input,
                 "inferenceConfig": converse_input.get("inferenceConfig"),
                 "agent_tracking_info": agent_tracking_info,
             }
-            await self.callbacks.on_llm_stop(
-                self.name, output=response.get("output", {}).get("message"), **kwargs
-            )
+            await self.callbacks.on_llm_end(**kwargs)
 
             return ConversationMessage(
                 role=response["output"]["message"]["role"],
@@ -383,14 +384,12 @@ class BedrockLLMAgent(Agent):
         """
         try:
             kwargs = {
-                "agent_tracking_info": agent_tracking_info
+                "name": self.name,
+                "input": converse_input.get("messages")[-1],
+                "messages": converse_input,
+                "agent_tracking_info": agent_tracking_info,
             }
-            await self.callbacks.on_llm_start(
-                self.name,
-                input=converse_input.get("messages")[-1],
-                converse_input=converse_input,
-                agent_tracking_info=agent_tracking_info,
-            )
+            await self.callbacks.on_llm_start(**kwargs)
             response = self.client.converse_stream(**converse_input)
 
             metadata = {}
@@ -415,10 +414,11 @@ class BedrockLLMAgent(Agent):
                         tool_use["input"] += delta["toolUse"]["input"]
                     elif "text" in delta:
                         text += delta["text"]
-                        await self.callbacks.on_llm_new_token(
-                            delta["text"],
-                            agent_tracking_info=agent_tracking_info,
-                        )
+                        token_kwargs = {
+                            "token": delta["text"],
+                            "agent_tracking_info": agent_tracking_info,
+                        }
+                        await self.callbacks.on_llm_new_token(**token_kwargs)
                         # yield the text chunk
                         yield AgentStreamResponse(text=delta["text"])
                 elif "contentBlockStop" in chunk:
@@ -437,14 +437,14 @@ class BedrockLLMAgent(Agent):
             )
 
             kwargs = {
+                "name": self.name,
+                "output": message["content"],
                 "usage": metadata.get("usage"),
                 "system": converse_input.get("system")[0].get("text"),
                 "input": converse_input,
                 "agent_tracking_info": agent_tracking_info,
             }
-            await self.callbacks.on_llm_stop(
-                self.name, output=message["content"], **kwargs
-            )
+            await self.callbacks.on_llm_end(**kwargs)
 
             # yield the final message
             yield AgentStreamResponse(final_message=final_message)
