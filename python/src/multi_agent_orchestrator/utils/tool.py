@@ -33,7 +33,7 @@ class AgentToolResult:
         }
 
 class AgentToolCallbacks:
-    def on_tool_start(
+    async def on_tool_start(
         self,
         tool_name,
         input: Any,
@@ -44,10 +44,9 @@ class AgentToolCallbacks:
     ) -> Any:
         pass
 
-    def on_tool_end(
+    async def on_tool_end(
         self,
         tool_name,
-        input:Any,
         output: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
@@ -56,7 +55,7 @@ class AgentToolCallbacks:
     ) -> Any:
         pass
 
-    def on_tool_error(
+    async def on_tool_error(
         self,
         tool_name,
         error: Exception,
@@ -241,9 +240,9 @@ class AgentTools:
             )
 
             # Process the tool use
-            self.callbacks.on_tool_start(tool_name, tool_use_block)
+            await self.callbacks.on_tool_start(tool_name, tool_use_block)
             result = await self._process_tool(tool_name, input_data)
-            self.callbacks.on_tool_end(tool_name, input_data, result)
+            await self.callbacks.on_tool_end(tool_name, result)
 
             # Create tool result
             tool_result = AgentToolResult(tool_id, result)
@@ -291,5 +290,3 @@ class AgentTools:
     def to_bedrock_format(self) -> list[dict[str, Any]]:
         """Convert all tools to Bedrock format"""
         return [tool.to_bedrock_format() for tool in self.tools]
-
-
