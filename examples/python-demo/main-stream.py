@@ -1,5 +1,6 @@
 
 import uuid
+from uuid import UUID
 import asyncio
 from typing import Optional, Any
 import json
@@ -17,8 +18,55 @@ from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.utils import AgentTools
 
 class LLMAgentCallbacks(AgentCallbacks):
-    async def on_llm_new_token(self, token: str) -> None:
-        print(token, end='', flush=True)
+    async def on_agent_start(
+        self,
+        agent_name,
+        input: Any,
+        messages: list[Any],
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> dict:
+
+        return {"id":1234}
+
+    async def on_agent_end(
+        self,
+        agent_name,
+        response: Any,
+        messages: list[Any],
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        print("on_agent_end")
+        print(kwargs)
+
+    async def on_llm_start(
+        self,
+        name: str,
+        input: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        print("on_llm_start")
+        print(kwargs)
+
+    async def on_llm_end(
+        self,
+        name: str,
+        output: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        print("on_llm_end")
+        print(kwargs)
 
 
 async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input:str, _user_id:str, _session_id:str):
@@ -82,7 +130,7 @@ if __name__ == "__main__":
             cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs \
             related to technology products and services.",
         model_id="anthropic.claude-3-sonnet-20240229-v1:0",
-        # callbacks=LLMAgentCallbacks()
+        callbacks=LLMAgentCallbacks()
     ))
     orchestrator.add_agent(tech_agent)
 
@@ -143,7 +191,8 @@ if __name__ == "__main__":
             'tool': [tool.to_bedrock_format() for tool in weather_tool.weather_tools.tools],
             'toolMaxRecursions': 5,
             'useToolHandler': weather_tool.bedrock_weather_tool_handler
-        }
+        },
+        callbacks=LLMAgentCallbacks()
     ))
 
 
