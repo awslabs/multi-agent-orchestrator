@@ -298,7 +298,7 @@ async def test_handle_single_response_error(bedrock_llm_agent, mock_boto3_client
 
     # Call the method and check for exception
     with pytest.raises(Exception, match="Test error"):
-        await bedrock_llm_agent.handle_single_response({'messages':[{'text'}]})
+        await bedrock_llm_agent.handle_single_response({'messages':[{'text'}]}, {})
 
 @pytest.mark.asyncio
 async def test_handle_streaming_response_error(bedrock_llm_agent, mock_boto3_client):
@@ -307,7 +307,7 @@ async def test_handle_streaming_response_error(bedrock_llm_agent, mock_boto3_cli
 
     # Call the method and check for exception
     with pytest.raises(Exception, match="Test error"):
-        async for _ in bedrock_llm_agent.handle_streaming_response({'messages':[{'text'}]}):
+        async for _ in bedrock_llm_agent.handle_streaming_response({'messages':[{'text'}]},  {}):
             pass
 
 
@@ -428,7 +428,7 @@ async def test_handle_single_response_no_output(bedrock_llm_agent, mock_boto3_cl
 
     # Call the method and check for exception
     with pytest.raises(ValueError, match="No output received from Bedrock model"):
-        await bedrock_llm_agent.handle_single_response({'messages':[{'role':'user','content':'text'}]})
+        await bedrock_llm_agent.handle_single_response({'messages':[{'role':'user','content':'text'}]}, {})
 
 @pytest.mark.asyncio
 async def test_handle_streaming_with_text_response(bedrock_llm_agent, mock_boto3_client):
@@ -455,7 +455,7 @@ async def test_handle_streaming_with_text_response(bedrock_llm_agent, mock_boto3
 
     # Call the method
     chunks = []
-    response = bedrock_llm_agent.handle_streaming_response(converse_input)
+    response = bedrock_llm_agent.handle_streaming_response(converse_input, {})
 
     async for chunk in response:
         chunks.append(chunk)
