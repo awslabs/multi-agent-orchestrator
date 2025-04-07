@@ -33,7 +33,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class SupervisorToolsCallbacks (AgentToolCallbacks):
-    def on_tool_start(
+    async def on_tool_start(
         self,
         tool_name,
         input: Any,
@@ -44,7 +44,7 @@ class SupervisorToolsCallbacks (AgentToolCallbacks):
     ) -> Any:
         print(f"Tool {tool_name} started with input {input}")
 
-    def on_tool_end(
+    async def on_tool_end(
         self,
         tool_name,
         output: Any,
@@ -55,7 +55,7 @@ class SupervisorToolsCallbacks (AgentToolCallbacks):
     ) -> Any:
         print(f"Tool {tool_name} ended with output {output}")
 
-    def on_tool_error(
+    async def on_tool_error(
         self,
         tool_name,
         error: Exception,
