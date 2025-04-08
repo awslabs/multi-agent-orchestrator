@@ -38,15 +38,13 @@ class AnthropicAgent(Agent):
             if self.streaming:
                 if not isinstance(options.client, AsyncAnthropic):
                     raise ValueError("If streaming is enabled, the provided client must be an AsyncAnthropic client")
-            else:
-                if not isinstance(options.client, Anthropic):
-                    raise ValueError("If streaming is disabled, the provided client must be an Anthropic client")
+            elif not isinstance(options.client, Anthropic):
+                raise ValueError("If streaming is disabled, the provided client must be an Anthropic client")
             self.client = options.client
+        elif self.streaming:
+            self.client = AsyncAnthropic(api_key=options.api_key)
         else:
-            if self.streaming:
-                self.client = AsyncAnthropic(api_key=options.api_key)
-            else:
-                self.client = Anthropic(api_key=options.api_key)
+            self.client = Anthropic(api_key=options.api_key)
 
         self.system_prompt = ''
         self.custom_variables = {}
@@ -146,7 +144,7 @@ class AnthropicAgent(Agent):
             system_prompt: str
             ) -> dict:
         """Build the conversation command with all necessary configurations."""
-        input = {
+        json_input = {
             "model": self.model_id,
             "max_tokens": self.inference_config.get('maxTokens'),
             "messages": messages,
@@ -157,9 +155,9 @@ class AnthropicAgent(Agent):
         }
 
         if self.tool_config:
-            input["tools"] = self._prepare_tool_config()
+            json_input["tools"] = self._prepare_tool_config()
 
-        return input
+        return json_input
 
     def _get_max_recursions(self) -> int:
         """Get the maximum number of recursions based on tool configuration."""
@@ -169,7 +167,7 @@ class AnthropicAgent(Agent):
 
     async def _handle_streaming(
         self,
-        input: dict,
+        payload_input: dict,
         messages: list[Any],
         max_recursions: int
     ) -> AsyncIterable[Any]:
@@ -181,7 +179,7 @@ class AnthropicAgent(Agent):
             nonlocal continue_with_tools, final_response, max_recursions
 
             while continue_with_tools and max_recursions > 0:
-                response = self.handle_streaming_response(input)
+                response = self.handle_streaming_response(payload_input)
 
                 async for chunk in response:
                     if chunk.final_message:
@@ -190,9 +188,9 @@ class AnthropicAgent(Agent):
                         yield chunk
 
                 if any('tool_use' in content.type for content in final_response.content):
-                    input['messages'].append({"role": "assistant", "content": final_response.content})
+                    payload_input['messages'].append({"role": "assistant", "content": final_response.content})
                     tool_response = await self._process_tool_block(final_response, messages)
-                    input['messages'].append(tool_response)
+                    payload_input['messages'].append(tool_response)
                 else:
                     continue_with_tools = False
                     # yield las message
@@ -205,7 +203,7 @@ class AnthropicAgent(Agent):
     async def _process_with_strategy(
         self,
         streaming: bool,
-        input: dict,
+        payload_input: dict,
         messages: list[Any]
     ) -> ConversationMessage | AsyncIterable[Any]:
         """Process the request using the specified strategy."""
@@ -213,24 +211,22 @@ class AnthropicAgent(Agent):
         max_recursions = self._get_max_recursions()
 
         if streaming:
-            return await self._handle_streaming(input, messages, max_recursions)
-        return await self._handle_single_response_loop(input, messages, max_recursions)
+            return await self._handle_streaming(payload_input, messages, max_recursions)
+        return await self._handle_single_response_loop(payload_input, messages, max_recursions)
 
-    async def _process_tool_block(self, llm_response: Any, conversation: list[Any]) -> (Any):
+    async def _process_tool_block(self, llm_response: Any, conversation: list[Any]) -> Any:
         if 'useToolHandler' in  self.tool_config:
             # tool process logic is handled elsewhere
             tool_response = await self.tool_config['useToolHandler'](llm_response, conversation)
+        elif isinstance(self.tool_config['tool'], AgentTools):
+            tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.ANTHROPIC.value, llm_response, conversation)
         else:
-            # tool process logic is handled in AgentTools class
-            if isinstance(self.tool_config['tool'], AgentTools):
-                tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.ANTHROPIC.value, llm_response, conversation)
-            else:
-                raise ValueError("You must use class when not providing a custom tool handler")
+            raise ValueError("You must use class when not providing a custom tool handler")
         return tool_response
 
     async def _handle_single_response_loop(
         self,
-        input: Any,
+        payload_input: Any,
         messages: list[Any],
         max_recursions: int
     ) -> ConversationMessage:
@@ -240,11 +236,11 @@ class AnthropicAgent(Agent):
         llm_response = None
 
         while continue_with_tools and max_recursions > 0:
-            llm_response = await self.handle_single_response(input)
+            llm_response = await self.handle_single_response(payload_input)
             if any('tool_use' in content.type for content in llm_response.content):
-                input['messages'].append({"role": "assistant", "content": llm_response.content})
+                payload_input['messages'].append({"role": "assistant", "content": llm_response.content})
                 tool_response = await self._process_tool_block(llm_response, messages)
-                input['messages'].append(tool_response)
+                payload_input['messages'].append(tool_response)
             else:
                 continue_with_tools = False
 
@@ -263,23 +259,19 @@ class AnthropicAgent(Agent):
 
         messages = self._prepare_conversation(input_text, chat_history)
         system_prompt = await self._prepare_system_prompt(input_text)
-        input = self._build_input(messages, system_prompt)
+        json_input = self._build_input(messages, system_prompt)
 
-        return await self._process_with_strategy(self.streaming, input, messages)
+        return await self._process_with_strategy(self.streaming, json_input, messages)
 
     async def handle_single_response(self, input_data: dict) -> Any:
         try:
-            response = self.client.messages.create(**input_data)
-            return response
+            return self.client.messages.create(**input_data)
         except Exception as error:
             Logger.error(f"Error invoking Anthropic: {error}")
             raise error
 
-    async def handle_streaming_response(self, input) -> AsyncGenerator[AgentStreamResponse, None]:
-        message = {}
-        content = []
-        accumulated = {}
-        message['content'] = content
+    async def handle_streaming_response(self, input) -> AsyncGenerator[AgentStreamResponse, None]: # noqa: A002
+        accumulated: dict[str, Any] = {}
 
         try:
             async with self.client.messages.stream(**input) as stream:

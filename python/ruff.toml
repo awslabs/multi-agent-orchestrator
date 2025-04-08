@@ -1,7 +1,7 @@
 # Enable rules.
 lint.select = [
-    #"A",   # flake8-builtins - https://docs.astral.sh/ruff/rules/#flake8-builtins-a
-    #"B",   # flake8-bugbear-b - https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
+    "A",   # flake8-builtins - https://docs.astral.sh/ruff/rules/#flake8-builtins-a
+    "B",   # flake8-bugbear-b - https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
     #"C4",  # flake8-comprehensions - https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
     #"C90", # mccabe - https://docs.astral.sh/ruff/rules/#mccabe-c90
     #"COM", # flak8-commas - https://docs.astral.sh/ruff/rules/#flake8-commas-com

@@ -253,7 +253,7 @@ When communicating with other agents, including the User, please follow these gu
         return ''.join(
             f"{user_msg.role}:{user_msg.content[0].get('text','')}\n"
             f"{asst_msg.role}:{asst_msg.content[0].get('text','')}\n"
-            for user_msg, asst_msg in zip(agents_history[::2], agents_history[1::2])
+            for user_msg, asst_msg in zip(agents_history[::2], agents_history[1::2], strict=True)
             if self.id not in asst_msg.content[0].get('text', '')
         )
 
