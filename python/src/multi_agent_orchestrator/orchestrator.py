@@ -137,10 +137,13 @@ class MultiAgentOrchestrator:
                                user_id: str,
                                session_id: str,
                                classifier_result: ClassifierResult,
-                               additional_params: dict[str, str] = {},
+                               additional_params: dict[str, str] | None = None,
                                stream_response: bool | None = False # wether to stream back the response from the agent
     ) -> AgentResponse:
         """Process agent response and handle chat storage."""
+
+        if additional_params is None:
+            additional_params = {}
         try:
             agent_response = await self.dispatch_to_agent({
                 "user_input": user_input,
@@ -180,7 +183,6 @@ class MultiAgentOrchestrator:
                                     yield chunk
                                 else:
                                     Logger.error("Invalid response type from agent. Expected AgentStreamResponse")
-                                    pass
 
                             if full_message:
                                 await self.save_message(full_message,
@@ -199,7 +201,7 @@ class MultiAgentOrchestrator:
                                     full_message = chunk.final_message
                             else:
                                 Logger.error("Invalid response type from agent. Expected AgentStreamResponse")
-                                pass
+                                
 
                         if full_message:
                             await self.save_message(full_message,
@@ -227,13 +229,10 @@ class MultiAgentOrchestrator:
             self.logger.error(f"Error during agent processing: {str(error)}")
             raise error
 
-    async def route_request(self,
-                       user_input: str,
-                       user_id: str,
-                       session_id: str,
-                       additional_params: dict[str, str] = {},
-                       stream_response: bool | None = False) -> AgentResponse:
+    async def route_request(self, user_input: str, user_id: str, session_id: str, additional_params: dict[str, str] | None = None, stream_response: bool | None = False) -> AgentResponse:
         """Route user request to appropriate agent."""
+        if additional_params is None:
+            additional_params = {}
         self.execution_times.clear()
 
         try:
