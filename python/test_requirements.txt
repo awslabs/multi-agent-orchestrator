@@ -7,3 +7,4 @@ pytest-mock
 pytest-asyncio
 openai
 libsql-client
+ruff>=0.11.4

@@ -5,11 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'typescript/**'
+      - "typescript/**"
   pull_request:
-    types:
-      - opened
-      - edited
+    paths:
+      - "typescript/**"
   workflow_dispatch:
 
 permissions:
