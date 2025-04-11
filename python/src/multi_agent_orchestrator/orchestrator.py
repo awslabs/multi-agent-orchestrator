@@ -87,8 +87,10 @@ class MultiAgentOrchestrator:
         additional_params = params.get('additional_params', {})
 
         if not classifier_result.selected_agent:
-            return "I'm sorry, but I need more information to understand your request. \
-                Could you please be more specific?"
+            return ConversationMessage(
+                role=ParticipantRole.ASSISTANT.value,
+                content=[{'text': "I'm sorry, but I need more information to understand your request. Could you please be more specific?"}]
+            )
 
         selected_agent = classifier_result.selected_agent
         agent_chat_history = await self.storage.fetch_chat(user_id, session_id, selected_agent.id)
@@ -142,86 +144,98 @@ class MultiAgentOrchestrator:
     ) -> AgentResponse:
         """Process agent response and handle chat storage."""
         try:
-            agent_response = await self.dispatch_to_agent({
-                "user_input": user_input,
-                "user_id": user_id,
-                "session_id": session_id,
-                "classifier_result": classifier_result,
-                "additional_params": additional_params
-            })
+            if classifier_result.selected_agent:
+                agent_response = await self.dispatch_to_agent({
+                    "user_input": user_input,
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "classifier_result": classifier_result,
+                    "additional_params": additional_params
+                })
 
-            metadata = self.create_metadata(classifier_result,
-                                        user_input,
-                                        user_id,
-                                        session_id,
-                                        additional_params)
+                metadata = self.create_metadata(classifier_result,
+                                            user_input,
+                                            user_id,
+                                            session_id,
+                                            additional_params)
 
-            await self.save_message(
-                ConversationMessage(
-                    role=ParticipantRole.USER.value,
-                    content=[{'text': user_input}]
-                ),
-                user_id,
-                session_id,
-                classifier_result.selected_agent
-            )
+                await self.save_message(
+                    ConversationMessage(
+                        role=ParticipantRole.USER.value,
+                        content=[{'text': user_input}]
+                    ),
+                    user_id,
+                    session_id,
+                    classifier_result.selected_agent
+                )
 
-            final_response = None
-            if classifier_result.selected_agent.is_streaming_enabled():
-                if stream_response:
-                    if isinstance(agent_response, AsyncIterable):
-                        # Create an async generator function to handle the streaming
-                        async def process_stream():
+                final_response = None
+                if classifier_result.selected_agent.is_streaming_enabled():
+                    if stream_response:
+                        if isinstance(agent_response, AsyncIterable):
+                            # Create an async generator function to handle the streaming
+                            async def process_stream():
+                                full_message = None
+                                async for chunk in agent_response:
+                                    if isinstance(chunk, AgentStreamResponse):
+                                        if chunk.final_message:
+                                            full_message = chunk.final_message
+                                        yield chunk
+                                    else:
+                                        Logger.error("Invalid response type from agent. Expected AgentStreamResponse")
+                                        pass
+
+                                if full_message:
+                                    await self.save_message(full_message,
+                                                        user_id,
+                                                        session_id,
+                                                        classifier_result.selected_agent)
+
+
+                            final_response = process_stream()
+                    else:
+                        async def process_stream() -> ConversationMessage:
                             full_message = None
                             async for chunk in agent_response:
                                 if isinstance(chunk, AgentStreamResponse):
                                     if chunk.final_message:
                                         full_message = chunk.final_message
-                                    yield chunk
                                 else:
                                     Logger.error("Invalid response type from agent. Expected AgentStreamResponse")
                                     pass
 
                             if full_message:
                                 await self.save_message(full_message,
-                                                    user_id,
-                                                    session_id,
-                                                    classifier_result.selected_agent)
+                                                user_id,
+                                                session_id,
+                                                classifier_result.selected_agent)
+                            return full_message
+                        final_response = await process_stream()
 
 
-                        final_response = process_stream()
-                else:
-                    async def process_stream() -> ConversationMessage:
-                        full_message = None
-                        async for chunk in agent_response:
-                            if isinstance(chunk, AgentStreamResponse):
-                                if chunk.final_message:
-                                    full_message = chunk.final_message
-                            else:
-                                Logger.error("Invalid response type from agent. Expected AgentStreamResponse")
-                                pass
-
-                        if full_message:
-                            await self.save_message(full_message,
+                else:  # Non-streaming response
+                    final_response = agent_response
+                    await self.save_message(final_response,
                                             user_id,
                                             session_id,
                                             classifier_result.selected_agent)
-                        return full_message
-                    final_response = await process_stream()
 
-
-            else:  # Non-streaming response
-                final_response = agent_response
-                await self.save_message(final_response,
-                                        user_id,
-                                        session_id,
-                                        classifier_result.selected_agent)
-
-            return AgentResponse(
-                metadata=metadata,
-                output=final_response,
-                streaming=classifier_result.selected_agent.is_streaming_enabled()
-            )
+                return AgentResponse(
+                    metadata=metadata,
+                    output=final_response,
+                    streaming=classifier_result.selected_agent.is_streaming_enabled()
+                )
+            else:
+                # classified didn't find a proper agent
+                error =  self.config.NO_SELECTED_AGENT_MESSAGE or "I'm sorry, but I need more information to understand your request. Could you please be more specific?"
+                return AgentResponse(
+                    metadata=self.create_metadata(None, user_input, user_id, session_id, additional_params),
+                    output=ConversationMessage(
+                        role=ParticipantRole.ASSISTANT.value,
+                        content=[{'text': error}]
+                    ),
+                    streaming=False
+                )
 
         except Exception as error:
             self.logger.error(f"Error during agent processing: {str(error)}")
@@ -259,9 +273,13 @@ class MultiAgentOrchestrator:
             )
 
         except Exception as error:
+            error_message = self.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE or str(error)
             return AgentResponse(
                 metadata=self.create_metadata(None, user_input, user_id, session_id, additional_params),
-                output=self.config.GENERAL_ROUTING_ERROR_MSG_MESSAGE or str(error),
+                output=ConversationMessage(
+                    role=ParticipantRole.ASSISTANT.value,
+                    content=[{'text': error_message}]
+                ),
                 streaming=False
             )
 
