@@ -172,7 +172,8 @@ class AnthropicAgent(Agent):
         self,
         input: dict,
         messages: list[Any],
-        max_recursions: int
+        max_recursions: int,
+        agent_tracking_info: dict[str, Any] | None = None
     ) -> AsyncIterable[Any]:
         """Handle streaming response processing with tool recursion."""
         continue_with_tools = True
@@ -192,12 +193,18 @@ class AnthropicAgent(Agent):
 
                 if any('tool_use' in content.type for content in final_response.content):
                     input['messages'].append({"role": "assistant", "content": final_response.content})
-                    tool_response = await self._process_tool_block(final_response, messages)
+                    tool_response = await self._process_tool_block(final_response, messages, agent_tracking_info)
                     input['messages'].append(tool_response)
                 else:
                     continue_with_tools = False
-                    # yield las message
-                    await self.callbacks.on_agent_end(self.name, final_response, messages=messages)
+                    # yield last message
+                    kwargs = {
+                        "agent_name": self.name,
+                        "response": final_response,
+                        "messages": messages,
+                        "agent_tracking_info": agent_tracking_info
+                    }
+                    await self.callbacks.on_agent_end(**kwargs)
 
                     yield AgentStreamResponse(final_message=ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{"text": final_response.content[0].text}]))
 
@@ -209,35 +216,48 @@ class AnthropicAgent(Agent):
         self,
         streaming: bool,
         input: dict,
-        messages: list[Any]
+        messages: list[Any],
+        agent_tracking_info: dict[str, Any] | None = None
     ) -> ConversationMessage | AsyncIterable[Any]:
         """Process the request using the specified strategy."""
 
         max_recursions = self._get_max_recursions()
 
         if streaming:
-            return await self._handle_streaming(input, messages, max_recursions)
-        response = await self._handle_single_response_loop(input, messages, max_recursions)
-        await self.callbacks.on_agent_end(self.name, response, messages=messages)
+            return await self._handle_streaming(input, messages, max_recursions, agent_tracking_info)
+        response = await self._handle_single_response_loop(input, messages, max_recursions, agent_tracking_info)
+
+        kwargs = {
+            "agent_name": self.name,
+            "response": response,
+            "messages": messages,
+            "agent_tracking_info": agent_tracking_info
+        }
+        await self.callbacks.on_agent_end(**kwargs)
         return response
 
-    async def _process_tool_block(self, llm_response: Any, conversation: list[Any]) -> (Any):
+    async def _process_tool_block(self, llm_response: Any, conversation: list[Any], agent_tracking_info: dict[str, Any] | None = None) -> (Any):
         if 'useToolHandler' in  self.tool_config:
             # tool process logic is handled elsewhere
             tool_response = await self.tool_config['useToolHandler'](llm_response, conversation)
         else:
             # tool process logic is handled in AgentTools class
             if isinstance(self.tool_config['tool'], AgentTools):
-                tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.ANTHROPIC.value, llm_response, conversation)
+                additional_params = {
+                    "agent_name": self.name,
+                    "agent_tracking_info": agent_tracking_info
+                }
+                tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.ANTHROPIC.value, llm_response, conversation, additional_params)
             else:
-                raise ValueError("You must use class when not providing a custom tool handler")
+                raise ValueError("You must use AgentTools class when not providing a custom tool handler")
         return tool_response
 
     async def _handle_single_response_loop(
         self,
         input: Any,
         messages: list[Any],
-        max_recursions: int
+        max_recursions: int,
+        agent_tracking_info: dict[str, Any] | None = None
     ) -> ConversationMessage:
         """Handle single response processing with tool recursion."""
 
@@ -248,7 +268,7 @@ class AnthropicAgent(Agent):
             llm_response:Message = await self.handle_single_response(input)
             if any('tool_use' in content.type for content in llm_response.content):
                 input['messages'].append({"role": "assistant", "content": llm_response.content})
-                tool_response = await self._process_tool_block(llm_response, messages)
+                tool_response = await self._process_tool_block(llm_response, messages, agent_tracking_info)
                 input['messages'].append(tool_response)
             else:
                 continue_with_tools = False
@@ -271,18 +291,20 @@ class AnthropicAgent(Agent):
     ) -> ConversationMessage | AsyncIterable[Any]:
 
         kwargs = {
-            'additional_params':additional_params,
-            'user_id':user_id,
-            'session_id':session_id
+            'agent_name': self.name,
+            'input': input_text,
+            'messages': [*chat_history],
+            'additional_params': additional_params,
+            'user_id': user_id,
+            'session_id': session_id
         }
-
-        await self.callbacks.on_agent_start(self.name, input_text, messages=[*chat_history], **kwargs)
+        agent_tracking_info = await self.callbacks.on_agent_start(**kwargs)
 
         messages = self._prepare_conversation(input_text, chat_history)
         system_prompt = await self._prepare_system_prompt(input_text)
         input = self._build_input(messages, system_prompt)
 
-        return await self._process_with_strategy(self.streaming, input, messages)
+        return await self._process_with_strategy(self.streaming, input, messages, agent_tracking_info)
 
     async def handle_single_response(self, input_data: dict) -> Any:
         try:

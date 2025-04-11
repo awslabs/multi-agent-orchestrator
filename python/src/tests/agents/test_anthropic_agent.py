@@ -422,13 +422,13 @@ async def test_process_tool_block_with_handler():
 
     tool_response = await anthropic_agent._process_tool_block(llm_response, conversation)
 
-    mock_agent_tools.tool_handler.assert_called_once_with(AgentProviderType.ANTHROPIC.value, llm_response, conversation)
+    mock_agent_tools.tool_handler.assert_called_once_with(AgentProviderType.ANTHROPIC.value, llm_response, conversation, {'agent_name': 'TestAgent', 'agent_tracking_info': None})
     assert tool_response == {"role": "tool", "content": "AgentTools response"}
 
     # Test with invalid tool config
     anthropic_agent.tool_config = {"tool": "invalid"}
 
-    with pytest.raises(ValueError, match="You must use class when not providing a custom tool handler"):
+    with pytest.raises(ValueError, match="You must use AgentTools class when not providing a custom tool handler"):
         await anthropic_agent._process_tool_block(llm_response, conversation)
 
 @pytest.mark.asyncio
@@ -573,10 +573,10 @@ async def test_process_with_strategy():
     messages = [{"role": "user", "content": "Test message"}]
 
     # Test with streaming=False
-    response = await anthropic_agent._process_with_strategy(False, input_data, messages)
+    response = await anthropic_agent._process_with_strategy(False, input_data, messages, {"agent_tracking":1234})
 
     # Verify the non-streaming handler was called
-    anthropic_agent._handle_single_response_loop.assert_called_once_with(input_data, messages, 1)
+    anthropic_agent._handle_single_response_loop.assert_called_once_with(input_data, messages, 1, {"agent_tracking":1234})
     assert response.content[0]["text"] == "Single response"
 
     # Reset the mock
@@ -598,6 +598,7 @@ async def test_process_with_strategy():
     assert responses[0].text == "Streaming chunk 1"
     assert responses[1].text == "Streaming chunk 2"
     assert responses[2].final_message.content[0]["text"] == "Final streaming response"
+
 
 @pytest.mark.asyncio
 async def test_handle_single_response_error():
