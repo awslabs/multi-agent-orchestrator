@@ -443,12 +443,12 @@ async def test_process_tool_block_with_agent_tools(bedrock_llm_agent):
     )
 
     # Call the method
-    result = await bedrock_llm_agent._process_tool_block(llm_response, [])
+    result = await bedrock_llm_agent._process_tool_block(llm_response, [], {"agent_start_id":1234})
 
     # Verify the result
     assert result == expected_response
     mock_agent_tools.tool_handler.assert_called_once_with(
-        AgentProviderType.BEDROCK.value, llm_response, []
+        AgentProviderType.BEDROCK.value, llm_response, [], {'agent_name':'TestAgent', 'agent_tracking_info': {"agent_start_id":1234}}
     )
 
 @pytest.mark.asyncio
