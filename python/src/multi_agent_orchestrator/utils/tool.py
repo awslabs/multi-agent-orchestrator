@@ -4,6 +4,7 @@ from functools import wraps
 import re
 from dataclasses import dataclass
 from multi_agent_orchestrator.types import AgentProviderType, ConversationMessage, ParticipantRole
+from uuid import UUID
 
 @dataclass
 class PropertyDefinition:
@@ -30,6 +31,40 @@ class AgentToolResult:
                 "content": [{"text": self.content}]
             }
         }
+
+class AgentToolCallbacks:
+    async def on_tool_start(
+        self,
+        tool_name,
+        input: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
+    async def on_tool_end(
+        self,
+        tool_name,
+        output: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
+    async def on_tool_error(
+        self,
+        tool_name,
+        error: Exception,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
 
 class AgentTool:
     def __init__(self,
@@ -168,10 +203,11 @@ class AgentTool:
         }
 
 class AgentTools:
-    def __init__(self, tools:list[AgentTool]):
+    def __init__(self, tools:list[AgentTool], callbacks:Optional[AgentToolCallbacks] = None):
         self.tools:list[AgentTool] = tools
+        self.callbacks = callbacks or AgentToolCallbacks()
 
-    async def tool_handler(self, provider_type, response: Any, _conversation: list[dict[str, Any]]) -> Any:
+    async def tool_handler(self, provider_type, response: Any, _conversation: list[dict[str, Any]], agent_info: Optional[dict[str, Any]] = None) -> Any:
         if not response.content:
             raise ValueError("No content blocks in response")
 
@@ -186,25 +222,27 @@ class AgentTools:
 
             tool_name = (
                 tool_use_block.get("name")
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_use_block.name
             )
 
             tool_id = (
                 tool_use_block.get("toolUseId")
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_use_block.id
             )
 
             # Get input based on platform
             input_data = (
                 tool_use_block.get("input", {})
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_use_block.input
             )
 
             # Process the tool use
+            await self.callbacks.on_tool_start(tool_name, input_data, metadata={"agent_info": agent_info})
             result = await self._process_tool(tool_name, input_data)
+            await self.callbacks.on_tool_end(tool_name, result, metadata={"agent_info": agent_info})
 
             # Create tool result
             tool_result = AgentToolResult(tool_id, result)
@@ -212,14 +250,14 @@ class AgentTools:
             # Format according to platform
             formatted_result = (
                 tool_result.to_bedrock_format()
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_result.to_anthropic_format()
             )
 
             tool_results.append(formatted_result)
 
         # Create and return appropriate message format
-        if  provider_type ==  AgentProviderType.BEDROCK.value:
+        if provider_type == AgentProviderType.BEDROCK.value:
             return ConversationMessage(
                 role=ParticipantRole.USER.value,
                 content=tool_results
@@ -252,5 +290,3 @@ class AgentTools:
     def to_bedrock_format(self) -> list[dict[str, Any]]:
         """Convert all tools to Bedrock format"""
         return [tool.to_bedrock_format() for tool in self.tools]
-
-

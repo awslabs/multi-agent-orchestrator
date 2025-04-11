@@ -10,7 +10,7 @@ import {
   ToolConfiguration
 } from "@aws-sdk/client-bedrock-runtime";
 
-import { Classifier, ClassifierResult } from "./classifier";
+import { Classifier, ClassifierCallbacks, ClassifierResult } from "./classifier";
 import { isClassifierToolInput } from "../utils/helpers";
 import { Logger } from "../utils/logger";
 
@@ -41,6 +41,7 @@ export interface BedrockClassifierOptions {
     // Array of sequences that will stop the model from generating further tokens when encountered
     stopSequences?: string[];
   };
+  callbacks?: ClassifierCallbacks;
 }
 
 /**
@@ -85,6 +86,7 @@ export class BedrockClassifier extends Classifier{
       },
     },
   ];
+  protected callbacks: ClassifierCallbacks;
 
 
 
@@ -107,6 +109,7 @@ export class BedrockClassifier extends Classifier{
       topP: options.inferenceConfig?.topP,
       stopSequences: options.inferenceConfig?.stopSequences,
     };
+    this.callbacks = options.callbacks ?? new ClassifierCallbacks();
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Agent, AgentOptions } from "./agent";
+import { Agent, AgentCallbacks, AgentOptions } from "./agent";
 import {
   ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET,
   ConversationMessage,
@@ -40,6 +40,7 @@ export interface AnthropicAgentOptions extends AgentOptions {
     template: string;
     variables?: TemplateVariables;
   };
+  callbacks?: AgentCallbacks;
 }
 
 type WithApiKey = {
@@ -80,6 +81,8 @@ export class AnthropicAgent extends Agent {
   private customVariables: TemplateVariables;
   private defaultMaxRecursions: number = 20;
 
+  protected callbacks?: AgentCallbacks;
+
   constructor(options: AnthropicAgentOptionsWithAuth) {
     super(options);
 
@@ -111,6 +114,8 @@ export class AnthropicAgent extends Agent {
     this.retriever = options.retriever;
 
     this.toolConfig = options.toolConfig;
+
+    this.callbacks = options.callbacks ?? new AgentCallbacks();
 
     this.promptTemplate = `You are a ${this.name}. ${this.description} Provide helpful and accurate information based on your expertise.
     You will engage in an open-ended conversation, providing helpful and accurate information based on your expertise.
@@ -420,11 +425,31 @@ export class AnthropicAgent extends Agent {
               toolBlock.input = JSON.parse(inputString);
               const message = { role: "assistant", content: [toolBlock] };
               messages.push(message);
-              const toolResponse = await this.toolConfig!.useToolHandler(
-                message,
-                messages
-              );
-              messages.push(toolResponse);
+              const tools = this.toolConfig.tool;
+              const toolHandler =
+                this.toolConfig.useToolHandler ??
+                (async (response, conversationHistory) => {
+                  if (this.isAgentTools(tools)) {
+                    return tools.toolHandler(
+                      response,
+                      this.getToolUseBlock.bind(this),
+                      this.getToolName.bind(this),
+                      this.getToolId.bind(this),
+                      this.getInputData.bind(this)
+                    );
+                  }
+                  // Only use legacy handler when it's not AgentTools
+                  return this.toolConfig.useToolHandler(
+                    response,
+                    conversationHistory
+                  );
+                });
+
+              const toolResponse = await toolHandler(message, messages);
+              const formattedResponse = this.formatToolResults(toolResponse);
+
+              // Add the formatted response to messages
+              messages.push(formattedResponse);
               toolUse = true;
             }
           } else {

@@ -2,7 +2,7 @@ import requests
 from requests.exceptions import RequestException
 from typing import List, Dict, Any
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.utils import AgentTool, AgentTools
+from multi_agent_orchestrator.utils import AgentTool, AgentTools, AgentToolCallbacks
 import json
 
 async def fetch_weather_data(latitude:str, longitude:str):

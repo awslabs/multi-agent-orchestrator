@@ -106,6 +106,118 @@ async def test_process_request_single_response(bedrock_llm_agent, mock_boto3_cli
     assert result.role == ParticipantRole.ASSISTANT.value
     assert result.content[0]['text'] == 'This is a test response'
 
+@pytest.mark.asyncio
+async def test_agent_tracking_info_propagation(bedrock_llm_agent, mock_boto3_client):
+    # Set up mock response
+    mock_response = {
+        'output': {
+            'message': {
+                'role': 'assistant',
+                'content': [{'text': 'Test response'}]
+            }
+        },
+        'usage': {'inputTokens': 10, 'outputTokens': 20}
+    }
+    mock_boto3_client.return_value.converse.return_value = mock_response
+
+    # Set up mock callbacks
+    bedrock_llm_agent.callbacks = AsyncMock()
+    tracking_info = {'trace_id': '123', 'span_id': '456'}
+    bedrock_llm_agent.callbacks.on_agent_start.return_value = tracking_info
+
+    # Call the method
+    input_text = "Test tracking"
+    user_id = "test_user"
+    session_id = "test_session"
+    chat_history = []
+
+    await bedrock_llm_agent.process_request(input_text, user_id, session_id, chat_history)
+
+    # Verify on_agent_start was called with correct parameters
+    bedrock_llm_agent.callbacks.on_agent_start.assert_called_once()
+    agent_start_args = bedrock_llm_agent.callbacks.on_agent_start.call_args[1]
+    assert agent_start_args['agent_name'] == bedrock_llm_agent.name
+    assert agent_start_args['input'] == input_text
+    assert agent_start_args['user_id'] == user_id
+    assert agent_start_args['session_id'] == session_id
+
+    # Verify on_llm_start was called with tracking info
+    bedrock_llm_agent.callbacks.on_llm_start.assert_called_once()
+    llm_start_args = bedrock_llm_agent.callbacks.on_llm_start.call_args[1]
+    assert llm_start_args['agent_tracking_info'] == tracking_info
+
+    # Verify on_llm_end was called with tracking info
+    bedrock_llm_agent.callbacks.on_llm_end.assert_called_once()
+    llm_end_args = bedrock_llm_agent.callbacks.on_llm_end.call_args[1]
+    assert llm_end_args['agent_tracking_info'] == tracking_info
+
+    # Verify on_agent_end was called with tracking info
+    bedrock_llm_agent.callbacks.on_agent_end.assert_called_once()
+    agent_end_args = bedrock_llm_agent.callbacks.on_agent_end.call_args[1]
+    assert agent_end_args['agent_tracking_info'] == tracking_info
+
+@pytest.mark.asyncio
+async def test_agent_tracking_info_streaming(bedrock_llm_agent, mock_boto3_client):
+    # Enable streaming
+    bedrock_llm_agent.streaming = True
+
+    # Set up mock stream response
+    stream_response = {
+        "stream": [
+            {"messageStart": {"role": "assistant"}},
+            {"contentBlockDelta": {"delta": {"text": "Test "}}},
+            {"contentBlockDelta": {"delta": {"text": "response"}}},
+            {"contentBlockStop": {}},
+            {"metadata": {"usage": {"inputTokens": 5, "outputTokens": 2}}}
+        ]
+    }
+    mock_boto3_client.return_value.converse_stream.return_value = stream_response
+
+    # Set up mock callbacks
+    bedrock_llm_agent.callbacks = AsyncMock()
+    tracking_info = {'trace_id': '789', 'span_id': '012'}
+    bedrock_llm_agent.callbacks.on_agent_start.return_value = tracking_info
+
+    # Call the method
+    input_text = "Test streaming tracking"
+    user_id = "test_user"
+    session_id = "test_session"
+    chat_history = []
+
+    result = await bedrock_llm_agent.process_request(input_text, user_id, session_id, chat_history)
+
+    # Collect all chunks to ensure streaming completes
+    chunks = []
+    async for chunk in result:
+        chunks.append(chunk)
+
+    # Verify on_agent_start was called with correct parameters
+    bedrock_llm_agent.callbacks.on_agent_start.assert_called_once()
+    agent_start_args = bedrock_llm_agent.callbacks.on_agent_start.call_args[1]
+    assert agent_start_args['agent_name'] == bedrock_llm_agent.name
+    assert agent_start_args['input'] == input_text
+
+    # Verify on_llm_start was called with tracking info
+    bedrock_llm_agent.callbacks.on_llm_start.assert_called_once()
+    llm_start_args = bedrock_llm_agent.callbacks.on_llm_start.call_args[1]
+    assert llm_start_args['agent_tracking_info'] == tracking_info
+
+    # Verify on_llm_new_token was called with tracking info
+    assert bedrock_llm_agent.callbacks.on_llm_new_token.call_count == 2
+    for call in bedrock_llm_agent.callbacks.on_llm_new_token.call_args_list:
+        token_args = call[1]
+        assert token_args['agent_tracking_info'] == tracking_info
+
+    # Verify on_llm_end was called with tracking info
+    bedrock_llm_agent.callbacks.on_llm_end.assert_called_once()
+    llm_end_args = bedrock_llm_agent.callbacks.on_llm_end.call_args[1]
+    assert llm_end_args['agent_tracking_info'] == tracking_info
+
+    # Verify on_agent_end was called with tracking info
+    bedrock_llm_agent.callbacks.on_agent_end.assert_called_once()
+    agent_end_args = bedrock_llm_agent.callbacks.on_agent_end.call_args[1]
+    assert agent_end_args['agent_tracking_info'] == tracking_info
+
 
 @pytest.mark.asyncio
 async def test_process_request_streaming(bedrock_llm_agent, mock_boto3_client):
@@ -298,7 +410,7 @@ async def test_handle_single_response_error(bedrock_llm_agent, mock_boto3_client
 
     # Call the method and check for exception
     with pytest.raises(Exception, match="Test error"):
-        await bedrock_llm_agent.handle_single_response({})
+        await bedrock_llm_agent.handle_single_response({'messages':[{'text'}]}, {})
 
 @pytest.mark.asyncio
 async def test_handle_streaming_response_error(bedrock_llm_agent, mock_boto3_client):
@@ -307,7 +419,7 @@ async def test_handle_streaming_response_error(bedrock_llm_agent, mock_boto3_cli
 
     # Call the method and check for exception
     with pytest.raises(Exception, match="Test error"):
-        async for _ in bedrock_llm_agent.handle_streaming_response({}):
+        async for _ in bedrock_llm_agent.handle_streaming_response({'messages':[{'text'}]},  {}):
             pass
 
 
@@ -331,12 +443,12 @@ async def test_process_tool_block_with_agent_tools(bedrock_llm_agent):
     )
 
     # Call the method
-    result = await bedrock_llm_agent._process_tool_block(llm_response, [])
+    result = await bedrock_llm_agent._process_tool_block(llm_response, [], {"agent_start_id":1234})
 
     # Verify the result
     assert result == expected_response
     mock_agent_tools.tool_handler.assert_called_once_with(
-        AgentProviderType.BEDROCK.value, llm_response, []
+        AgentProviderType.BEDROCK.value, llm_response, [], {'agent_name':'TestAgent', 'agent_tracking_info': {"agent_start_id":1234}}
     )
 
 @pytest.mark.asyncio
@@ -428,7 +540,7 @@ async def test_handle_single_response_no_output(bedrock_llm_agent, mock_boto3_cl
 
     # Call the method and check for exception
     with pytest.raises(ValueError, match="No output received from Bedrock model"):
-        await bedrock_llm_agent.handle_single_response({})
+        await bedrock_llm_agent.handle_single_response({'messages':[{'role':'user','content':'text'}]}, {})
 
 @pytest.mark.asyncio
 async def test_handle_streaming_with_text_response(bedrock_llm_agent, mock_boto3_client):
@@ -446,11 +558,18 @@ async def test_handle_streaming_with_text_response(bedrock_llm_agent, mock_boto3
     mock_boto3_client.return_value.converse_stream.return_value = stream_response
 
     # Initialize callbacks
-    bedrock_llm_agent.callbacks = Mock()
+    bedrock_llm_agent.callbacks = AsyncMock()
+
+    converse_input = {
+        'system':[{'text':'this is the system messages'}],
+        'messages':[{'text'}]
+    }
 
     # Call the method
     chunks = []
-    async for chunk in bedrock_llm_agent.handle_streaming_response({}):
+    response = bedrock_llm_agent.handle_streaming_response(converse_input, {})
+
+    async for chunk in response:
         chunks.append(chunk)
 
     # Verify we got the expected chunks
@@ -463,6 +582,67 @@ async def test_handle_streaming_with_text_response(bedrock_llm_agent, mock_boto3
     assert chunks[-1].final_message is not None
     assert chunks[-1].final_message.role == ParticipantRole.ASSISTANT.value
     assert chunks[-1].final_message.content[0]["text"] == "This is a "
+
+@pytest.mark.asyncio
+async def test_handle_streaming_response_no_output(bedrock_llm_agent, mock_boto3_client):
+    # Set up the mock to return an empty stream response
+    mock_boto3_client.return_value.converse_stream.return_value = {"stream": []}
+
+    # Initialize callbacks
+    bedrock_llm_agent.callbacks = AsyncMock()
+
+    converse_input = {
+        'system':[{'text':'this is the system messages'}],
+        'messages':[{'text': 'user message'}]
+    }
+
+    # Call the method and collect chunks
+    chunks = []
+    response = bedrock_llm_agent.handle_streaming_response(converse_input, {})
+
+    async for chunk in response:
+        chunks.append(chunk)
+
+    # Verify we got a final message with empty content
+    assert len(chunks) == 1  # Only the final message
+    assert chunks[0].final_message is not None
+    assert chunks[0].final_message.role == ParticipantRole.ASSISTANT.value
+    assert len(chunks[0].final_message.content) == 0
+
+@pytest.mark.asyncio
+async def test_handle_streaming_with_metadata(bedrock_llm_agent, mock_boto3_client):
+    # Set up stream response with metadata
+    stream_response = {
+        "stream": [
+            {"messageStart": {"role": "assistant"}},
+            {"contentBlockDelta": {"delta": {"text": "Response text"}}},
+            {"contentBlockStop": {}},
+            {"metadata": {"usage": {"inputTokens": 10, "outputTokens": 5}}}
+        ]
+    }
+
+    mock_boto3_client.return_value.converse_stream.return_value = stream_response
+
+    # Initialize callbacks
+    bedrock_llm_agent.callbacks = AsyncMock()
+
+    converse_input = {
+        'system':[{'text':'system message'}],
+        'messages':[{'text': 'user message'}]
+    }
+
+    # Call the method
+    chunks = []
+    response = bedrock_llm_agent.handle_streaming_response(converse_input, {})
+
+    async for chunk in response:
+        chunks.append(chunk)
+
+    # Verify the callbacks were called with the metadata
+    assert bedrock_llm_agent.callbacks.on_llm_end.call_count == 1
+    call_args = bedrock_llm_agent.callbacks.on_llm_end.call_args[1]
+    assert 'usage' in call_args
+    assert call_args['usage'] == {"inputTokens": 10, "outputTokens": 5}
 
 @pytest.mark.asyncio
 async def test_get_max_recursions(bedrock_llm_agent):
@@ -478,6 +658,85 @@ async def test_get_max_recursions(bedrock_llm_agent):
     bedrock_llm_agent.tool_config = {"tool": Mock(), "toolMaxRecursions": 5}
     assert bedrock_llm_agent._get_max_recursions() == 5
 
+
+def test_update_system_prompt(bedrock_llm_agent):
+    # Set initial template and variables
+    bedrock_llm_agent.prompt_template = "Hello {{name}}, welcome to {{service}}!"
+    bedrock_llm_agent.custom_variables = {"name": "User", "service": "Testing"}
+
+    # Call the method
+    bedrock_llm_agent.update_system_prompt()
+
+    # Verify the result
+    assert bedrock_llm_agent.system_prompt == "Hello User, welcome to Testing!"
+
+    # Test with list variable
+    bedrock_llm_agent.custom_variables = {"name": "User", "service": ["Testing", "Service"]}
+    bedrock_llm_agent.update_system_prompt()
+    assert bedrock_llm_agent.system_prompt == "Hello User, welcome to Testing\nService!"
+
+def test_prepare_conversation(bedrock_llm_agent):
+    # Create test data
+    input_text = "Hello, how are you?"
+    chat_history = [
+        ConversationMessage(
+            role=ParticipantRole.USER.value,
+            content=[{"text": "Previous message"}]
+        ),
+        ConversationMessage(
+            role=ParticipantRole.ASSISTANT.value,
+            content=[{"text": "Previous response"}]
+        )
+    ]
+
+    # Call the method
+    result = bedrock_llm_agent._prepare_conversation(input_text, chat_history)
+
+    # Verify the result
+    assert len(result) == 3
+    assert result[0].role == ParticipantRole.USER.value
+    assert result[0].content[0]["text"] == "Previous message"
+    assert result[1].role == ParticipantRole.ASSISTANT.value
+    assert result[1].content[0]["text"] == "Previous response"
+    assert result[2].role == ParticipantRole.USER.value
+    assert result[2].content[0]["text"] == "Hello, how are you?"
+
+def test_build_conversation_command(bedrock_llm_agent):
+    # Set up test data
+    conversation = [
+        ConversationMessage(
+            role=ParticipantRole.USER.value,
+            content=[{"text": "Test message"}]
+        )
+    ]
+    system_prompt = "Test system prompt"
+
+    # Set up tool config for testing
+    mock_agent_tools = Mock(spec=AgentTools)
+    mock_agent_tools.to_bedrock_format.return_value = [{"name": "test_tool"}]
+    bedrock_llm_agent.tool_config = {"tool": mock_agent_tools}
+
+    # Call the method
+    result = bedrock_llm_agent._build_conversation_command(conversation, system_prompt)
+
+    # Verify the result
+    assert result["modelId"] == bedrock_llm_agent.model_id
+    assert len(result["messages"]) == 1
+    assert result["messages"][0]["role"] == "user"
+    assert result["messages"][0]["content"][0]["text"] == "Test message"
+    assert result["system"][0]["text"] == "Test system prompt"
+    assert "inferenceConfig" in result
+    assert result["inferenceConfig"]["maxTokens"] == bedrock_llm_agent.inference_config["maxTokens"]
+    assert result["inferenceConfig"]["temperature"] == bedrock_llm_agent.inference_config["temperature"]
+    assert result["inferenceConfig"]["topP"] == bedrock_llm_agent.inference_config["topP"]
+    assert "guardrailConfig" in result
+    assert "toolConfig" in result
+    assert result["toolConfig"]["tools"] == [{"name": "test_tool"}]
+
+    # Test without tool config
+    bedrock_llm_agent.tool_config = None
+    result = bedrock_llm_agent._build_conversation_command(conversation, system_prompt)
+    assert "toolConfig" not in result
 
 @pytest.fixture
 def client_fixture():

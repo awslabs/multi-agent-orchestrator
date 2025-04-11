@@ -100,9 +100,10 @@ class TestAgent:
         assert response.output == "Hello, user!"
         assert response.streaming is False
 
-    def test_agent_callbacks(self):
+    @pytest.mark.asyncio
+    async def test_agent_callbacks(self):
         callbacks = AgentCallbacks()
-        callbacks.on_llm_new_token("test")  # Should not raise an exception
+        await callbacks.on_llm_new_token("test")  # Should not raise an exception
 
     def test_agent_options(self, mock_agent_options):
         assert mock_agent_options.name == "Test Agent"

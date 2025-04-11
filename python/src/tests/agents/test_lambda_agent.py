@@ -1,9 +1,7 @@
 import io
 import pytest
 import json
-from unittest.mock import Mock, patch
-from botocore.response import StreamingBody
-from multi_agent_orchestrator.agents import AgentOptions
+from unittest.mock import Mock, patch, AsyncMock
 from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
 from multi_agent_orchestrator.agents import LambdaAgent, LambdaAgentOptions
 
@@ -74,12 +72,18 @@ def test_default_output_payload_decoder(lambda_agent):
 
 @pytest.mark.asyncio
 async def test_process_request(mock_boto3_client):
+    # Create mock callbacks with async methods
+    mock_callbacks = Mock()
+    mock_callbacks.on_agent_start = AsyncMock(return_value={"agent_id_tracking":1234})
+    mock_callbacks.on_agent_end = AsyncMock()
+
     lambda_agent = LambdaAgent(options=LambdaAgentOptions(
         name="test_agent",
         description="Test Agent",
         function_name="test_function",
         function_region="us-west-2",
-        output_payload_decoder=custom_payload_decoder
+        output_payload_decoder=custom_payload_decoder,
+        callbacks=mock_callbacks
     ))
     mock_lambda_client = Mock()
     mock_boto3_client.return_value = mock_lambda_client
@@ -103,9 +107,28 @@ async def test_process_request(mock_boto3_client):
 
     result = await lambda_agent.process_request(input_text, user_id, session_id, chat_history, additional_params)
 
+    # Verify the result
     assert isinstance(result, ConversationMessage)
     assert result.role == ParticipantRole.ASSISTANT.value
     assert result.content == [{"text": "Hello from custom payload decoder"}]
+
+    # Verify that callbacks were called with correct parameters
+    mock_callbacks.on_agent_start.assert_called_once()
+    start_kwargs = mock_callbacks.on_agent_start.call_args[1]
+    assert start_kwargs["agent_name"] == "test_agent"
+    assert start_kwargs["input"] == input_text
+    assert start_kwargs["messages"] == chat_history
+    assert start_kwargs["user_id"] == user_id
+    assert start_kwargs["session_id"] == session_id
+    assert start_kwargs["additional_params"] == additional_params
+
+    mock_callbacks.on_agent_end.assert_called_once()
+    end_kwargs = mock_callbacks.on_agent_end.call_args[1]
+    assert end_kwargs["agent_name"] == "test_agent"
+    assert end_kwargs["response"] == result
+    assert isinstance(end_kwargs["messages"], list)
+    assert "agent_tracking_info" in end_kwargs
+    assert end_kwargs["agent_tracking_info"]["agent_id_tracking"] == 1234
 
 
 

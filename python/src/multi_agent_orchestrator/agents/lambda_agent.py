@@ -77,10 +77,30 @@ class LambdaAgent(Agent):
         additional_params: Optional[Dict[str, str]] = None
     ) -> ConversationMessage:
         """Process the request by invoking Lambda function and decoding the response."""
+        kwargs = {
+            "agent_name": self.name,
+            "input": input_text,
+            "messages": chat_history,
+            "additional_params": additional_params,
+            "user_id": user_id,
+            "session_id": session_id,
+        }
+        agent_tracking_info = await self.callbacks.on_agent_start(**kwargs)
+
         payload = self.encoder(input_text, chat_history, user_id, session_id, additional_params)
 
         response = self.lambda_client.invoke(
             FunctionName=self.options.function_name,
             Payload=payload
         )
-        return self.decoder(response)
+        result = self.decoder(response)
+
+        kwargs = {
+            "agent_name": self.name,
+            "response": result,
+            "messages": chat_history,
+            "agent_tracking_info": agent_tracking_info
+        }
+        await self.callbacks.on_agent_end(**kwargs)
+
+        return result

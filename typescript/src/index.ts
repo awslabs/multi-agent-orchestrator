@@ -10,12 +10,13 @@ export { Classifier, ClassifierResult } from './classifiers/classifier';
 export { ChainAgent, ChainAgentOptions } from './agents/chainAgent';
 export {BedrockFlowsAgent, BedrockFlowsAgentOptions} from './agents/bedrockFlowsAgent';
 export { SupervisorAgent, SupervisorAgentOptions } from './agents/supervisorAgent';
-
 export { AgentResponse } from './agents/agent';
+export { AgentCallbacks } from './agents/agent';
 
 export { BedrockClassifier, BedrockClassifierOptions } from './classifiers/bedrockClassifier';
 export { AnthropicClassifier, AnthropicClassifierOptions } from './classifiers/anthropicClassifier';
 export { OpenAIClassifier, OpenAIClassifierOptions } from "./classifiers/openAIClassifier"
+export { ClassifierCallbacks } from './classifiers/classifier';
 
 export { Retriever } from './retrievers/retriever';
 export { AmazonKnowledgeBasesRetriever, AmazonKnowledgeBasesRetrieverOptions } from './retrievers/AmazonKBRetriever';
@@ -26,6 +27,7 @@ export { DynamoDbChatStorage } from './storage/dynamoDbChatStorage';
 export { SqlChatStorage } from './storage/sqlChatStorage';
 
 export { Logger } from './utils/logger';
+export { AgentToolCallbacks } from './utils/tool';
 
 export { MultiAgentOrchestrator } from "./orchestrator";
 export { AgentOverlapAnalyzer, AnalysisResult } from "./agentOverlapAnalyzer";

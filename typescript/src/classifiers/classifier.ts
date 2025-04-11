@@ -14,6 +14,56 @@ export interface ClassifierResult {
   confidence: number;
 }
 
+export class ClassifierCallbacks {
+    /**
+     * Defines callbacks that can be triggered during classifier processing.
+     */
+
+    async onClassifierStart(
+        _name: string,
+        _input: any,
+        _runId?: string,
+        _tags?: string[],
+        _metadata?: Record<string, any>,
+        ..._kwargs: any[]
+    ): Promise<any> {
+        /**
+         * Callback method that runs when a classifier starts processing.
+         *
+         * @param name Name of the classifier that is starting
+         * @param input Object containing the classifier's input
+         * @param runId Unique identifier for this specific classifier run
+         * @param tags Optional list of string tags associated with this classifier run
+         * @param metadata Optional dictionary containing additional metadata about the run
+         * @param kwargs Additional keyword arguments that might be passed to the callback
+         * @returns The return value is implementation-dependent
+         */
+        // Default implementation does nothing
+    }
+
+    async onClassifierStop(
+      _name: string,
+      _output: any,
+      _runId?: string,
+      _tags?: string[],
+      _metadata?: Record<string, any>,
+      ..._kwargs: any[]
+    ): Promise<any> {
+        /**
+         * Callback method that runs when a classifier completes its processing.
+         *
+         * @param name Name of the classifier that is completing
+         * @param output Object containing the classifier's output
+         * @param runId Unique identifier for this specific classifier run
+         * @param tags Optional list of string tags associated with this classifier run
+         * @param metadata Optional dictionary containing additional metadata about the run
+         * @param kwargs Additional keyword arguments that might be passed to the callback
+         * @returns The return value is implementation-dependent
+         */
+        // Default implementation does nothing
+    }
+}
+
 /**
  * Abstract base class for all classifiers
  */
@@ -26,7 +76,6 @@ export abstract class Classifier {
   protected promptTemplate: string;
   protected systemPrompt: string;
   protected customVariables: TemplateVariables;
-
 
 
   /**
