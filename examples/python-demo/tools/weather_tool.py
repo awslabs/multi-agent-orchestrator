@@ -29,11 +29,6 @@ async def fetch_weather_data(latitude:str, longitude:str):
         return {"error": type(e), "message": str(e)}
 
 
-weather_tools:AgentTools = AgentTools(tools=[AgentTool(name="Weather_Tool",
-                            description="Get the current weather for a given location, based on its WGS84 coordinates.",
-                            func=fetch_weather_data
-                            )])
-
 weather_tool_prompt = """
 You are a weather assistant that provides current weather data for user-specified locations using only
 the Weather_Tool, which expects latitude and longitude. Infer the coordinates from the location yourself.
