@@ -193,7 +193,7 @@ class BedrockLLMAgent(Agent):
 
             if any("toolUse" in content for content in llm_response.content):
                 tool_response = await self._process_tool_block(
-                    llm_response, conversation
+                    llm_response, conversation, agent_tracking_info
                 )
                 conversation.append(tool_response)
                 command["messages"] = conversation_to_dict(conversation)
@@ -233,7 +233,7 @@ class BedrockLLMAgent(Agent):
 
                 if any("toolUse" in content for content in final_response.content):
                     tool_response = await self._process_tool_block(
-                        final_response, conversation
+                        final_response, conversation, agent_tracking_info
                     )
 
                     conversation.append(tool_response)
@@ -313,7 +313,10 @@ class BedrockLLMAgent(Agent):
         )
 
     async def _process_tool_block(
-        self, llm_response: ConversationMessage, conversation: list[ConversationMessage]
+        self,
+        llm_response: ConversationMessage,
+        conversation: list[ConversationMessage],
+        agent_tracking_info: dict[str, Any] | None = None
     ) -> ConversationMessage:
         if "useToolHandler" in self.tool_config:
             # tool process logic is handled elsewhere
@@ -321,10 +324,14 @@ class BedrockLLMAgent(Agent):
                 llm_response, conversation
             )
         else:
+            additional_params = {
+                "agent_name": self.name,
+                "agent_tracking_info": agent_tracking_info
+            }
             # tool process logic is handled in AgentTools class
             if isinstance(self.tool_config["tool"], AgentTools):
                 tool_response = await self.tool_config["tool"].tool_handler(
-                    AgentProviderType.BEDROCK.value, llm_response, conversation
+                    AgentProviderType.BEDROCK.value, llm_response, conversation, additional_params
                 )
             else:
                 raise ValueError(

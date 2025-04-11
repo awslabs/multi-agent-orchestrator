@@ -207,7 +207,7 @@ class AgentTools:
         self.tools:list[AgentTool] = tools
         self.callbacks = callbacks or AgentToolCallbacks()
 
-    async def tool_handler(self, provider_type, response: Any, _conversation: list[dict[str, Any]]) -> Any:
+    async def tool_handler(self, provider_type, response: Any, _conversation: list[dict[str, Any]], agent_info: Optional[dict[str, Any]] = None) -> Any:
         if not response.content:
             raise ValueError("No content blocks in response")
 
@@ -222,27 +222,27 @@ class AgentTools:
 
             tool_name = (
                 tool_use_block.get("name")
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_use_block.name
             )
 
             tool_id = (
                 tool_use_block.get("toolUseId")
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_use_block.id
             )
 
             # Get input based on platform
             input_data = (
                 tool_use_block.get("input", {})
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_use_block.input
             )
 
             # Process the tool use
-            await self.callbacks.on_tool_start(tool_name, tool_use_block)
+            await self.callbacks.on_tool_start(tool_name, input_data, metadata={"agent_info": agent_info})
             result = await self._process_tool(tool_name, input_data)
-            await self.callbacks.on_tool_end(tool_name, result)
+            await self.callbacks.on_tool_end(tool_name, result, metadata={"agent_info": agent_info})
 
             # Create tool result
             tool_result = AgentToolResult(tool_id, result)
@@ -250,14 +250,14 @@ class AgentTools:
             # Format according to platform
             formatted_result = (
                 tool_result.to_bedrock_format()
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_result.to_anthropic_format()
             )
 
             tool_results.append(formatted_result)
 
         # Create and return appropriate message format
-        if  provider_type ==  AgentProviderType.BEDROCK.value:
+        if provider_type == AgentProviderType.BEDROCK.value:
             return ConversationMessage(
                 role=ParticipantRole.USER.value,
                 content=tool_results
