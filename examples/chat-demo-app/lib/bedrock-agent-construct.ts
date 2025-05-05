@@ -12,7 +12,7 @@ import { createHash } from 'crypto';
 export class BedrockKbConstruct extends Construct {
   public readonly bedrockAgent: bedrock.Agent;
   public readonly description:string = "Agent in charge of providing response regarding the \
-  multi-agent orchestrator framework. Where to start, how to create an orchestrator.\
+  Agent Squad framework. Where to start, how to create an orchestrator.\
   what are the different elements of the framework. Always Respond in mardown format";
   public readonly knowledgeBaseId: string;
   constructor(scope: Construct, id: string) {
@@ -41,26 +41,26 @@ export class BedrockKbConstruct extends Construct {
       overlapPercentage: 20,
     });
 
-    this.bedrockAgent = new bedrock.Agent(this, "MultiAgentOrchestratorDocumentationAgent", {
-      name: "Multi-Agent-Orchestrator-Documentation-Agent",
-      description: "A tech expert specializing in the multi-agent orchestrator framework, technical domains, and AI-driven solutions. ",
+    this.bedrockAgent = new bedrock.Agent(this, "AgentSquadDocumentationAgent", {
+      name: "agent-squad-Documentation-Agent",
+      description: "A tech expert specializing in the Agent Squad framework, technical domains, and AI-driven solutions. ",
       foundationModel: bedrock.BedrockFoundationModel.ANTHROPIC_CLAUDE_SONNET_V1_0,
-      instruction: `You are a tech expert specializing in both the technical domain, including software development, AI, cloud computing, and the multi-agent orchestrator framework. Your role is to provide comprehensive, accurate, and helpful information about these areas, with a specific focus on the orchestrator framework, its agents, and their applications. Always structure your responses using clear, well-formatted markdown.
-        
+      instruction: `You are a tech expert specializing in both the technical domain, including software development, AI, cloud computing, and the Agent Squad framework. Your role is to provide comprehensive, accurate, and helpful information about these areas, with a specific focus on the orchestrator framework, its agents, and their applications. Always structure your responses using clear, well-formatted markdown.
+
         Key responsibilities:
-        - Explain the multi-agent orchestrator framework, its agents, and its benefits
+        - Explain the Agent Squad framework, its agents, and its benefits
         - Guide users on how to get started with the framework and configure agents
         - Provide technical advice on topics like software development, AI, and cloud computing
         - Detail the process of creating and configuring an orchestrator
         - Describe the various components and elements of the framework
         - Provide examples and best practices for technical implementation
-        
+
         When responding to queries:
         1. Start with a brief overview of the topic
         2. Break down complex concepts into clear, digestible sections
         3. **When the user asks for an example or code, always respond with a code snippet, using proper markdown syntax for code blocks (\`\`\`).** Provide explanations alongside the code when necessary.
         4. Conclude with next steps or additional resources if relevant
-        
+
         Always use proper markdown syntax, including:
         - Headings (##, ###) for main sections and subsections
         - Bullet points (-) or numbered lists (1., 2., etc.) for enumerating items
@@ -68,14 +68,14 @@ export class BedrockKbConstruct extends Construct {
         - Bold (**text**) for emphasizing key terms or important points
         - Italic (*text*) for subtle emphasis or introducing new terms
         - Links ([text](URL)) when referring to external resources or documentation
-        
+
         Tailor your responses to both beginners and experienced developers, providing clear explanations and technical depth as appropriate.`,
       idleSessionTTL: cdk.Duration.minutes(10),
       shouldPrepareAgent: true,
       aliasName: "latest",
       knowledgeBases: [knowledgeBase]
     });
-    
+
 
     const assetsPath = path.join(__dirname, "../../../docs/src/content/docs/");
     const assetDoc = s3deploy.Source.asset(assetsPath);
@@ -83,7 +83,7 @@ export class BedrockKbConstruct extends Construct {
     const assetsTsPath = path.join(__dirname, "../../../typescript/src/");
     const assetTsDoc = s3deploy.Source.asset(assetsTsPath);
 
-    const assetsPyPath = path.join(__dirname, "../../../python/src/multi_agent_orchestrator/");
+    const assetsPyPath = path.join(__dirname, "../../../python/src/agent_squad/");
     const assetPyDoc = s3deploy.Source.asset(assetsPyPath);
 
     new s3deploy.BucketDeployment(this, "DeployDocumentation", {

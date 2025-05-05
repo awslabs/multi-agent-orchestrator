@@ -4,22 +4,22 @@ from typing import AsyncIterable
 import pytest_asyncio
 from dataclasses import dataclass
 
-from multi_agent_orchestrator.types import (
+from agent_squad.types import (
     ConversationMessage,
     ParticipantRole,
-    OrchestratorConfig,
+    AgentSquadConfig,
     TimestampedMessage
 )
-from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult
-from multi_agent_orchestrator.agents import (
+from agent_squad.classifiers import Classifier, ClassifierResult
+from agent_squad.agents import (
     Agent,
     AgentStreamResponse,
     AgentResponse,
     AgentProcessingResult
 )
-from multi_agent_orchestrator.storage import ChatStorage, InMemoryChatStorage
-from multi_agent_orchestrator.utils.logger import Logger
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+from agent_squad.storage import ChatStorage, InMemoryChatStorage
+from agent_squad.utils.logger import Logger
+from agent_squad.orchestrator import AgentSquad
 
 @pytest.fixture
 def mock_boto3_client():
@@ -67,7 +67,7 @@ def mock_streaming_agent():
 
 @pytest.fixture
 def orchestrator(mock_storage, mock_classifier, mock_logger, mock_agent, mock_boto3_client):
-    return MultiAgentOrchestrator(
+    return AgentSquad(
         storage=mock_storage,
         classifier=mock_classifier,
         logger=mock_logger,
@@ -76,7 +76,7 @@ def orchestrator(mock_storage, mock_classifier, mock_logger, mock_agent, mock_bo
 
 def test_init_with_dict_options(mock_boto3_client):
     options = {"MAX_MESSAGE_PAIRS_PER_AGENT": 10}
-    orchestrator = MultiAgentOrchestrator(
+    orchestrator = AgentSquad(
         options=options,
         classifier=Mock(spec=Classifier)
     )
@@ -84,7 +84,7 @@ def test_init_with_dict_options(mock_boto3_client):
 
 def test_init_with_invalid_options(mock_boto3_client):
     with pytest.raises(ValueError):
-        MultiAgentOrchestrator(options="invalid")
+        AgentSquad(options="invalid")
 
 # Test agent management
 def test_add_agent(orchestrator, mock_agent):

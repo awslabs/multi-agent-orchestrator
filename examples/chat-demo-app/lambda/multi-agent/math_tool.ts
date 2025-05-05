@@ -1,4 +1,4 @@
-import { ConversationMessage, ParticipantRole, Logger } from "multi-agent-orchestrator";
+import { ConversationMessage, ParticipantRole, Logger } from "agent-squad";
 
 
 export const  mathAgentToolDefinition = [

@@ -2,14 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-from multi_agent_orchestrator.agents import (
+from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
+from agent_squad.agents import (
     BedrockLLMAgent,
     BedrockLLMAgentOptions,
     AgentStreamResponse,
 )
 
-from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
+from agent_squad.classifiers import BedrockClassifier, BedrockClassifierOptions
 
 orchestrator = None
 
@@ -29,7 +29,7 @@ class Body(BaseModel):
 
 def setup_orchestrator():
     # Initialize the orchestrator
-    orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
+    orchestrator = AgentSquad(options=AgentSquadConfig(
         LOG_AGENT_CHAT=True,
         LOG_CLASSIFIER_CHAT=True,
         LOG_CLASSIFIER_RAW_OUTPUT=True,

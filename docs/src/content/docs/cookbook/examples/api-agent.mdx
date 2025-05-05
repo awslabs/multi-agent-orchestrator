@@ -1,17 +1,17 @@
 ---
 title: Api Agent
-description: A guide to creating an API agent and integrating it into the Multi-Agent Orchestrator System.
+description: A guide to creating an API agent and integrating it into the Agent Squad System.
 ---
 
-This example will walk you through creating an Api agent and integrating it into your Multi-Agent Orchestrator System. 
+This example will walk you through creating an Api agent and integrating it into your Agent Squad System.
 Let's dive in!
 
 ## 📚Prerequisites:
 - Basic knowledge of TypeScript or Python
-- Familiarity with the Multi-Agent Orchestrator System
+- Familiarity with the Agent Squad System
 
 ## 🧬 1. Create the Api Agent class:
-Let's create our `ApiAgent` class. This class extends the `Agent` abstract class from the Multi-Agent Orchestrator.
+Let's create our `ApiAgent` class. This class extends the `Agent` abstract class from the Agent Squad.
 The [process_request](../overview#abstract-method-processrequest) method must be implemented by the `ApiAgent`
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
@@ -24,7 +24,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
       ParticipantRole,
       Agent,
       AgentOptions
-    } from "multi-agent-orchestrator";
+    } from "agent-squad";
 
     /**
      * Extended options for the ApiAgent class.
@@ -174,8 +174,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     ```python
     from typing import List, Dict, Optional, AsyncIterable, Any, Callable
     from dataclasses import dataclass, field
-    from multi_agent_orchestrator.agents import Agent, AgentOptions
-    from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+    from agent_squad.agents import Agent, AgentOptions
+    from agent_squad.types import ConversationMessage, ParticipantRole
     import aiohttp
     import json
 
@@ -196,8 +196,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
             self.options.output_payload_decoder = options.output_payload_decoder or self.default_output_payload_decoder
 
         @staticmethod
-        def default_input_payload_encoder(input_text: str, chat_history: List[ConversationMessage], 
-                                          user_id: str, session_id: str, 
+        def default_input_payload_encoder(input_text: str, chat_history: List[ConversationMessage],
+                                          user_id: str, session_id: str,
                                           additional_params: Optional[Dict[str, str]] = None) -> Dict:
             return {"input": input_text, "history": chat_history}
 
@@ -208,11 +208,11 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
         async def fetch(self, payload: Any, streaming: bool = False) -> AsyncIterable[Any]:
             headers = self.get_headers()
             async with aiohttp.ClientSession() as session:
-                async with session.request(self.options.method, self.options.endpoint, 
+                async with session.request(self.options.method, self.options.endpoint,
                                            headers=headers, json=payload) as response:
                     if response.status != 200:
                         raise Exception(f"HTTP error! status: {response.status}")
-                    
+
                     if streaming:
                         async for chunk in response.content.iter_any():
                             yield self.options.output_payload_decoder(chunk.decode())
@@ -355,7 +355,7 @@ This function allows users to add custom headers to the API request.
 To use these custom functions, you would include them in the options when creating a new ApiAgent.
 This design allows users to adapt the ApiAgent to work with a wide variety of APIs without having to modify the core ApiAgent class. It provides a flexible way to handle different API specifications and requirements.
 
-Now that we have our `ApiAgent`, let's add it to the Multi-Agent Orchestrator:
+Now that we have our `ApiAgent`, let's add it to the Agent Squad:
 
 ## 🔗 2. Add ApiAgent to the orchestrator:
 
@@ -365,9 +365,9 @@ If you have used the quickstarter sample program, you can add the Api agent and 
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
     import { ApiAgent } from "./apiAgent";
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator"
+    import { AgentSquad } from "agent-squad"
 
-    const orchestrator = new MultiAgentOrchestrator();
+    const orchestrator = new AgentSquad();
 
     orchestrator.addAgent(
         new ApiAgent({
@@ -384,9 +384,9 @@ If you have used the quickstarter sample program, you can add the Api agent and 
   <TabItem label="Python" icon="seti:python">
     ```python
     from api_agent import ApiAgent, ApiAgentOptions
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.orchestrator import AgentSquad
 
-    orchestrator = MultiAgentOrchestrator()
+    orchestrator = AgentSquad()
 
     orchestrator.add_agent(
         ApiAgent(ApiAgentOptions(
@@ -409,6 +409,6 @@ If you have used the quickstarter sample program, you can add the Api agent and 
 
 - Experiment with different Api endpoints
 - Create specialized agents for various tasks using ApiAgent
-- Include your existing Api with the Multi-agent orchestrator
+- Include your existing Api with the Agent Squad
 
 Happy coding! 🚀

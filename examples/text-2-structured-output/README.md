@@ -122,7 +122,7 @@ How can we assist you today? Feel free to ask about:
 
 The system is built on three main components:
 
-1. **MultiAgentOrchestrator**: Routes queries to appropriate agents
+1. **AgentSquad**: Routes queries to appropriate agents
 2. **Agents**: Specialized handlers for different types of queries
 3. **Streaming Handler**: Manages real-time response generation
 

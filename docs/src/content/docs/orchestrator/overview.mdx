@@ -3,27 +3,27 @@ title: Orchestrator overview
 description: An introduction to the Orchestrator
 ---
 
-The Multi-Agent Orchestrator is the central component of the framework, responsible for managing agents, routing requests, and handling conversations. This page provides an overview of how to initialize the Orchestrator and details all available configuration options.
+The Agent Squad is the central component of the framework, responsible for managing agents, routing requests, and handling conversations. This page provides an overview of how to initialize the Orchestrator and details all available configuration options.
 
 ### Initializing the Orchestrator
 
-To create a new Orchestrator instance, you can use the `MultiAgentOrchestrator` class:
+To create a new Orchestrator instance, you can use the `AgentSquad` class:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    import { AgentSquad } from "agent-squad";
 
-    const orchestrator = new MultiAgentOrchestrator(options);
+    const orchestrator = new AgentSquad(options);
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.orchestrator import AgentSquad
 
-    orchestrator = MultiAgentOrchestrator(options=options)
+    orchestrator = AgentSquad(options=options)
     ```
   </TabItem>
 </Tabs>
@@ -32,10 +32,10 @@ The `options` parameter is optional and allows you to customize various aspects 
 
 ### Configuration options
 
-The Orchestrator accepts an `OrchestratorConfig` object during initialization. All options are optional and will use default values if not specified. Here's a complete list of available options:
+The Orchestrator accepts an `AgentSquadConfig` object during initialization. All options are optional and will use default values if not specified. Here's a complete list of available options:
 
 1. `storage`: Specifies the storage mechanism for chat history. Default is `InMemoryChatStorage`.
-2. `config`: An instance of `OrchestratorConfig` containing various configuration flags and values:
+2. `config`: An instance of `AgentSquadConfig` containing various configuration flags and values:
    - `LOG_AGENT_CHAT`: Boolean flag to log agent chat interactions.
    - `LOG_CLASSIFIER_CHAT`: Boolean flag to log classifier chat interactions.
    - `LOG_CLASSIFIER_RAW_OUTPUT`: Boolean flag to log raw classifier output.
@@ -58,12 +58,12 @@ Here's an example that demonstrates how to initialize the Orchestrator with all 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator, OrchestratorConfig } from "multi-agent-orchestrator";
-    import { DynamoDBChatStorage } from "multi-agent-orchestrator/storage";
+    import { AgentSquad, AgentSquadConfig } from "agent-squad";
+    import { DynamoDBChatStorage } from "agent-squad/storage";
     import { CustomClassifier } from "./custom-classifier";
     import { CustomLogger } from "./custom-logger";
 
-    const orchestrator = new MultiAgentOrchestrator({
+    const orchestrator = new AgentSquad({
       storage: new DynamoDBChatStorage(),
       config: {
         LOG_AGENT_CHAT: true,
@@ -85,15 +85,15 @@ Here's an example that demonstrates how to initialize the Orchestrator with all 
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-    from multi_agent_orchestrator.storage import DynamoDBChatStorage
-    from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
-    from multi_agent_orchestrator.utils.logger import Logger
+    from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
+    from agent_squad.storage import DynamoDBChatStorage
+    from agent_squad.classifiers import BedrockClassifier, BedrockClassifierOptions
+    from agent_squad.utils.logger import Logger
     from custom_classifier import CustomClassifier
     from custom_logger import CustomLogger
 
-    orchestrator = MultiAgentOrchestrator(
-      options=OrchestratorConfig(
+    orchestrator = AgentSquad(
+      options=AgentSquadConfig(
         LOG_AGENT_CHAT=True,
         LOG_CLASSIFIER_CHAT=True,
         LOG_CLASSIFIER_RAW_OUTPUT=False,
@@ -128,7 +128,7 @@ The default configuration is defined as follows:
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    export const DEFAULT_CONFIG: OrchestratorConfig = {
+    export const DEFAULT_CONFIG: AgentSquadConfig = {
       LOG_AGENT_CHAT: false,
       LOG_CLASSIFIER_CHAT: false,
       LOG_CLASSIFIER_RAW_OUTPUT: false,
@@ -143,18 +143,18 @@ The default configuration is defined as follows:
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.types import OrchestratorConfig
+    from agent_squad.types import AgentSquadConfig
 
-    DEFAULT_CONFIG = OrchestratorConfig()
+    DEFAULT_CONFIG = AgentSquadConfig()
     ```
   </TabItem>
 </Tabs>
 
-In both implementations, `DEFAULT_CONFIG` is an instance of `OrchestratorConfig` with default values.
+In both implementations, `DEFAULT_CONFIG` is an instance of `AgentSquadConfig` with default values.
 
 ### Available Functions
 
-The MultiAgentOrchestrator provides several key functions to manage agents, process requests, and configure the orchestrator. Here's a detailed overview of each function, explaining what it does and why you might use it:
+The AgentSquad provides several key functions to manage agents, process requests, and configure the orchestrator. Here's a detailed overview of each function, explaining what it does and why you might use it:
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -204,7 +204,7 @@ Let's break down each function:
    - **Why use it**: This is the core function you'll use to handle user interactions in your application. It encapsulates the entire process of understanding the user's intent and generating an appropriate response.
    - **Example use case**: Processing a user's message in a chatbot interface and returning the appropriate response.
 
-Each of these functions plays a crucial role in configuring and operating the Multi-Agent Orchestrator. By using them effectively, you can create a flexible, powerful system capable of handling a wide range of user requests across multiple domains.
+Each of these functions plays a crucial role in configuring and operating the Agent Squad. By using them effectively, you can create a flexible, powerful system capable of handling a wide range of user requests across multiple domains.
 
 These functions allow you to configure the orchestrator, manage agents, and process user requests.
 
@@ -217,8 +217,8 @@ Here are practical examples of how to use each function:
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
-  import { MultiAgentOrchestrator, BedrockLLMAgent, AnthropicClassifier } from "multi-agent-orchestrator";
-  const orchestrator = new MultiAgentOrchestrator();
+  import { AgentSquad, BedrockLLMAgent, AnthropicClassifier } from "agent-squad";
+  const orchestrator = new AgentSquad();
 
   // 1. addAgent Example
   const techAgent = new BedrockLLMAgent({
@@ -267,11 +267,11 @@ Here are practical examples of how to use each function:
 </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
-    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentStreamResponse
-    from multi_agent_orchestrator.classifiers import AnthropicClassifier, AnthropicClassifierOptions
+    from agent_squad.orchestrator import AgentSquad
+    from agent_squad.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentStreamResponse
+    from agent_squad.classifiers import AnthropicClassifier, AnthropicClassifierOptions
     import asyncio
-    orchestrator = MultiAgentOrchestrator()
+    orchestrator = AgentSquad()
 
 # 1. add_agent Example
 tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
@@ -324,7 +324,7 @@ asyncio.run(handle_user_query())
 
 ### Agent Selection and Default Behavior
 
-When a user sends a request to the Multi-Agent Orchestrator, the system attempts to classify the intent and select an appropriate agent to handle the request. However, there are cases where no specific agent is selected.
+When a user sends a request to the Agent Squad, the system attempts to classify the intent and select an appropriate agent to handle the request. However, there are cases where no specific agent is selected.
 
 #### When No Agent is Selected
 
@@ -350,7 +350,7 @@ You can customize the default agent or replace it entirely using the `set_defaul
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { BedrockLLMAgent, BedrockLLMAgentOptions } from "multi-agent-orchestrator";
+    import { BedrockLLMAgent, BedrockLLMAgentOptions } from "agent-squad";
 
     const customDefaultAgent = new BedrockLLMAgent({
       name: "Custom Default Agent",
@@ -363,7 +363,7 @@ You can customize the default agent or replace it entirely using the `set_defaul
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+    from agent_squad.agents import BedrockLLMAgent, BedrockLLMAgentOptions
 
     custom_default_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
         name="Custom Default Agent",
@@ -383,9 +383,9 @@ You can customize the message returned when no agent is selected (and `USE_DEFAU
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator, OrchestratorConfig } from "multi-agent-orchestrator";
+    import { AgentSquad, AgentSquadConfig } from "agent-squad";
 
-    const orchestrator = new MultiAgentOrchestrator({
+    const orchestrator = new AgentSquad({
       config: {
         USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED: false,
         NO_SELECTED_AGENT_MESSAGE: "I'm not sure how to handle your request. Could you please provide more details or rephrase it?"
@@ -395,10 +395,10 @@ You can customize the message returned when no agent is selected (and `USE_DEFAU
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
+    from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
 
-    orchestrator = MultiAgentOrchestrator(
-      options=OrchestratorConfig(
+    orchestrator = AgentSquad(
+      options=AgentSquadConfig(
         USE_DEFAULT_AGENT_IF_NONE_IDENTIFIED=False,
         NO_SELECTED_AGENT_MESSAGE="I'm not sure how to handle your request. Could you please provide more details or rephrase it?"
       )
@@ -417,14 +417,14 @@ You can customize the message returned when no agent is selected (and `USE_DEFAU
 
 4. **Monitoring and Iteration**: Regularly review cases where no agent is selected. This can help you identify gaps in your agent coverage or refine your classification process.
 
-By understanding and customizing these behaviors, you can fine-tune your Multi-Agent Orchestrator to provide the best possible user experience for your specific use case.
+By understanding and customizing these behaviors, you can fine-tune your Agent Squad to provide the best possible user experience for your specific use case.
 
 ### Additional notes
 
-- The `storage` option allows you to specify a custom storage mechanism. By default, it uses in-memory storage (`InMemoryChatStorage`), but you can implement your own storage solution or use built-in options like DynamoDB storage. For more information, see the [Storage section](/multi-agent-orchestrator/storage/overview).
+- The `storage` option allows you to specify a custom storage mechanism. By default, it uses in-memory storage (`InMemoryChatStorage`), but you can implement your own storage solution or use built-in options like DynamoDB storage. For more information, see the [Storage section](/agent-squad/storage/overview).
 
-- The `logger` option lets you provide a custom logger. If not specified, a default logger will be used. To learn how to implement a custom logger, check out [the logging section](/multi-agent-orchestrator/advanced-features/custom-logging).
+- The `logger` option lets you provide a custom logger. If not specified, a default logger will be used. To learn how to implement a custom logger, check out [the logging section](/agent-squad/advanced-features/custom-logging).
 
-- The `classifier` option allows you to use a custom classifier for intent classification. If not provided, a `BedrockClassifier` will be used by default. For details on implementing a custom classifier, see the [Custom Classifiers](/multi-agent-orchestrator/classifiers/custom-classifier) documentation.
+- The `classifier` option allows you to use a custom classifier for intent classification. If not provided, a `BedrockClassifier` will be used by default. For details on implementing a custom classifier, see the [Custom Classifiers](/agent-squad/classifiers/custom-classifier) documentation.
 
 By customizing these options, you can tailor the Orchestrator's behavior to suit your specific use case and requirements.

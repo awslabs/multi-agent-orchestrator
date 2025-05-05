@@ -1,9 +1,9 @@
 ---
 title: FastAPI Streaming
-description: How to deploy use FastAPI Streaming with Multi-Agent Orchestrator
+description: How to deploy use FastAPI Streaming with Agent Squad
 ---
 
-This example demonstrates how to implement streaming responses with the Multi-Agent Orchestrator using FastAPI. It shows how to build a simple API that streams responses from multiple AI agents in real-time.
+This example demonstrates how to implement streaming responses with the Agent Squad using FastAPI. It shows how to build a simple API that streams responses from multiple AI agents in real-time.
 
 ## Features
 - Real-time streaming responses using FastAPI's `StreamingResponse`
@@ -15,7 +15,7 @@ This example demonstrates how to implement streaming responses with the Multi-Ag
 ## Quick Start
 ```bash
 # Install dependencies
-pip install "fastapi[all]" multi-agent-orchestrator
+pip install "fastapi[all]" agent-squad
 
 # Run the server
 uvicorn app:app --reload
@@ -61,4 +61,4 @@ for chunk in response.iter_content():
     print(chunk.decode(), end='', flush=True)
 ```
 
-Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/fast-api-streaming) in our GitHub repository.
+Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/agent-squad/tree/main/examples/fast-api-streaming) in our GitHub repository.

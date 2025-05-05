@@ -1,9 +1,9 @@
 ---
 title: SQL Storage
-description: Using SQL databases (SQLite/Turso) for persistent conversation storage in the Multi-Agent Orchestrator System
+description: Using SQL databases (SQLite/Turso) for persistent conversation storage in the Agent Squad System
 ---
 
-SQL storage provides a flexible and reliable solution for storing conversation history in the Multi-Agent Orchestrator System. This implementation supports both local SQLite databases and remote Turso databases, making it suitable for various deployment scenarios from development to production.
+SQL storage provides a flexible and reliable solution for storing conversation history in the Agent Squad System. This implementation supports both local SQLite databases and remote Turso databases, making it suitable for various deployment scenarios from development to production.
 
 ## Features
 
@@ -27,21 +27,21 @@ SQL storage provides a flexible and reliable solution for storing conversation h
 To use SQL storage in your Python application, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[sql]"
+pip install "agent-squad[sql]"
 ```
 
 This will install the `libsql-client` package required for SQL storage functionality.
 
 ## Implementation
 
-To use SQL storage in your Multi-Agent Orchestrator:
+To use SQL storage in your Agent Squad:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { SqlChatStorage, MultiAgentOrchestrator } from 'multi-agent-orchestrator';
+    import { SqlChatStorage, AgentSquad } from 'agent-squad';
 
     // For local SQLite database
     const localStorage = new SqlChatStorage('file:local.db');
@@ -54,7 +54,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     );
     await remoteStorage.waitForInitialization();
 
-    const orchestrator = new MultiAgentOrchestrator({
+    const orchestrator = new AgentSquad({
       storage: localStorage // or remoteStorage
     });
 
@@ -66,8 +66,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.storage import SqlChatStorage
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.storage import SqlChatStorage
+    from agent_squad.orchestrator import AgentSquad
 
     # For local SQLite database
     local_storage = SqlChatStorage('file:local.db')
@@ -81,7 +81,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
     await remote_storage.initialize()
 
     # Create orchestrator with storage
-    orchestrator = MultiAgentOrchestrator(storage=local_storage)  # or remote_storage
+    orchestrator = AgentSquad(storage=local_storage)  # or remote_storage
 
     # Example usage
     messages = await local_storage.save_chat_message(
@@ -160,7 +160,7 @@ CREATE TABLE conversations (
   PRIMARY KEY (user_id, session_id, agent_id, message_index)
 );
 
-CREATE INDEX idx_conversations_lookup 
+CREATE INDEX idx_conversations_lookup
 ON conversations(user_id, session_id, agent_id);
 ```
 
@@ -218,4 +218,4 @@ ON conversations(user_id, session_id, agent_id);
    )
    ```
 
-SQL storage provides a robust and flexible solution for managing conversation history in the Multi-Agent Orchestrator System. It offers a good balance between simplicity and features, making it suitable for both development and production environments.
+SQL storage provides a robust and flexible solution for managing conversation history in the Agent Squad System. It offers a good balance between simplicity and features, making it suitable for both development and production environments.

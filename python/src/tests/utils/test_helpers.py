@@ -1,10 +1,10 @@
 import pytest
 from datetime import datetime
-from multi_agent_orchestrator.types import ConversationMessage, TimestampedMessage, ParticipantRole
+from agent_squad.types import ConversationMessage, TimestampedMessage, ParticipantRole
 import time
 
 # Import the functions to be tested
-from multi_agent_orchestrator.utils import is_tool_input, conversation_to_dict
+from agent_squad.utils import is_tool_input, conversation_to_dict
 
 def test_is_tool_input():
     # Test valid tool input

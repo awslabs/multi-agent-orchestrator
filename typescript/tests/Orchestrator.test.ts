@@ -1,4 +1,4 @@
-import { MultiAgentOrchestrator, OrchestratorOptions } from '../src/orchestrator';
+import { AgentSquad, OrchestratorOptions } from '../src/orchestrator';
 import { Agent, AgentOptions } from '../src/agents/agent';
 import { BedrockClassifier } from '../src/classifiers/bedrockClassifier';
 import { InMemoryChatStorage } from '../src/storage/memoryChatStorage';
@@ -22,7 +22,7 @@ class MockAgent extends Agent {
     constructor(options: AgentOptions) {
       super(options);
     }
-  
+
     async processRequest(
       _inputText: string,
       _userId: string,
@@ -38,11 +38,11 @@ class MockAgent extends Agent {
     }
   }
 
-  
-describe('MultiAgentOrchestrator', () => {
+
+describe('AgentSquad', () => {
 
 
-  let orchestrator: MultiAgentOrchestrator;
+  let orchestrator: AgentSquad;
   let mockAgent: Agent;
   let mockClassifier: jest.Mocked<BedrockClassifier>;
   let mockStorage: jest.Mocked<InMemoryChatStorage>;
@@ -67,12 +67,12 @@ describe('MultiAgentOrchestrator', () => {
     };
 
     // Create orchestrator instance
-    orchestrator = new MultiAgentOrchestrator(options);
+    orchestrator = new AgentSquad(options);
     orchestrator.addAgent(mockAgent);
   });
 
   test('addAgent adds an agent and updates classifier', () => {
-    
+
     const newAgent: Agent = {
       id: 'new-agent',
       name: 'New Agent',
@@ -85,7 +85,7 @@ describe('MultiAgentOrchestrator', () => {
   });
 
   test('getAllAgents returns all added agents', () => {
-    
+
     const agents = orchestrator.getAllAgents();
 
     expect(agents).toHaveProperty('test-agent');
@@ -96,7 +96,7 @@ describe('MultiAgentOrchestrator', () => {
   });
 
   test('routeRequest with identified agent', async () => {
-    
+
     const processRequestSpy = jest.spyOn(mockAgent, 'processRequest');
     const userInput = 'Test input';
     const userId = 'user1';
@@ -197,11 +197,11 @@ describe('MultiAgentOrchestrator', () => {
     expect(mockClassifier.setAgents).toHaveBeenCalledTimes(2); // Once in beforeEach, once for existingAgent
   });
 
-  
+
 });
 
-describe('MultiAgentOrchestrator saveConversationExchange', () => {
-  let orchestrator: MultiAgentOrchestrator;
+describe('AgentSquad saveConversationExchange', () => {
+  let orchestrator: AgentSquad;
   let mockAgent: MockAgent;
   let mockClassifier: jest.Mocked<BedrockClassifier>;
   let mockStorage: jest.Mocked<InMemoryChatStorage>;
@@ -223,18 +223,18 @@ describe('MultiAgentOrchestrator saveConversationExchange', () => {
       classifier: mockClassifier
     };
 
-    orchestrator = new MultiAgentOrchestrator(options);
+    orchestrator = new AgentSquad(options);
     orchestrator.addAgent(mockAgent);
   });
 
   test('routeRequest calls saveConversationExchange for default saveChat', async () => {
-    
+
     const mockAgent = new MockAgent({
       name: 'Mock Agent',
       description: 'A mock agent'
     });
-    
-    
+
+
     const mockClassifierResult: ClassifierResult = {
      selectedAgent: mockAgent,
       confidence: 0.5,
@@ -260,14 +260,14 @@ describe('MultiAgentOrchestrator saveConversationExchange', () => {
 
 
   test('routeRequest calls saveConversationExchange for saveChat=true', async () => {
-    
+
     const mockAgent = new MockAgent({
       name: 'Mock Agent',
       description: 'A mock agent',
       saveChat: true
     });
-    
-    
+
+
     const mockClassifierResult: ClassifierResult = {
      selectedAgent: mockAgent,
       confidence: 0.5,
@@ -292,14 +292,14 @@ describe('MultiAgentOrchestrator saveConversationExchange', () => {
   });
 
   test('routeRequest do not calls saveConversationExchange for saveChat=false', async () => {
-    
+
     const mockAgent = new MockAgent({
       name: 'Mock Agent',
       description: 'A mock agent',
       saveChat: false
     });
-    
-    
+
+
     const mockClassifierResult: ClassifierResult = {
      selectedAgent: mockAgent,
       confidence: 0.5,
@@ -316,6 +316,6 @@ describe('MultiAgentOrchestrator saveConversationExchange', () => {
   });
 
 
-  
-  
+
+
 });

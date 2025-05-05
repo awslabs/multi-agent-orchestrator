@@ -1,6 +1,6 @@
 ---
 title: TypeScript Local Demo
-description: How to run the Multi-Agent Orchestrator System locally using TypeScript
+description: How to run the Agent Squad System locally using TypeScript
 ---
 
 ## Prerequisites
@@ -12,14 +12,14 @@ description: How to run the Multi-Agent Orchestrator System locally using TypeSc
 
 1. Create a new project:
 ```bash
-mkdir test_multi_agent_orchestrator
-cd test_multi_agent_orchestrator
+mkdir test_agent_squad
+cd test_agent_squad
 npm init
 ```
 
 2. Install dependencies:
 ```bash
-npm install multi-agent-orchestrator
+npm install agent-squad
 ```
 
 ## Implementation
@@ -28,9 +28,9 @@ npm install multi-agent-orchestrator
 
 2. Initialize the orchestrator:
 ```typescript
-import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+import { AgentSquad } from "agent-squad";
 
-const orchestrator = new MultiAgentOrchestrator({
+const orchestrator = new AgentSquad({
   config: {
     LOG_AGENT_CHAT: true,
     LOG_CLASSIFIER_CHAT: true,
@@ -43,7 +43,7 @@ const orchestrator = new MultiAgentOrchestrator({
 
 3. Add specialized agents:
 ```typescript
-import { BedrockLLMAgent } from "multi-agent-orchestrator";
+import { BedrockLLMAgent } from "agent-squad";
 
 orchestrator.addAgent(
   new BedrockLLMAgent({
@@ -102,4 +102,4 @@ npx ts-node quickstart.ts
 - Add custom error handling
 - Implement streaming responses
 
-Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/local-demo) in our GitHub repository.
+Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/agent-squad/tree/main/examples/local-demo) in our GitHub repository.

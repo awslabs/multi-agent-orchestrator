@@ -27,7 +27,7 @@ export { SqlChatStorage } from './storage/sqlChatStorage';
 
 export { Logger } from './utils/logger';
 
-export { MultiAgentOrchestrator } from "./orchestrator";
+export { AgentSquad } from "./orchestrator";
 export { AgentOverlapAnalyzer, AnalysisResult } from "./agentOverlapAnalyzer";
 
 export { ConversationMessage, ParticipantRole } from "./types"

@@ -4,11 +4,11 @@ description: Example of an Ollama classifier
 ---
 
 Welcome to the Ollama Classifier guide!
-This example will walk you through creating an Ollama classifier and integrating it into your Multi-Agent Orchestrator System. Let’s dive in!
+This example will walk you through creating an Ollama classifier and integrating it into your Agent Squad System. Let’s dive in!
 
 ## 📚 Prerequisites:
 - Basic knowledge of Python
-- Familiarity with the Multi-Agent Orchestrator System
+- Familiarity with the Agent Squad System
 - [Ollama installed](https://ollama.com/download) on your machine
 
 ## 💾 1. Ollama installation:
@@ -26,16 +26,16 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 ## 🧬 2. Create the Ollama Classifier class:
 
-Now, let's create our `OllamaClassifier` class. This class extends the `Classifier` abstract class from the Multi-Agent Orchestrator.
+Now, let's create our `OllamaClassifier` class. This class extends the `Classifier` abstract class from the Agent Squad.
 The [process_request](../overview#abstract-method-processrequest) method must be implemented by the `OllamaClassifier`
 
 <Tabs syncKey="runtime">
   <TabItem label="Python" icon="seti:python">
     ```python
     from typing import List, Dict, Optional, Any
-    from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult
-    from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-    from multi_agent_orchestrator.utils import Logger
+    from agent_squad.classifiers import Classifier, ClassifierResult
+    from agent_squad.types import ConversationMessage, ParticipantRole
+    from agent_squad.utils import Logger
     import ollama
 
 
@@ -118,7 +118,7 @@ The [process_request](../overview#abstract-method-processrequest) method must be
   </TabItem>
 </Tabs>
 
-Now that we have our `OllamaClassifier`, let's use it in the Multi-Agent Orchestrator:
+Now that we have our `OllamaClassifier`, let's use it in the Agent Squad:
 
 
 ## 🔗 3. Use OllamaClassifier in the orchestrator:
@@ -129,7 +129,7 @@ If you have used the quickstarter sample program, you can use the Ollama classif
   <TabItem label="Python" icon="seti:python">
     ```python
     from ollamaClassifier import OllamaClassifier, OllamaClassifierOptions
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.orchestrator import AgentSquad
 
     classifier = OllamaClassifier(OllamaClassifierOptions(
             model_id='llama3.1',
@@ -137,7 +137,7 @@ If you have used the quickstarter sample program, you can use the Ollama classif
         ))
 
     # Use our newly created classifier within the orchestrator
-    orchestrator = MultiAgentOrchestrator(classifier=classifier)
+    orchestrator = AgentSquad(classifier=classifier)
     ```
   </TabItem>
 </Tabs>
@@ -153,7 +153,7 @@ If you haven't downloaded the Llama3.1 model yet, it will be downloaded automati
 
 🎉 **You're All Set!**
 
-Congratulations! You've successfully integrated an Ollama classifier into your Multi-Agent Orchestrator System.
+Congratulations! You've successfully integrated an Ollama classifier into your Agent Squad System.
  Now you can start classifiying user requests and leveraging the power of Llama3.1 in your applications!
 
 ## 5.🔗 **Useful Links:**

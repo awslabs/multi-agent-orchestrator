@@ -2,12 +2,12 @@ import asyncio
 import uuid
 import sys
 from typing import Any, List
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-from multi_agent_orchestrator.classifiers import ClassifierResult
-from multi_agent_orchestrator.agents import AgentResponse, Agent, BedrockFlowsAgent, BedrockFlowsAgentOptions
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
+from agent_squad.classifiers import ClassifierResult
+from agent_squad.agents import AgentResponse, Agent, BedrockFlowsAgent, BedrockFlowsAgentOptions
+from agent_squad.types import ConversationMessage, ParticipantRole
 
-async def handle_request(_orchestrator: MultiAgentOrchestrator,agent:Agent, _user_input:str, _user_id:str, _session_id:str):
+async def handle_request(_orchestrator: AgentSquad,agent:Agent, _user_input:str, _user_id:str, _session_id:str):
     classifier_result = ClassifierResult(selected_agent=agent, confidence=1.0)
     response:AgentResponse = await _orchestrator.agent_process_request(
         _user_input,
@@ -48,7 +48,7 @@ def flow_output_decode(agent:Agent, response: Any, **kwargs) -> Any:
 if __name__ == "__main__":
 
     # Initialize the orchestrator with some options
-    orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
+    orchestrator = AgentSquad(options=AgentSquadConfig(
         LOG_AGENT_CHAT=True,
         LOG_CLASSIFIER_CHAT=True,
         LOG_CLASSIFIER_RAW_OUTPUT=True,

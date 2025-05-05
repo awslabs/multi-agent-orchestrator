@@ -1,6 +1,6 @@
 # BedrockFlowsAgent Example
 
-This example demonstrates how to use the **[BedrockFlowsAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-flows-agent/)** for direct agent invocation, avoiding the multi-agent orchestration when you only need a single specialized agent.
+This example demonstrates how to use the **[BedrockFlowsAgent](https://awslabs.github.io/agent-squad/agents/built-in/bedrock-flows-agent/)** for direct agent invocation, avoiding the multi-agent orchestration when you only need a single specialized agent.
 
 ## Direct Agent Usage
 Call your agent directly using:
@@ -41,7 +41,7 @@ The prompt node accepts:
 ![tech-agent-flow](./tech-agent-flow.png)
 ![prompt-node-configuration](./prompt-config.png)
 
-📝 **Note**  
+📝 **Note**
 📅 As of December 2, 2024, Bedrock Flows does not include built-in memory management.
 
 See the code samples above for complete implementation details.

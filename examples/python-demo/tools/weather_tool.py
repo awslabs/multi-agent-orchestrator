@@ -1,8 +1,8 @@
 import requests
 from requests.exceptions import RequestException
 from typing import List, Dict, Any
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.utils import AgentTool, AgentTools
+from agent_squad.types import ConversationMessage, ParticipantRole
+from agent_squad.utils import AgentTool, AgentTools
 import json
 
 async def fetch_weather_data(latitude:str, longitude:str):

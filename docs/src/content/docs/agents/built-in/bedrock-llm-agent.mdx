@@ -1,11 +1,11 @@
 ---
 title: Bedrock LLM Agent
-description: Documentation for the BedrockLLMAgent in the Multi-Agent Orchestrator
+description: Documentation for the BedrockLLMAgent in the Agent Squad
 ---
 
 ## Overview
 
-The **Bedrock LLM Agent** is a powerful and flexible agent class in the Multi-Agent Orchestrator System. It leverages [Amazon Bedrock's Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html) to interact with various LLMs supported by Amazon Bedrock.
+The **Bedrock LLM Agent** is a powerful and flexible agent class in the Agent Squad System. It leverages [Amazon Bedrock's Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html) to interact with various LLMs supported by Amazon Bedrock.
 
 This agent can handle a wide range of processing tasks, making it suitable for diverse applications such as conversational AI, question-answering systems, and more.
 
@@ -16,7 +16,7 @@ This agent can handle a wide range of processing tasks, making it suitable for d
 - Streaming and non-streaming response options
 - Customizable inference configuration
 - Ability to set and update custom system prompts
-- Optional integration with [retrieval systems](/multi-agent-orchestrator/retrievers/overview) for enhanced context
+- Optional integration with [retrieval systems](/agent-squad/retrievers/overview) for enhanced context
 - Support for [Tool use](https://docs.aws.amazon.com/bedrock/latest/userguide/tool-use.html) within the conversation flow
 
 ## Creating a BedrockLLMAgent
@@ -28,7 +28,7 @@ By default, the **Bedrock LLM Agent** uses the `anthropic.claude-3-haiku-2024030
 If you haven't already installed the AWS-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[aws]"
+pip install "agent-squad[aws]"
 ```
 
 **1. Minimal Configuration**
@@ -198,7 +198,7 @@ const agent = new BedrockLLMAgent({
 ```python
 agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     name='Bedrock Assistant',
-    description='An assistant with variable prompt', 
+    description='An assistant with variable prompt',
     custom_system_prompt={
         'template': 'You are an AI assistant specialized in {{DOMAIN}}. Always use a {{TONE}} tone.',
         'variables': {
@@ -306,7 +306,7 @@ agent = BedrockLLMAgent(BedrockLLMAgentOptions(
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
-import { BedrockLLMAgent } from "multi-agent-orchestrator";
+import { BedrockLLMAgent } from "agent-squad";
 const agent = new BedrockLLMAgent({
   // Required fields
   name: "Advanced Bedrock Assistant",
@@ -371,31 +371,31 @@ Communication style:
 </TabItem>
   <TabItem label="Python" icon="seti:python">
 ```python
-from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+from agent_squad.agents import BedrockLLMAgent, BedrockLLMAgentOptions
 
 agent = BedrockLLMAgent(BedrockLLMAgentOptions(
     # Required fields
     name='Advanced Bedrock Assistant',
     description='A fully configured AI assistant powered by Bedrock models',
-    
+
     # Optional fields
     model_id='anthropic.claude-3-sonnet-20240229-v1:0',
     region='us-west-2',
     streaming=True,
     retriever=custom_retriever,  # Custom retriever for additional context
-    
+
     inference_config={
         'maxTokens': 500,
         'temperature': 0.7,
         'topP': 0.9,
         'stopSequences': ['Human:', 'AI:']
     },
-    
+
     guardrail_config={
         'guardrailIdentifier': 'my-guardrail',
         'guardrailVersion': '1.0'
     },
-    
+
     tool_config={
         'tool': [{
             'name': 'Weather_Tool',
@@ -412,12 +412,12 @@ agent = BedrockLLMAgent(BedrockLLMAgentOptions(
             }
         }]
     },
-    
+
     custom_system_prompt={
         'template': """You are an AI assistant specialized in {{DOMAIN}}.
                       Your core competencies:
                       {{SKILLS}}
-                      
+
                       Communication style:
                       - Maintain a {{TONE}} tone
                       - Focus on {{FOCUS}}

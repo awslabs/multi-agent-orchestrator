@@ -55,7 +55,7 @@ export interface AgentOptions {
 }
 
 /**
- * Abstract base class for all agents in the Multi-Agent Orchestrator System.
+ * Abstract base class for all agents in the Agent Squad System.
  * This class defines the common structure and behavior for all agents.
  */
 export abstract class Agent {
@@ -133,7 +133,7 @@ export abstract class Agent {
 /**
  * Abstract method to process a request.
  * This method must be implemented by all concrete agent classes.
- * 
+ *
  * @param inputText - The user input as a string.
  * @param chatHistory - An array of Message objects representing the conversation history.
  * @param additionalParams - Optional additional parameters as key-value pairs.

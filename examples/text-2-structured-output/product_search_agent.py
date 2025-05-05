@@ -4,9 +4,9 @@ import boto3
 from typing import List, Dict, Any, AsyncIterable, Optional, Union
 from dataclasses import dataclass
 from enum import Enum
-from multi_agent_orchestrator.agents import Agent, AgentOptions
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.utils import conversation_to_dict, Logger
+from agent_squad.agents import Agent, AgentOptions
+from agent_squad.types import ConversationMessage, ParticipantRole
+from agent_squad.utils import conversation_to_dict, Logger
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
@@ -31,7 +31,7 @@ class ProductSearchAgent(Agent):
         self.max_tokens = options.max_tokens
         self.temperature = options.temperature
         self.top_p = options.top_p
-        
+
         # Use the provided client or create a new one
         self.client = options.client if options.client else self._create_client()
 
@@ -63,7 +63,7 @@ class ProductSearchAgent(Agent):
         print(f"Input text: {input_text}")
         try:
             print("Sending request to Bedrock model")
-            
+
             user_message = ConversationMessage(
                 role=ParticipantRole.USER.value,
                 content=[{'text': input_text}]
@@ -88,14 +88,14 @@ class ProductSearchAgent(Agent):
 
             llm_response = response['output']['message']['content'][0]['text']
             parsed_response = json.loads(llm_response)
-            
+
             #TODO use the output to call the backend to fetch the data matching the user query
-                       
+
             return ConversationMessage(
                 role=ParticipantRole.ASSISTANT.value,
                 content=[{"text": json.dumps({"output": parsed_response, "type": "json"})}]
             )
-            
+
         except Exception as error:
             print(f"Error processing request: {str(error)}")
             raise ValueError(f"Error processing request: {str(error)}")

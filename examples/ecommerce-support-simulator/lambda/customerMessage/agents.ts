@@ -1,5 +1,5 @@
 import {
-  MultiAgentOrchestrator,
+  AgentSquad,
   BedrockLLMAgent,
   BedrockLLMAgentOptions,
   AmazonBedrockAgent,
@@ -12,7 +12,7 @@ import {
   ConversationMessage,
   ParticipantRole,
   AnthropicClassifier,
-} from "multi-agent-orchestrator";
+} from "agent-squad";
 import { BedrockAgentRuntimeClient } from "@aws-sdk/client-bedrock-agent-runtime";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import * as fs from 'fs';

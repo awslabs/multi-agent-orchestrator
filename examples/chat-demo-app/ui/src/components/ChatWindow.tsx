@@ -120,14 +120,14 @@ const ChatWindow: React.FC = () => {
   }, []);
 
 
-  
-  
+
+
   const renderMessageContent = (content: string) => {
     const processedContent = replaceTextEmotesWithEmojis(content);
     return <MarkdownRenderer content={processedContent} />;
   };
 
-  
+
 
   useEffect(() => {
     let session_id = localStorage.getItem('sessionId');
@@ -230,7 +230,7 @@ const ChatWindow: React.FC = () => {
                   accumulatedContent += `Error: ${parsedLine.data}\n`;
                   break;
               }
-        
+
               setMessages(prevMessages => [
                 ...prevMessages.slice(0, -1),
                 {
@@ -285,7 +285,7 @@ const ChatWindow: React.FC = () => {
           <div className="flex flex-col h-[90vh] w-[70vw] bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
             <div className="text-center mb-6 relative">
               <h1 className="text-3xl font-bold text-blue-700 mb-2">
-                Multi-Agent Orchestrator Demo
+                Agent Squad Demo
               </h1>
               <button
                 onClick={resetSessionId}
@@ -306,12 +306,12 @@ const ChatWindow: React.FC = () => {
               {messages.map((msg, index) => (
                 <div key={index} className="mb-4">
                   <div className={`rounded-lg py-2 px-4 ${
-                    msg.sender === "You" 
-                      ? "bg-blue-100 text-slate-900 ml-auto border border-blue-200" 
+                    msg.sender === "You"
+                      ? "bg-blue-100 text-slate-900 ml-auto border border-blue-200"
                       : "bg-white border border-slate-200 text-slate-900"
                   }`}>
                     <p className={`text-xs font-semibold mb-1 ${
-                      msg.sender === "You" 
+                      msg.sender === "You"
                         ? "text-blue-700"
                         : "text-slate-700"
                     }`}>
@@ -369,10 +369,10 @@ const ChatWindow: React.FC = () => {
             </form>
 
             <div className="text-center text-slate-900">
-  <p className="mb-2">To learn more about the Multi-Agent Orchestrator:</p>
+  <p className="mb-2">To learn more about the Agent Squad:</p>
   <div className="flex justify-center space-x-4">
     <a
-      href="https://github.com/awslabs/multi-agent-orchestrator"
+      href="https://github.com/awslabs/agent-squad"
       target="_blank"
       rel="noopener noreferrer"
       className="flex items-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-2 px-4 rounded-lg transition-all duration-300"
@@ -381,7 +381,7 @@ const ChatWindow: React.FC = () => {
       GitHub Repo
     </a>
     <a
-      href="https://awslabs.github.io/multi-agent-orchestrator/"
+      href="https://awslabs.github.io/agent-squad/"
       target="_blank"
       rel="noopener noreferrer"
       className="flex items-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-2 px-4 rounded-lg transition-all duration-300"
@@ -390,13 +390,13 @@ const ChatWindow: React.FC = () => {
       Documentation
     </a>
     <a
-      href="https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/chat-demo-app"
+      href="https://github.com/awslabs/agent-squad/tree/main/examples/chat-demo-app"
       target="_blank"
       rel="noopener noreferrer"
       className="flex items-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-2 px-4 rounded-lg transition-all duration-300"
     >
-      <svg 
-        viewBox="0 0 24 24" 
+      <svg
+        viewBox="0 0 24 24"
         className="w-6 h-6 mr-2 text-blue-700"
         fill="none"
         stroke="currentColor"

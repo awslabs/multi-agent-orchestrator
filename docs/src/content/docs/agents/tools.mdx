@@ -1,9 +1,9 @@
 ---
 title: AgentTools System
-description: Documentation for the AgentTools system in the Multi-Agent Orchestrator
+description: Documentation for the AgentTools system in the Agent Squad
 ---
 
-The AgentTools system in the Multi-Agent Orchestrator provides a flexible framework for defining, building, and managing tools that agents can use.
+The AgentTools system in the Agent Squad provides a flexible framework for defining, building, and managing tools that agents can use.
 It consists of three main classes: `AgentTool` and `AgentTools`, which work together to enable tool-based interactions in the orchestrator.
 
 ## Key Features
@@ -35,7 +35,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import AgentTool
+    from agent_squad.utils import AgentTool
 
     def get_weather(location: str, units: str = "celsius") -> str:
         """Get weather information for a location.
@@ -76,7 +76,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import AgentTool
+    from agent_squad.utils import AgentTool
 
     def get_weather(location: str, units: str = "celsius") -> str:
         """Get weather information for a location.
@@ -132,7 +132,7 @@ The `AgentTools` class manages multiple tool definitions and handles tool execut
 <Tabs syncKey="runtime">
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import AgentTools, AgentTool
+    from agent_squad.utils import AgentTools, AgentTool
 
     # Define your tools
     weather_tool = AgentTool("weather", "Get weather info", get_weather)
@@ -179,7 +179,7 @@ By using AgentTools, the logic of parsing the tool response from the Agent is ha
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import AgentTools, AgentTool
+    from agent_squad.utils import AgentTools, AgentTool
 
     def get_weather(city:str):
         """
@@ -212,8 +212,8 @@ Here is an example of how you can add AgentTools to your Agent
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import AgentTools, AgentTool
-    from multi_agent_orchestrator.agents import (BedrockLLMAgent, BedrockLLMAgentOptions)
+    from agent_squad.utils import AgentTools, AgentTool
+    from agent_squad.agents import (BedrockLLMAgent, BedrockLLMAgentOptions)
 
     # Configure and create the agent with our weather tool
     weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
@@ -246,8 +246,8 @@ When you need more control over tool execution, you can implement a custom handl
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.utils import AgentTools, AgentTool
-    from multi_agent_orchestrator.agents import (BedrockLLMAgent, BedrockLLMAgentOptions)
+    from agent_squad.utils import AgentTools, AgentTool
+    from agent_squad.agents import (BedrockLLMAgent, BedrockLLMAgentOptions)
 
     async def bedrock_weather_tool_handler(
         response: ConversationMessage,
@@ -327,10 +327,10 @@ This approach provides flexibility when you need to extend the default tool beha
 
 5. **AgentTool Naming**: Use clear, descriptive names for your tools and maintain consistency in naming conventions across your application.
 
-By following these guidelines and leveraging the AgentTools system effectively, you can create powerful and flexible tool-based interactions in your Multi-Agent Orchestrator implementation.
+By following these guidelines and leveraging the AgentTools system effectively, you can create powerful and flexible tool-based interactions in your Agent Squad implementation.
 
 
 
 ## Next Steps
 
-To continue learning about AgentTools in the Multi-Agent Orchestrator System, head over to our [examples](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/tools) in Github
+To continue learning about AgentTools in the Agent Squad System, head over to our [examples](https://github.com/awslabs/agent-squad/tree/main/examples/tools) in Github

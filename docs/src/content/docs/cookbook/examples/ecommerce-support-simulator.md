@@ -26,7 +26,7 @@ The Chat Mode provides a real-time conversation interface, simulating instant me
 - Real-time message updates
 - Automatic scrolling to the latest message
 
-![Chat Mode Screenshot](/multi-agent-orchestrator/chat_mode.png)
+![Chat Mode Screenshot](/agent-squad/chat_mode.png)
 
 ### Email Mode
 
@@ -36,7 +36,7 @@ The Email Mode simulates asynchronous email communication. It includes:
 - Pre-defined email templates for common scenarios
 - Response viewing areas for both parties
 
-![Chat Mode Screenshot](/multi-agent-orchestrator/email_mode.png)
+![Chat Mode Screenshot](/agent-squad/email_mode.png)
 
 ## Mock Data
 
@@ -75,7 +75,7 @@ A demonstration of how AI agents and human support can work together in an e-com
 
 ### Agent Architecture
 
-![Agents](/multi-agent-orchestrator/ai_e-commerce_support_system.jpg)
+![Agents](/agent-squad/ai_e-commerce_support_system.jpg)
 
 The system employs three specialized agents:
 
@@ -107,7 +107,7 @@ The system employs three specialized agents:
 
 ### AWS Infrastructure
 
-![Infrastructure](/multi-agent-orchestrator/ai-powered_e-commerce_support_simulator.png)
+![Infrastructure](/agent-squad/ai-powered_e-commerce_support_simulator.png)
 
 #### Core Components
 - 🌐 **Frontend**: React + CloudFront
@@ -120,13 +120,13 @@ The system employs three specialized agents:
 ## 💬 Communication Modes
 
 ### Real-Time Chat
-![Chat Mode](/multi-agent-orchestrator/chat_mode.png)
+![Chat Mode](/agent-squad/chat_mode.png)
 - Instant messaging interface
 - Real-time response streaming
 - Automatic routing
 
 ### Email-Style
-![Email Mode](/multi-agent-orchestrator/email_mode.png)
+![Email Mode](/agent-squad/email_mode.png)
 - Asynchronous communication
 - Template-based responses
 - Structured conversations
@@ -159,8 +159,8 @@ The `mock_data.json` provides realistic test data:
 ### Quick Start
 ```bash
 # Clone repository
-git clone https://github.com/awslabs/multi-agent-orchestrator.git
-cd multi-agent-orchestrator/examples/ecommerce-support-simulator
+git clone https://github.com/awslabs/agent-squad.git
+cd agent-squad/examples/ecommerce-support-simulator
 
 # Install and deploy
 npm install
@@ -219,9 +219,9 @@ This demo application is intended solely for demonstration purposes. It is not d
 For production usage, it is crucial to implement proper security measures to protect PII and personal data. This includes obtaining proper permissions from users, utilizing encryption for data both in transit and at rest, and adhering to industry standards and regulations to maximize security. Failure to do so may result in data breaches and other serious security issues.
 ## 📚 Additional Resources
 
-- [Multi-Agent Orchestrator Documentation](https://github.com/awslabs/multi-agent-orchestrator)
+- [Agent Squad Documentation](https://github.com/awslabs/agent-squad)
 - [AWS AppSync Documentation](https://docs.aws.amazon.com/appsync)
 - [Claude API Documentation](https://docs.anthropic.com/en/api/getting-started)
 
 
-Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/ecommerce-support-simulator) in our GitHub repository.
+Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/agent-squad/tree/main/examples/ecommerce-support-simulator) in our GitHub repository.

@@ -281,7 +281,7 @@ const SupportSimulator = () => {
               Try asking "Where is my order?" or "I want to return an item" to see how our AI handles customer support inquiries!
               </p>
             </div>
-  
+
             <div className="flex justify-between items-center mb-4">
               <button
                 onClick={toggleMode}
@@ -297,7 +297,7 @@ const SupportSimulator = () => {
                 <RefreshCw size={24} />
               </button>
             </div>
-  
+
             <div className="flex justify-between mb-4">
               <div className="w-1/2 pr-2">
                 <p className="text-gray-900 text-center font-semibold mb-2">
@@ -316,7 +316,7 @@ const SupportSimulator = () => {
                 </p>
               </div>
             </div>
-  
+
             {isChatMode ? (
               <ChatMode
                 messages={messages}
@@ -344,7 +344,7 @@ const SupportSimulator = () => {
                 emailTemplates={emailTemplates}
               />
             )}
-  
+
             {showLogs && (
               <div className="mt-4 bg-gray-50 border border-gray-200 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold mb-2 text-gray-900">Logs:</h3>
@@ -355,7 +355,7 @@ const SupportSimulator = () => {
                 </ul>
               </div>
             )}
-  
+
             {/* Behind the Scenes Section */}
             <div className="mt-8 bg-gray-50 border border-gray-200 rounded-xl shadow-sm overflow-hidden">
               <button
@@ -375,7 +375,7 @@ const SupportSimulator = () => {
                 </div>
               )}
             </div>
-  
+
             <div className="text-center mt-6">
               <a
                 href="/mock_data.json"
@@ -385,12 +385,12 @@ const SupportSimulator = () => {
                 Access mock data for simulation
               </a>
             </div>
-  
+
             <div className="text-center text-slate-900">
-              <p className="mb-2">To learn more about the Multi-Agent Orchestrator:</p>
+              <p className="mb-2">To learn more about the Agent Squad:</p>
               <div className="flex justify-center space-x-4">
                 <a
-                  href="https://github.com/awslabs/multi-agent-orchestrator"
+                  href="https://github.com/awslabs/agent-squad"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-2 px-4 rounded-lg transition-all duration-300"
@@ -399,7 +399,7 @@ const SupportSimulator = () => {
                   GitHub Repo
                 </a>
                 <a
-                  href="https://awslabs.github.io/multi-agent-orchestrator/"
+                  href="https://awslabs.github.io/agent-squad/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-2 px-4 rounded-lg transition-all duration-300"
@@ -408,13 +408,13 @@ const SupportSimulator = () => {
                   Documentation
                 </a>
                 <a
-                  href="https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/ecommerce-support-simulator"
+                  href="https://github.com/awslabs/agent-squad/tree/main/examples/ecommerce-support-simulator"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold py-2 px-4 rounded-lg transition-all duration-300"
                 >
-                  <svg 
-                    viewBox="0 0 24 24" 
+                  <svg
+                    viewBox="0 0 24 24"
                     className="w-6 h-6 mr-2 text-blue-700"
                     fill="none"
                     stroke="currentColor"
@@ -433,7 +433,7 @@ const SupportSimulator = () => {
                 </a>
               </div>
             </div>
-            
+
             <button
               onClick={handleSignOut}
               className="mt-6 bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 self-center"

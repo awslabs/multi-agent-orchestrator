@@ -1,7 +1,7 @@
 import requests
 from requests.exceptions import RequestException
 from typing import Any
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+from agent_squad.types import ConversationMessage, ParticipantRole
 
 
 weather_tool_description = [{

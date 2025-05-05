@@ -45,12 +45,12 @@ export class ChatDemoStack extends cdk.Stack {
     const assetsTsPath = path.join(__dirname, "../../../typescript/src/");
     const assetTsDoc = s3deploy.Source.asset(assetsTsPath);
 
-    const assetsPyPath = path.join(__dirname, "../../../python/src/multi_agent_orchestrator/");
+    const assetsPyPath = path.join(__dirname, "../../../python/src/agent_squad/");
     const assetPyDoc = s3deploy.Source.asset(assetsPyPath);
 
 
     const knowledgeBase = new BedrockKnowledgeBase(this, 'MutiAgentOrchestratorDocKb', {
-      kbName:'Multi-agent-orchestrator-doc-kb',
+      kbName:'agent-squad-doc-kb',
       assetFiles:[],
       embeddingModel: BedrockKnowledgeBaseModels.TITAN_EMBED_TEXT_V1,
     });

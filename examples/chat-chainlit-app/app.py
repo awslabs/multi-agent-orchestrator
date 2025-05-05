@@ -1,10 +1,10 @@
 import uuid
 import chainlit as cl
 from agents import create_tech_agent, create_travel_agent, create_health_agent
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
-from multi_agent_orchestrator.types import ConversationMessage
-from multi_agent_orchestrator.agents import AgentResponse
+from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
+from agent_squad.classifiers import BedrockClassifier, BedrockClassifierOptions
+from agent_squad.types import ConversationMessage
+from agent_squad.agents import AgentResponse
 
 
 # Initialize the orchestrator
@@ -17,7 +17,7 @@ custom_bedrock_classifier = BedrockClassifier(BedrockClassifierOptions(
     }
 ))
 
-orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
+orchestrator = AgentSquad(options=AgentSquadConfig(
         LOG_AGENT_CHAT=True,
         LOG_CLASSIFIER_CHAT=True,
         LOG_CLASSIFIER_RAW_OUTPUT=True,
