@@ -1,10 +1,10 @@
-<h2 align="center">Agent Squad&nbsp;</h2>
+<h2 align="center">Agent Squad</h2>
 <p align="center">Flexible, lightweight open-source framework for orchestrating multiple AI agents to handle complex conversations.</p>
 
 ---
 <p align="center">
-  <strong>📢 New Name Alert:</strong> Multi-Agent Orchestrator is now Agent Squad! 🎉<br>
-  Same powerful functionality, new catchy name. Embrace the squad!
+  <strong>📢 New Name Alert:</strong> Multi-Agent Orchestrator is now <strong>Agent Squad!</strong> 🎉<br>
+  Same powerful functionalities, new catchy name. Embrace the squad!
 </p>
 
 ---
@@ -451,6 +451,8 @@ This policy helps us:
 - Make project history more traceable and understandable
 
 ## 🤝 Contributing
+
+⚠️ Note: Our project has been renamed from **Multi-Agent Orchestrator** to **Agent Squad**. Please use the new name in your contributions and discussions.
 
 ⚠️ We value your contributions! Before submitting changes, please start a discussion by opening an issue to share your proposal.
 
