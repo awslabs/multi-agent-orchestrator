@@ -1,9 +1,9 @@
 ---
 title: Custom retriever
-description: An overview of retrievers and supported type in the Multi-Agent Orchestrator System
+description: An overview of retrievers and supported type in the Agent Squad System
 ---
 
-The Multi-Agent Orchestrator System allows you to create custom retrievers by extending the abstract Retriever class. This flexibility enables you to integrate various data sources and retrieval methods into your agent system. In this guide, we'll walk through the process of creating a custom retriever, provide an example using OpenSearch Serverless, and explain how to set the retriever for a BedrockLLMAgent.
+The Agent Squad System allows you to create custom retrievers by extending the abstract Retriever class. This flexibility enables you to integrate various data sources and retrieval methods into your agent system. In this guide, we'll walk through the process of creating a custom retriever, provide an example using OpenSearch Serverless, and explain how to set the retriever for a BedrockLLMAgent.
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
@@ -35,7 +35,7 @@ Here's an example of a custom retriever that uses OpenSearch Serverless:
     ```
 
     ```typescript
-    import { Retriever } from "multi-agent-orchestrator";
+    import { Retriever } from "agent-squad";
     import { Client } from "@opensearch-project/opensearch";
     import { AwsSigv4Signer } from "@opensearch-project/opensearch/aws";
     import { defaultProvider } from "@aws-sdk/credential-provider-node";
@@ -182,7 +182,7 @@ Here's an example of a custom retriever that uses OpenSearch Serverless:
 
     ```python
     from typing import Any, Dict, List
-    from multi_agent_orchestrator.retrievers import Retriever
+    from agent_squad.retrievers import Retriever
     from opensearchpy import OpenSearch, RequestsHttpConnection
     from requests_aws4auth import AWS4Auth
     import boto3
@@ -314,7 +314,7 @@ To use your custom OpenSearchServerlessRetriever:
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+    from agent_squad.agents import BedrockLLMAgent, BedrockLLMAgentOptions
     from custom_retriever import OpenSearchServerlessRetriever, OpenSearchServerlessRetrieverOptions
     import os
 
@@ -355,4 +355,4 @@ This process allows the agent to leverage external knowledge sources, potentiall
 
 ---
 
-By adapting this example as a CustomRetriever for OpenSearch Serverless, you can seamlessly incorporate your **pre-built Opensearch Serverless clusters** into the Multi-Agent Orchestrator System, enhancing your agents' knowledge retrieval capabilities.
+By adapting this example as a CustomRetriever for OpenSearch Serverless, you can seamlessly incorporate your **pre-built Opensearch Serverless clusters** into the Agent Squad System, enhancing your agents' knowledge retrieval capabilities.

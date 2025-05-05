@@ -1,6 +1,6 @@
 ---
 title: Bedrock Inline Agent
-description: Documentation for the BedrockInlineAgent in the Multi-Agent Orchestrator
+description: Documentation for the BedrockInlineAgent in the Agent Squad
 ---
 
 ## Overview
@@ -27,17 +27,17 @@ This architecture removes practical limits on the number of action groups and kn
 If you haven't already installed the AWS-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[aws]"
+pip install "agent-squad[aws]"
 ```
 
-### Basic Example 
+### Basic Example
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { BedrockInlineAgent } from 'multi-agent-orchestrator';
+    import { BedrockInlineAgent } from 'agent-squad';
     import { CustomLogger } from './logger';
 
     const actionGroups = [
@@ -75,7 +75,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.agents import BedrockInlineAgent, BedrockInlineAgentOptions
+    from agent_squad.agents import BedrockInlineAgent, BedrockInlineAgentOptions
     from custom_logger import CustomLogger
 
     action_groups = [
@@ -120,14 +120,14 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 When enabled, this flag activates detailed debug logging that helps you understand the agent's operation. Example output:
 
 ```text
-> BedrockInlineAgent 
-> Inline Agent Creator for Agents for Amazon Bedrock 
-> System Prompt 
+> BedrockInlineAgent
+> Inline Agent Creator for Agents for Amazon Bedrock
+> System Prompt
 > You are a Inline Agent Creator for Agents for Amazon Bedrock...
 
-> BedrockInlineAgent 
-> Inline Agent Creator for Agents for Amazon Bedrock 
-> Tool Handler Parameters 
+> BedrockInlineAgent
+> Inline Agent Creator for Agents for Amazon Bedrock
+> Tool Handler Parameters
 > {
   userRequest: 'Please execute...',
   actionGroupNames: ['CodeInterpreterAction'],
@@ -136,9 +136,9 @@ When enabled, this flag activates detailed debug logging that helps you understa
   sessionId: 'session-456'
 }
 
-> BedrockInlineAgent 
-> Inline Agent Creator for Agents for Amazon Bedrock 
-> Action Group & Knowledge Base 
+> BedrockInlineAgent
+> Inline Agent Creator for Agents for Amazon Bedrock
+> Action Group & Knowledge Base
 > {
   actionGroups: [
     {
@@ -229,8 +229,8 @@ You can provide your own logger implementation to customize log formatting and h
 
 You can find sample code for using the BedrockInlineAgent in both TypeScript and Python:
 
-- [TypeScript Sample](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-inline-agents/typescript)
-- [Python Sample](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-inline-agents/python)
+- [TypeScript Sample](https://github.com/awslabs/agent-squad/tree/main/examples/bedrock-inline-agents/typescript)
+- [Python Sample](https://github.com/awslabs/agent-squad/tree/main/examples/bedrock-inline-agents/python)
 
 
 The BedrockInlineAgent represents a significant advancement in agent flexibility and efficiency, enabling truly dynamic, context-aware responses while optimizing resource usage.

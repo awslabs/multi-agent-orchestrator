@@ -1,9 +1,9 @@
-//import { BedrockInlineAgent, BedrockInlineAgentOptions } from 'multi-agent-orchestrator';
+//import { BedrockInlineAgent, BedrockInlineAgentOptions } from 'agent-squad';
 import { BedrockInlineAgent, BedrockInlineAgentOptions } from '../../../typescript/src/agents/bedrockInlineAgent';
-import { 
-  BedrockAgentRuntimeClient, 
-  AgentActionGroup, 
-  KnowledgeBase 
+import {
+  BedrockAgentRuntimeClient,
+  AgentActionGroup,
+  KnowledgeBase
 } from "@aws-sdk/client-bedrock-agent-runtime";
 import { BedrockRuntimeClient } from "@aws-sdk/client-bedrock-runtime";
 import { v4 as uuidv4 } from 'uuid';
@@ -73,9 +73,9 @@ async function runInlineAgent(userInput: string, userId: string, sessionId: stri
 async function main() {
   const sessionId = uuidv4();
   const userId = uuidv4();
-  
+
   console.log("Welcome to the interactive Multi-Agent system. Type 'quit' to exit.");
-  
+
   const readline = createInterface({
     input: process.stdin,
     output: process.stdout
@@ -91,7 +91,7 @@ async function main() {
 
   while (true) {
     const userInput = await getUserInput() as string;
-    
+
     if (userInput.toLowerCase() === 'quit') {
       console.log("Exiting the program. Goodbye!");
       readline.close();

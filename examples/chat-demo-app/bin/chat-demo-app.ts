@@ -12,7 +12,7 @@ const chatDemoStack = new ChatDemoStack(app, 'ChatDemoStack', {
     account: process.env.CDK_DEFAULT_ACCOUNT
   },
   crossRegionReferences: true,
-  description: "Multi Agent Orchestrator Chat Demo Application (uksb-2mz8io1d9k)"
+  description: "Agent Squad Chat Demo Application (uksb-2mz8io1d9k)"
 });
 
 new UserInterfaceStack(app, 'UserInterfaceStack', {
@@ -21,6 +21,6 @@ new UserInterfaceStack(app, 'UserInterfaceStack', {
     account: process.env.CDK_DEFAULT_ACCOUNT,
   },
   crossRegionReferences: true,
-  description: "Multi Agent Orchestrator User Interface (uksb-2mz8io1d9k)",
+  description: "Agent Squad User Interface (uksb-2mz8io1d9k)",
   multiAgentLambdaFunctionUrl: chatDemoStack.multiAgentLambdaFunctionUrl,
 });

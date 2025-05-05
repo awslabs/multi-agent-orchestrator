@@ -1,6 +1,6 @@
 ---
 title: Custom Agents
-description: A guide to creating custom agents in the Multi-Agent Orchestrator System, including an OpenAI agent example
+description: A guide to creating custom agents in the Agent Squad System, including an OpenAI agent example
 ---
 
 The `Agent` abstract class provides a flexible foundation for creating various types of agents. When implementing a custom agent, you can:
@@ -35,8 +35,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.agents import Agent
-    from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+    from agent_squad.agents import Agent
+    from agent_squad.types import ConversationMessage, ParticipantRole
 
     class SimpleGreetingAgent(Agent):
         async def process_request(
@@ -84,8 +84,8 @@ To create a custom agent, you need to extend the base `Agent` class or one of it
   <TabItem label="Python" icon="seti:python">
     ```python
     from typing import List, Optional, Dict
-    from multi_agent_orchestrator.agents import Agent, AgentOptions
-    from multi_agent_orchestrator.types import ConversationMessage
+    from agent_squad.agents import Agent, AgentOptions
+    from agent_squad.types import ConversationMessage
 
     class CustomAgent(Agent):
         def __init__(self, options: AgentOptions):
@@ -149,8 +149,8 @@ Here's an example of a custom agent that uses the OpenAI API:
     ```python
     from typing import List, Optional, Dict
     import openai
-    from multi_agent_orchestrator.agents import Agent, AgentOptions
-    from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+    from agent_squad.agents import Agent, AgentOptions
+    from agent_squad.types import ConversationMessage, ParticipantRole
 
     class OpenAIAgentOptions(AgentOptions):
         api_key: str
@@ -211,4 +211,4 @@ To use this OpenAI agent:
 
 ---
 
-By creating custom agents, you can extend the capabilities of the Multi-Agent Orchestrator to meet your specific needs, whether that's integrating with external AI services like OpenAI, implementing specialized business logic, or interfacing with other systems and APIs.
+By creating custom agents, you can extend the capabilities of the Agent Squad to meet your specific needs, whether that's integrating with external AI services like OpenAI, implementing specialized business logic, or interfacing with other systems and APIs.

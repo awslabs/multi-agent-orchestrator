@@ -3,7 +3,7 @@ title: Creating a Math Agent with BedrockLLMAgent and Custom Tools
 description: Understanding Tool use in Bedrock LLM Agent
 ---
 
-This guide demonstrates how to create a specialized math agent using BedrockLLMAgent and custom math tools. We'll walk through the process of defining the tools, setting up the agent, and integrating it into your Multi-Agent Orchestrator system.
+This guide demonstrates how to create a specialized math agent using BedrockLLMAgent and custom math tools. We'll walk through the process of defining the tools, setting up the agent, and integrating it into your Agent Squad system.
 
 <br>
 
@@ -82,7 +82,7 @@ export const mathAgentToolDefinition = [
 B. Tool Handler
 
 ```typescript
-import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
+import { ConversationMessage, ParticipantRole } from "agent-squad";
 
 export async function mathToolHandler(response, conversation: ConversationMessage[]): Promise<ConversationMessage> {
   const responseContentBlocks = response.content as any[];
@@ -247,7 +247,7 @@ Now that we have our math tool defined and the code above in a file called `weat
 
 
 ```typescript
-import { BedrockLLMAgent } from 'multi-agent-orchestrator';
+import { BedrockLLMAgent } from 'agent-squad';
 import { mathAgentToolDefinition, mathToolHandler } from './mathTools';
 
 const MATH_PROMPT = `
@@ -276,12 +276,12 @@ mathAgent.setSystemPrompt(MATH_PROMPT);
 
 3. **Add the Math Agent to the Orchestrator**
 
-Now we can add our math agent to the Multi-Agent Orchestrator:
+Now we can add our math agent to the Agent Squad:
 
 ```typescript
-import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+import { AgentSquad } from "agent-squad";
 
-const orchestrator = new MultiAgentOrchestrator();
+const orchestrator = new AgentSquad();
 
 orchestrator.addAgent(mathAgent);
 ```
@@ -310,4 +310,4 @@ This setup allows for a specialized math agent that can handle various mathemati
 
 ---
 
-By following this guide, you can create a powerful, context-aware math agent using BedrockLLMAgent and custom tools within your Multi-Agent Orchestrator system.
+By following this guide, you can create a powerful, context-aware math agent using BedrockLLMAgent and custom tools within your Agent Squad system.

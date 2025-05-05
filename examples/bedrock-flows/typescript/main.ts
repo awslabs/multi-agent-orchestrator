@@ -1,10 +1,10 @@
 import readline from "readline";
 import {
-  MultiAgentOrchestrator,
+  AgentSquad,
   Logger,
   BedrockFlowsAgent,
   Agent,
-} from "multi-agent-orchestrator";
+} from "agent-squad";
 
 
 const flowInputEncoder = (
@@ -41,8 +41,8 @@ const flowTechAgent = new BedrockFlowsAgent({
     flowInputEncoder: flowInputEncoder
   });
 
-function createOrchestrator(): MultiAgentOrchestrator {
-  const orchestrator = new MultiAgentOrchestrator({
+function createOrchestrator(): AgentSquad {
+  const orchestrator = new AgentSquad({
     config: {
       LOG_AGENT_CHAT: true,
       LOG_EXECUTION_TIMES: true,

@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: Introduction to Multi-Agent Orchestrator framework
+description: Introduction to Agent Squad framework
 ---
 
 The emergence of both large and small language models, deployable in cloud environments or on local systems, offers the opportunity to utilize multiple specialized models for specific tasks.
@@ -11,9 +11,9 @@ Building intelligent, context-aware AI applications faces a significant challeng
 
 ## 🚀 Building flexible AI systems
 
-To address these challenges and empower developers to quickly experiment with and deploy advanced multi-agent AI systems, we've created the **Multi-Agent Orchestrator** framework.
+To address these challenges and empower developers to quickly experiment with and deploy advanced multi-agent AI systems, we've created the **Agent Squad** framework.
 
-The Multi-Agent Orchestrator is a flexible and powerful framework designed for managing multiple AI agents, intelligently routing user queries, and handling complex conversations. Built with scalability and modularity in mind, it allows to create AI applications that can maintain coherent dialogues across multiple domains, efficiently delegating tasks to specialized agents while preserving context throughout the interaction.
+The Agent Squad is a flexible and powerful framework designed for managing multiple AI agents, intelligently routing user queries, and handling complex conversations. Built with scalability and modularity in mind, it allows to create AI applications that can maintain coherent dialogues across multiple domains, efficiently delegating tasks to specialized agents while preserving context throughout the interaction.
 
 This project has been designed to address a wide array of use-cases, including but not limited to:
 - Complex customer support systems
@@ -24,7 +24,7 @@ This project has been designed to address a wide array of use-cases, including b
 
 ## 🔖 Features
 
-Below are some of the key features we've built into the Multi-Agent Orchestrator framework:
+Below are some of the key features we've built into the Agent Squad framework:
 
 - 🧠 **Intelligent Intent Classification** — Dynamically route queries to the most suitable agent based on context and content.
 - 🌊 **Flexible Agent Responses** — Support for both **streaming** and **non-streaming** responses from different agents.
@@ -35,6 +35,6 @@ Below are some of the key features we've built into the Multi-Agent Orchestrator
 - 📊 **Agent Overlap Analysis** — Built-in tools to analyze and optimize your agent configurations.
 - 📦 **Pre-configured Agents** — Ready-to-use agents powered by Amazon Bedrock models.
 
-With the Multi-Agent Orchestrator framework, developers can rapidly prototype and deploy sophisticated AI conversation systems that leverage the power of multiple specialized agents. 
+With the Agent Squad framework, developers can rapidly prototype and deploy sophisticated AI conversation systems that leverage the power of multiple specialized agents.
 
 The framework's extensibility and customization capabilities support the creation of a wide range of AI applications, from complex customer service systems to multi-domain virtual assistants and advanced collaborative AI tools, allowing for the implementation of diverse ideas.

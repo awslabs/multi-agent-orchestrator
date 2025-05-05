@@ -1,8 +1,8 @@
 import pytest
 import logging
 from typing import Dict, Any
-from multi_agent_orchestrator.types import ConversationMessage, OrchestratorConfig
-from multi_agent_orchestrator.utils import Logger
+from agent_squad.types import ConversationMessage, AgentSquadConfig
+from agent_squad.utils import Logger
 
 @pytest.fixture
 def logger_instance():
@@ -14,11 +14,11 @@ def mock_logger(mocker):
 
 def test_logger_initialization():
     logger = Logger()
-    assert isinstance(logger.config, OrchestratorConfig)
+    assert isinstance(logger.config, AgentSquadConfig)
     assert isinstance(logger._logger, logging.Logger)
 
 def test_logger_initialization_with_custom_config():
-    custom_config = OrchestratorConfig(**{'LOG_AGENT_CHAT': True, 'LOG_CLASSIFIER_CHAT': False})
+    custom_config = AgentSquadConfig(**{'LOG_AGENT_CHAT': True, 'LOG_CLASSIFIER_CHAT': False})
     logger = Logger(config=custom_config)
     assert logger.config == custom_config
 
@@ -40,7 +40,7 @@ def test_log_header(mock_logger):
     mock_logger.info.assert_any_call("=================")
 
 def test_print_chat_history_agent(logger_instance, mock_logger, mocker):
-    logger_instance.config = OrchestratorConfig(**{'LOG_AGENT_CHAT': True})
+    logger_instance.config = AgentSquadConfig(**{'LOG_AGENT_CHAT': True})
     Logger.set_logger(mock_logger)
     chat_history = [
         ConversationMessage(role="user", content="Hello"),
@@ -50,7 +50,7 @@ def test_print_chat_history_agent(logger_instance, mock_logger, mocker):
     assert mock_logger.info.call_count >= 4  # Header + 2 messages + empty line
 
 def test_not_print_chat_history_agent(logger_instance, mock_logger, mocker):
-    logger_instance.config = OrchestratorConfig(**{'LOG_AGENT_CHAT': False})
+    logger_instance.config = AgentSquadConfig(**{'LOG_AGENT_CHAT': False})
     Logger.set_logger(mock_logger)
     chat_history = [
         ConversationMessage(role="user", content="Hello"),
@@ -60,7 +60,7 @@ def test_not_print_chat_history_agent(logger_instance, mock_logger, mocker):
     assert mock_logger.info.call_count == 0
 
 def test_print_chat_history_classifier(logger_instance, mock_logger, mocker):
-    logger_instance.config = OrchestratorConfig(**{'LOG_CLASSIFIER_CHAT': True})
+    logger_instance.config = AgentSquadConfig(**{'LOG_CLASSIFIER_CHAT': True})
     Logger.set_logger(mock_logger)
     chat_history = [
         ConversationMessage(role="user", content="Classify this"),
@@ -70,7 +70,7 @@ def test_print_chat_history_classifier(logger_instance, mock_logger, mocker):
     assert mock_logger.info.call_count >= 4  # Header + 2 messages + empty line
 
 def test_not_print_chat_history_classifier(logger_instance, mock_logger, mocker):
-    logger_instance.config = OrchestratorConfig(**{'LOG_CLASSIFIER_CHAT': False})
+    logger_instance.config = AgentSquadConfig(**{'LOG_CLASSIFIER_CHAT': False})
     Logger.set_logger(mock_logger)
     chat_history = [
         ConversationMessage(role="user", content="Classify this"),
@@ -80,7 +80,7 @@ def test_not_print_chat_history_classifier(logger_instance, mock_logger, mocker)
     assert mock_logger.info.call_count == 0
 
 def test_log_classifier_output(logger_instance, mock_logger):
-    logger_instance.config = OrchestratorConfig(**{'LOG_CLASSIFIER_OUTPUT': True})
+    logger_instance.config = AgentSquadConfig(**{'LOG_CLASSIFIER_OUTPUT': True})
     Logger.set_logger(mock_logger)
     output = {"result": "test"}
     logger_instance.log_classifier_output(output)
@@ -88,14 +88,14 @@ def test_log_classifier_output(logger_instance, mock_logger):
 
 
 def test_not_log_classifier_output(logger_instance, mock_logger):
-    logger_instance.config = OrchestratorConfig(**{'LOG_CLASSIFIER_OUTPUT': False})
+    logger_instance.config = AgentSquadConfig(**{'LOG_CLASSIFIER_OUTPUT': False})
     Logger.set_logger(mock_logger)
     output = {"result": "test"}
     logger_instance.log_classifier_output(output)
     assert mock_logger.info.call_count == 0
 
 def test_print_execution_times(logger_instance, mock_logger):
-    logger_instance.config = OrchestratorConfig(**{'LOG_EXECUTION_TIMES': True})
+    logger_instance.config = AgentSquadConfig(**{'LOG_EXECUTION_TIMES': True})
     Logger.set_logger(mock_logger)
     execution_times = {"task1": 100.0, "task2": 200.0}
     logger_instance.print_execution_times(execution_times)
@@ -114,13 +114,13 @@ def test_print_chat_history_empty(logger_instance, mock_logger):
     mock_logger.info.assert_any_call("> - None -")
 
 def test_print_execution_times_empty(logger_instance, mock_logger):
-    logger_instance.config = OrchestratorConfig(**{'LOG_EXECUTION_TIMES': True})
+    logger_instance.config = AgentSquadConfig(**{'LOG_EXECUTION_TIMES': True})
     Logger.set_logger(mock_logger)
     logger_instance.print_execution_times({})
     mock_logger.info.assert_any_call("> - None -")
 
 def test_not_print_execution_times_empty(logger_instance, mock_logger):
-    logger_instance.config = OrchestratorConfig(**{'LOG_EXECUTION_TIMES': False})
+    logger_instance.config = AgentSquadConfig(**{'LOG_EXECUTION_TIMES': False})
     Logger.set_logger(mock_logger)
     logger_instance.print_execution_times({})
     assert mock_logger.info.call_count == 0

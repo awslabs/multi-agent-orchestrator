@@ -51,7 +51,7 @@ export class OpenSearchServerlessHelper extends Construct {
         this.collection = new opensearch.CfnCollection(this, 'Collection', {
             name: props.collectionName,
             type: props.collectionType ?? CollectionType.VECTORSEARCH,
-            description: 'OpenSearch Serverless collection for Multi-agent orchestrator',
+            description: 'OpenSearch Serverless collection for Agent Squad',
         });
 
         // Ensure all policies are created before creating the collection.

@@ -1,9 +1,9 @@
 ---
 title: Storage overview
-description: An overview of conversation storage options in the Multi-Agent Orchestrator System
+description: An overview of conversation storage options in the Agent Squad System
 ---
 
-The Multi-Agent Orchestrator System offers flexible storage options for maintaining conversation history. This allows the system to preserve context across multiple interactions and enables agents to provide more coherent and contextually relevant responses.
+The Agent Squad System offers flexible storage options for maintaining conversation history. This allows the system to preserve context across multiple interactions and enables agents to provide more coherent and contextually relevant responses.
 
 ## Key Concepts
 
@@ -37,9 +37,9 @@ The Multi-Agent Orchestrator System offers flexible storage options for maintain
 
 ## Next Steps
 
-- Learn more about [In-Memory Storage](/multi-agent-orchestrator/storage/in-memory)
-- Explore [DynamoDB Storage](/multi-agent-orchestrator/storage/dynamodb) for persistent storage
-- Explore [SQL Storage](/multi-agent-orchestrator/storage/sql) for persistent storage using SQLite or Turso.
-- Discover how to [implement custom storage solutions](/multi-agent-orchestrator/storage/custom)
+- Learn more about [In-Memory Storage](/agent-squad/storage/in-memory)
+- Explore [DynamoDB Storage](/agent-squad/storage/dynamodb) for persistent storage
+- Explore [SQL Storage](/agent-squad/storage/sql) for persistent storage using SQLite or Turso.
+- Discover how to [implement custom storage solutions](/agent-squad/storage/custom)
 
-By leveraging these storage options, you can ensure that your Multi-Agent Orchestrator System maintains the necessary context for coherent and effective conversations across various use cases and deployment scenarios.
+By leveraging these storage options, you can ensure that your Agent Squad System maintains the necessary context for coherent and effective conversations across various use cases and deployment scenarios.

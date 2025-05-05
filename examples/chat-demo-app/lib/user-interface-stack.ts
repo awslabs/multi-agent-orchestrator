@@ -77,7 +77,7 @@ export class UserInterfaceStack extends cdk.Stack {
       this,
       "Distribution",
       {
-        comment: "Multi agent orchestrator demo app",
+        comment: "Agent Squad demo app",
         defaultRootObject: "index.html",
         httpVersion: cf.HttpVersion.HTTP2_AND_3,
         minimumProtocolVersion: cf.SecurityPolicyProtocol.TLS_V1_2_2021,

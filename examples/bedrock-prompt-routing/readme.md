@@ -15,7 +15,7 @@ Before running this example, ensure you have:
 First, install the required dependencies by running:
 
 ```bash
-pip install boto3 multi-agent-orchestrator
+pip install boto3 agent-squad
 ```
 
 export your AWS_ACCOUNT_ID variable by running:

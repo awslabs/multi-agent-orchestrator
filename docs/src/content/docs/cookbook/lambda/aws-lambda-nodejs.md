@@ -1,9 +1,9 @@
 ---
-title: AWS Lambda NodeJs with Multi-Agent Orchestrator
-description: How to set up the Multi-Agent Orchestrator System for AWS Lambda using JavaScript
+title: AWS Lambda NodeJs with Agent Squad
+description: How to set up the Agent Squad System for AWS Lambda using JavaScript
 ---
 
-The Multi-Agent Orchestrator framework can be used inside an AWS Lambda function like any other library. This guide outlines the process of setting up the Multi-Agent Orchestrator System for use with AWS Lambda using JavaScript.
+The Agent Squad framework can be used inside an AWS Lambda function like any other library. This guide outlines the process of setting up the Agent Squad System for use with AWS Lambda using JavaScript.
 
 ## Prerequisites
 
@@ -25,10 +25,10 @@ The Multi-Agent Orchestrator framework can be used inside an AWS Lambda function
    npm init -y
    ```
 
-3. **Install the Multi-Agent Orchestrator Framework**
+3. **Install the Agent Squad framework**
 
    ```bash
-   npm install multi-agent-orchestrator
+   npm install agent-squad
    ```
 
 ## Lambda Function Structure
@@ -36,10 +36,10 @@ The Multi-Agent Orchestrator framework can be used inside an AWS Lambda function
 Create a new file named `lambda.js` in your project directory. Here's a high-level overview of what your Lambda function should include:
 
 ```javascript
-const { MultiAgentOrchestrator, BedrockLLMAgent } = require("multi-agent-orchestrator");
+const { AgentSquad, BedrockLLMAgent } = require("agent-squad");
 
 // Initialize the orchestrator
-const orchestrator = new MultiAgentOrchestrator({
+const orchestrator = new AgentSquad({
   // Configuration options
 });
 

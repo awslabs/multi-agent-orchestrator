@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
 from typing import AsyncIterable
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.agents import OpenAIAgent, OpenAIAgentOptions, AgentStreamResponse
+from agent_squad.types import ConversationMessage, ParticipantRole
+from agent_squad.agents import OpenAIAgent, OpenAIAgentOptions, AgentStreamResponse
 
 @pytest.fixture
 def mock_openai_client():

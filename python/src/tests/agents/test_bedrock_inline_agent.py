@@ -3,8 +3,8 @@ from unittest.mock import Mock
 import json
 from typing import Dict, Any
 
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.agents import BedrockInlineAgent, BedrockInlineAgentOptions
+from agent_squad.types import ConversationMessage, ParticipantRole
+from agent_squad.agents import BedrockInlineAgent, BedrockInlineAgentOptions
 
 class TestBedrockInlineAgent(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
