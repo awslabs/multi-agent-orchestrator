@@ -29,14 +29,6 @@
   <img src="https://img.shields.io/github/issues-pr/awslabs/agent-squad" alt="Pull Requests">
 </p>
 
-
-<p align="center">
-  <!-- Package Stats -->
-  <a href="https://pypi.org/project/agent-squad/"><img src="https://img.shields.io/pypi/dm/agent-squad?label=pypi%20downloads" alt="PyPI Monthly Downloads"></a>
-  <a href="https://www.npmjs.com/package/agent-squad"><img src="https://img.shields.io/npm/dm/agent-squad?label=npm%20downloads" alt="npm Monthly Downloads"></a>
-</p>
-
-
 <p align="center">
   <a href="https://awslabs.github.io/agent-squad/" style="display: inline-block; background-color: #0066cc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 15px; transition: background-color 0.3s;">
     📚 Explore Full Documentation
