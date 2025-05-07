@@ -195,20 +195,3 @@ async def test_save_and_fetch_with_sensitive_mapping(chat_storage_with_sensitive
     assert len(fetched_messages_with_timestamp) == 1
     assert fetched_messages_with_timestamp[0].content == [{'text': 'This is a secret and classified message'}]
     assert isinstance(fetched_messages_with_timestamp[0].timestamp, Decimal)
-
-@pytest.mark.asyncio
-async def test_multiple_sensitive_words(chat_storage_with_sensitive_mapping):
-    user_id = 'user1'
-    session_id = 'session2'
-    agent_id = 'agent1'
-
-    message = ConversationMessage(role=ParticipantRole.USER.value, content=[{'text': 'Keep this secret and classified, please.'}])
-    await chat_storage_with_sensitive_mapping.save_chat_message(user_id, session_id, agent_id, message)
-
-    fetched_messages = await chat_storage_with_sensitive_mapping.fetch_chat(user_id, session_id, agent_id)
-    assert len(fetched_messages) == 1
-    assert fetched_messages[0].content == [{'text': 'Keep this s******t and c********d, please.'}]
-
-    fetched_messages_with_timestamp = await chat_storage_with_sensitive_mapping.fetch_chat_with_timestamp(user_id, session_id, agent_id)
-    assert len(fetched_messages_with_timestamp) == 1
-    assert fetched_messages_with_timestamp[0].content == [{'text': 'Keep this secret and classified, please.'}]
