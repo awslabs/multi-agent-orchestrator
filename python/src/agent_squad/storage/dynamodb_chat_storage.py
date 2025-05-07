@@ -1,4 +1,5 @@
-from typing import Union, Optional
+from typing import Union, Optional, Dict
+import re
 import time
 import boto3
 from agent_squad.storage import ChatStorage
@@ -12,13 +13,33 @@ class DynamoDbChatStorage(ChatStorage):
                  table_name: str,
                  region: str,
                  ttl_key: Optional[str] = None,
-                 ttl_duration: int = 3600):
+                 ttl_duration: int = 3600,
+                 sensitive_mappings: Optional[Dict[str, str]] = None):
         super().__init__()
         self.table_name = table_name
         self.ttl_key = ttl_key
         self.ttl_duration = int(ttl_duration)
         self.dynamodb = boto3.resource('dynamodb', region_name=region)
         self.table = self.dynamodb.Table(table_name)
+        self.sensitive_mappings = sensitive_mappings or {}
+
+    def _anonymized_content(self, content: Union[str, list[dict]], reverse: bool = False) -> Union[str, list[dict]]:
+        mappings = (
+            {v: k for k, v in self.sensitive_mappings.items()} if reverse 
+            else self.sensitive_mappings
+        )
+
+        if not mappings:
+            return content
+
+        if isinstance(content, str):
+            pattern = re.compile("|".join(re.escape(key) for key in mappings.keys()))
+            return pattern.sub(lambda match: mappings[match.group(0)], content)
+
+        if isinstance(content, list):
+            return [{'text': self._anonymized_content(item['text'], reverse)} for item in content]
+
+        return content
 
     async def save_chat_message(
         self,
@@ -28,7 +49,7 @@ class DynamoDbChatStorage(ChatStorage):
         new_message: Union[ConversationMessage, TimestampedMessage],
         max_history_size: Optional[int] = None
     ) -> list[ConversationMessage]:
-        key = self._generate_key(user_id, session_id, agent_id)
+        key = self._generate_key(session_id, agent_id)
         existing_conversation = await self.fetch_chat_with_timestamp(user_id, session_id, agent_id)
 
         if self.is_same_role_as_last_message(existing_conversation, new_message):
@@ -39,7 +60,7 @@ class DynamoDbChatStorage(ChatStorage):
         if isinstance(new_message, ConversationMessage):
             new_message = TimestampedMessage(
                 role=new_message.role,
-                content=new_message.content)
+                content=self._anonymized_content(new_message.content))
 
         existing_conversation.append(new_message)
 
@@ -76,7 +97,7 @@ class DynamoDbChatStorage(ChatStorage):
         """
         Save multiple messages at once
         """
-        key = self._generate_key(user_id, session_id, agent_id)
+        key = self._generate_key(session_id, agent_id)
         existing_conversation = await self.fetch_chat_with_timestamp(user_id, session_id, agent_id)
 
         #TODO: check messages are consecutive
@@ -123,7 +144,7 @@ class DynamoDbChatStorage(ChatStorage):
         session_id: str,
         agent_id: str
     ) -> list[ConversationMessage]:
-        key = self._generate_key(user_id, session_id, agent_id)
+        key = self._generate_key(session_id, agent_id)
         try:
             response = self.table.get_item(Key={'PK': user_id, 'SK': key})
             stored_messages: list[TimestampedMessage] = self._dict_to_conversation(
@@ -140,12 +161,14 @@ class DynamoDbChatStorage(ChatStorage):
         session_id: str,
         agent_id: str
     ) -> list[TimestampedMessage]:
-        key = self._generate_key(user_id, session_id, agent_id)
+        key = self._generate_key(session_id, agent_id)
         try:
             response = self.table.get_item(Key={'PK': user_id, 'SK': key})
             stored_messages: list[TimestampedMessage] = self._dict_to_conversation(
                 response.get('Item', {}).get('conversation', [])
             )
+            for msg in stored_messages:
+                msg.content = self._anonymized_content(msg.content, reverse=True)
             return stored_messages
         except Exception as error:
             Logger.error(f"Error getting conversation from DynamoDB: {str(error)}")
@@ -192,7 +215,7 @@ class DynamoDbChatStorage(ChatStorage):
             Logger.error(f"Error querying conversations from DynamoDB:{str(error)}")
             raise error
 
-    def _generate_key(self, user_id: str, session_id: str, agent_id: str) -> str:
+    def _generate_key(self, session_id: str, agent_id: str) -> str:
         return f"{session_id}#{agent_id}"
 
     def _remove_timestamps(self,

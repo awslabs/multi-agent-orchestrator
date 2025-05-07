@@ -173,3 +173,42 @@ async def test_save_and_fetch_chat_messages_timestamp(chat_storage):
     assert fetched_messages[3].role == ParticipantRole.ASSISTANT.value
     assert fetched_messages[4].content == [{'text': 'Message 4'}]
     assert fetched_messages[4].role == ParticipantRole.USER.value
+
+@pytest.fixture
+def chat_storage_with_sensitive_mapping(dynamodb_table):
+    return DynamoDbChatStorage(table_name='test_table', region='us-east-1', ttl_key='TTL', ttl_duration=3600, sensitive_mappings={"secret": "s******t", "classified": "c********d"})
+
+@pytest.mark.asyncio
+async def test_save_and_fetch_with_sensitive_mapping(chat_storage_with_sensitive_mapping):
+    user_id = 'user1'
+    session_id = 'session1'
+    agent_id = 'agent1'
+
+    message = ConversationMessage(role=ParticipantRole.USER.value, content=[{'text': 'This is a secret and classified message'}])
+    await chat_storage_with_sensitive_mapping.save_chat_message(user_id, session_id, agent_id, message)
+
+    fetched_messages = await chat_storage_with_sensitive_mapping.fetch_chat(user_id, session_id, agent_id)
+    assert len(fetched_messages) == 1
+    assert fetched_messages[0].content == [{'text': 'This is a s******t and c********d message'}]
+
+    fetched_messages_with_timestamp = await chat_storage_with_sensitive_mapping.fetch_chat_with_timestamp(user_id, session_id, agent_id)
+    assert len(fetched_messages_with_timestamp) == 1
+    assert fetched_messages_with_timestamp[0].content == [{'text': 'This is a secret and classified message'}]
+    assert isinstance(fetched_messages_with_timestamp[0].timestamp, Decimal)
+
+@pytest.mark.asyncio
+async def test_multiple_sensitive_words(chat_storage_with_sensitive_mapping):
+    user_id = 'user1'
+    session_id = 'session2'
+    agent_id = 'agent1'
+
+    message = ConversationMessage(role=ParticipantRole.USER.value, content=[{'text': 'Keep this secret and classified, please.'}])
+    await chat_storage_with_sensitive_mapping.save_chat_message(user_id, session_id, agent_id, message)
+
+    fetched_messages = await chat_storage_with_sensitive_mapping.fetch_chat(user_id, session_id, agent_id)
+    assert len(fetched_messages) == 1
+    assert fetched_messages[0].content == [{'text': 'Keep this s******t and c********d, please.'}]
+
+    fetched_messages_with_timestamp = await chat_storage_with_sensitive_mapping.fetch_chat_with_timestamp(user_id, session_id, agent_id)
+    assert len(fetched_messages_with_timestamp) == 1
+    assert fetched_messages_with_timestamp[0].content == [{'text': 'Keep this secret and classified, please.'}]
