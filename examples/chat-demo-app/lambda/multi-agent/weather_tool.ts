@@ -1,6 +1,6 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
+import { ConversationMessage, ParticipantRole } from "agent-squad";
 
 export const  weatherToolDescription = [
     {

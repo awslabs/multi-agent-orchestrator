@@ -1,10 +1,10 @@
 ---
 title: Cost-Efficient Routing Pattern
-description: Cost-Efficient Routing Pattern using the Multi-Agent Orchestrator framework
+description: Cost-Efficient Routing Pattern using the Agent Squad framework
 ---
 
 
-The Multi-Agent Orchestrator can intelligently route queries to the most cost-effective agent based on task complexity, optimizing resource utilization and reducing operational costs.
+The Agent Squad can intelligently route queries to the most cost-effective agent based on task complexity, optimizing resource utilization and reducing operational costs.
 
 ## How It Works
 

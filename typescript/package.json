@@ -1,7 +1,7 @@
 {
-  "name": "multi-agent-orchestrator",
-  "version": "0.1.6",
-  "description": "Multi-Agent Orchestrator framework",
+  "name": "agent-squad",
+  "version": "1.0.0",
+  "description": "Agent Squad framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -13,12 +13,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/awslabs/multi-agent-orchestrator"
+    "url": "https://github.com/awslabs/agent-squad"
   },
   "bugs": {
-    "url": "https://github.com/awslabs/multi-agent-orchestrator/issues"
+    "url": "https://github.com/awslabs/agent-squad/issues"
   },
-  "homepage": "https://github.com/awslabs/multi-agent-orchestrator",
+  "homepage": "https://github.com/awslabs/agent-squad",
   "scripts": {
     "prebuild": "npm run generateVersionFile",
     "build": "tsc",

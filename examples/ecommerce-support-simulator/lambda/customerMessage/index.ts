@@ -2,14 +2,14 @@ import { SQSEvent, SQSHandler } from 'aws-lambda';
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 import {
-  MultiAgentOrchestrator,
+  AgentSquad,
   DynamoDbChatStorage,
-} from 'multi-agent-orchestrator';
+} from 'agent-squad';
 import { HumanAgent, orderManagementAgent, productInfoAgent } from './agents';
 import { SQSLogger } from './sqsLogger';
 
 const sqs = new SQSClient({});
-let orchestrator: MultiAgentOrchestrator | null = null;
+let orchestrator: AgentSquad | null = null;
 
 if (!process.env.QUEUE_URL) {
   throw new Error('QUEUE_URL not set');
@@ -23,12 +23,12 @@ const storage = new DynamoDbChatStorage(
 );
 
 // Async initialization function for the orchestrator
-const initializeOrchestrator = async (): Promise<MultiAgentOrchestrator> => {
+const initializeOrchestrator = async (): Promise<AgentSquad> => {
 
   if (!orchestrator) {
     const sqsLogger = new SQSLogger(process.env.QUEUE_URL!, "log");
 
-    orchestrator = new MultiAgentOrchestrator({
+    orchestrator = new AgentSquad({
       storage: storage,
       config: {
         LOG_AGENT_CHAT: true,
@@ -60,7 +60,7 @@ const initializeOrchestrator = async (): Promise<MultiAgentOrchestrator> => {
 };
 
 // Orchestrator initialization promise to be awaited before the handler is called
-let orchestratorPromise: Promise<MultiAgentOrchestrator> | null = null;
+let orchestratorPromise: Promise<AgentSquad> | null = null;
 
 export const handler: SQSHandler = async (event: SQSEvent) => {
 

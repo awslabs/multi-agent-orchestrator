@@ -55,15 +55,15 @@ The system employs multiple specialized AI agents, each designed for specific ta
 - **Model**: Anthropic Claude 3 Sonnet (`anthropic.claude-3-sonnet-20240229-v1:0`)
 - **Purpose**: Handles all order-related inquiries and management tasks
 - **Tools**:
-  - `orderlookup`: 
+  - `orderlookup`:
     - Retrieves order details from database
     - Input: `orderId` (string)
     - Returns: Complete order information including status, items, and pricing
-  - `shipmenttracker`: 
+  - `shipmenttracker`:
     - Provides real-time shipping status updates
     - Input: `orderId` (string)
     - Returns: Current shipment status, location, and estimated delivery
-  - `returnprocessor`: 
+  - `returnprocessor`:
     - Manages return request workflows
     - Input: `orderId` (string)
     - Returns: Return authorization and instructions
@@ -73,7 +73,7 @@ The system employs multiple specialized AI agents, each designed for specific ta
 - **Implementation**: `BedrockLLMAgent`
 - **Model**: Anthropic Claude 3 Haiku (`anthropic.claude-3-haiku-20240307-v1:0`)
 - **Purpose**: Provides comprehensive product information and specifications
-- **Integration**: 
+- **Integration**:
   - Connected to `AmazonKnowledgeBasesRetriever` for product data
   - Knowledge Base ID configuration required
 - **Key Features**:
@@ -105,7 +105,7 @@ The system is built on AWS with the following key components:
 - **API Layer**: AppSync GraphQL API
 - **Message Routing**: SQS queues for reliable message delivery
 - **Processing**: Lambda functions for message handling
-- **Storage**: 
+- **Storage**:
   - DynamoDB for conversation history
   - S3 for static assets
 - **Authentication**: Cognito user pools and identity pools
@@ -129,8 +129,8 @@ Follow these steps to deploy the demo chat web application:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/awslabs/multi-agent-orchestrator.git
-   cd multi-agent-orchestrator/examples/ecommerce-support-simulator
+   git clone https://github.com/awslabs/agent-squad.git
+   cd agent-squad/examples/ecommerce-support-simulator
    ```
 
 2. **Install Dependencies**:

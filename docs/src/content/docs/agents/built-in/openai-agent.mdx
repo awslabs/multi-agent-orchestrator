@@ -3,7 +3,7 @@ title: Open AI Agent
 description: Documentation for the OpenAI Agent
 ---
 
-The `OpenAIAgent` is a powerful agent class in the Multi-Agent Orchestrator framework that integrates with OpenAI's Chat Completion API. This agent allows you to leverage OpenAI's language models for various natural language processing tasks.
+The `OpenAIAgent` is a powerful agent class in the Agent Squad framework that integrates with OpenAI's Chat Completion API. This agent allows you to leverage OpenAI's language models for various natural language processing tasks.
 
 ## Key Features
 
@@ -47,7 +47,7 @@ The `OpenAIAgentOptions` extends the base `AgentOptions` with the following fiel
 If you haven't already installed the OpenAI-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[openai]"
+pip install "agent-squad[openai]"
 ```
 
 Here are various examples showing different ways to create and configure an OpenAIAgent:
@@ -342,7 +342,7 @@ Here's a comprehensive example showing all available configuration options:
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
-import { OpenAIAgent } from 'multi-agent-orchestrator';
+import { OpenAIAgent } from 'agent-squad';
 
 const agent = new OpenAIAgent({
   // Required fields
@@ -391,7 +391,7 @@ const agent = new OpenAIAgent({
   </TabItem>
   <TabItem label="Python" icon="seti:python">
 ```python
-from multi_agent_orchestrator import OpenAIAgent, OpenAIAgentOptions
+from agent_squad import OpenAIAgent, OpenAIAgentOptions
 
 agent = OpenAIAgent(OpenAIAgentOptions(
     # Required fields
@@ -442,7 +442,7 @@ agent = OpenAIAgent(OpenAIAgentOptions(
 
 ## Using the OpenAIAgent
 
-There are two ways to use the OpenAIAgent: directly or through the Multi-Agent Orchestrator.
+There are two ways to use the OpenAIAgent: directly or through the Agent Squad.
 
 ### Direct Usage
 
@@ -480,12 +480,12 @@ response = await orchestrator.agent_process_request(
 
 ### Using with the Orchestrator
 
-Add the agent to Multi-Agent Orchestrator for use in a multi-agent system:
+Add the agent to Agent Squad for use in a multi-agent system:
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
-const orchestrator = new MultiAgentOrchestrator();
+const orchestrator = new AgentSquad();
 orchestrator.addAgent(agent);
 
 const response = await orchestrator.routeRequest(
@@ -497,7 +497,7 @@ const response = await orchestrator.routeRequest(
   </TabItem>
   <TabItem label="Python" icon="seti:python">
 ```python
-orchestrator = MultiAgentOrchestrator()
+orchestrator = AgentSquad()
 orchestrator.add_agent(agent)
 
 response = await orchestrator.route_request(

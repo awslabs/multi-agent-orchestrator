@@ -1,7 +1,7 @@
 import asyncio
 import uuid
 import sys
-from multi_agent_orchestrator.agents import BedrockInlineAgent, BedrockInlineAgentOptions
+from agent_squad.agents import BedrockInlineAgent, BedrockInlineAgentOptions
 import boto3
 
 action_groups_list = [

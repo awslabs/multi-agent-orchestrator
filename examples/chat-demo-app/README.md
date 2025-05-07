@@ -1,7 +1,7 @@
 ## 🎮 Demo Application
 
 ### Overview
-The demo showcases the versatility of the Multi-Agent Orchestrator System through an interactive chat interface.
+The demo showcases the versatility of the Agent Squad System through an interactive chat interface.
 
 ![Demo Application](./img/chat-demo-app.png)
 
@@ -13,7 +13,7 @@ Our demo showcases specialized agents, each designed for specific use cases:
 | Travel Agent | Amazon Lex Bot | Handles travel planning, flight bookings, and itinerary queries through a conversational interface |
 | Weather Agent | Bedrock LLM + Open-Meteo API | Provides real-time weather forecasts and conditions using API integration |
 | Math Agent | Bedrock LLM + Calculator Tools | Performs complex calculations and solves mathematical problems with custom tools |
-| **Tech Agent** | Bedrock LLM + Knowledge Base | Offers technical support and documentation assistance with direct access to **Multi-Agent Orchestrator framework source code** |
+| **Tech Agent** | Bedrock LLM + Knowledge Base | Offers technical support and documentation assistance with direct access to **Agent Squad framework source code** |
 | Health Agent | Bedrock LLM | Provides health and wellness guidance, including fitness advice and general health information |
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
@@ -40,8 +40,8 @@ Follow these steps to deploy the demo chat web application:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/awslabs/multi-agent-orchestrator.git
-   cd multi-agent-orchestrator
+   git clone https://github.com/awslabs/agent-squad.git
+   cd agent-squad
    ```
 
 2. **Navigate to the Demo Web App Directory**:

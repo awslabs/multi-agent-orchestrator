@@ -3,16 +3,16 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import asyncio
 from typing import List
 
-from multi_agent_orchestrator.agents import (
+from agent_squad.agents import (
     SupervisorAgent,
     SupervisorAgentOptions,
     BedrockLLMAgent,
     BedrockLLMAgentOptions,
     Agent
 )
-from multi_agent_orchestrator.storage import InMemoryChatStorage
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.utils import AgentTools, AgentTool, Logger
+from agent_squad.storage import InMemoryChatStorage
+from agent_squad.types import ConversationMessage, ParticipantRole
+from agent_squad.utils import AgentTools, AgentTool, Logger
 
 
 @pytest.fixture

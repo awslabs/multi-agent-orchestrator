@@ -57,7 +57,7 @@ To set up and run the application first install dependencies from `requirements.
 
 ### Additional Information
 
-- Ensure that any environment variables or configuration files needed by `multi_agent_orchestrator` or other components are properly set up.
+- Ensure that any environment variables or configuration files needed by `agent_squad` or other components are properly set up.
 - If you encounter any issues with package installations, ensure that your Python and pip versions are up to date.
 
 By following these steps, you should be able to install the necessary dependencies and run the application successfully.
@@ -69,4 +69,4 @@ By following these steps, you should be able to install the necessary dependenci
     - This should route to tech agent on Bedrock
 - What kind of pollen is causing allergies in Seattle?
     - This should health agent running local machine ollama
-- (Ask a followup quesiton to the Travel agent by referring to some context in first response) 
+- (Ask a followup quesiton to the Travel agent by referring to some context in first response)

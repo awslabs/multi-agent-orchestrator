@@ -1,20 +1,20 @@
 ---
 title: Demo Web App Deployment
-description: How to deploy the demo chat web application for the Multi-Agent Orchestrator System
+description: How to deploy the demo chat web application for the Agent Squad System
 ---
 
 ## 📘 Overview
 
 
-The Multi-Agent Orchestrator Framework includes a demo chat web application that showcases the capabilities of the system. This application is built using AWS CDK (Cloud Development Kit) and can be easily deployed to your AWS account.
+The Agent Squad framework includes a demo chat web application that showcases the capabilities of the system. This application is built using AWS CDK (Cloud Development Kit) and can be easily deployed to your AWS account.
 
-<img src="/multi-agent-orchestrator/chat-demo-app.png">
+<img src="/agent-squad/chat-demo-app.png">
 
 In the screen recording below, we demonstrate an extended version of the demo app that uses 6 specialized agents:
 - **Travel Agent**: Powered by an Amazon Lex Bot
 - **Weather Agent**: Utilizes a Bedrock LLM Agent with a tool to query the open-meteo API
 - **Math Agent**: Utilizes a Bedrock LLM Agent with two tools for executing mathematical operations
-- **Tech Agent**: A Bedrock LLM Agent designed to offer technical support and documentation assistance with direct access to **Multi-Agent Orchestrator framework source code**
+- **Tech Agent**: A Bedrock LLM Agent designed to offer technical support and documentation assistance with direct access to **Agent Squad framework source code**
 - **Health Agent**: A Bedrock LLM Agent focused on addressing health-related queries
 
 Watch as the system seamlessly switches context between diverse topics, from booking flights to checking weather, solving math problems, and providing health information.
@@ -22,7 +22,7 @@ Notice how the appropriate agent is selected for each query, maintaining coheren
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
-<img src="/multi-agent-orchestrator/demo-app.gif">
+<img src="/agent-squad/demo-app.gif">
 
 
 ## 📋 Prerequisites
@@ -40,8 +40,8 @@ Follow these steps to deploy the demo chat web application:
 
 1. **Clone the Repository** (if you haven't already):
    ```
-   git clone https://github.com/awslabs/multi-agent-orchestrator.git
-   cd multi-agent-orchestrator
+   git clone https://github.com/awslabs/agent-squad.git
+   cd agent-squad
    ```
 
 2. **Navigate to the Demo Web App Directory**:
@@ -60,7 +60,7 @@ Follow these steps to deploy the demo chat web application:
    cdk bootstrap aws://123456789012/us-east-1
    ```
    replace `123456789012` with your account id.
-   This chat-demo application is using the default [BedrockClassifier](http://localhost:4321/multi-agent-orchestrator/classifiers/built-in/bedrock-classifier#basic-usage) with Claude 3.5 Sonnet v1. Make sure to use a region where this model is available. If you plan on using a region different from us-east-1 (e.g us-west-2), make sure to also bootstrap us-east-1 region as well as the CDK stack also deploys infra in this region (lambda@edge function).
+   This chat-demo application is using the default [BedrockClassifier](http://localhost:4321/agent-squad/classifiers/built-in/bedrock-classifier#basic-usage) with Claude 3.5 Sonnet v1. Make sure to use a region where this model is available. If you plan on using a region different from us-east-1 (e.g us-west-2), make sure to also bootstrap us-east-1 region as well as the CDK stack also deploys infra in this region (lambda@edge function).
 
 5. **Review and Customize the Stack** (optional):
    Open `chat-demo-app/cdk.json` and review the configuration. You can customize aspects of the deployment by enabling or disabling additional agents.
@@ -141,11 +141,11 @@ After successfully deploying the demo web app, you can:
 2. Modify the agent configurations to test different scenarios.
 3. Integrate additional AWS services to enhance the application's capabilities.
 
-By deploying this demo web app, you can interact with your Multi-Agent Orchestrator System in a user-friendly interface, showcasing its capabilities and helping you understand how it performs in a real-world scenario.
+By deploying this demo web app, you can interact with your Agent Squad System in a user-friendly interface, showcasing its capabilities and helping you understand how it performs in a real-world scenario.
 
 ## ⚠️ Disclamer
 This demo application is intended solely for demonstration purposes. It is not designed for handling, storing, or processing any kind of Personally Identifiable Information (PII) or personal data. Users are strongly advised not to enter, upload, or use any PII or personal data within this application. Any use of PII or personal data is at the user's own risk and the developers of this application shall not be held responsible for any data breaches, misuse, or any other related issues. Please ensure that all data used in this demo is non-sensitive and anonymized.
 
 For production usage, it is crucial to implement proper security measures to protect PII and personal data. This includes obtaining proper permissions from users, utilizing encryption for data both in transit and at rest, and adhering to industry standards and regulations to maximize security. Failure to do so may result in data breaches and other serious security issues.
 
-Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/chat-demo-app) in our GitHub repository.
+Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/agent-squad/tree/main/examples/chat-demo-app) in our GitHub repository.

@@ -1,16 +1,16 @@
-# Contributing to Multi-Agent Orchestrator Python version
+# Contributing to Agent Squad Python version
 
 ## Python Development Setup
 
 ### Python Version
-This project supports Python 3.11 or higher. 
+This project supports Python 3.11 or higher.
 
 #### Installation Options:
 - Windows: [Python Official Website](https://www.python.org/downloads/windows/)
-- macOS: 
+- macOS:
   - [Python Official Website](https://www.python.org/downloads/macos/)
   - Homebrew: `brew install python@3.11`
-- Linux (Ubuntu/Debian): 
+- Linux (Ubuntu/Debian):
   ```bash
   sudo add-apt-repository ppa:deadsnakes/ppa
   sudo apt update
@@ -66,8 +66,8 @@ To check and format your code according to our standards, run:
 make code-quality
 
 # Windows
-ruff check src/multi_agent_orchestrator
-ruff format --check src/multi_agent_orchestrator
+ruff check src/agent_squad
+ruff format --check src/agent_squad
 ```
 
 #### Running Tests

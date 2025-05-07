@@ -51,8 +51,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
-    from multi_agent_orchestrator.retrievers import AmazonKnowledgeBasesRetriever, AmazonKnowledgeBasesRetrieverOptions
+    from agent_squad.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+    from agent_squad.retrievers import AmazonKnowledgeBasesRetriever, AmazonKnowledgeBasesRetrieverOptions
 
     orchestrator.add_agent(
         BedrockLLMAgent(BedrockLLMAgentOptions(

@@ -4,11 +4,11 @@ import argparse
 from queue import Queue
 from threading import Thread
 
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, AgentResponse, OrchestratorConfig
-from multi_agent_orchestrator.types import ConversationMessage
-from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
-from multi_agent_orchestrator.storage import DynamoDbChatStorage
-from multi_agent_orchestrator.agents import (
+from agent_squad.orchestrator import AgentSquad, AgentResponse, AgentSquadConfig
+from agent_squad.types import ConversationMessage
+from agent_squad.classifiers import BedrockClassifier, BedrockClassifierOptions
+from agent_squad.storage import DynamoDbChatStorage
+from agent_squad.agents import (
     BedrockLLMAgent,
     AgentResponse,
     AgentCallbacks,
@@ -26,13 +26,13 @@ class MyCustomHandler(AgentCallbacks):
         super().__init__()
         self._queue = queue
         self._stop_signal = None
-    
+
     def on_llm_new_token(self, token: str, **kwargs) -> None:
         self._queue.put(token)
-    
+
     def on_llm_start(self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any) -> None:
         print("generation started")
-    
+
     def on_llm_end(self, response: Any, **kwargs: Any) -> None:
         print("\n\ngeneration concluded")
         self._queue.put(self._stop_signal)
@@ -44,7 +44,7 @@ def setup_orchestrator(streamer_queue):
     ))
 
 
-    orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
+    orchestrator = AgentSquad(options=AgentSquadConfig(
         LOG_AGENT_CHAT=True,
         LOG_CLASSIFIER_CHAT=True,
         LOG_CLASSIFIER_RAW_OUTPUT=True,
@@ -65,11 +65,11 @@ If you're unsure where to start, try saying **"hello"** to see:
 
 This will help you understand the kinds of questions and topics our system can assist you with.
 """,
-        MAX_MESSAGE_PAIRS_PER_AGENT=10       
+        MAX_MESSAGE_PAIRS_PER_AGENT=10
     ),
     classifier = classifier
      )
-    
+
     product_search_agent = ProductSearchAgent(ProductSearchAgentOptions(
         name="Product Search Agent",
         description="Specializes in e-commerce product searches and listings. Handles queries about finding specific products, product rankings, specifications, price comparisons within an online shopping context. Use this agent for shopping-related queries and product discovery in a retail environment.",
@@ -132,7 +132,7 @@ async def response_generator(query, user_id, session_id):
 
     # Start the generation process in a separate thread
     Thread(target=lambda: asyncio.run(start_generation(query, user_id, session_id, streamer_queue))).start()
-    
+
     #print("Waiting for the response...")
     while True:
         try:

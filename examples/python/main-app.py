@@ -2,7 +2,7 @@ import imports
 import streamlit as st
 
 st.set_page_config(
-    page_title="AWS Multi-Agent Orchestrator Demos",
+    page_title="AWS Agent Squad Demos",
     page_icon="👋",
 )
 

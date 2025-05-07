@@ -7,15 +7,15 @@ import sys
 
 from tools import weather_tool
 
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-from multi_agent_orchestrator.agents import (BedrockLLMAgent,
+from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
+from agent_squad.agents import (BedrockLLMAgent,
                         BedrockLLMAgentOptions,
                         AgentResponse,
                         AnthropicAgent, AnthropicAgentOptions,
                         AgentCallbacks)
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
-from multi_agent_orchestrator.utils import AgentTools
+from agent_squad.types import ConversationMessage, ParticipantRole
+from agent_squad.classifiers import BedrockClassifier, BedrockClassifierOptions
+from agent_squad.utils import AgentTools
 
 class LLMAgentCallbacks(AgentCallbacks):
     def on_llm_new_token(self, token: str) -> None:
@@ -23,7 +23,7 @@ class LLMAgentCallbacks(AgentCallbacks):
         print(token, end='', flush=True)
 
 
-async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input:str, _user_id:str, _session_id:str):
+async def handle_request(_orchestrator: AgentSquad, _user_input:str, _user_id:str, _session_id:str):
     response:AgentResponse = await _orchestrator.route_request(_user_input, _user_id, _session_id)
 
     # Print metadata
@@ -58,7 +58,7 @@ def custom_output_payload_decoder(response: Dict[str, Any]) -> Any:
 if __name__ == "__main__":
 
     # Initialize the orchestrator with some options
-    orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
+    orchestrator = AgentSquad(options=AgentSquadConfig(
         LOG_AGENT_CHAT=True,
         LOG_CLASSIFIER_CHAT=True,
         LOG_CLASSIFIER_RAW_OUTPUT=True,

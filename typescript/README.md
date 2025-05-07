@@ -1,31 +1,31 @@
-<h2 align="center">Multi-Agent Orchestrator&nbsp;</h2>
+<h2 align="center">Agent Squad&nbsp;</h2>
 
 <p align="center">Flexible and powerful framework for managing multiple AI agents and handling complex conversations.</p>
 
 
 <p align="center">
-  <a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
-  <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img alt="npm" src="https://img.shields.io/npm/v/multi-agent-orchestrator.svg?style=flat-square"></a>
-  <a href="https://awslabs.github.io/multi-agent-orchestrator/"><img alt="Documentation" src="https://img.shields.io/badge/docs-book-blue.svg?style=flat-square"></a>
+  <a href="https://github.com/awslabs/agent-squad"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
+  <a href="https://www.npmjs.com/package/agent-squad"><img alt="npm" src="https://img.shields.io/npm/v/agent-squad.svg?style=flat-square"></a>
+  <a href="https://awslabs.github.io/agent-squad/"><img alt="Documentation" src="https://img.shields.io/badge/docs-book-blue.svg?style=flat-square"></a>
 </p>
 
 <p align="center">
   <!-- GitHub Stats -->
-  <img src="https://img.shields.io/github/stars/awslabs/multi-agent-orchestrator?style=social" alt="GitHub stars">
-  <img src="https://img.shields.io/github/forks/awslabs/multi-agent-orchestrator?style=social" alt="GitHub forks">
-  <img src="https://img.shields.io/github/watchers/awslabs/multi-agent-orchestrator?style=social" alt="GitHub watchers">
+  <img src="https://img.shields.io/github/stars/awslabs/agent-squad?style=social" alt="GitHub stars">
+  <img src="https://img.shields.io/github/forks/awslabs/agent-squad?style=social" alt="GitHub forks">
+  <img src="https://img.shields.io/github/watchers/awslabs/agent-squad?style=social" alt="GitHub watchers">
 </p>
 
 <p align="center">
   <!-- Repository Info -->
-  <img src="https://img.shields.io/github/last-commit/awslabs/multi-agent-orchestrator" alt="Last Commit">
-  <img src="https://img.shields.io/github/issues/awslabs/multi-agent-orchestrator" alt="Issues">
-  <img src="https://img.shields.io/github/issues-pr/awslabs/multi-agent-orchestrator" alt="Pull Requests">
+  <img src="https://img.shields.io/github/last-commit/awslabs/agent-squad" alt="Last Commit">
+  <img src="https://img.shields.io/github/issues/awslabs/agent-squad" alt="Issues">
+  <img src="https://img.shields.io/github/issues-pr/awslabs/agent-squad" alt="Pull Requests">
 </p>
 
 <p align="center">
   <!-- Package Stats -->
-  <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img src="https://img.shields.io/npm/dm/multi-agent-orchestrator?label=npm%20downloads" alt="npm Monthly Downloads"></a>
+  <a href="https://www.npmjs.com/package/agent-squad"><img src="https://img.shields.io/npm/dm/agent-squad?label=npm%20downloads" alt="npm Monthly Downloads"></a>
 </p>
 
 ## 🔖 Features
@@ -38,9 +38,9 @@
 - 📦 **Pre-built agents and classifiers** — A variety of ready-to-use agents and multiple classifier implementations available.
 - 🔤 **TypeScript support** — Native TypeScript implementation available.
 
-## What's the Multi-Agent Orchestrator ❓
+## What's the Agent Squad ❓
 
-The Multi-Agent Orchestrator is a flexible framework for managing multiple AI agents and handling complex conversations. It intelligently routes queries and maintains context across interactions.
+The Agent Squad is a flexible framework for managing multiple AI agents and handling complex conversations. It intelligently routes queries and maintains context across interactions.
 
 The system offers pre-built components for quick deployment, while also allowing easy integration of custom agents and conversation messages storage solutions.
 
@@ -51,7 +51,7 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 
 <br /><br />
 
-![High-level architecture flow diagram](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/flow.jpg)
+![High-level architecture flow diagram](https://raw.githubusercontent.com/awslabs/agent-squad/main/img/flow.jpg)
 
 <br /><br />
 
@@ -64,7 +64,7 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 
 ## 💬 Demo App
 
-To quickly get a feel for the Multi-Agent Orchestrator, we've provided a Demo App with a few basic agents. This interactive demo showcases the orchestrator's capabilities in a user-friendly interface. To learn more about setting up and running the demo app, please refer to our [Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/) section.
+To quickly get a feel for the Agent Squad, we've provided a Demo App with a few basic agents. This interactive demo showcases the orchestrator's capabilities in a user-friendly interface. To learn more about setting up and running the demo app, please refer to our [Demo App](https://awslabs.github.io/agent-squad/cookbook/examples/chat-demo-app/) section.
 
 <br>
 
@@ -81,26 +81,26 @@ Notice how the appropriate agent is selected for each query, maintaining coheren
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
-![](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/demo-app.gif?raw=true)
+![](https://raw.githubusercontent.com/awslabs/agent-squad/main/img/demo-app.gif?raw=true)
 
 ## 🚀 Getting Started
 
-Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator!
+Check out our [documentation](https://awslabs.github.io/agent-squad/) for comprehensive guides on setting up and using the Agent Squad!
 
 ### Installation
 
 ```bash
-npm install multi-agent-orchestrator
+npm install agent-squad
 ```
 
 ### Usage
 
-The following example demonstrates how to use the Multi-Agent Orchestrator with two different types of agents: a Bedrock LLM Agent with Converse API support and a Lex Bot Agent. This showcases the flexibility of the system in integrating various AI services.
+The following example demonstrates how to use the Agent Squad with two different types of agents: a Bedrock LLM Agent with Converse API support and a Lex Bot Agent. This showcases the flexibility of the system in integrating various AI services.
 
 ```typescript
-import { MultiAgentOrchestrator, BedrockLLMAgent, LexBotAgent } from "multi-agent-orchestrator";
+import { AgentSquad, BedrockLLMAgent, LexBotAgent } from "agent-squad";
 
-const orchestrator = new MultiAgentOrchestrator();
+const orchestrator = new AgentSquad();
 
 // Add a Bedrock LLM Agent with Converse API support
 orchestrator.addAgent(
@@ -179,11 +179,11 @@ This example showcases:
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/CONTRIBUTING.md) for more details.
+We welcome contributions! Please see our [Contributing Guide](https://raw.githubusercontent.com/awslabs/agent-squad/main/CONTRIBUTING.md) for more details.
 
 ## 📄 LICENSE
 
-This project is licensed under the Apache 2.0 licence - see the [LICENSE](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/LICENSE) file for details.
+This project is licensed under the Apache 2.0 licence - see the [LICENSE](https://raw.githubusercontent.com/awslabs/agent-squad/main/LICENSE) file for details.
 
 ## 📄 Font License
 This project uses the JetBrainsMono NF font, licensed under the SIL Open Font License 1.1.

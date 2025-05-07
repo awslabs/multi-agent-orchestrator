@@ -1,14 +1,14 @@
 import uuid
 import asyncio
 import streamlit as st
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-from multi_agent_orchestrator.agents import (
+from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
+from agent_squad.agents import (
     BedrockLLMAgent, BedrockLLMAgentOptions,
     AgentResponse,
     SupervisorAgent, SupervisorAgentOptions)
-from multi_agent_orchestrator.classifiers import ClassifierResult
-from multi_agent_orchestrator.types import ConversationMessage
-from multi_agent_orchestrator.utils import AgentTool, AgentTools
+from agent_squad.classifiers import ClassifierResult
+from agent_squad.types import ConversationMessage
+from agent_squad.utils import AgentTool, AgentTools
 from search_web import search_web
 
 # Set up the Streamlit app
@@ -16,7 +16,7 @@ st.title("AI Travel Planner ✈️")
 st.caption("""
 Plan your next adventure with AI Travel Planner by researching and planning a personalized itinerary on autopilot using Amazon Bedrock.
 
-To learn more about the agents used in this demo visit [this link](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/python/travel-planner).
+To learn more about the agents used in this demo visit [this link](https://github.com/awslabs/agent-squad/tree/main/examples/python/travel-planner).
 .
 """)
 
@@ -79,7 +79,7 @@ supervisor = SupervisorAgent(SupervisorAgentOptions(
 ))
 
 # Define the async request handler
-async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input: str, _user_id: str, _session_id: str):
+async def handle_request(_orchestrator: AgentSquad, _user_input: str, _user_id: str, _session_id: str):
     classifier_result = ClassifierResult(selected_agent=supervisor, confidence=1.0)
 
     response: AgentResponse = await _orchestrator.agent_process_request(_user_input, _user_id, _session_id, classifier_result)
@@ -95,7 +95,7 @@ async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input: str
             return response.output.content[0].get('text')
 
 # Initialize the orchestrator
-orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
+orchestrator = AgentSquad(options=AgentSquadConfig(
     LOG_AGENT_CHAT=True,
     LOG_CLASSIFIER_CHAT=True,
     LOG_CLASSIFIER_RAW_OUTPUT=True,

@@ -1,17 +1,17 @@
 import pytest
 from unittest.mock import patch, MagicMock, AsyncMock, call
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.agents import AnthropicAgent, AnthropicAgentOptions
-from multi_agent_orchestrator.utils import Logger, AgentTools, AgentTool
-from multi_agent_orchestrator.retrievers import Retriever
+from agent_squad.types import ConversationMessage, ParticipantRole
+from agent_squad.agents import AnthropicAgent, AnthropicAgentOptions
+from agent_squad.utils import Logger, AgentTools, AgentTool
+from agent_squad.retrievers import Retriever
 from anthropic import Anthropic, AsyncAnthropic
-from multi_agent_orchestrator.types import AgentProviderType
+from agent_squad.types import AgentProviderType
 
 logger = Logger()
 
 @pytest.fixture
 def mock_anthropic():
-    with patch('multi_agent_orchestrator.agents.anthropic_agent.AnthropicAgentOptions.client') as mock:
+    with patch('agent_squad.agents.anthropic_agent.AnthropicAgentOptions.client') as mock:
         yield mock
 
 # Existing tests
@@ -483,7 +483,7 @@ async def test_handle_single_response_with_tools():
 @pytest.mark.asyncio
 async def test_handle_streaming_response():
     """Test the streaming response functionality by directly patching the method."""
-    from multi_agent_orchestrator.agents.anthropic_agent import AgentStreamResponse
+    from agent_squad.agents.anthropic_agent import AgentStreamResponse
 
     # Create the agent with streaming enabled
     options = AnthropicAgentOptions(
@@ -532,7 +532,7 @@ async def test_handle_streaming_response():
 @pytest.mark.asyncio
 async def test_process_with_strategy():
     """Test strategy selection between streaming and non-streaming responses."""
-    from multi_agent_orchestrator.agents.anthropic_agent import AgentStreamResponse
+    from agent_squad.agents.anthropic_agent import AgentStreamResponse
 
     options = AnthropicAgentOptions(
         api_key='test-api-key',
@@ -622,7 +622,7 @@ async def test_handle_single_response_error():
 @pytest.mark.asyncio
 async def test_handle_streaming_response_implementation():
     """Test the internal implementation of handle_streaming_response."""
-    from multi_agent_orchestrator.agents.anthropic_agent import AgentStreamResponse, Logger
+    from agent_squad.agents.anthropic_agent import AgentStreamResponse, Logger
 
     # Create agent with streaming enabled
     options = AnthropicAgentOptions(
@@ -703,7 +703,7 @@ async def test_handle_streaming_response_implementation():
 @pytest.mark.asyncio
 async def test_handle_streaming_with_tool_use():
     """Test the streaming response with tool usage."""
-    from multi_agent_orchestrator.agents.anthropic_agent import AgentStreamResponse
+    from agent_squad.agents.anthropic_agent import AgentStreamResponse
 
     # Create agent with streaming enabled
     options = AnthropicAgentOptions(

@@ -1,9 +1,9 @@
 ---
 title: DynamoDB Storage
-description: Using Amazon DynamoDB for persistent conversation storage in the Multi-Agent Orchestrator System
+description: Using Amazon DynamoDB for persistent conversation storage in the Agent Squad System
 ---
 
-DynamoDB storage provides a scalable and persistent solution for storing conversation history in the Multi-Agent Orchestrator System. This option is ideal for production environments where long-term data retention and high availability are crucial.
+DynamoDB storage provides a scalable and persistent solution for storing conversation history in the Agent Squad System. This option is ideal for production environments where long-term data retention and high availability are crucial.
 
 ## Features
 
@@ -22,12 +22,12 @@ DynamoDB storage provides a scalable and persistent solution for storing convers
 If you haven't already installed the AWS-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[aws]"
+pip install "agent-squad[aws]"
 ```
 
 ## Implementation
 
-To use DynamoDB storage in your Multi-Agent Orchestrator:
+To use DynamoDB storage in your Agent Squad:
 
 1. Set up a DynamoDB table with the following schema:
    - Partition Key: `PK` (String)
@@ -41,27 +41,27 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { DynamoDbChatStorage, MultiAgentOrchestrator } from 'multi-agent-orchestrator';
+    import { DynamoDbChatStorage, AgentSquad } from 'agent-squad';
 
     const tableName = 'YourDynamoDBTableName';
     const region = 'your-aws-region';
     const TTL_DURATION = 3600; // in seconds
     const dynamoDbStorage = new DynamoDbChatStorage(tableName, region, 'your-ttl-key-name', TTL_DURATION);
-    const orchestrator = new MultiAgentOrchestrator({
+    const orchestrator = new AgentSquad({
       storage: dynamoDbStorage
     });
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.storage import DynamoDbChatStorage
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.storage import DynamoDbChatStorage
+    from agent_squad.orchestrator import AgentSquad
 
     table_name = 'YourDynamoDBTableName'
     region = 'your-aws-region'
     TTL_DURATION = 3600  # in seconds
     dynamodb_storage = DynamoDbChatStorage(table_name, region, ttl_key='your-ttl-key-name', ttl_duration=TTL_DURATION)
-    orchestrator = MultiAgentOrchestrator(storage=dynamodb_storage)
+    orchestrator = AgentSquad(storage=dynamodb_storage)
     ```
   </TabItem>
 </Tabs>
@@ -83,4 +83,4 @@ Ensure your AWS credentials are properly set up and that your application has th
 - Consider implementing a caching layer for frequently accessed data to optimize performance
 - Regularly backup your DynamoDB table to prevent data loss
 
-DynamoDB storage offers a robust and scalable solution for managing conversation history in production environments. It ensures data persistence and allows your Multi-Agent Orchestrator System to handle large-scale deployments with reliable data storage and retrieval capabilities.
+DynamoDB storage offers a robust and scalable solution for managing conversation history in production environments. It ensures data persistence and allows your Agent Squad System to handle large-scale deployments with reliable data storage and retrieval capabilities.

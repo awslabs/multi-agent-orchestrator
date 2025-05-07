@@ -1,14 +1,14 @@
 ---
 title: Ollama Agent
-description: A guide to creating an Ollama agent and integrating it into the Multi-Agent Orchestrator System.
+description: A guide to creating an Ollama agent and integrating it into the Agent Squad System.
 ---
 
-Welcome to the Ollama Agent guide! This example will walk you through creating an Ollama agent and integrating it into your Multi-Agent Orchestrator System.
+Welcome to the Ollama Agent guide! This example will walk you through creating an Ollama agent and integrating it into your Agent Squad System.
 Let's dive in!
 
 ## 📚Prerequisites:
 - Basic knowledge of TypeScript or Python
-- Familiarity with the Multi-Agent Orchestrator System
+- Familiarity with the Agent Squad System
 - [Ollama installed](https://ollama.com/download) on your machine
 
 ## 💾 1. Ollama installation:
@@ -31,7 +31,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 </Tabs>
 
 ## 🧬 2. Create the Ollama Agent class:
-Now, let's create our `OllamaAgent` class. This class extends the `Agent` abstract class from the Multi-Agent Orchestrator.
+Now, let's create our `OllamaAgent` class. This class extends the `Agent` abstract class from the Agent Squad.
 The [process_request](../overview#abstract-method-processrequest) method must be implemented by the `OllamaAgent`
 
 <Tabs syncKey="runtime">
@@ -43,7 +43,7 @@ The [process_request](../overview#abstract-method-processrequest) method must be
         ConversationMessage,
         ParticipantRole,
         Logger
-    } from "multi-agent-orchestrator";
+    } from "agent-squad";
     import ollama from 'ollama'
 
     export interface OllamaAgentOptions extends AgentOptions {
@@ -114,9 +114,9 @@ The [process_request](../overview#abstract-method-processrequest) method must be
   <TabItem label="Python" icon="seti:python">
     ```python
     from typing import List, Dict, Optional, AsyncIterable, Any
-    from multi_agent_orchestrator.agents import Agent, AgentOptions
-    from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-    from multi_agent_orchestrator.utils import Logger
+    from agent_squad.agents import Agent, AgentOptions
+    from agent_squad.types import ConversationMessage, ParticipantRole
+    from agent_squad.utils import Logger
     import ollama
     from dataclasses import dataclass
 
@@ -184,7 +184,7 @@ The [process_request](../overview#abstract-method-processrequest) method must be
   </TabItem>
 </Tabs>
 
-Now that we have our `OllamaAgent`, let's add it to the Multi-Agent Orchestrator:
+Now that we have our `OllamaAgent`, let's add it to the Agent Squad:
 
 ## 🔗 3. Add OllamaAgent to the orchestrator:
 
@@ -194,9 +194,9 @@ If you have used the quickstarter sample program, you can add the Ollama agent a
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
     import { OllamaAgent } from "./ollamaAgent";
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator"
+    import { AgentSquad } from "agent-squad"
 
-    const orchestrator = new MultiAgentOrchestrator();
+    const orchestrator = new AgentSquad();
 
     // Add a text summarization agent using Ollama and Llama 2
     orchestrator.addAgent(
@@ -212,9 +212,9 @@ If you have used the quickstarter sample program, you can add the Ollama agent a
   <TabItem label="Python" icon="seti:python">
     ```python
     from ollamaAgent import OllamaAgent, OllamaAgentOptions
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.orchestrator import AgentSquad
 
-    orchestrator = MultiAgentOrchestrator()
+    orchestrator = AgentSquad()
 
     # Add a text summarization agent using Ollama and Llama 2
     orchestrator.add_agent(
@@ -240,7 +240,7 @@ If you haven't downloaded the Llama 2 model yet, it will be downloaded automatic
 
 🎉 **You're All Set!**
 
-Congratulations! You've successfully integrated an Ollama agent into your Multi-Agent Orchestrator System. Now you can start summarizing text and leveraging the power of Llama 2 in your applications!
+Congratulations! You've successfully integrated an Ollama agent into your Agent Squad System. Now you can start summarizing text and leveraging the power of Llama 2 in your applications!
 
 ## 5.🔗 **Useful Links:**
 

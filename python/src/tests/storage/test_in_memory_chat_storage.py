@@ -1,14 +1,14 @@
 import pytest
 from unittest.mock import patch
-from multi_agent_orchestrator.types import ConversationMessage, TimestampedMessage
-from multi_agent_orchestrator.storage import InMemoryChatStorage
-from multi_agent_orchestrator.utils import Logger
+from agent_squad.types import ConversationMessage, TimestampedMessage
+from agent_squad.storage import InMemoryChatStorage
+from agent_squad.utils import Logger
 
 tmp_logger = Logger()
 
 @pytest.fixture
 def mock_logger():
-    with patch('multi_agent_orchestrator.utils.logger') as mock:
+    with patch('agent_squad.utils.logger') as mock:
         yield mock
 
 

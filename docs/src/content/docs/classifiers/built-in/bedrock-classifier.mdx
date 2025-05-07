@@ -3,7 +3,7 @@ title: Bedrock Classifier
 description: How to configure the Bedrock classifier
 ---
 
-The Bedrock Classifier is the default classifier used in the Multi-Agent Orchestrator. It leverages Amazon Bedrock's models through Converse API providing powerful and flexible classification capabilities.
+The Bedrock Classifier is the default classifier used in the Agent Squad. It leverages Amazon Bedrock's models through Converse API providing powerful and flexible classification capabilities.
 
 ## Features
 
@@ -27,7 +27,7 @@ The BedrockClassifier's toolChoice configuration for structured outputs is only 
   - Claude 3 models (all variants except Haiku)
   - Claude 3.5 Sonnet (`anthropic.claude-3-5-sonnet-20240620-v1:0`)
   - Claude 3.5 Sonnet v2
-  
+
 - **AI21 Labs Models**:
   - Jamba 1.5 Large
   - Jamba 1.5 Mini
@@ -45,7 +45,7 @@ The BedrockClassifier's toolChoice configuration for structured outputs is only 
   - Mistral Large
   - Mistral Large 2 (24.07)
   - Mistral Small
-  
+
 - **Cohere Models**:
   - Command R
   - Command R+
@@ -69,28 +69,28 @@ For optimal classification results, we recommend using one of the supported mode
 If you haven't already installed the AWS-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[aws]"
+pip install "agent-squad[aws]"
 ```
 
 ### Basic Usage
 
-By default, the Multi-Agent Orchestrator uses the Bedrock Classifier:
+By default, the Agent Squad uses the Bedrock Classifier:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    import { AgentSquad } from "agent-squad";
 
-    const orchestrator = new MultiAgentOrchestrator();
+    const orchestrator = new AgentSquad();
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.orchestrator import AgentSquad
 
-    orchestrator = MultiAgentOrchestrator()
+    orchestrator = AgentSquad()
     ```
   </TabItem>
 </Tabs>
@@ -185,7 +185,7 @@ assistant: [security-agent] I'll help you verify your key configuration and perm
 
 Here, the history shows the conversation moving between `aws-services-agent` and `security-agent` as the topic shifts from general access to security configuration.
 
-The agent prefixing (e.g., `[agent-name]`) is automatically handled by the Multi-Agent Orchestrator when formatting the conversation history. This helps the classifier understand:
+The agent prefixing (e.g., `[agent-name]`) is automatically handled by the Agent Squad when formatting the conversation history. This helps the classifier understand:
 - Which agent handled each part of the conversation
 - The context of previous interactions
 - When agent transitions occurred
@@ -241,7 +241,7 @@ You can customize the BedrockClassifier by creating an instance with specific op
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { BedrockClassifier, MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    import { BedrockClassifier, AgentSquad } from "agent-squad";
 
     const customBedrockClassifier = new BedrockClassifier({
       modelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
@@ -253,13 +253,13 @@ You can customize the BedrockClassifier by creating an instance with specific op
       }
     });
 
-    const orchestrator = new MultiAgentOrchestrator({ classifier: customBedrockClassifier });
+    const orchestrator = new AgentSquad({ classifier: customBedrockClassifier });
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
-    from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
+    from agent_squad.orchestrator import AgentSquad
+    from agent_squad.classifiers import BedrockClassifier, BedrockClassifierOptions
 
     custom_bedrock_classifier = BedrockClassifier(BedrockClassifierOptions(
         model_id='anthropic.claude-3-sonnet-20240229-v1:0',
@@ -271,7 +271,7 @@ You can customize the BedrockClassifier by creating an instance with specific op
         }
     ))
 
-    orchestrator = MultiAgentOrchestrator(classifier=custom_bedrock_classifier)
+    orchestrator = AgentSquad(classifier=custom_bedrock_classifier)
     ```
   </TabItem>
 </Tabs>
@@ -300,4 +300,4 @@ The BedrockClassifier accepts the following configuration options:
 - Classification quality depends on the chosen model and the quality of agent descriptions
 - Subject to Amazon Bedrock service quotas and pricing
 
-For more information, see the [Classifier Overview](/multi-agent-orchestrator/classifier/overview) and [Agents](/multi-agent-orchestrator/agents/overview) documentation.
+For more information, see the [Classifier Overview](/agent-squad/classifier/overview) and [Agents](/agent-squad/agents/overview) documentation.

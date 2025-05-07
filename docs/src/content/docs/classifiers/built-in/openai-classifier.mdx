@@ -3,7 +3,7 @@ title: OpenAI Classifier
 description: How to configure the OpenAI classifier
 ---
 
-The OpenAI Classifier is a built-in classifier for the Multi-Agent Orchestrator that leverages OpenAI's language models for intent classification. It provides robust classification capabilities using OpenAI's state-of-the-art models like GPT-4o.
+The OpenAI Classifier is a built-in classifier for the Agent Squad that leverages OpenAI's language models for intent classification. It provides robust classification capabilities using OpenAI's state-of-the-art models like GPT-4o.
 
 The OpenAI Classifier extends the abstract `Classifier` class and uses the OpenAI API client to process requests and classify user intents.
 
@@ -21,36 +21,36 @@ The OpenAI Classifier extends the abstract `Classifier` class and uses the OpenA
 If you haven't already installed the OpenAI-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[openai]"
+pip install "agent-squad[openai]"
 ```
 
-To use the OpenAIClassifier, you need to create an instance with your OpenAI API key and pass it to the Multi-Agent Orchestrator:
+To use the OpenAIClassifier, you need to create an instance with your OpenAI API key and pass it to the Agent Squad:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { OpenAIClassifier } from "multi-agent-orchestrator";
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    import { OpenAIClassifier } from "agent-squad";
+    import { AgentSquad } from "agent-squad";
 
     const openaiClassifier = new OpenAIClassifier({
       apiKey: 'your-openai-api-key'
     });
 
-    const orchestrator = new MultiAgentOrchestrator({ classifier: openaiClassifier });
+    const orchestrator = new AgentSquad({ classifier: openaiClassifier });
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.classifiers import OpenAIClassifier, OpenAIClassifierOptions
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.classifiers import OpenAIClassifier, OpenAIClassifierOptions
+    from agent_squad.orchestrator import AgentSquad
 
     openai_classifier = OpenAIClassifier(OpenAIClassifierOptions(
         api_key='your-openai-api-key'
     ))
 
-    orchestrator = MultiAgentOrchestrator(classifier=openai_classifier)
+    orchestrator = AgentSquad(classifier=openai_classifier)
     ```
   </TabItem>
 </Tabs>
@@ -73,13 +73,13 @@ You can customize the OpenAIClassifier by providing additional options:
       }
     });
 
-    const orchestrator = new MultiAgentOrchestrator({ classifier: customOpenAIClassifier });
+    const orchestrator = new AgentSquad({ classifier: customOpenAIClassifier });
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.classifiers import OpenAIClassifier, OpenAIClassifierOptions
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.classifiers import OpenAIClassifier, OpenAIClassifierOptions
+    from agent_squad.orchestrator import AgentSquad
 
     custom_openai_classifier = OpenAIClassifier(OpenAIClassifierOptions(
         api_key='your-openai-api-key',
@@ -92,7 +92,7 @@ You can customize the OpenAIClassifier by providing additional options:
         }
     ))
 
-    orchestrator = MultiAgentOrchestrator(classifier=custom_openai_classifier)
+    orchestrator = AgentSquad(classifier=custom_openai_classifier)
     ```
   </TabItem>
 </Tabs>
@@ -170,4 +170,4 @@ The OpenAIClassifier includes error handling to manage potential issues during t
 - Classification quality depends on the chosen model and the quality of your system prompt and agent descriptions.
 - API usage is subject to OpenAI's pricing and rate limits.
 
-For more information on using and customizing the Multi-Agent Orchestrator, refer to the [Classifier Overview](/multi-agent-orchestrator/classifier/overview) and [Agents](/multi-agent-orchestrator/agents/overview) documentation.
+For more information on using and customizing the Agent Squad, refer to the [Classifier Overview](/agent-squad/classifier/overview) and [Agents](/agent-squad/agents/overview) documentation.

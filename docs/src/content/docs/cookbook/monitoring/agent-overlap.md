@@ -1,9 +1,9 @@
 ---
 title: Agent Overlap Analysis
-description: Understanding and using the Agent Overlap Analysis feature in the Multi-Agent Orchestrator framework
+description: Understanding and using the Agent Overlap Analysis feature in the Agent Squad framework
 ---
 
-Agent Overlap Analysis is a feature of the Multi-Agent Orchestrator framework designed to optimize agent configurations by analyzing the descriptions of your agents. This tool helps identify similarities, potential conflicts, and the uniqueness of each agent's role within the system.
+Agent Overlap Analysis is a feature of the Agent Squad framework designed to optimize agent configurations by analyzing the descriptions of your agents. This tool helps identify similarities, potential conflicts, and the uniqueness of each agent's role within the system.
 
 The core idea behind Agent Overlap Analysis is to quantitatively assess how similar or different your agents are based on their descriptions. This analysis helps in:
 
@@ -38,12 +38,12 @@ The `AgentOverlapAnalyzer` class is the core of this feature. Here's a breakdown
 Install the framework
 
 ```bash
-    npm install multi-agent-orchestrator
+    npm install agent-squad
 ```
 To use the Agent Overlap Analysis feature:
 
 ```typescript
-import { AgentOverlapAnalyzer } from "multi-agent-orchestrator";
+import { AgentOverlapAnalyzer } from "agent-squad";
 
 const agents = {
   finance: { name: "Finance Agent", description: "Handles financial queries and calculations" },
