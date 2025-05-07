@@ -189,9 +189,41 @@ async def test_save_and_fetch_with_sensitive_mapping(chat_storage_with_sensitive
 
     fetched_messages = await chat_storage_with_sensitive_mapping.fetch_chat(user_id, session_id, agent_id)
     assert len(fetched_messages) == 1
-    assert fetched_messages[0].content == [{'text': 'This is a s******t and c********d message'}]
+    assert fetched_messages[0].content == [{'text': 'This is a secret and classified message'}]
 
     fetched_messages_with_timestamp = await chat_storage_with_sensitive_mapping.fetch_chat_with_timestamp(user_id, session_id, agent_id)
     assert len(fetched_messages_with_timestamp) == 1
     assert fetched_messages_with_timestamp[0].content == [{'text': 'This is a secret and classified message'}]
     assert isinstance(fetched_messages_with_timestamp[0].timestamp, Decimal)
+
+@pytest.mark.asyncio
+async def test_save_chat_message(chat_storage_with_sensitive_mapping):
+    user_id = 'user1'
+    session_id = 'session1'
+    agent_id = 'agent1'
+
+    message = ConversationMessage(role=ParticipantRole.USER.value, content=[{'text': 'This is a secret message classified'}])
+    saved_messages = await chat_storage_with_sensitive_mapping.save_chat_message(user_id, session_id, agent_id, message)
+    assert len(saved_messages) == 1
+    assert saved_messages[0].role == ParticipantRole.USER.value
+    assert saved_messages[0].content == [{'text': 'This is a s******t message c********d'}]
+
+
+@pytest.mark.asyncio
+async def test_save_chat_messages(chat_storage_with_sensitive_mapping):
+    user_id = 'user1'
+    session_id = 'session1'
+    agent_id = 'agent1'
+
+    messages = [
+        ConversationMessage(role=ParticipantRole.USER.value, content=[{'text': 'This is a secret message'}]),
+        ConversationMessage(role=ParticipantRole.USER.value, content=[{'text': 'This is a classified message'}]),
+        ConversationMessage(role=ParticipantRole.USER.value, content=[{'text': 'This is a normal message'}])
+    ]
+
+    # Save multiple messages
+    saved_messages = await chat_storage_with_sensitive_mapping.save_chat_messages(user_id, session_id, agent_id, messages)
+    assert len(saved_messages) == 3
+    assert saved_messages[0].content == [{'text': 'This is a s******t message'}]
+    assert saved_messages[1].content == [{'text': 'This is a c********d message'}]
+    assert saved_messages[2].content == [{'text': 'This is a normal message'}]

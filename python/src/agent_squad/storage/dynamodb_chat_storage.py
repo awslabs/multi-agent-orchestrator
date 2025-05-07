@@ -110,7 +110,7 @@ class DynamoDbChatStorage(ChatStorage):
             new_messages = [
                 TimestampedMessage(
                     role=new_message.role,
-                    content=new_message.content
+                    content=self._anonymized_content(new_message.content)
                 )
              for new_message in new_messages]
 
@@ -150,6 +150,8 @@ class DynamoDbChatStorage(ChatStorage):
             stored_messages: list[TimestampedMessage] = self._dict_to_conversation(
                 response.get('Item', {}).get('conversation', [])
             )
+            for msg in stored_messages:
+                msg.content = self._anonymized_content(msg.content, reverse=True)
             return self._remove_timestamps(stored_messages)
         except Exception as error:
             Logger.error(f"Error getting conversation from DynamoDB:{str(error)}")
