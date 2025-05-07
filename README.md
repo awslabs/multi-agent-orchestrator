@@ -78,7 +78,7 @@ The Agent Squad now includes a powerful new SupervisorAgent that enables sophist
 ![SupervisorAgent flow diagram](https://raw.githubusercontent.com/awslabs/agent-squad/main/img/flow-supervisor.jpg)
 
 Key capabilities:
-- 🤝 **Team Coordination** - Coordonate multiple specialized agents working together on complex tasks
+- 🤝 **Team Coordination** - Coordinate multiple specialized agents working together on complex tasks
 - ⚡ **Parallel Processing** - Execute multiple agent queries simultaneously
 - 🧠 **Smart Context Management** - Maintain conversation history across all team members
 - 🔄 **Dynamic Delegation** - Intelligently distribute subtasks to appropriate team members
