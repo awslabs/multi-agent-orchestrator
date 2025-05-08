@@ -3,7 +3,7 @@ title: Supervisor Agent
 description: Documentation for the SupervisorAgent in the Agent Squad System
 ---
 
-import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 The `SupervisorAgent` is an advanced orchestration component that enables sophisticated multi-agent coordination within the Agent Squad framework.
 
@@ -13,11 +13,13 @@ The diagram below illustrates the **SupervisorAgent** architecture, featuring a 
 
 ![Supervisor flow](/agent-squad/flow-supervisor.jpg)
 
+
 ## Usage Patterns
 
 The SupervisorAgent can be used in two primary ways:
 
 ### 1. Direct Usage
+
 
 You can use the SupervisorAgent directly, bypassing the classifier, when you want dedicated team coordination for specific tasks:
 
@@ -58,7 +60,6 @@ You can use the SupervisorAgent directly, bypassing the classifier, when you wan
       chatHistory
     );
     ```
-
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
@@ -96,13 +97,13 @@ You can use the SupervisorAgent directly, bypassing the classifier, when you wan
         chatHistory
     )
     ```
-
   </TabItem>
 </Tabs>
 
 Here's a diagram illustrating the code implementation above, showing how the BedrockLLMAgent (Lead Agent) processes the user's flight modification request by coordinating with LexBotAgent and Amazon BedrockAgent, supported by dual memory systems for maintaining conversation context.
 
 ![Supervisor flow direct](/agent-squad/flow-supervisor-direct.jpg)
+
 
 ### 2. As Part of Classifier-Based Architecture
 
@@ -146,7 +147,6 @@ The SupervisorAgent can also be integrated into a larger system using the classi
       sessionId
     );
     ```
-
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
@@ -185,7 +185,6 @@ The SupervisorAgent can also be integrated into a larger system using the classi
         session_id
     )
     ```
-
   </TabItem>
 </Tabs>
 
@@ -193,10 +192,9 @@ Here's a diagram illustrating the code implementation above, showing a Classifie
 
 ![Supervisor flow orchestrator](/agent-squad/flow-supervisor-orchestrator.jpg)
 
-<hr />
+<hr/>
 
 This flexibility allows you to:
-
 - Use SupervisorAgent directly for dedicated team coordination
 - Integrate it into classifier-based systems for dynamic routing
 - Create hierarchical structures with multiple specialized teams
@@ -206,14 +204,12 @@ This flexibility allows you to:
 ## Core Components
 
 ### 1. Supervisor (Lead Agent)
-
 - Must be either a [BedrockLLMAgent](/agent-squad/agents/built-in/bedrock-llm-agent) or [AnthropicAgent](/agent-squad/agents/built-in/anthropic-agent)
 - Acts as the central coordinator
 - Communicates with team members through a tool interface
 - Maintains conversation context with both user and team members
 
 ### 2. Team Members
-
 - Collection of agents - each agent is wrapped as a tool for the supervisor
 - Can be any agent type supported by the framework
 - Operate independently and in parallel when possible
@@ -223,7 +219,6 @@ This flexibility allows you to:
 The SupervisorAgent implements a sophisticated three-tier memory system to maintain context across conversations:
 
 ### 1. User-Supervisor Memory
-
 This is like the main conversation between a customer and the team leader:
 
 ```text
@@ -234,7 +229,6 @@ Assistant: I'll look into both issues. Let me check with our technical and billi
 ```
 
 ### 2. Supervisor-Team Memory
-
 Each team member maintains a private conversation with the supervisor:
 
 ```text
@@ -248,7 +242,6 @@ Billing Team: Account is active, last payment received Jan 15, next due Feb 15
 ```
 
 ### 3. Combined Memory
-
 The supervisor keeps track of all important information in an organized way:
 
 ```text
@@ -265,13 +258,11 @@ Assistant: [Billing Team] Account status is good. Last payment: Jan 15, Next due
 Here's a complete interaction showing how memory and communication work together:
 
 1. **Initial Request**
-
 ```text
 User: I'm having trouble with my bill and the mobile app
 ```
 
 2. **Parallel Processing**
-
 ```text
 # Supervisor communicates simultaneously with both teams
 Supervisor → Tech Support: What could cause app issues when viewing bills?
@@ -279,14 +270,12 @@ Supervisor → Billing: Please verify account status
 ```
 
 3. **Team Responses**
-
 ```text
 Tech Support → Supervisor: Likely a cache issue. Common after recent updates.
 Billing → Supervisor: Account in good standing, no payment issues.
 ```
 
 4. **Unified Response**
-
 ```text
 Supervisor → User: I've checked both issues. Your billing account is in good standing. For the app problem, it appears to be a cache issue. Would you like me to guide you through clearing your app's cache?
 ```
@@ -321,12 +310,10 @@ Supervisor → User: I've checked both issues. Your billing account is in good s
 </Tabs>
 
 ### Required Parameters
-
 - `leadAgent`/`lead_agent`: Must be either a BedrockLLMAgent or AnthropicAgent instance
 - `team`: List of agents that will be coordinated by the supervisor
 
 ### Optional Parameters
-
 - `storage`: Custom storage implementation for conversation history (defaults to InMemoryChatStorage)
 - `trace`: Enable detailed logging of agent interactions
 - `extraTools`/`extra_tools`: Additional tools to be made available to the supervisor
@@ -339,29 +326,29 @@ The SupervisorAgent includes a built-in tool for parallel message processing:
 
 ```json
 {
-  "name": "send_messages",
-  "description": "Send messages to multiple agents in parallel.",
-  "properties": {
-    "messages": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "recipient": {
-            "type": "string",
-            "description": "Agent name to send message to."
-          },
-          "content": {
-            "type": "string",
-            "description": "Message content."
-          }
-        },
-        "required": ["recipient", "content"]
-      },
-      "description": "Array of messages for different agents.",
-      "minItems": 1
+    "name": "send_messages",
+    "description": "Send messages to multiple agents in parallel.",
+    "properties": {
+        "messages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "recipient": {
+                        "type": "string",
+                        "description": "Agent name to send message to."
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "Message content."
+                    }
+                },
+                "required": ["recipient", "content"]
+            },
+            "description": "Array of messages for different agents.",
+            "minItems": 1
+        }
     }
-  }
 }
 ```
 
@@ -391,7 +378,6 @@ The SupervisorAgent includes a built-in tool for parallel message processing:
       extraTools: customTools
     });
     ```
-
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
@@ -416,26 +402,22 @@ The SupervisorAgent includes a built-in tool for parallel message processing:
         extra_tools=custom_tools
     ))
     ```
-
   </TabItem>
 </Tabs>
 
 ## Communication Guidelines
 
 1. **Response Handling**
-
    - Aggregates responses from all relevant agents
    - Maintains original agent responses without summarization
    - Provides final answers only when all necessary responses are received
 
 2. **Agent Interaction**
-
    - Optimizes for parallel processing when possible
    - Maintains agent isolation (agents are unaware of each other)
    - Keeps inter-agent communications concise
 
 3. **Context Management**
-
    - Provides full context when necessary
    - Reuses previous responses when appropriate
    - Maintains efficient conversation history
@@ -448,26 +430,23 @@ The SupervisorAgent includes a built-in tool for parallel message processing:
 ## Best Practices
 
 1. **Agent Team Composition**
-
    - Choose specialized agents with clear, distinct roles
    - Ensure agent descriptions are detailed and non-overlapping
    - Consider communication patterns when selecting team size
 
 2. **Storage Configuration**
-
    - Use persistent storage (e.g., DynamoDBChatStorage) for production
    - Consider memory usage with large conversation histories
    - Implement appropriate cleanup strategies
 
 3. **Tool Management**
-
    - Add custom tools through extraTools/extra_tools parameter
    - Keep tool functions focused and well-documented
    - Consider performance impact of tool complexity
 
 4. **Performance Optimization**
 
-5. **Performance Optimization**
+4. **Performance Optimization**
    - Enable parallel processing where appropriate
    - Monitor and adjust team size based on requirements
    - Use tracing to identify bottlenecks
@@ -579,7 +558,6 @@ Here's a complete example showing how to use the SupervisorAgent in a typical sc
     // Run the example
     main().catch(console.error);
     ```
-
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
@@ -663,7 +641,6 @@ Here's a complete example showing how to use the SupervisorAgent in a typical sc
         import asyncio
         asyncio.run(main())
     ```
-
   </TabItem>
 </Tabs>
 
@@ -672,5 +649,6 @@ Here's a complete example showing how to use the SupervisorAgent in a typical sc
 - LeadAgent must be either BedrockLLMAgent or AnthropicAgent
 - May require significant memory for large conversation histories
 - Performance depends on slowest agent in parallel operations
+
 
 By leveraging the SupervisorAgent, you can create sophisticated multi-agent systems with coordinated responses, maintained context, and efficient parallel processing. The agent's flexible architecture allows for customization while providing robust built-in capabilities for common coordination tasks.
