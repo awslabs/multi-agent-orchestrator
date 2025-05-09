@@ -70,10 +70,11 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 ![High-level architecture flow diagram Animated](img/animatedflow.gif)
 
 <br />
-1. The process begins with user input, which is analyzed by a Classifier.
-2. The Classifier leverages both Agents' Characteristics and Agents' Conversation history to select the most appropriate agent for the task.
-3. Once an agent is selected, it processes the user input.
-4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user.
+
+1. The process begins with user input, which is analyzed by a Classifier.  
+2. The Classifier leverages both Agents' Characteristics and Agents' Conversation history to select the most appropriate agent for the task.  
+3. Once an agent is selected, it processes the user input.  
+4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user.  
 
 
 ## ![](https://raw.githubusercontent.com/awslabs/agent-squad/main/img/new.png) Introducing SupervisorAgent: Agents Coordination
