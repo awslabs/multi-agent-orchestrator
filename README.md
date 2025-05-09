@@ -65,6 +65,8 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 
 <br /><br />
 
+## Workflow Architecture Diagram
+
 ![High-level architecture flow diagram Animated](img/animatedflow.gif)
 
 <br />
