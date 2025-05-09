@@ -193,27 +193,52 @@ When communicating with other agents, including the User, please follow these gu
                 role=ParticipantRole.USER.value,
                 content=[{'text': content}]
             )
+
             response = asyncio.run(agent.process_request(
                 content, user_id, session_id, agent_chat_history, additional_params
             ))
 
+            # Normalize response to handle both object and dict cases
+            def extract_text_from_response(resp):
+                # Case 1: resp has .content attribute (object)
+                if hasattr(resp, "content"):
+                    content_list = resp.content
+                # Case 2: resp is a dict with 'content' key
+                elif isinstance(resp, dict) and "content" in resp:
+                    content_list = resp["content"]
+                else:
+                    Logger.error(f"send_message: Unexpected response type from agent: {type(resp)}: {resp}")
+                    content_list = [{"text": str(resp)}]
+
+                # Find the first text string
+                if isinstance(content_list, list) and content_list:
+                    first_item = content_list[0]
+                    if isinstance(first_item, dict) and "text" in first_item:
+                        return first_item.get("text", "")
+                    elif isinstance(first_item, str):
+                        return first_item
+                elif isinstance(content_list, str):
+                    return content_list
+                return str(content_list)
+
+            text = extract_text_from_response(response)
+
             assistant_message = TimestampedMessage(
                 role=ParticipantRole.ASSISTANT.value,
-                content=[{'text': response.content[0].get('text', '')}]
+                content=[{'text': text}]
             )
-
 
             if agent.save_chat:
                 asyncio.run(self.storage.save_chat_messages(
-                user_id, session_id, agent.id,[user_message, assistant_message]
+                    user_id, session_id, agent.id, [user_message, assistant_message]
                 ))
 
             if self.trace:
                 Logger.info(
-                    f"\033[33m\n<<<<<===Supervisor received from {agent.name}:\n{response.content[0].get('text','')[:500]}...\033[0m"
+                    f"\033[33m\n<<<<<===Supervisor received from {agent.name}:\n{text[:500]}...\033[0m"
                 )
 
-            return f"{agent.name}: {response.content[0].get('text', '')}"
+            return f"{agent.name}: {text}"
 
         except Exception as e:
             Logger.error(f"Error in send_message: {e}")
