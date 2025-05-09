@@ -65,6 +65,9 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 
 <br /><br />
 
+![High-level architecture flow diagram Animated](https://raw.githubusercontent.com/awslabs/agent-squad/main/img/animatedflow.gif)
+
+<br /><br />
 1. The process begins with user input, which is analyzed by a Classifier.
 2. The Classifier leverages both Agents' Characteristics and Agents' Conversation history to select the most appropriate agent for the task.
 3. Once an agent is selected, it processes the user input.
