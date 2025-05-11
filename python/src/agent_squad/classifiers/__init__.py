@@ -16,6 +16,12 @@ except Exception as e:
     _ANTHROPIC_AVAILABLE = False
 
 try:
+    from .ollama_classifier import OllamaClassifier, OllamaClassifierOptions
+    _OLLAMA_AVAILABLE = True
+except Exception as e:
+    _OLLAMA_AVAILABLE = False
+
+try:
     from .openai_classifier import OpenAIClassifier, OpenAIClassifierOptions
     _OPENAI_AVAILABLE = True
 except Exception as e:
@@ -36,6 +42,12 @@ if _ANTHROPIC_AVAILABLE:
     __all__.extend([
         "AnthropicClassifier",
         "AnthropicClassifierOptions"
+    ])
+
+if _OLLAMA_AVAILABLE:
+    __all__.extend([
+        "OllamaClassifier",
+        "OllamaClassifierOptions"
     ])
 
 if _OPENAI_AVAILABLE:

@@ -23,6 +23,11 @@ try:
 except ImportError:
     _ANTHROPIC_AVAILABLE = False
 
+try:
+    from .ollama_agent import OllamaAgent, OllamaAgentOptions
+    _OLLAMA_AVAILABLE = True
+except ImportError:
+    _OLLAMA_AVAILABLE = False
 
 try:
     from .openai_agent import OpenAIAgent, OpenAIAgentOptions
@@ -73,6 +78,11 @@ if _ANTHROPIC_AVAILABLE:
         'AnthropicAgentOptions'
     ])
 
+if _OLLAMA_AVAILABLE:
+    __all__.extend([
+        'OllamaAgent',
+        'OllamaAgentOptions'
+    ])
 
 if _OPENAI_AVAILABLE:
     __all__.extend([
