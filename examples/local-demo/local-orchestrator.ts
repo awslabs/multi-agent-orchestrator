@@ -1,18 +1,18 @@
 import readline from "readline";
 import {
-  MultiAgentOrchestrator,
+  AgentSquad,
   BedrockLLMAgent,
   AmazonBedrockAgent,
   LexBotAgent,
   LambdaAgent,
   Logger,
-} from "multi-agent-orchestrator";
+} from "agent-squad";
 
 import {weatherToolDescription, weatherToolHanlder, WEATHER_PROMPT } from './tools/weather_tool'
 
 
-function createOrchestrator(): MultiAgentOrchestrator {
-  const orchestrator = new MultiAgentOrchestrator({
+function createOrchestrator(): AgentSquad {
+  const orchestrator = new AgentSquad({
     config: {
       LOG_AGENT_CHAT: true,
       LOG_CLASSIFIER_CHAT: true,

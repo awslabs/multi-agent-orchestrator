@@ -1,12 +1,12 @@
 from typing import Any
 import asyncio
-from multi_agent_orchestrator.agents import (
+from agent_squad.agents import (
     BedrockLLMAgent, BedrockLLMAgentOptions,
     AnthropicAgent, AnthropicAgentOptions,
     Agent
     )
-from multi_agent_orchestrator.utils.tool import AgentTools, AgentTool
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+from agent_squad.utils.tool import AgentTools, AgentTool
+from agent_squad.types import ConversationMessage, ParticipantRole
 
 def get_weather(city:str):
     """

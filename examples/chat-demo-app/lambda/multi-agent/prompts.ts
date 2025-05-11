@@ -1,4 +1,4 @@
-import { Agent } from "multi-agent-orchestrator";
+import { Agent } from "agent-squad";
 
 export const WEATHER_AGENT_PROMPT = `
 You are a weather assistant that provides current weather data and forecasts for user-specified locations using only the Weather_Tool, which expects latitude and longitude. Your role is to deliver accurate, detailed, and easily understandable weather information to users with varying levels of meteorological knowledge.

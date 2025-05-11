@@ -1,4 +1,4 @@
-from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentCallbacks
+from agent_squad.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentCallbacks
 from ollamaAgent import OllamaAgent, OllamaAgentOptions
 import asyncio
 

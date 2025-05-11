@@ -4,11 +4,11 @@ import argparse
 from queue import Queue
 from threading import Thread
 
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, AgentResponse, OrchestratorConfig
-from multi_agent_orchestrator.types import ConversationMessage
-from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions
-from multi_agent_orchestrator.storage import DynamoDbChatStorage
-from multi_agent_orchestrator.agents import (
+from agent_squad.orchestrator import AgentSquad, AgentResponse, AgentSquadConfig
+from agent_squad.types import ConversationMessage
+from agent_squad.classifiers import BedrockClassifier, BedrockClassifierOptions
+from agent_squad.storage import DynamoDbChatStorage
+from agent_squad.agents import (
     BedrockLLMAgent,
     AgentResponse,
     AgentCallbacks,
@@ -44,7 +44,7 @@ def setup_orchestrator(streamer_queue):
     ))
 
 
-    orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
+    orchestrator = AgentSquad(options=AgentSquadConfig(
         LOG_AGENT_CHAT=True,
         LOG_CLASSIFIER_CHAT=True,
         LOG_CLASSIFIER_RAW_OUTPUT=True,

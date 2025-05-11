@@ -5,9 +5,9 @@ import uuid
 from uuid import UUID
 import os
 from datetime import datetime, timezone
-from multi_agent_orchestrator.utils import Logger
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-from multi_agent_orchestrator.agents import (
+from agent_squad.utils import Logger
+from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
+from agent_squad.agents import (
     BedrockLLMAgent, BedrockLLMAgentOptions,
     AgentResponse,
     LexBotAgent, LexBotAgentOptions,
@@ -15,13 +15,13 @@ from multi_agent_orchestrator.agents import (
     SupervisorAgent, SupervisorAgentOptions,
     AgentStreamResponse
 )
-from multi_agent_orchestrator.classifiers import ClassifierResult
-from multi_agent_orchestrator.types import ConversationMessage
-from multi_agent_orchestrator.storage import DynamoDbChatStorage
-from multi_agent_orchestrator.utils import AgentTools, AgentTool, AgentToolCallbacks
+from agent_squad.classifiers import ClassifierResult
+from agent_squad.types import ConversationMessage
+from agent_squad.storage import DynamoDbChatStorage
+from agent_squad.utils import AgentTools, AgentTool, AgentToolCallbacks
 
 try:
-    from multi_agent_orchestrator.agents import AnthropicAgent,  AnthropicAgentOptions
+    from agent_squad.agents import AnthropicAgent,  AnthropicAgentOptions
     _ANTHROPIC_AVAILABLE = True
 except ImportError:
     _ANTHROPIC_AVAILABLE = False
@@ -159,7 +159,7 @@ supervisor = SupervisorAgent(
         )], callbacks=SupervisorToolsCallbacks())
     ))
 
-async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input:str, _user_id:str, _session_id:str):
+async def handle_request(_orchestrator: AgentSquad, _user_input:str, _user_id:str, _session_id:str):
     classifier_result=ClassifierResult(selected_agent=supervisor, confidence=1.0)
 
     response:AgentResponse = await _orchestrator.agent_process_request(_user_input, _user_id, _session_id, classifier_result, {}, True)
@@ -185,7 +185,7 @@ async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input:str,
 if __name__ == "__main__":
 
     # Initialize the orchestrator with some options
-    orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
+    orchestrator = AgentSquad(options=AgentSquadConfig(
         LOG_AGENT_CHAT=True,
         LOG_CLASSIFIER_CHAT=True,
         LOG_CLASSIFIER_RAW_OUTPUT=True,

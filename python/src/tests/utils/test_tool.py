@@ -1,6 +1,6 @@
 import pytest
-from multi_agent_orchestrator.utils import AgentTools, AgentTool
-from multi_agent_orchestrator.types import AgentProviderType, ConversationMessage, ParticipantRole
+from agent_squad.utils import AgentTools, AgentTool
+from agent_squad.types import AgentProviderType, ConversationMessage, ParticipantRole
 from anthropic import Anthropic
 from anthropic.types import ToolUseBlock
 

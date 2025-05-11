@@ -1,2 +1,2 @@
 boto3
-multi-agent-orchestrator
+agent-squad

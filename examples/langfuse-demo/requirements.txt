@@ -1,5 +1,5 @@
 langfuse
 python-dotenv
 boto3
-multi-agent-orchestrator
+agent-squad
 requests

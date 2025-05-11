@@ -2,7 +2,7 @@ import pytest
 from asyncio import Future
 
 # Assume the Retriever class is in a file named retriever.py
-from multi_agent_orchestrator.retrievers import Retriever
+from agent_squad.retrievers import Retriever
 
 class ConcreteRetriever(Retriever):
     """A concrete implementation of Retriever for testing purposes."""

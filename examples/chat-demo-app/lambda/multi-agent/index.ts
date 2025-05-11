@@ -1,13 +1,13 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import {
-  MultiAgentOrchestrator,
+  AgentSquad,
   BedrockLLMAgent,
   DynamoDbChatStorage,
   LexBotAgent,
   AmazonKnowledgeBasesRetriever,
   LambdaAgent,
   BedrockClassifier,
-} from "multi-agent-orchestrator";
+} from "agent-squad";
 import { weatherToolDescription, weatherToolHanlder } from './weather_tool'
 import { mathToolHanlder, mathAgentToolDefinition } from './math_tool';
 import { APIGatewayProxyEventV2, Handler, Context } from "aws-lambda";
@@ -52,7 +52,7 @@ const storage = new DynamoDbChatStorage(
   Number(process.env.HISTORY_TABLE_TTL_DURATION),
 );
 
-const orchestrator = new MultiAgentOrchestrator({
+const orchestrator = new AgentSquad({
   storage: storage,
   config: {
     LOG_AGENT_CHAT: true,
@@ -137,21 +137,21 @@ if (process.env.LAMBDA_AGENTS){
   }
 }
 
-// Add a our Multi-agent orchestrator documentation agent
+// Add a our Agent Squad documentation agent
 const maoDocAgent = new BedrockLLMAgent({
   name: "Tech agent",
   description:
-    "A tech expert specializing in the multi-agent orchestrator framework, technical domains, and AI-driven solutions.",
+    "A tech expert specializing in the Agent Squad framework, technical domains, and AI-driven solutions.",
   streaming: true,
   inferenceConfig: {
     temperature: 0.0,
   },
   customSystemPrompt:{
     template:`
-  You are a tech expert specializing in both the technical domain, including software development, AI, cloud computing, and the multi-agent orchestrator framework. Your role is to provide comprehensive, accurate, and helpful information about these areas, with a specific focus on the orchestrator framework, its agents, and their applications. Always structure your responses using clear, well-formatted markdown.
+  You are a tech expert specializing in both the technical domain, including software development, AI, cloud computing, and the Agent Squad framework. Your role is to provide comprehensive, accurate, and helpful information about these areas, with a specific focus on the orchestrator framework, its agents, and their applications. Always structure your responses using clear, well-formatted markdown.
 
         Key responsibilities:
-        - Explain the multi-agent orchestrator framework, its agents, and its benefits
+        - Explain the Agent Squad framework, its agents, and its benefits
         - Guide users on how to get started with the framework and configure agents
         - Provide technical advice on topics like software development, AI, and cloud computing
         - Detail the process of creating and configuring an orchestrator

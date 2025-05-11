@@ -2,8 +2,8 @@ import pytest
 from moto import mock_aws
 import boto3
 from decimal import Decimal
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, TimestampedMessage
-from multi_agent_orchestrator.storage import DynamoDbChatStorage
+from agent_squad.types import ConversationMessage, ParticipantRole, TimestampedMessage
+from agent_squad.storage import DynamoDbChatStorage
 
 @pytest.fixture
 def dynamodb_table():

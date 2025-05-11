@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import AsyncMock, patch, MagicMock
-from multi_agent_orchestrator.types import ConversationMessage, AgentTypes
-from multi_agent_orchestrator.agents import Agent
-from multi_agent_orchestrator.classifiers import Classifier, ClassifierResult
+from agent_squad.types import ConversationMessage, AgentTypes
+from agent_squad.agents import Agent
+from agent_squad.classifiers import Classifier, ClassifierResult
 import re
 from typing import List, Dict
 import pytest

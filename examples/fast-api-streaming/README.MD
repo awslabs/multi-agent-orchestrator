@@ -1,12 +1,12 @@
-# Multi-Agent Orchestrator with Fast-api
+# Agent Squad with Fast-api
 
-This project implements a FastAPI-based web service that uses a Multi-Agent Orchestrator to process and respond to user queries. It supports streaming responses and uses AWS Bedrock for language model interactions.
+This project implements a FastAPI-based web service that uses a Agent Squad to process and respond to user queries. It supports streaming responses and uses AWS Bedrock for language model interactions.
 
 ## Installation
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/awslabs/multi-agent-orchestrator.git
+   git clone https://github.com/awslabs/agent-squad.git
    cd examples/fast-api-streaming
    ```
 
@@ -57,11 +57,11 @@ This will send a streaming request to the `/stream_chat/` endpoint with the give
 
 ## Project Structure
 
-- `main.py`: The main FastAPI application file containing the API routes and Multi-Agent Orchestrator setup.
+- `main.py`: The main FastAPI application file containing the API routes and Agent Squad setup.
 - `requirements.txt`: List of Python dependencies for the project.
 
 ## Notes
 
 - This application uses AWS Bedrock for language model interactions. Ensure you have the necessary permissions and credentials set up.
-- The Multi-Agent Orchestrator is configured with a Tech Agent and a Health Agent.
+- The Agent Squad is configured with a Tech Agent and a Health Agent.
 - Streaming responses are implemented for real-time output.

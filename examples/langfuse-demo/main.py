@@ -6,14 +6,14 @@ import json
 import sys
 import os
 from tools import weather_tool
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-from multi_agent_orchestrator.agents import (BedrockLLMAgent,
+from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
+from agent_squad.agents import (BedrockLLMAgent,
                         BedrockLLMAgentOptions,
                         AgentStreamResponse,
                         AgentCallbacks)
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.utils import AgentTools, AgentToolCallbacks, AgentTool
-from multi_agent_orchestrator.classifiers import BedrockClassifier, BedrockClassifierOptions, ClassifierCallbacks, ClassifierResult
+from agent_squad.types import ConversationMessage, ParticipantRole
+from agent_squad.utils import AgentTools, AgentToolCallbacks, AgentTool
+from agent_squad.classifiers import BedrockClassifier, BedrockClassifierOptions, ClassifierCallbacks, ClassifierResult
 from langfuse.decorators import observe, langfuse_context
 from langfuse import Langfuse
 from uuid import UUID

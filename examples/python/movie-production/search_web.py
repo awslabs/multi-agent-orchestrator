@@ -1,4 +1,4 @@
-from multi_agent_orchestrator.utils.logger import Logger
+from agent_squad.utils.logger import Logger
 from duckduckgo_search import DDGS
 
 

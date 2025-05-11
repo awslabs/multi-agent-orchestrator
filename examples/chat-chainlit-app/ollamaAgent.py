@@ -1,7 +1,7 @@
 from typing import List, Dict, Optional, AsyncIterable, Any
-from multi_agent_orchestrator.agents import Agent, AgentOptions
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.utils import Logger
+from agent_squad.agents import Agent, AgentOptions
+from agent_squad.types import ConversationMessage, ParticipantRole
+from agent_squad.utils import Logger
 import ollama
 from dataclasses import dataclass
 

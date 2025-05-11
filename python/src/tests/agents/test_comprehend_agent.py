@@ -2,8 +2,8 @@ import unittest
 from unittest.mock import Mock
 from typing import Dict, Any
 
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
+from agent_squad.types import ConversationMessage, ParticipantRole
+from agent_squad.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
 
 class TestComprehendFilterAgent(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):

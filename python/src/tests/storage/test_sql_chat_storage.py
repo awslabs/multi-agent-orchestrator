@@ -2,8 +2,8 @@ import os
 import pytest
 import tempfile
 import pytest_asyncio
-from multi_agent_orchestrator.storage import SqlChatStorage
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+from agent_squad.storage import SqlChatStorage
+from agent_squad.types import ConversationMessage, ParticipantRole
 
 # Configure pytest-asyncio to use asyncio mode
 pytestmark = pytest.mark.asyncio
@@ -13,11 +13,11 @@ async def sql_storage():
     """Create a temporary SQLite database for testing."""
     with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as temp_db:
         db_path = temp_db.name
-    
+
     storage = SqlChatStorage(f"file:{db_path}")
     await storage.initialize()
     yield storage
-    
+
     await storage.close()
     if os.path.exists(db_path):
         os.unlink(db_path)
@@ -29,7 +29,7 @@ async def test_save_and_fetch_message(sql_storage: SqlChatStorage):
         role=ParticipantRole.USER.value,
         content=[{"text": "Hello, world!"}]
     )
-    
+
     # Save message
     saved_messages = await sql_storage.save_chat_message(
         user_id="test_user",
@@ -62,7 +62,7 @@ async def test_save_consecutive_same_role_messages(sql_storage: SqlChatStorage):
         role=ParticipantRole.USER.value,
         content=[{"text": "Second message"}]
     )
-    
+
     # Save first message
     saved_messages1 = await sql_storage.save_chat_message(
         user_id="test_user",
@@ -101,7 +101,7 @@ async def test_max_history_size(sql_storage: SqlChatStorage):
             content=[{"text": f"Message {i}"}]
         ) for i in range(5)
     ]
-    
+
     # Save all messages
     for msg in messages:
         await sql_storage.save_chat_message(
@@ -111,7 +111,7 @@ async def test_max_history_size(sql_storage: SqlChatStorage):
             new_message=msg,
             max_history_size=3
         )
-    
+
     # Verify only last 3 messages are kept
     fetched = await sql_storage.fetch_chat(
         user_id="test_user",
@@ -130,7 +130,7 @@ async def test_save_multiple_messages(sql_storage: SqlChatStorage):
             content=[{"text": f"Message {i}"}]
         ) for i in range(3)
     ]
-    
+
     # Save messages in batch
     saved_messages = await sql_storage.save_chat_messages(
         user_id="test_user",
@@ -168,13 +168,13 @@ async def test_fetch_all_chats(sql_storage: SqlChatStorage):
             agent_id=agent_id,
             new_message=message
         )
-    
+
     # Fetch all chats
     all_messages = await sql_storage.fetch_all_chats(
         user_id="test_user",
         session_id="test_session"
     )
-    
+
     assert len(all_messages) == 2
     agent_messages = [msg.content[0]["text"] for msg in all_messages]
     assert "[agent1] Message from agent1" in agent_messages
@@ -188,7 +188,7 @@ async def test_multiple_users_and_sessions(sql_storage: SqlChatStorage):
         ("user1", "session2", "Hello from user1 session2"),
         ("user2", "session1", "Hello from user2 session1")
     ]
-    
+
     # Save messages for different user/session combinations
     for user_id, session_id, text in test_cases:
         message = ConversationMessage(
@@ -201,7 +201,7 @@ async def test_multiple_users_and_sessions(sql_storage: SqlChatStorage):
             agent_id="test_agent",
             new_message=message
         )
-    
+
     # Verify each combination independently
     for user_id, session_id, text in test_cases:
         messages = await sql_storage.fetch_chat(
@@ -248,7 +248,7 @@ async def test_message_ordering(sql_storage: SqlChatStorage):
             content=[{"text": f"Message {i}"}]
         ) for i in range(5)
     ]
-    
+
     # Save messages one by one
     for msg in messages:
         await sql_storage.save_chat_message(
@@ -257,7 +257,7 @@ async def test_message_ordering(sql_storage: SqlChatStorage):
             agent_id="test_agent",
             new_message=msg
         )
-    
+
     # Verify order with and without max_history_size
     full_history = await sql_storage.fetch_chat(
         user_id="test_user",
@@ -265,14 +265,14 @@ async def test_message_ordering(sql_storage: SqlChatStorage):
         agent_id="test_agent"
     )
     assert [m.content[0]["text"] for m in full_history] == [f"Message {i}" for i in range(5)]
-    
+
     limited_history = await sql_storage.fetch_chat(
         user_id="test_user",
         session_id="test_session",
         agent_id="test_agent",
         max_history_size=3
     )
-    assert [m.content[0]["text"] for m in limited_history] == [f"Message {i}" for i in range(2, 5)] 
+    assert [m.content[0]["text"] for m in limited_history] == [f"Message {i}" for i in range(2, 5)]
 
 @pytest.mark.asyncio
 async def test_invalid_database_url():
@@ -285,7 +285,7 @@ async def test_invalid_database_url():
 async def test_concurrent_access(sql_storage: SqlChatStorage):
     """Test concurrent access to the database."""
     import asyncio
-    
+
     async def save_message(i: int):
         message = ConversationMessage(
             role=ParticipantRole.USER.value,
@@ -297,10 +297,10 @@ async def test_concurrent_access(sql_storage: SqlChatStorage):
             agent_id=f"agent{i}",
             new_message=message
         )
-    
+
     # Run multiple saves concurrently
     await asyncio.gather(*[save_message(i) for i in range(5)])
-    
+
     # Verify all messages were saved
     all_messages = await sql_storage.fetch_all_chats(
         user_id="test_user",
@@ -324,7 +324,7 @@ async def test_transaction_rollback(sql_storage: SqlChatStorage):
             content=None  # This will cause a JSON serialization error
         )
     ]
-    
+
     # Attempt to save messages that will cause an error
     with pytest.raises(Exception):
         await sql_storage.save_chat_messages(
@@ -333,7 +333,7 @@ async def test_transaction_rollback(sql_storage: SqlChatStorage):
             agent_id="test_agent",
             new_messages=messages
         )
-    
+
     # Verify no messages were saved due to transaction rollback
     saved_messages = await sql_storage.fetch_chat(
         user_id="test_user",
@@ -348,7 +348,7 @@ async def test_database_connection_handling():
     with tempfile.NamedTemporaryFile(suffix='.db') as temp_db:
         storage = SqlChatStorage(f"file:{temp_db.name}")
         await storage.initialize()
-        
+
         # Test basic operation
         message = ConversationMessage(
             role=ParticipantRole.USER.value,
@@ -360,10 +360,10 @@ async def test_database_connection_handling():
             agent_id="test_agent",
             new_message=message
         )
-        
+
         # Close connection
         await storage.close()
-        
+
         # Verify operations fail after close
         with pytest.raises(Exception):
             await storage.save_chat_message(
@@ -371,4 +371,4 @@ async def test_database_connection_handling():
                 session_id="test_session",
                 agent_id="test_agent",
                 new_message=message
-            ) 
+            )

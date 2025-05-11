@@ -1,13 +1,13 @@
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
 from typing import AsyncIterable
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole, AgentProviderType
-from multi_agent_orchestrator.agents import (
+from agent_squad.types import ConversationMessage, ParticipantRole, AgentProviderType
+from agent_squad.agents import (
     BedrockLLMAgent,
     BedrockLLMAgentOptions,
     AgentStreamResponse)
-from multi_agent_orchestrator.utils import Logger, AgentTools, AgentTool
-from multi_agent_orchestrator.retrievers import Retriever
+from agent_squad.utils import Logger, AgentTools, AgentTool
+from agent_squad.retrievers import Retriever
 
 
 logger = Logger()

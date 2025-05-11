@@ -1,4 +1,4 @@
-# Multi-Agent Orchestrator (MAO) with Langfuse
+# Agent Squad with Langfuse
 
 A demonstration project for orchestrating multiple AI agents using AWS Bedrock with integrated observability through Langfuse.
 
@@ -26,7 +26,7 @@ The system includes specialized agents for:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/awslabs/multi-agent-orchestrator.git
+git clone https://github.com/awslabs/agent-squad.git
 cd examples/langfuse-demo
 ```
 

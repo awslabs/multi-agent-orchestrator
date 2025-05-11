@@ -1,7 +1,7 @@
 import pytest
 from typing import Union
-from multi_agent_orchestrator.types import ConversationMessage, TimestampedMessage
-from multi_agent_orchestrator.storage import ChatStorage
+from agent_squad.types import ConversationMessage, TimestampedMessage
+from agent_squad.storage import ChatStorage
 
 class MockChatStorage(ChatStorage):
     async def save_chat_message(self, user_id: str, session_id: str, agent_id: str, new_message: Union[ConversationMessage, TimestampedMessage], max_history_size: int = None) -> bool:

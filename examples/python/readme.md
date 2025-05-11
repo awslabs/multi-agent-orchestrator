@@ -1,6 +1,6 @@
-# AWS Multi-Agent Orchestrator Demos
+# AWS Agent Squad Demos
 
-This Streamlit application demonstrates the capabilities of the AWS Multi-Agent Orchestrator framework by showcasing how specialized AI agents can collaborate to solve complex tasks using Amazon Bedrock and Anthropic's Claude models.
+This Streamlit application demonstrates the capabilities of the AWS Agent Squad framework by showcasing how specialized AI agents can collaborate to solve complex tasks using Amazon Bedrock and Anthropic's Claude models.
 
 ![Demo app](./img/screenshot.png)
 
@@ -33,7 +33,7 @@ Enter your destination and travel duration, and the system will research attract
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/awslabs/multi-agent-orchestrator.git
+git clone https://github.com/awslabs/agent-squad.git
 cd examples/python
 python -m venv venv
 source venv/bin/activate # On Windows use `venv\Scripts\activate`
@@ -54,22 +54,22 @@ streamlit run main-app.py
 **Prerequisite**: AWS Account with Amazon Bedrock access (Claude models enabled)
 
 Transform your movie ideas into detailed scripts and cast lists! Our AI agents collaborate:
-- **ScriptWriter** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3 Sonnet): Creates compelling story outlines
-- **CastingDirector** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3 Haiku): Researches and suggests perfect casting choices
-- **MovieProducer** ([BedrockLLMAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent) with Claude 3.5 Sonnet): Coordinates the entire creative process
-- All coordinated by a  [**Custom Agent**](https://awslabs.github.io/multi-agent-orchestrator/agents/custom-agents)  as Supervisor Agent
+- **ScriptWriter** ([BedrockLLMAgent](https://awslabs.github.io/agent-squad/agents/built-in/bedrock-llm-agent) with Claude 3 Sonnet): Creates compelling story outlines
+- **CastingDirector** ([BedrockLLMAgent](https://awslabs.github.io/agent-squad/agents/built-in/bedrock-llm-agent) with Claude 3 Haiku): Researches and suggests perfect casting choices
+- **MovieProducer** ([BedrockLLMAgent](https://awslabs.github.io/agent-squad/agents/built-in/bedrock-llm-agent) with Claude 3.5 Sonnet): Coordinates the entire creative process
+- All coordinated by a  [**Custom Agent**](https://awslabs.github.io/agent-squad/agents/custom-agents)  as Supervisor Agent
 
 ### ✈️ AI Travel Planner
 **Prerequisite**: Anthropic API Key
 
 Your personal travel assistant powered by AI! Experience collaboration between:
-- **ResearcherAgent** ([AnthropicAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/anthropic-agent) with Claude 3 Haiku): Performs real-time destination research
-- **PlannerAgent** ([AnthropicAgent](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/anthropic-agent) with Claude 3 Sonnet): Creates personalized day-by-day itineraries
-- Coordinated by a [**Custom Agent**](https://awslabs.github.io/multi-agent-orchestrator/agents/custom-agents) as Supervisor Agent
+- **ResearcherAgent** ([AnthropicAgent](https://awslabs.github.io/agent-squad/agents/built-in/anthropic-agent) with Claude 3 Haiku): Performs real-time destination research
+- **PlannerAgent** ([AnthropicAgent](https://awslabs.github.io/agent-squad/agents/built-in/anthropic-agent) with Claude 3 Sonnet): Creates personalized day-by-day itineraries
+- Coordinated by a [**Custom Agent**](https://awslabs.github.io/agent-squad/agents/custom-agents) as Supervisor Agent
 
 ## 🛠️ Technologies Used
 - Streamlit for UI
-- AWS Multi-Agent Orchestrator for multi-agent collaboration
+- AWS Agent Squad for multi-agent collaboration
 - Amazon Bedrock for deploying Claude models
 - Anthropic's Claude models for AI reasoning
 - Python for backend scripting
@@ -77,7 +77,7 @@ Your personal travel assistant powered by AI! Experience collaboration between:
 ## 📚 Documentation
 
 
-Learn more about the AWS Multi-Agent Orchestrator framework, including its features and technical details, by visiting the official [documentation](https://awslabs.github.io/multi-agent-orchestrator/).
+Learn more about the AWS Agent Squad framework, including its features and technical details, by visiting the official [documentation](https://awslabs.github.io/agent-squad/).
 
 
 ## 🤝 Contributing

@@ -1,8 +1,8 @@
 import pytest
 from typing import Dict, List
 from unittest.mock import Mock, patch
-from multi_agent_orchestrator.types import ConversationMessage
-from multi_agent_orchestrator.agents import (
+from agent_squad.types import ConversationMessage
+from agent_squad.agents import (
     AgentProcessingResult,
     AgentResponse,
     AgentStreamResponse,
@@ -168,7 +168,7 @@ class TestAgent:
         """Test the log_debug method"""
 
         # Import the agent module to patch it directly
-        import multi_agent_orchestrator.utils.logger as logger
+        import agent_squad.utils.logger as logger
 
         # Enable debug tracing for the test
         mock_agent.log_debug_trace = True
