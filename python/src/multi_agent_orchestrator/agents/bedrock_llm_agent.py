@@ -188,7 +188,9 @@ class BedrockLLMAgent(Agent):
         llm_response = None
 
         while continue_with_tools and max_recursions > 0:
-            llm_response = await self.handle_single_response(command, agent_tracking_info)
+            llm_response = await self.handle_single_response(
+                command, agent_tracking_info
+            )
             conversation.append(llm_response)
 
             if any("toolUse" in content for content in llm_response.content):
@@ -247,7 +249,7 @@ class BedrockLLMAgent(Agent):
                 "agent_name": self.name,
                 "response": final_response,
                 "messages": conversation,
-                "agent_tracking_info": agent_tracking_info
+                "agent_tracking_info": agent_tracking_info,
             }
             await self.callbacks.on_agent_end(**kwargs)
 
@@ -276,7 +278,7 @@ class BedrockLLMAgent(Agent):
             "agent_name": self.name,
             "response": response,
             "messages": conversation,
-            "agent_tracking_info": agent_tracking_info
+            "agent_tracking_info": agent_tracking_info,
         }
 
         await self.callbacks.on_agent_end(**kwargs)
@@ -316,7 +318,7 @@ class BedrockLLMAgent(Agent):
         self,
         llm_response: ConversationMessage,
         conversation: list[ConversationMessage],
-        agent_tracking_info: dict[str, Any] | None = None
+        agent_tracking_info: dict[str, Any] | None = None,
     ) -> ConversationMessage:
         if "useToolHandler" in self.tool_config:
             # tool process logic is handled elsewhere
@@ -326,12 +328,15 @@ class BedrockLLMAgent(Agent):
         else:
             additional_params = {
                 "agent_name": self.name,
-                "agent_tracking_info": agent_tracking_info
+                "agent_tracking_info": agent_tracking_info,
             }
             # tool process logic is handled in AgentTools class
             if isinstance(self.tool_config["tool"], AgentTools):
                 tool_response = await self.tool_config["tool"].tool_handler(
-                    AgentProviderType.BEDROCK.value, llm_response, conversation, additional_params
+                    AgentProviderType.BEDROCK.value,
+                    llm_response,
+                    conversation,
+                    additional_params,
                 )
             else:
                 raise ValueError(
@@ -429,7 +434,7 @@ class BedrockLLMAgent(Agent):
                         # yield the text chunk
                         yield AgentStreamResponse(text=delta["text"])
                 elif "contentBlockStop" in chunk:
-                    if "input" in tool_use:
+                    if "input" in tool_use and tool_use.get("input"):
                         tool_use["input"] = json.loads(tool_use["input"])
                         content.append({"toolUse": tool_use})
                         tool_use = {}
