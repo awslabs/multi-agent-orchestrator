@@ -70,9 +70,11 @@ class OllamaAgent(Agent):
             request_options = {
                 "model": self.model_id,
                 "messages": messages,
-                "temperature": self.inference_config.get("temperature", 0.0),
-                "top_p": self.inference_config.get("top_p", 0.9),
-                "stop_sequences": self.inference_config.get("stop_sequences", []),
+                "options": {
+                    "temperature": self.inference_config.get("temperature", 0.0),
+                    "top_p": self.inference_config.get("top_p", 0.9),
+                    "stop": self.inference_config.get("stop", [])
+                },
                 "stream": self.streaming
             }
 

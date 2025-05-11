@@ -5,6 +5,7 @@ anthropic
 moto
 pytest-mock
 pytest-asyncio
+ollama
 openai
 libsql-client
 ruff>=0.11.4

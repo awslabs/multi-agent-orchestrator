@@ -64,7 +64,13 @@ class OllamaClassifier(Classifier):
             
             tool_call = response['message']['tool_calls'][0]
             function_args = tool_call.get('function', {}).get('arguments', "{}")
-            tool_input = json.loads(function_args)
+
+            if isinstance(function_args, str):
+                tool_input = json.loads(function_args)
+            elif isinstance(function_args, dict):
+                tool_input = function_args
+            else:
+                raise ValueError(f"Unexpected type for function arguments: {type(function_args)}")
 
             if not isinstance(tool_input, dict) or 'selected_agent' not in tool_input or 'confidence' not in tool_input:
                 raise ValueError("Invalid tool input structure")
