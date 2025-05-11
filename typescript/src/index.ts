@@ -29,11 +29,11 @@ export { SqlChatStorage } from './storage/sqlChatStorage';
 export { Logger } from './utils/logger';
 export { AgentToolCallbacks } from './utils/tool';
 
-export { MultiAgentOrchestrator } from "./orchestrator";
+export { AgentSquad } from "./orchestrator";
 export { AgentOverlapAnalyzer, AnalysisResult } from "./agentOverlapAnalyzer";
 
 export { ConversationMessage, ParticipantRole } from "./types"
-
+export { AgentTools, AgentTool} from "./utils/tool"
 export { isClassifierToolInput } from './utils/helpers'
 
 

@@ -1,13 +1,13 @@
 import { ConversationMessage } from "../types";
-import { OrchestratorConfig } from "../orchestrator";
+import { AgentSquadConfig } from "../orchestrator";
 import { ClassifierResult } from "../classifiers/classifier";
 
 
 export class Logger {
 
     static logger: any | Console = console;
-    private config: Partial<OrchestratorConfig>;
-  constructor(config: Partial<OrchestratorConfig>= {}, logger:any = console) {
+    private config: Partial<AgentSquadConfig>;
+  constructor(config: Partial<AgentSquadConfig>= {}, logger:any = console) {
     this.config = config;
     this.setLogger(logger);
   }
@@ -65,7 +65,7 @@ export class Logger {
 
     this.info('');
   }
-  
+
   logClassifierOutput(output: any, isRaw: boolean = false): void {
     if (isRaw && !this.config.LOG_CLASSIFIER_RAW_OUTPUT) return;
     if (!isRaw && !this.config.LOG_CLASSIFIER_OUTPUT) return;

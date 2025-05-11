@@ -9,7 +9,7 @@ import { Logger } from "./utils/logger";
 import { BedrockClassifier } from "./classifiers/bedrockClassifier";
 import { Classifier } from "./classifiers/classifier";
 
-export interface OrchestratorConfig {
+export interface AgentSquadConfig {
   /** If true, logs the chat interactions with the agent */
   LOG_AGENT_CHAT?: boolean;
 
@@ -87,7 +87,7 @@ export interface OrchestratorConfig {
   MAX_MESSAGE_PAIRS_PER_AGENT?: number;
 }
 
-export const DEFAULT_CONFIG: OrchestratorConfig = {
+export const DEFAULT_CONFIG: AgentSquadConfig = {
   /** Default: Do not log agent chat interactions */
   LOG_AGENT_CHAT: false,
 
@@ -148,7 +148,7 @@ export interface DispatchToAgentsParams {
  */
 export interface OrchestratorOptions {
   storage?: ChatStorage;
-  config?: Partial<OrchestratorConfig>;
+  config?: Partial<AgentSquadConfig>;
   logger?: any;
   classifier?: Classifier;
   defaultAgent?: Agent;
@@ -180,8 +180,8 @@ export interface RequestMetadata {
 }
 
 
-export class MultiAgentOrchestrator {
-  private config: OrchestratorConfig;
+export class AgentSquad {
+  private config: AgentSquadConfig;
   private storage: ChatStorage;
   private agents: { [key: string]: Agent };
   public classifier: Classifier;

@@ -175,7 +175,7 @@ export interface AgentOptions {
 }
 
 /**
- * Abstract base class for all agents in the Multi-Agent Orchestrator System.
+ * Abstract base class for all agents in the Agent Squad System.
  * This class defines the common structure and behavior for all agents.
  */
 export abstract class Agent {
