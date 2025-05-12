@@ -201,22 +201,24 @@ class ToolsCallbacks(AgentToolCallbacks):
     async def on_tool_end(
         self,
         tool_name,
+        input: Any,
         output: dict,
         run_id: Optional[UUID] = None,
         **kwargs: Any,
     ) -> Any:
         langfuse_context.update_current_observation(
+            input=input,
             name=tool_name,
             output=output
         )
 
 @observe(as_type='generation', name='classify_request')
-async def classify_request(_orchestrator: MultiAgentOrchestrator, _user_input:str, _user_id:str, _session_id:str) -> ClassifierResult:
+async def classify_request(_orchestrator: AgentSquad, _user_input:str, _user_id:str, _session_id:str) -> ClassifierResult:
     result:ClassifierResult = await _orchestrator.classify_request(_user_input, _user_id, _session_id)
     return result
 
 @observe(as_type='generation', name='agent_process_request')
-async def agent_process_request(_orchestrator: MultiAgentOrchestrator, user_input: str,
+async def agent_process_request(_orchestrator: AgentSquad, user_input: str,
                                user_id: str,
                                session_id: str,
                                classifier_result: ClassifierResult,
@@ -248,7 +250,7 @@ async def agent_process_request(_orchestrator: MultiAgentOrchestrator, user_inpu
 
 
 @observe(as_type='generation', name='handle_request')
-async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input:str, _user_id:str, _session_id:str) -> str:
+async def handle_request(_orchestrator: AgentSquad, _user_input:str, _user_id:str, _session_id:str) -> str:
 
     stream_response = True
     classification_result:ClassifierResult = await classify_request(_orchestrator, _user_input, _user_id, _session_id)
@@ -291,7 +293,7 @@ def run_main():
         callbacks=BedrockClassifierCallbacks()
     ))
     # Initialize the orchestrator with some options
-    orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
+    orchestrator = AgentSquad(options=AgentSquadConfig(
         LOG_AGENT_CHAT=True,
         LOG_CLASSIFIER_CHAT=True,
         LOG_CLASSIFIER_RAW_OUTPUT=True,
@@ -346,7 +348,7 @@ def run_main():
     user_inputs = []
     final_responses = []
 
-    print("Welcome to the interactive Multi-Agent system. Type 'quit' to exit.")
+    print("Welcome to the interactive Agent-Squad system. Type 'quit' to exit.")
 
     while True:
         # Get user input
