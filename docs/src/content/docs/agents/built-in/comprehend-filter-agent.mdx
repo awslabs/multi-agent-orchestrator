@@ -1,12 +1,12 @@
 ---
 title: Comprehend Filter Agent
-description: Documentation for the Comprehend Filter Agent in the Multi-Agent Orchestrator System
+description: Documentation for the Comprehend Filter Agent in the Agent Squad System
 ---
-The `ComprehendFilterAgent` is an agent class in the Multi-Agent Orchestrator System that uses [Amazon Comprehend](https://aws.amazon.com/comprehend/?nc1=h_ls) to analyze and filter content based on sentiment, Personally Identifiable Information (PII), and toxicity.
+The `ComprehendFilterAgent` is an agent class in the Agent Squad System that uses [Amazon Comprehend](https://aws.amazon.com/comprehend/?nc1=h_ls) to analyze and filter content based on sentiment, Personally Identifiable Information (PII), and toxicity.
 
-It can be used as a standalone agent within the Multi-Agent Orchestrator or as part of a chain in the ChainAgent. 
+It can be used as a standalone agent within the Agent Squad or as part of a chain in the ChainAgent.
 
-When used in a [ChainAgent](/multi-agent-orchestrator/agents/built-in/chain-agent) configuration, it's particularly effective as the first agent in the list. In this setup, it can check the user input against all configured filters, and if the content passes these checks, it will forward the original user input to the next agent in the chain. This allows for a robust content moderation system that can be seamlessly integrated into more complex processing pipelines, ensuring that only appropriate content is processed by subsequent agents.
+When used in a [ChainAgent](/agent-squad/agents/built-in/chain-agent) configuration, it's particularly effective as the first agent in the list. In this setup, it can check the user input against all configured filters, and if the content passes these checks, it will forward the original user input to the next agent in the chain. This allows for a robust content moderation system that can be seamlessly integrated into more complex processing pipelines, ensuring that only appropriate content is processed by subsequent agents.
 
 ## Key Features
 
@@ -23,7 +23,7 @@ When used in a [ChainAgent](/multi-agent-orchestrator/agents/built-in/chain-agen
 If you haven't already installed the AWS-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[aws]"
+pip install "agent-squad[aws]"
 ```
 
 ### Basic Example
@@ -35,7 +35,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { ComprehendFilterAgent, ComprehendFilterAgentOptions } from 'multi-agent-orchestrator';
+    import { ComprehendFilterAgent, ComprehendFilterAgentOptions } from 'agent-squad';
 
     const agent = new ComprehendFilterAgent({
       name: 'ContentModerator',
@@ -45,7 +45,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
+    from agent_squad.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
 
     agent = ComprehendFilterAgent(ComprehendFilterAgentOptions(
         name='ContentModerator',
@@ -62,7 +62,7 @@ For more complex use cases, you can create a `ComprehendFilterAgent` with custom
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { ComprehendFilterAgent, ComprehendFilterAgentOptions } from 'multi-agent-orchestrator';
+    import { ComprehendFilterAgent, ComprehendFilterAgentOptions } from 'agent-squad';
 
     const options: ComprehendFilterAgentOptions = {
       name: 'AdvancedContentModerator',
@@ -82,7 +82,7 @@ For more complex use cases, you can create a `ComprehendFilterAgent` with custom
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
+    from agent_squad.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
 
     options = ComprehendFilterAgentOptions(
         name='AdvancedContentModerator',
@@ -109,17 +109,17 @@ To integrate the `ComprehendFilterAgent` into your orchestrator:
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    import { AgentSquad } from "agent-squad";
 
-    const orchestrator = new MultiAgentOrchestrator();
+    const orchestrator = new AgentSquad();
     orchestrator.addAgent(agent);
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.orchestrator import AgentSquad
 
-    orchestrator = MultiAgentOrchestrator()
+    orchestrator = AgentSquad()
     orchestrator.add_agent(agent)
     ```
   </TabItem>
@@ -132,7 +132,7 @@ This example demonstrates how to add a **Custom Check** to the `ComprehendFilter
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { ComprehendFilterAgent, ComprehendFilterAgentOptions } from 'multi-agent-orchestrator';
+    import { ComprehendFilterAgent, ComprehendFilterAgentOptions } from 'agent-squad';
 
     const filterAgent = new ComprehendFilterAgent({
       name: 'AdvancedContentFilter',
@@ -150,7 +150,7 @@ This example demonstrates how to add a **Custom Check** to the `ComprehendFilter
       return null;
     });
 
-    const orchestrator = new MultiAgentOrchestrator();
+    const orchestrator = new AgentSquad();
     orchestrator.addAgent(filterAgent);
 
     const response = await orchestrator.routeRequest(
@@ -168,8 +168,8 @@ This example demonstrates how to add a **Custom Check** to the `ComprehendFilter
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
-    from multi_agent_orchestrator.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
+    from agent_squad.orchestrator import AgentSquad
+    from agent_squad.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
 
     filter_agent = ComprehendFilterAgent(ComprehendFilterAgentOptions(
         name='AdvancedContentFilter',
@@ -186,7 +186,7 @@ This example demonstrates how to add a **Custom Check** to the `ComprehendFilter
 
     filter_agent.add_custom_check(custom_keyword_check)
 
-    orchestrator = MultiAgentOrchestrator()
+    orchestrator = AgentSquad()
     orchestrator.add_agent(filter_agent)
 
     response = await orchestrator.route_request(
@@ -205,14 +205,14 @@ This example demonstrates how to add a **Custom Check** to the `ComprehendFilter
 
 ## Dynamic Language Detection and Handling
 
-The `ComprehendFilterAgent` offers flexible language handling capabilities. You can specify the language either at initialization or dynamically during invocation. Additionally, it supports automatic language detection, allowing it to adapt to content in various languages without manual specification. 
+The `ComprehendFilterAgent` offers flexible language handling capabilities. You can specify the language either at initialization or dynamically during invocation. Additionally, it supports automatic language detection, allowing it to adapt to content in various languages without manual specification.
 
 This example demonstrates dynamic language detection and handling:
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator, ComprehendFilterAgent } from 'multi-agent-orchestrator';
+    import { AgentSquad, ComprehendFilterAgent } from 'agent-squad';
     import { ComprehendClient, DetectDominantLanguageCommand } from "@aws-sdk/client-comprehend";
 
     const filterAgent = new ComprehendFilterAgent({
@@ -220,7 +220,7 @@ This example demonstrates dynamic language detection and handling:
       description: 'Filters content in multiple languages'
     });
 
-    const orchestrator = new MultiAgentOrchestrator();
+    const orchestrator = new AgentSquad();
     orchestrator.addAgent(filterAgent);
 
     async function detectLanguage(text: string): Promise<string> {
@@ -240,8 +240,8 @@ This example demonstrates dynamic language detection and handling:
 
       try {
         const response = await orchestrator.routeRequest(
-          userInput, 
-          userId, 
+          userInput,
+          userId,
           sessionId,
           { languageCode: detectedLanguage }
         );
@@ -260,8 +260,8 @@ This example demonstrates dynamic language detection and handling:
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
-    from multi_agent_orchestrator.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
+    from agent_squad.orchestrator import AgentSquad
+    from agent_squad.agents import ComprehendFilterAgent, ComprehendFilterAgentOptions
     import boto3
     import asyncio
 
@@ -270,7 +270,7 @@ This example demonstrates dynamic language detection and handling:
         description='Filters content in multiple languages'
     ))
 
-    orchestrator = MultiAgentOrchestrator()
+    orchestrator = AgentSquad()
     orchestrator.add_agent(filter_agent)
 
     def detect_language(text: str) -> str:
@@ -313,7 +313,7 @@ This example demonstrates how to use the `ComprehendFilterAgent` as part of a `C
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator, ChainAgent, ComprehendFilterAgent, BedrockLLMAgent } from 'multi-agent-orchestrator';
+    import { AgentSquad, ChainAgent, ComprehendFilterAgent, BedrockLLMAgent } from 'agent-squad';
 
     // Create a ComprehendFilterAgent
     const filterAgent = new ComprehendFilterAgent({
@@ -341,7 +341,7 @@ This example demonstrates how to use the `ComprehendFilterAgent` as part of a `C
     });
 
     // Add the chain agent to the orchestrator
-    const orchestrator = new MultiAgentOrchestrator();
+    const orchestrator = new AgentSquad();
     orchestrator.addAgent(chainAgent);
 
     // Use the chain
@@ -360,9 +360,9 @@ This example demonstrates how to use the `ComprehendFilterAgent` as part of a `C
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
-    from multi_agent_orchestrator.agents import ChainAgent, ComprehendFilterAgent, BedrockLLMAgent
-    from multi_agent_orchestrator.agents import ChainAgentOptions, ComprehendFilterAgentOptions, BedrockLLMAgentOptions
+    from agent_squad.orchestrator import AgentSquad
+    from agent_squad.agents import ChainAgent, ComprehendFilterAgent, BedrockLLMAgent
+    from agent_squad.agents import ChainAgentOptions, ComprehendFilterAgentOptions, BedrockLLMAgentOptions
 
     # Create a ComprehendFilterAgent
     filter_agent = ComprehendFilterAgent(ComprehendFilterAgentOptions(
@@ -390,7 +390,7 @@ This example demonstrates how to use the `ComprehendFilterAgent` as part of a `C
     ))
 
     # Add the chain agent to the orchestrator
-    orchestrator = MultiAgentOrchestrator()
+    orchestrator = AgentSquad()
     orchestrator.add_agent(chain_agent)
 
     # Use the chain
@@ -428,4 +428,4 @@ The `ComprehendFilterAgent` supports the following languages:
 
 ---
 
-By leveraging the `ComprehendFilterAgent`, you can implement robust content moderation in your Multi-Agent Orchestrator system, ensuring safe and appropriate interactions while leveraging the power of Amazon Comprehend for advanced content analysis.
+By leveraging the `ComprehendFilterAgent`, you can implement robust content moderation in your Agent Squad system, ensuring safe and appropriate interactions while leveraging the power of Amazon Comprehend for advanced content analysis.

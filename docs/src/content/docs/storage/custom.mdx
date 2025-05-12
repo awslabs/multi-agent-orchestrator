@@ -1,9 +1,9 @@
 ---
 title: Custom storage
-description: Extending the ChatStorage class to create custom storage options in the Multi-Agent Orchestrator System
+description: Extending the ChatStorage class to create custom storage options in the Agent Squad System
 ---
 
-The Multi-Agent Orchestrator System provides flexibility in how conversation data is stored through its abstract `ChatStorage` class. This guide will walk you through the process of creating a custom storage solution by extending this class.
+The Agent Squad System provides flexibility in how conversation data is stored through its abstract `ChatStorage` class. This guide will walk you through the process of creating a custom storage solution by extending this class.
 
 ## Understanding the ChatStorage Abstract Class
 
@@ -56,7 +56,7 @@ import { Tabs, TabItem} from '@astrojs/starlight/components';
     ```python
     from abc import ABC, abstractmethod
     from typing import List, Optional
-    from multi_agent_orchestrator.types import ConversationMessage
+    from agent_squad.types import ConversationMessage
 
     class ChatStorage(ABC):
         def is_consecutive_message(self, conversation: List[ConversationMessage], new_message: ConversationMessage) -> bool:
@@ -130,7 +130,7 @@ To create a custom storage solution, follow these steps:
 
 ```text
 ASSISTANT: [agent-a] Response from agent A
-USER: Some user input  
+USER: Some user input
 ASSISTANT: [agent-b] Response from agent B
 ```
 <hr/>
@@ -141,7 +141,7 @@ Here's an example of a simple custom storage solution using an in-memory diction
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { ChatStorage, ConversationMessage } from 'multi-agent-orchestrator';
+    import { ChatStorage, ConversationMessage } from 'agent-squad';
 
     class SimpleInMemoryStorage extends ChatStorage {
     private storage: { [key: string]: ConversationMessage[] } = {};
@@ -157,11 +157,11 @@ Here's an example of a simple custom storage solution using an in-memory diction
       if (!this.storage[key]) {
         this.storage[key] = [];
       }
-      
+
       if (!this.isConsecutiveMessage(this.storage[key], newMessage)) {
         this.storage[key].push(newMessage);
       }
-      
+
       this.storage[key] = this.trimConversation(this.storage[key], maxHistorySize);
       return this.storage[key];
     }
@@ -206,8 +206,8 @@ Here's an example of a simple custom storage solution using an in-memory diction
   <TabItem label="Python" icon="seti:python">
     ```python
     from typing import List, Optional, Dict
-    from multi_agent_orchestrator.storage import ChatStorage
-    from multi_agent_orchestrator.types import ConversationMessage
+    from agent_squad.storage import ChatStorage
+    from agent_squad.types import ConversationMessage
 
     class SimpleInMemoryStorage(ChatStorage):
     def __init__(self):
@@ -224,10 +224,10 @@ Here's an example of a simple custom storage solution using an in-memory diction
         key = f"{user_id}:{session_id}:{agent_id}"
         if key not in self.storage:
             self.storage[key] = []
-        
+
         if not self.is_consecutive_message(self.storage[key], new_message):
             self.storage[key].append(new_message)
-        
+
         self.storage[key] = self.trim_conversation(self.storage[key], max_history_size)
         return self.storage[key]
 
@@ -270,24 +270,24 @@ Here's an example of a simple custom storage solution using an in-memory diction
 
 ## Using Your Custom Storage
 
-To use your custom storage with the Multi-Agent Orchestrator:
+To use your custom storage with the Agent Squad:
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
     const customStorage = new SimpleInMemoryStorage();
-    const orchestrator = new MultiAgentOrchestrator({
+    const orchestrator = new AgentSquad({
       storage: customStorage
     });
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.orchestrator import AgentSquad
     from your_custom_storage_module import SimpleInMemoryStorage
 
     custom_storage = SimpleInMemoryStorage()
-    orchestrator = MultiAgentOrchestrator(storage=custom_storage)
+    orchestrator = AgentSquad(storage=custom_storage)
     ```
   </TabItem>
 </Tabs>

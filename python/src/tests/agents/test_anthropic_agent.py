@@ -1,17 +1,17 @@
 import pytest
 from unittest.mock import patch, MagicMock, AsyncMock, call
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
-from multi_agent_orchestrator.agents import AnthropicAgent, AnthropicAgentOptions
-from multi_agent_orchestrator.utils import Logger, AgentTools, AgentTool
-from multi_agent_orchestrator.retrievers import Retriever
+from agent_squad.types import ConversationMessage, ParticipantRole
+from agent_squad.agents import AnthropicAgent, AnthropicAgentOptions
+from agent_squad.utils import Logger, AgentTools, AgentTool
+from agent_squad.retrievers import Retriever
 from anthropic import Anthropic, AsyncAnthropic
-from multi_agent_orchestrator.types import AgentProviderType
+from agent_squad.types import AgentProviderType
 
 logger = Logger()
 
 @pytest.fixture
 def mock_anthropic():
-    with patch('multi_agent_orchestrator.agents.anthropic_agent.AnthropicAgentOptions.client') as mock:
+    with patch('agent_squad.agents.anthropic_agent.AnthropicAgentOptions.client') as mock:
         yield mock
 
 # Existing tests

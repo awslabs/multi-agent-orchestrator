@@ -4,9 +4,9 @@ title: Quickstart
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 
-# Quickstart Guide for Multi-Agent Orchestrator
+# Quickstart Guide for Agent Squad
 
-To help you kickstart with the Multi-Agent Orchestrator framework, we'll walk you through the step-by-step process of setting up and running your first multi-agent conversation.
+To help you kickstart with the Agent Squad framework, we'll walk you through the step-by-step process of setting up and running your first multi-agent conversation.
 
 <br/>
 
@@ -19,16 +19,16 @@ To help you kickstart with the Multi-Agent Orchestrator framework, we'll walk yo
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```bash
-    mkdir test_multi_agent_orchestrator
-    cd test_multi_agent_orchestrator
+    mkdir test_agent_squad
+    cd test_agent_squad
     npm init
     ```
     Follow the steps to generate a `package.json` file.
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```bash
-    mkdir test_multi_agent_orchestrator
-    cd test_multi_agent_orchestrator
+    mkdir test_agent_squad
+    cd test_agent_squad
     # Optional: Set up a virtual environment
     python -m venv venv
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
@@ -55,8 +55,8 @@ aws sts get-caller-identity
 If successful, this command will return your AWS account ID, user ID, and ARN.
 
 By default, the framework is configured as follows:
-  - Classifier: Uses the **[Bedrock Classifier](/multi-agent-orchestrator/classifiers/built-in/bedrock-classifier/)** implementation with `anthropic.claude-3-5-sonnet-20240620-v1:0`
-  - Agent: Utilizes the **[Bedrock LLM Agent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent)** with `anthropic.claude-3-haiku-20240307-v1:0`
+  - Classifier: Uses the **[Bedrock Classifier](/agent-squad/classifiers/built-in/bedrock-classifier/)** implementation with `anthropic.claude-3-5-sonnet-20240620-v1:0`
+  - Agent: Utilizes the **[Bedrock LLM Agent](/agent-squad/agents/built-in/bedrock-llm-agent)** with `anthropic.claude-3-haiku-20240307-v1:0`
 
 <br/>
 
@@ -76,24 +76,24 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
 <br/>
 
 > **To customize the model selection**:
->   - For the classifier, refer to [our guide](/multi-agent-orchestrator/classifiers/overview) on configuring the classifier.
->   - For the agent, refer to our guide on configuring [agents](/multi-agent-orchestrator/agents/overview).
+>   - For the classifier, refer to [our guide](/agent-squad/classifiers/overview) on configuring the classifier.
+>   - For the agent, refer to our guide on configuring [agents](/agent-squad/agents/overview).
 
 ## 🚀 Get Started!
 
-1. Install the Multi-Agent Orchestrator framework in your project:
+1. Install the Agent Squad framework in your project:
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```bash
-    npm install multi-agent-orchestrator
+    npm install agent-squad
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```bash
-    pip install "multi-agent-orchestrator[anthropic]" # for Anthropic classifier and agent
-    pip install "multi-agent-orchestrator[openai]" # for OpenAI classifier and agent
-    pip install "multi-agent-orchestrator[all]" # for all packages including Anthropic and OpenAI
+    pip install "agent-squad[anthropic]" # for Anthropic classifier and agent
+    pip install "agent-squad[openai]" # for OpenAI classifier and agent
+    pip install "agent-squad[all]" # for all packages including Anthropic and OpenAI
     ```
   </TabItem>
 </Tabs>
@@ -114,8 +114,8 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
-    const orchestrator = new MultiAgentOrchestrator({
+    import { AgentSquad } from "agent-squad";
+    const orchestrator = new AgentSquad({
       config: {
         LOG_AGENT_CHAT: true,
         LOG_CLASSIFIER_CHAT: true,
@@ -133,14 +133,14 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
     from typing import Optional, List, Dict, Any
     import json
     import sys
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-    from multi_agent_orchestrator.agents import (BedrockLLMAgent,
+    from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
+    from agent_squad.agents import (BedrockLLMAgent,
      BedrockLLMAgentOptions,
      AgentResponse,
      AgentCallbacks)
-    from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+    from agent_squad.types import ConversationMessage, ParticipantRole
 
-    orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
+    orchestrator = AgentSquad(options=AgentSquadConfig(
       LOG_AGENT_CHAT=True,
       LOG_CLASSIFIER_CHAT=True,
       LOG_CLASSIFIER_RAW_OUTPUT=True,
@@ -159,7 +159,7 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { BedrockLLMAgent } from "multi-agent-orchestrator";
+    import { BedrockLLMAgent } from "agent-squad";
     orchestrator.addAgent(
       new BedrockLLMAgent({
         name: "Tech Agent",
@@ -247,7 +247,7 @@ Ensure you have [requested access](https://docs.aws.amazon.com/bedrock/latest/us
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input: str, _user_id: str, _session_id: str):
+    async def handle_request(_orchestrator: AgentSquad, _user_input: str, _user_id: str, _session_id: str):
         response: AgentResponse = await _orchestrator.route_request(_user_input, _user_id, _session_id)
         # Print metadata
         print("\nMetadata:")
@@ -289,17 +289,17 @@ Now, let's run the quickstart script:
 </Tabs>
 
 Congratulations! 🎉
-You've successfully set up and run your first multi-agent conversation using the Multi-Agent Orchestrator System.
+You've successfully set up and run your first multi-agent conversation using the Agent Squad System.
 
 ## 👨‍💻 Next Steps
 
 Now that you've seen the basic functionality, here are some next steps to explore:
 
-1. Try adding other agents from those built-in in the framework ([Bedrock LLM Agent](/multi-agent-orchestrator/agents/built-in/bedrock-llm-agent), [Amazon Lex Bot](/multi-agent-orchestrator/agents/built-in/lex-bot-agent), [Amazon Bedrock Agent](/multi-agent-orchestrator/agents/built-in/amazon-bedrock-agent), [Lambda Agent](/multi-agent-orchestrator/agents/built-in/lambda-agent), [OpenAI Agent](/multi-agent-orchestrator/agents/built-in/openai-agent)).
-2. Experiment with different storage options, such as [Amazon DynamoDB](/multi-agent-orchestrator/storage/dynamodb) for persistent storage.
-3. Explore the [Agent Overlap Analysis](/multi-agent-orchestrator/cookbook/monitoring/agent-overlap/) feature to optimize your agent configurations.
-4. Integrate the system into a web application or deploy it as an [AWS Lambda function](/multi-agent-orchestrator/deployment/aws-lambda).
-5. Try adding your own [custom agents](/multi-agent-orchestrator/agents/custom-agents) by extending the `Agent` class.
+1. Try adding other agents from those built-in in the framework ([Bedrock LLM Agent](/agent-squad/agents/built-in/bedrock-llm-agent), [Amazon Lex Bot](/agent-squad/agents/built-in/lex-bot-agent), [Amazon Bedrock Agent](/agent-squad/agents/built-in/amazon-bedrock-agent), [Lambda Agent](/agent-squad/agents/built-in/lambda-agent), [OpenAI Agent](/agent-squad/agents/built-in/openai-agent)).
+2. Experiment with different storage options, such as [Amazon DynamoDB](/agent-squad/storage/dynamodb) for persistent storage.
+3. Explore the [Agent Overlap Analysis](/agent-squad/cookbook/monitoring/agent-overlap/) feature to optimize your agent configurations.
+4. Integrate the system into a web application or deploy it as an [AWS Lambda function](/agent-squad/deployment/aws-lambda).
+5. Try adding your own [custom agents](/agent-squad/agents/custom-agents) by extending the `Agent` class.
 
 For more detailed information on these advanced features, check out our full documentation.
 

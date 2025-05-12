@@ -3,7 +3,7 @@ title: Anthropic Classifier
 description: How to configure the Anthropic classifier
 ---
 
-The Anthropic Classifier is an alternative classifier for the Multi-Agent Orchestrator that leverages Anthropic's AI models for intent classification. It provides powerful classification capabilities using Anthropic's state-of-the-art language models.
+The Anthropic Classifier is an alternative classifier for the Agent Squad that leverages Anthropic's AI models for intent classification. It provides powerful classification capabilities using Anthropic's state-of-the-art language models.
 
 The Anthropic Classifier extends the abstract `Classifier` class and uses the Anthropic API client to process requests and classify user intents.
 
@@ -26,38 +26,38 @@ ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20240620"
 If you haven't already installed the Anthropic-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[anthropic]"
+pip install "agent-squad[anthropic]"
 ```
 
 ### Basic Usage
 
-To use the AnthropicClassifier, you need to create an instance with your Anthropic API key and pass it to the Multi-Agent Orchestrator:
+To use the AnthropicClassifier, you need to create an instance with your Anthropic API key and pass it to the Agent Squad:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { AnthropicClassifier } from "multi-agent-orchestrator";
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    import { AnthropicClassifier } from "agent-squad";
+    import { AgentSquad } from "agent-squad";
 
     const anthropicClassifier = new AnthropicClassifier({
       apiKey: 'your-anthropic-api-key'
     });
 
-    const orchestrator = new MultiAgentOrchestrator({ classifier: anthropicClassifier });
+    const orchestrator = new AgentSquad({ classifier: anthropicClassifier });
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.classifiers import AnthropicClassifier, AnthropicClassifierOptions
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.classifiers import AnthropicClassifier, AnthropicClassifierOptions
+    from agent_squad.orchestrator import AgentSquad
 
     anthropic_classifier = AnthropicClassifier(AnthropicClassifierOptions(
         api_key='your-anthropic-api-key'
     ))
 
-    orchestrator = MultiAgentOrchestrator(classifier=anthropic_classifier)
+    orchestrator = AgentSquad(classifier=anthropic_classifier)
     ```
   </TabItem>
 </Tabs>
@@ -144,8 +144,8 @@ user: Yes please
 Here, the history shows the conversation moving between `billing-agent` and `tech-support-agent` as the topic shifts between billing and technical issues.
 
 
-The agent prefixing (e.g., `[agent-name]`) is automatically handled by the Multi-Agent Orchestrator when formatting the conversation history. This helps the classifier understand:
-- Which agent handled each part of the conversation 
+The agent prefixing (e.g., `[agent-name]`) is automatically handled by the Agent Squad when formatting the conversation history. This helps the classifier understand:
+- Which agent handled each part of the conversation
 - The context of previous interactions
 - When agent transitions occurred
 - How to maintain continuity for follow-up responses
@@ -198,20 +198,20 @@ You can override the default system prompt while maintaining the required agent 
     ```typescript
     orchestrator.classifier.setSystemPrompt(
       `You are a specialized routing expert with deep knowledge of {{INDUSTRY}} operations.
-      
+
       Your available agents are:
       <agents>
       {{AGENT_DESCRIPTIONS}}
       </agents>
-      
+
       Consider these key factors for {{INDUSTRY}} when routing:
       {{INDUSTRY_RULES}}
-      
+
       Recent conversation context:
       <history>
       {{HISTORY}}
       </history>
-      
+
       Route based on industry best practices and conversation history.`,
       {
         INDUSTRY: "healthcare",
@@ -229,20 +229,20 @@ You can override the default system prompt while maintaining the required agent 
     ```python
     orchestrator.classifier.set_system_prompt(
         """You are a specialized routing expert with deep knowledge of {{INDUSTRY}} operations.
-        
+
         Your available agents are:
         <agents>
         {{AGENT_DESCRIPTIONS}}
         </agents>
-        
+
         Consider these key factors for {{INDUSTRY}} when routing:
         {{INDUSTRY_RULES}}
-        
+
         Recent conversation context:
         <history>
         {{HISTORY}}
         </history>
-        
+
         Route based on industry best practices and conversation history.""",
         {
             "INDUSTRY": "healthcare",
@@ -289,4 +289,4 @@ The AnthropicClassifier accepts the following configuration options:
 - Subject to Anthropic's API pricing and rate limits
 - Classification quality depends on the quality of agent descriptions and system prompt
 
-For more information, see the [Classifier Overview](/multi-agent-orchestrator/classifier/overview) and [Agents](/multi-agent-orchestrator/agents/overview) documentation.
+For more information, see the [Classifier Overview](/agent-squad/classifier/overview) and [Agents](/agent-squad/agents/overview) documentation.

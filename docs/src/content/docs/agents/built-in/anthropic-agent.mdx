@@ -1,10 +1,10 @@
 ---
 title: Anthropic Agent
-description: Documentation for the AnthropicAgent in the Multi-Agent Orchestrator
+description: Documentation for the AnthropicAgent in the Agent Squad
 ---
 ## Overview
 
-The `AnthropicAgent` is a powerful and flexible agent class in the Multi-Agent Orchestrator System.
+The `AnthropicAgent` is a powerful and flexible agent class in the Agent Squad System.
 It leverages the [Anthropic API](https://docs.anthropic.com/en/api/getting-started) to interact with various Large Language Models (LLMs) provided by Anthropic, such as Claude.
 This agent can handle a wide range of processing tasks, making it suitable for diverse applications such as conversational AI, question-answering systems, and more.
 
@@ -27,7 +27,7 @@ Here are various examples showing different ways to create and configure an Anth
 If you haven't already installed the Anthropic-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[anthropic]"
+pip install "agent-squad[anthropic]"
 ```
 
 ### Basic Examples
@@ -344,7 +344,7 @@ agent = AnthropicAgent(AnthropicAgentOptions(
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
-import { AnthropicAgent } from 'multi-agent-orchestrator';
+import { AnthropicAgent } from 'agent-squad';
 
 const agent = new AnthropicAgent({
   // Required fields
@@ -426,8 +426,8 @@ const agent = new AnthropicAgent({
 
 ```python
 
-from multi_agent_orchestrator import AnthropicAgent, AnthropicAgentOptions
-from multi_agent_orchestrator.types import ParticipantRole
+from agent_squad import AnthropicAgent, AnthropicAgentOptions
+from agent_squad.types import ParticipantRole
 agent = AnthropicAgent(AnthropicAgentOptions(
 # Required fields
 name='Advanced Anthropic Assistant',
@@ -512,7 +512,7 @@ custom_system_prompt={
 - `streaming`: Enables streaming responses for real-time output.
 - `inferenceConfig`: Fine-tunes the model's output characteristics.
 - `retriever`: Integrates a retrieval system for enhanced context.
-- `toolConfig`: Defines tools the agent can use and how to handle their responses ([See AgentTools for Agents for seamless tool definition](/multi-agent-orchestrator/agents/tools))
+- `toolConfig`: Defines tools the agent can use and how to handle their responses ([See AgentTools for Agents for seamless tool definition](/agent-squad/agents/tools))
 
 ## Setting a New Prompt
 
@@ -560,16 +560,16 @@ To integrate the **Anthropic Agent** into your orchestrator, follow these steps:
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    import { AgentSquad } from "agent-squad";
 
-    const orchestrator = new MultiAgentOrchestrator();
+    const orchestrator = new AgentSquad();
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.orchestrator import AgentSquad
 
-    orchestrator = MultiAgentOrchestrator()
+    orchestrator = AgentSquad()
     ```
   </TabItem>
 </Tabs>

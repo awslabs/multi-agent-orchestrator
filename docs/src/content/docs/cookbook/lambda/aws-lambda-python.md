@@ -1,9 +1,9 @@
 ---
-title: AWS Lambda Python with Multi-Agent Orchestrator
-description: How to set up the Multi-Agent Orchestrator System for AWS Lambda using Python
+title: AWS Lambda Python with Agent Squad
+description: How to set up the Agent Squad System for AWS Lambda using Python
 ---
 
-The Multi-Agent Orchestrator framework can be used inside an AWS Lambda function like any other library. This guide outlines the process of setting up the Multi-Agent Orchestrator System for use with AWS Lambda using Python.
+The Agent Squad framework can be used inside an AWS Lambda function like any other library. This guide outlines the process of setting up the Agent Squad System for use with AWS Lambda using Python.
 
 ## Prerequisites
 
@@ -26,10 +26,10 @@ The Multi-Agent Orchestrator framework can be used inside an AWS Lambda function
    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
    ```
 
-3. **Install the Multi-Agent Orchestrator Framework**
+3. **Install the Agent Squad framework**
 
    ```bash
-   pip install multi-agent-orchestrator boto3
+   pip install agent-squad boto3
    ```
 
 4. **Create Requirements File**
@@ -46,12 +46,12 @@ Create a new file named `lambda_function.py` in your project directory. Here's a
 import json
 import asyncio
 from typing import Dict, Any
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentResponse
-from multi_agent_orchestrator.types import ConversationMessage
+from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
+from agent_squad.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentResponse
+from agent_squad.types import ConversationMessage
 
 # Initialize orchestrator
-orchestrator = MultiAgentOrchestrator(OrchestratorConfig(
+orchestrator = AgentSquad(AgentSquadConfig(
     # Configuration options
 ))
 

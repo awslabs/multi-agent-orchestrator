@@ -1,10 +1,10 @@
 ---
 title: Multi-lingual Routing Pattern
-description: Multi-lingual Routing Pattern  using the Multi-Agent Orchestrator framework
+description: Multi-lingual Routing Pattern  using the Agent Squad framework
 ---
 
 
-By integrating language-specific agents, the Multi-Agent Orchestrator can provide multi-lingual support, enabling users to interact with the system in their preferred language while maintaining consistent experiences.
+By integrating language-specific agents, the Agent Squad can provide multi-lingual support, enabling users to interact with the system in their preferred language while maintaining consistent experiences.
 
 ## Key Components
 

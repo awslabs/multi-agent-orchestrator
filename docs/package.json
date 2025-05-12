@@ -1,6 +1,6 @@
 {
-  "name": "@multi-agent-orchestrator/docs",
-  "description": "The official documentation for Multi Agent Orchestration",
+  "name": "@agent-squad/docs",
+  "description": "The official documentation for Agent Squad",
   "type": "module",
   "version": "0.7.0",
   "private": true,
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/awslabs/multi-agent-orchestrator"
+    "url": "git://github.com/awslabs/agent-squad"
   },
   "license": "Apache-2.0",
   "dependencies": {

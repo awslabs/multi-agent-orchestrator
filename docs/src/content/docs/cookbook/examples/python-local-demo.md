@@ -1,6 +1,6 @@
 ---
 title: Python Local Demo
-description: How to run the Multi-Agent Orchestrator System locally using Python
+description: How to run the Agent Squad System locally using Python
 ---
 
 
@@ -13,15 +13,15 @@ description: How to run the Multi-Agent Orchestrator System locally using Python
 
 1. Create a new project:
 ```bash
-mkdir test_multi_agent_orchestrator
-cd test_multi_agent_orchestrator
+mkdir test_agent_squad
+cd test_agent_squad
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 ```
 
 2. Install dependencies:
 ```bash
-pip install multi-agent-orchestrator
+pip install agent-squad
 ```
 
 ## Implementation
@@ -30,14 +30,14 @@ pip install multi-agent-orchestrator
 
 2. Initialize the orchestrator:
 ```python
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator, OrchestratorConfig
-from multi_agent_orchestrator.agents import (BedrockLLMAgent,
+from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
+from agent_squad.agents import (BedrockLLMAgent,
  BedrockLLMAgentOptions,
  AgentResponse,
  AgentCallbacks)
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+from agent_squad.types import ConversationMessage, ParticipantRole
 
-orchestrator = MultiAgentOrchestrator(options=OrchestratorConfig(
+orchestrator = AgentSquad(options=AgentSquadConfig(
   LOG_AGENT_CHAT=True,
   LOG_CLASSIFIER_CHAT=True,
   LOG_CLASSIFIER_RAW_OUTPUT=True,
@@ -70,7 +70,7 @@ orchestrator.add_agent(tech_agent)
 
 4. Implement the main logic:
 ```python
-async def handle_request(_orchestrator: MultiAgentOrchestrator, _user_input: str, _user_id: str, _session_id: str):
+async def handle_request(_orchestrator: AgentSquad, _user_input: str, _user_id: str, _session_id: str):
     response: AgentResponse = await _orchestrator.route_request(_user_input, _user_id, _session_id)
     print("\nMetadata:")
     print(f"Selected Agent: {response.metadata.agent_name}")
@@ -109,4 +109,4 @@ python quickstart.py
 - Add error handling and retry logic
 
 
-Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/python-demo) in our GitHub repository.
+Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/agent-squad/tree/main/examples/python-demo) in our GitHub repository.

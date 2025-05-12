@@ -1,8 +1,8 @@
 ---
 title: Chain Agent
-description: Documentation for the Chain Agent in the Multi-Agent Orchestrator System
+description: Documentation for the Chain Agent in the Agent Squad System
 ---
-The `ChainAgent` is an agent class in the Multi-Agent Orchestrator System that allows for the sequential execution of multiple agents. It processes a request by passing the output of one agent as input to the next, creating a chain of agent interactions.
+The `ChainAgent` is an agent class in the Agent Squad System that allows for the sequential execution of multiple agents. It processes a request by passing the output of one agent as input to the next, creating a chain of agent interactions.
 
 ## Creating a ChainAgent
 
@@ -13,7 +13,7 @@ The `ChainAgent` is an agent class in the Multi-Agent Orchestrator System that a
 If you haven't already installed the AWS-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[aws]"
+pip install "agent-squad[aws]"
 ```
 
 Here's how to create a ChainAgent with only the required parameters:
@@ -23,8 +23,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { ChainAgent, ChainAgentOptions } from 'multi-agent-orchestrator';
-    import { BedrockLLMAgent } from 'multi-agent-orchestrator';
+    import { ChainAgent, ChainAgentOptions } from 'agent-squad';
+    import { BedrockLLMAgent } from 'agent-squad';
 
     const agent1 = new BedrockLLMAgent({
       name: 'Agent 1',
@@ -45,8 +45,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.agents import ChainAgent, ChainAgentOptions
-    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+    from agent_squad.agents import ChainAgent, ChainAgentOptions
+    from agent_squad.agents import BedrockLLMAgent, BedrockLLMAgentOptions
 
     agent1 = BedrockLLMAgent(BedrockLLMAgentOptions(
         name='Agent 1',
@@ -74,8 +74,8 @@ This example shows how to create a ChainAgent with a custom default output:
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { ChainAgent, ChainAgentOptions } from 'multi-agent-orchestrator';
-    import { BedrockLLMAgent } from 'multi-agent-orchestrator';
+    import { ChainAgent, ChainAgentOptions } from 'agent-squad';
+    import { BedrockLLMAgent } from 'agent-squad';
 
     const agent1 = new BedrockLLMAgent({
       name: 'Agent 1',
@@ -98,8 +98,8 @@ This example shows how to create a ChainAgent with a custom default output:
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.agents import ChainAgent, ChainAgentOptions
-    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+    from agent_squad.agents import ChainAgent, ChainAgentOptions
+    from agent_squad.agents import BedrockLLMAgent, BedrockLLMAgentOptions
 
     agent1 = BedrockLLMAgent(BedrockLLMAgentOptions(
         name='Agent 1',
@@ -128,8 +128,8 @@ For more complex use cases, you can create a ChainAgent with all available optio
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { ChainAgent, ChainAgentOptions } from 'multi-agent-orchestrator';
-    import { BedrockLLMAgent } from 'multi-agent-orchestrator';
+    import { ChainAgent, ChainAgentOptions } from 'agent-squad';
+    import { BedrockLLMAgent } from 'agent-squad';
 
     const agent1 = new BedrockLLMAgent({
       name: 'Agent 1',
@@ -155,8 +155,8 @@ For more complex use cases, you can create a ChainAgent with all available optio
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.agents import ChainAgent, ChainAgentOptions
-    from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions
+    from agent_squad.agents import ChainAgent, ChainAgentOptions
+    from agent_squad.agents import BedrockLLMAgent, BedrockLLMAgentOptions
 
     agent1 = BedrockLLMAgent(BedrockLLMAgentOptions(
         name='Agent 1',
@@ -182,24 +182,24 @@ For more complex use cases, you can create a ChainAgent with all available optio
   </TabItem>
 </Tabs>
 
-## Integrating ChainAgent into the Multi-Agent Orchestrator
+## Integrating ChainAgent into the Agent Squad
 
-To integrate the ChainAgent into your Multi-Agent Orchestrator:
+To integrate the ChainAgent into your Agent Squad:
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    import { AgentSquad } from "agent-squad";
 
-    const orchestrator = new MultiAgentOrchestrator();
+    const orchestrator = new AgentSquad();
     orchestrator.addAgent(chainAgent);
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.orchestrator import AgentSquad
 
-    orchestrator = MultiAgentOrchestrator()
+    orchestrator = AgentSquad()
     orchestrator.add_agent(chain_agent)
     ```
   </TabItem>
@@ -213,4 +213,4 @@ This design ensures efficient processing through the chain while still enabling 
 
 ---
 
-By leveraging the ChainAgent, you can create sophisticated, multi-step processing pipelines within your Multi-Agent Orchestrator system, allowing for complex interactions and transformations of user inputs, with the added flexibility of streaming output from the final processing step.
+By leveraging the ChainAgent, you can create sophisticated, multi-step processing pipelines within your Agent Squad system, allowing for complex interactions and transformations of user inputs, with the added flexibility of streaming output from the final processing step.

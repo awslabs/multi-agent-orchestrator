@@ -1,9 +1,9 @@
 ---
 title: AmazonBedrockAgent
-description: Documentation for the AmazonBedrockAgent in the Multi-Agent Orchestrator
+description: Documentation for the AmazonBedrockAgent in the Agent Squad
 ---
 
-The `AmazonBedrockAgent` is a specialized agent class in the Multi-Agent Orchestrator that integrates directly with [Amazon Bedrock agents](https://aws.amazon.com/bedrock/agents/?nc1=h_ls).
+The `AmazonBedrockAgent` is a specialized agent class in the Agent Squad that integrates directly with [Amazon Bedrock agents](https://aws.amazon.com/bedrock/agents/?nc1=h_ls).
 
 ## Creating an AmazonBedrockAgent
 
@@ -14,7 +14,7 @@ Here are various examples showing different ways to create and configure an Amaz
 If you haven't already installed the AWS-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[aws]"
+pip install "agent-squad[aws]"
 ```
 
 ### Basic Examples
@@ -144,7 +144,7 @@ agent = AmazonBedrockAgent(AmazonBedrockAgentOptions(
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
-import { AmazonBedrockAgent } from "multi-agent-orchestrator";
+import { AmazonBedrockAgent } from "agent-squad";
 import { BedrockAgentRuntimeClient } from "@aws-sdk/client-bedrock-agent-runtime";
 const agent = new AmazonBedrockAgent({
   // Required fields
@@ -164,7 +164,7 @@ const agent = new AmazonBedrockAgent({
   <TabItem label="Python" icon="seti:python">
 ```python
 import boto3
-from multi_agent_orchestrator.agents import AmazonBedrockAgent, AmazonBedrockAgentOptions
+from agent_squad.agents import AmazonBedrockAgent, AmazonBedrockAgentOptions
 
 custom_client = boto3.client('bedrock-agent-runtime', region_name='us-west-2')
 
@@ -174,7 +174,7 @@ agent = AmazonBedrockAgent(AmazonBedrockAgentOptions(
     description='A fully configured banking agent with all features enabled',
     agent_id='your-agent-id',
     agent_alias_id='your-agent-alias-id',
-    
+
     # Optional fields
     region='us-west-2',
     streaming=True,
@@ -201,23 +201,23 @@ agent = AmazonBedrockAgent(AmazonBedrockAgentOptions(
 
 ## Adding the Agent to the Orchestrator
 
-To integrate the AmazonBedrockAgent into your Multi-Agent Orchestrator, follow these steps:
+To integrate the AmazonBedrockAgent into your Agent Squad, follow these steps:
 
 1. First, ensure you have created an instance of the orchestrator:
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+    import { AgentSquad } from "agent-squad";
 
-    const orchestrator = new MultiAgentOrchestrator();
+    const orchestrator = new AgentSquad();
     ```
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+    from agent_squad.orchestrator import AgentSquad
 
-    orchestrator = MultiAgentOrchestrator()
+    orchestrator = AgentSquad()
     ```
   </TabItem>
 </Tabs>
@@ -263,4 +263,4 @@ To integrate the AmazonBedrockAgent into your Multi-Agent Orchestrator, follow t
 
 ---
 
-By leveraging the `AmazonBedrockAgent`, you can easily integrate **pre-built Amazon Bedrock agents** into your Multi-Agent Orchestrator.
+By leveraging the `AmazonBedrockAgent`, you can easily integrate **pre-built Amazon Bedrock agents** into your Agent Squad.

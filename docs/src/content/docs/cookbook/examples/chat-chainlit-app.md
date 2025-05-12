@@ -1,9 +1,9 @@
 ---
-title: Chat Chainlit App with Multi-Agent Orchestrator
-description: How to set up a Chainlit App using Multi-Agent Orchestrator
+title: Chat Chainlit App with Agent Squad
+description: How to set up a Chainlit App using Agent Squad
 ---
 
-This example demonstrates how to build a chat application using Chainlit and the Multi-Agent Orchestrator. It showcases a system with three specialized agents (Tech, Travel, and Health) working together through a streaming-enabled chat interface.
+This example demonstrates how to build a chat application using Chainlit and the Agent Squad. It showcases a system with three specialized agents (Tech, Travel, and Health) working together through a streaming-enabled chat interface.
 
 ## Key Features
 - Streaming responses using Chainlit's real-time capabilities
@@ -15,8 +15,8 @@ This example demonstrates how to build a chat application using Chainlit and the
 ## Quick Start
 ```bash
 # Clone the repository
-git clone https://github.com/awslabs/multi-agent-orchestrator.git
-cd multi-agent-orchestrator/examples/chat-chainlit-app
+git clone https://github.com/awslabs/agent-squad.git
+cd agent-squad/examples/chat-chainlit-app
 
 # Install dependencies
 pip install -r requirements.txt
@@ -61,4 +61,4 @@ User: "Recommend a workout routine"
 → Routed to Health Agent
 ```
 
-Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/chat-chainlit-app) in our GitHub repository.
+Ready to build your own multi-agent chat application? Check out the complete [source code](https://github.com/awslabs/agent-squad/tree/main/examples/chat-chainlit-app) in our GitHub repository.

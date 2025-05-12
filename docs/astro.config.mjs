@@ -4,13 +4,13 @@ import starlight from '@astrojs/starlight';
 // https://astro.build/config
 export default defineConfig({
 	site: process.env.ASTRO_SITE,
-	base: '/multi-agent-orchestrator',
+	base: '/agent-squad',
 	markdown: {
 		gfm: true
   },
 	integrations: [
 		starlight({
-			title: 'Multi-Agent Orchestrator',
+			title: 'Agent Squad',
 			description: 'Flexible and powerful framework for managing multiple AI agents and handling complex conversations 🤖🚀',
 			defaultLocale: 'en',
 			favicon: '/src/assets/favicon.ico',
@@ -21,7 +21,7 @@ export default defineConfig({
 				'./src/styles/terminal.css'
 			],
 			social: {
-				github: 'https://github.com/awslabs/multi-agent-orchestrator'
+				github: 'https://github.com/awslabs/agent-squad'
 			},
 			sidebar: [
 				{

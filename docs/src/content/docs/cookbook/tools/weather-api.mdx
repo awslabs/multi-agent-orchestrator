@@ -3,7 +3,7 @@ title: Creating a Weather Agent with BedrockLLMAgent and Custom Tools
 description: Understanding Tool use in Bedrock LLM Agent
 ---
 
-This guide demonstrates how to create a specialized weather agent using BedrockLLMAgent and a custom weather tool. We'll walk through the process of defining the tool, setting up the agent, and integrating it into your Multi-Agent Orchestrator system.
+This guide demonstrates how to create a specialized weather agent using BedrockLLMAgent and a custom weather tool. We'll walk through the process of defining the tool, setting up the agent, and integrating it into your Agent Squad system.
 
 
 1. **Define the Weather Tool**
@@ -140,7 +140,7 @@ To use the tool, you strictly apply the provided tool specification.
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
-import { ConversationMessage, ParticipantRole } from "multi-agent-orchestrator";
+import { ConversationMessage, ParticipantRole } from "agent-squad";
 
 
 export async function weatherToolHandler(response, conversation: ConversationMessage[]):Promse<ConversationMessage> {
@@ -179,7 +179,7 @@ export async function weatherToolHandler(response, conversation: ConversationMes
 import requests
 from requests.exceptions import RequestException
 from typing import List, Dict, Any
-from multi_agent_orchestrator.types import ConversationMessage, ParticipantRole
+from agent_squad.types import ConversationMessage, ParticipantRole
 
 async def weather_tool_handler(response: ConversationMessage, conversation: List[Dict[str, Any]]) -> ConversationMessage:
     response_content_blocks = response.content
@@ -305,7 +305,7 @@ Now that we have our weather tool defined and the code above in a file called `w
 ```typescript
 // weatherAgent.ts
 
-import { BedrockLLMAgent } from 'multi-agent-orchestrator';
+import { BedrockLLMAgent } from 'agent-squad';
 import { weatherToolDescription, weatherToolHandler, WEATHER_PROMPT } from './weatherTool';
 
 const weatherAgent = new BedrockLLMAgent({
@@ -332,7 +332,7 @@ weatherAgent.setSystemPrompt(WEATHER_PROMPT);
 <TabItem label="Python" icon="seti:python">
 ```python
 from tools import weather_tool
-from multi_agent_orchestrator.agents import (BedrockLLMAgent, BedrockLLMAgentOptions)
+from agent_squad.agents import (BedrockLLMAgent, BedrockLLMAgentOptions)
 
 weather_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
         name="Weather Agent",
@@ -351,15 +351,15 @@ weather_agent.set_system_prompt(weather_tool.weather_tool_prompt)
 
 3. **Add the Weather Agent to the Orchestrator**
 
-Now we can add our weather agent to the Multi-Agent Orchestrator:
+Now we can add our weather agent to the Agent Squad:
 
 <Tabs syncKey="runtime">
 <TabItem label="TypeScript" icon="seti:typescript" color="blue">
 ```typescript
 
-import { MultiAgentOrchestrator } from "multi-agent-orchestrator";
+import { AgentSquad } from "agent-squad";
 
-const orchestrator = new MultiAgentOrchestrator();
+const orchestrator = new AgentSquad();
 
 orchestrator.addAgent(weatherAgent);
 
@@ -367,9 +367,9 @@ orchestrator.addAgent(weatherAgent);
 </TabItem>
 <TabItem label="Python" icon="seti:python">
 ```python
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
+from agent_squad.orchestrator import AgentSquad
 
-orchestrator = MultiAgentOrchestrator()
+orchestrator = AgentSquad()
 
 orchestrator.add_agent(weather_agent)
 ```
@@ -409,4 +409,4 @@ This setup allows for a specialized weather agent that can handle various weathe
 
 ---
 
-By following this guide, you can create a powerful, context-aware weather agent using BedrockLLMAgent and custom tools within your Multi-Agent Orchestrator system.
+By following this guide, you can create a powerful, context-aware weather agent using BedrockLLMAgent and custom tools within your Agent Squad system.

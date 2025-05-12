@@ -1,44 +1,39 @@
-<h2 align="center">Multi-Agent Orchestrator&nbsp;</h2>
+<h2 align="center">Agent Squad</h2>
 <p align="center">Flexible, lightweight open-source framework for orchestrating multiple AI agents to handle complex conversations.</p>
 
+---
+<p align="center">
+  <strong>📢 New Name Alert:</strong> Multi-Agent Orchestrator is now <strong>Agent Squad!</strong> 🎉<br>
+  Same powerful functionalities, new catchy name. Embrace the squad!
+</p>
+
+---
 
 <p align="center">
-  <a href="https://github.com/awslabs/multi-agent-orchestrator"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
-  <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img alt="npm" src="https://img.shields.io/npm/v/multi-agent-orchestrator.svg?style=flat-square"></a>
-  <a href="https://pypi.org/project/multi-agent-orchestrator/"><img alt="PyPI" src="https://img.shields.io/pypi/v/multi-agent-orchestrator.svg?style=flat-square"></a>
+  <a href="https://github.com/awslabs/agent-squad"><img alt="GitHub Repo" src="https://img.shields.io/badge/GitHub-Repo-green.svg" /></a>
+  <a href="https://www.npmjs.com/package/agent-squad"><img alt="npm" src="https://img.shields.io/npm/v/agent-squad.svg?style=flat-square"></a>
+  <a href="https://pypi.org/project/agent-squad/"><img alt="PyPI" src="https://img.shields.io/pypi/v/agent-squad.svg?style=flat-square"></a>
 </p>
 
 <p align="center">
   <!-- GitHub Stats -->
-  <img src="https://img.shields.io/github/stars/awslabs/multi-agent-orchestrator?style=social" alt="GitHub stars">
-  <img src="https://img.shields.io/github/forks/awslabs/multi-agent-orchestrator?style=social" alt="GitHub forks">
-  <img src="https://img.shields.io/github/watchers/awslabs/multi-agent-orchestrator?style=social" alt="GitHub watchers">
+  <img src="https://img.shields.io/github/stars/awslabs/agent-squad?style=social" alt="GitHub stars">
+  <img src="https://img.shields.io/github/forks/awslabs/agent-squad?style=social" alt="GitHub forks">
+  <img src="https://img.shields.io/github/watchers/awslabs/agent-squad?style=social" alt="GitHub watchers">
 </p>
 
 <p align="center">
   <!-- Repository Info -->
-  <img src="https://img.shields.io/github/last-commit/awslabs/multi-agent-orchestrator" alt="Last Commit">
-  <img src="https://img.shields.io/github/issues/awslabs/multi-agent-orchestrator" alt="Issues">
-  <img src="https://img.shields.io/github/issues-pr/awslabs/multi-agent-orchestrator" alt="Pull Requests">
+  <img src="https://img.shields.io/github/last-commit/awslabs/agent-squad" alt="Last Commit">
+  <img src="https://img.shields.io/github/issues/awslabs/agent-squad" alt="Issues">
+  <img src="https://img.shields.io/github/issues-pr/awslabs/agent-squad" alt="Pull Requests">
 </p>
 
-
 <p align="center">
-  <!-- Package Stats -->
-  <a href="https://pypi.org/project/multi-agent-orchestrator/"><img src="https://img.shields.io/pypi/dm/multi-agent-orchestrator?label=pypi%20downloads" alt="PyPI Monthly Downloads"></a>
-  <a href="https://www.npmjs.com/package/multi-agent-orchestrator"><img src="https://img.shields.io/npm/dm/multi-agent-orchestrator?label=npm%20downloads" alt="npm Monthly Downloads"></a>
-</p>
-
-
-<p align="center">
-  <a href="https://awslabs.github.io/multi-agent-orchestrator/" style="display: inline-block; background-color: #0066cc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 15px; transition: background-color 0.3s;">
+  <a href="https://awslabs.github.io/agent-squad/" style="display: inline-block; background-color: #0066cc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 15px; transition: background-color 0.3s;">
     📚 Explore Full Documentation
   </a>
 </p>
-
-
-
-
 
 
 ## 🔖 Features
@@ -52,9 +47,9 @@
 - 📦 **Pre-built agents and classifiers** — A variety of ready-to-use agents and multiple classifier implementations available.
 
 
-## What's the Multi-Agent Orchestrator ❓
+## What's the Agent Squad ❓
 
-The Multi-Agent Orchestrator is a flexible framework for managing multiple AI agents and handling complex conversations. It intelligently routes queries and maintains context across interactions.
+The Agent Squad is a flexible framework for managing multiple AI agents and handling complex conversations. It intelligently routes queries and maintains context across interactions.
 
 The system offers pre-built components for quick deployment, while also allowing easy integration of custom agents and conversation messages storage solutions.
 
@@ -62,17 +57,11 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 
 <hr/>
 
-### 🤖 Looking for details on Amazon Bedrock's multi-agent collaboration capability announced during Matt Garman's keynote at re:Invent 2024?
-
-🚀 Visit the [Amazon Bedrock Agents](https://aws.amazon.com/bedrock/agents/) page to explore how multi-agent collaboration enables developers to build, deploy, and manage specialized agents designed for tackling complex workflows efficiently and accurately. ⚡
-<hr/>
-
-
 ## 🏗️ High-level architecture flow diagram
 
 <br /><br />
 
-![High-level architecture flow diagram](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/flow.jpg)
+![High-level architecture flow diagram](https://raw.githubusercontent.com/awslabs/agent-squad/main/img/flow.jpg)
 
 <br /><br />
 
@@ -82,11 +71,11 @@ This adaptability makes it suitable for a wide range of applications, from simpl
 4. The orchestrator then saves the conversation, updating the Agents' Conversation history, before delivering the response back to the user.
 
 
-## ![](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/new.png) Introducing SupervisorAgent: Agents Coordination
+## ![](https://raw.githubusercontent.com/awslabs/agent-squad/main/img/new.png) Introducing SupervisorAgent: Agents Coordination
 
-The Multi-Agent Orchestrator now includes a powerful new SupervisorAgent that enables sophisticated team coordination between multiple specialized agents. This new component implements a "agent-as-tools" architecture, allowing a lead agent to coordinate a team of specialized agents in parallel, maintaining context and delivering coherent responses.
+The Agent Squad now includes a powerful new SupervisorAgent that enables sophisticated team coordination between multiple specialized agents. This new component implements a "agent-as-tools" architecture, allowing a lead agent to coordinate a team of specialized agents in parallel, maintaining context and delivering coherent responses.
 
-![SupervisorAgent flow diagram](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/flow-supervisor.jpg)
+![SupervisorAgent flow diagram](https://raw.githubusercontent.com/awslabs/agent-squad/main/img/flow-supervisor.jpg)
 
 Key capabilities:
 - 🤝 **Team Coordination** - Coordonate multiple specialized agents working together on complex tasks
@@ -107,7 +96,7 @@ Here are just a few examples where this agent can be used:
 - Healthcare Coordination Systems
 
 
-[Learn more about SupervisorAgent →](https://awslabs.github.io/multi-agent-orchestrator/agents/built-in/supervisor-agent)
+[Learn more about SupervisorAgent →](https://awslabs.github.io/agent-squad/agents/built-in/supervisor-agent)
 
 
 ## 💬 Demo App
@@ -125,59 +114,59 @@ Notice how the appropriate agent is selected for each query, maintaining coheren
 
 The demo highlights the system's ability to handle complex, multi-turn conversations while preserving context and leveraging specialized agents across various domains.
 
-![](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/img/demo-app.gif?raw=true)
+![](https://raw.githubusercontent.com/awslabs/agent-squad/main/img/demo-app.gif?raw=true)
 
 
 ## 🎯 Examples & Quick Start
 
-Get hands-on experience with the Multi-Agent Orchestrator through our diverse set of examples:
+Get hands-on experience with the Agent Squad through our diverse set of examples:
 
 - **Demo Applications**:
-  - [Streamlit Global Demo](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/python): A single Streamlit application showcasing multiple demos, including:
+  - [Streamlit Global Demo](https://github.com/awslabs/agent-squad/tree/main/examples/python): A single Streamlit application showcasing multiple demos, including:
     - AI Movie Production Studio
     - AI Travel Planner
-  - [Chat Demo App](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/chat-demo-app/):
+  - [Chat Demo App](https://awslabs.github.io/agent-squad/cookbook/examples/chat-demo-app/):
     - Explore multiple specialized agents handling various domains like travel, weather, math, and health
-  - [E-commerce Support Simulator](https://awslabs.github.io/multi-agent-orchestrator/cookbook/examples/ecommerce-support-simulator/): Experience AI-powered customer support with:
+  - [E-commerce Support Simulator](https://awslabs.github.io/agent-squad/cookbook/examples/ecommerce-support-simulator/): Experience AI-powered customer support with:
     - Automated response generation for common queries
     - Intelligent routing of complex issues to human support
     - Real-time chat and email-style communication
     - Human-in-the-loop interactions for complex cases
 - **Sample Projects**: Explore our example implementations in the `examples` folder:
-  - [`chat-demo-app`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/chat-demo-app): Web-based chat interface with multiple specialized agents
-  - [`ecommerce-support-simulator`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/ecommerce-support-simulator): AI-powered customer support system
-  - [`chat-chainlit-app`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/chat-chainlit-app): Chat application built with Chainlit
-  - [`fast-api-streaming`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/fast-api-streaming): FastAPI implementation with streaming support
-  - [`text-2-structured-output`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/text-2-structured-output): Natural Language to Structured Data
-  - [`bedrock-inline-agents`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-inline-agents): Bedrock Inline Agents sample
-  - [`bedrock-prompt-routing`](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-prompt-routing): Bedrock Prompt Routing sample code
+  - [`chat-demo-app`](https://github.com/awslabs/agent-squad/tree/main/examples/chat-demo-app): Web-based chat interface with multiple specialized agents
+  - [`ecommerce-support-simulator`](https://github.com/awslabs/agent-squad/tree/main/examples/ecommerce-support-simulator): AI-powered customer support system
+  - [`chat-chainlit-app`](https://github.com/awslabs/agent-squad/tree/main/examples/chat-chainlit-app): Chat application built with Chainlit
+  - [`fast-api-streaming`](https://github.com/awslabs/agent-squad/tree/main/examples/fast-api-streaming): FastAPI implementation with streaming support
+  - [`text-2-structured-output`](https://github.com/awslabs/agent-squad/tree/main/examples/text-2-structured-output): Natural Language to Structured Data
+  - [`bedrock-inline-agents`](https://github.com/awslabs/agent-squad/tree/main/examples/bedrock-inline-agents): Bedrock Inline Agents sample
+  - [`bedrock-prompt-routing`](https://github.com/awslabs/agent-squad/tree/main/examples/bedrock-prompt-routing): Bedrock Prompt Routing sample code
 
 
-Examples are available in both Python and TypeScript. Check out our [documentation](https://awslabs.github.io/multi-agent-orchestrator/) for comprehensive guides on setting up and using the Multi-Agent Orchestrator framework!
+Examples are available in both Python and TypeScript. Check out our [documentation](https://awslabs.github.io/agent-squad/) for comprehensive guides on setting up and using the Agent Squad framework!
 
 ## 📚 Deep Dives: Stories, Blogs & Podcasts
 
-Discover creative implementations and diverse applications of the Multi-Agent Orchestrator:
+Discover creative implementations and diverse applications of the Agent Squad:
 
 - **[From 'Bonjour' to 'Boarding Pass': Multilingual AI Chatbot for Flight Reservations](https://community.aws/content/2lCi8jEKydhDm8eE8QFIQ5K23pF/from-bonjour-to-boarding-pass-multilingual-ai-chatbot-for-flight-reservations)**
 
-  This article demonstrates how to build a multilingual chatbot using the Multi-Agent Orchestrator framework. The article explains how to use an **Amazon Lex** bot as an agent, along with 2 other new agents to make it work in many languages with just a few lines of code.
+  This article demonstrates how to build a multilingual chatbot using the Agent Squad framework. The article explains how to use an **Amazon Lex** bot as an agent, along with 2 other new agents to make it work in many languages with just a few lines of code.
 
 - **[Beyond Auto-Replies: Building an AI-Powered E-commerce Support system](https://community.aws/content/2lq6cYYwTYGc7S3Zmz28xZoQNQj/beyond-auto-replies-building-an-ai-powered-e-commerce-support-system)**
 
-  This article demonstrates how to build an AI-driven multi-agent system for automated e-commerce customer email support. It covers the architecture and setup of specialized AI agents using the Multi-Agent Orchestrator framework, integrating automated processing with human-in-the-loop oversight. The guide explores email ingestion, intelligent routing, automated response generation, and human verification, providing a comprehensive approach to balancing AI efficiency with human expertise in customer support.
+  This article demonstrates how to build an AI-driven multi-agent system for automated e-commerce customer email support. It covers the architecture and setup of specialized AI agents using the Agent Squad framework, integrating automated processing with human-in-the-loop oversight. The guide explores email ingestion, intelligent routing, automated response generation, and human verification, providing a comprehensive approach to balancing AI efficiency with human expertise in customer support.
 
 - **[Speak Up, AI: Voicing Your Agents with Amazon Connect, Lex, and Bedrock](https://community.aws/content/2mt7CFG7xg4yw6GRHwH9akhg0oD/speak-up-ai-voicing-your-agents-with-amazon-connect-lex-and-bedrock)**
 
-  This article demonstrates how to build an AI customer call center. It covers the architecture and setup of specialized AI agents using the Multi-Agent Orchestrator framework interacting with voice via **Amazon Connect** and **Amazon Lex**.
+  This article demonstrates how to build an AI customer call center. It covers the architecture and setup of specialized AI agents using the Agent Squad framework interacting with voice via **Amazon Connect** and **Amazon Lex**.
 
-- **[Unlock Bedrock InvokeInlineAgent API's Hidden Potential](https://community.aws/content/2pTsHrYPqvAbJBl9ht1XxPOSPjR/unlock-bedrock-invokeinlineagent-api-s-hidden-potential-with-multi-agent-orchestrator)**
+- **[Unlock Bedrock InvokeInlineAgent API's Hidden Potential](https://community.aws/content/2pTsHrYPqvAbJBl9ht1XxPOSPjR/unlock-bedrock-invokeinlineagent-api-s-hidden-potential-with-agent-squad)**
 
-  Learn how to scale **Amazon Bedrock Agents** beyond knowledge base limitations using the Multi-Agent Orchestrator framework and **InvokeInlineAgent API**. This article demonstrates dynamic agent creation and knowledge base selection for enterprise-scale AI applications.
+  Learn how to scale **Amazon Bedrock Agents** beyond knowledge base limitations using the Agent Squad framework and **InvokeInlineAgent API**. This article demonstrates dynamic agent creation and knowledge base selection for enterprise-scale AI applications.
 
-- **[Supercharging Amazon Bedrock Flows](https://community.aws/content/2phMjQ0bqWMg4PBwejBs1uf4YQE/supercharging-amazon-bedrock-flows-with-aws-multi-agent-orchestrator)**
+- **[Supercharging Amazon Bedrock Flows](https://community.aws/content/2phMjQ0bqWMg4PBwejBs1uf4YQE/supercharging-amazon-bedrock-flows-with-aws-agent-squad)**
 
-  Learn how to enhance **Amazon Bedrock Flows** with conversation memory and multi-flow orchestration using the Multi-Agent Orchestrator framework. This guide shows how to overcome Bedrock Flows' limitations to build more sophisticated AI workflows with persistent memory and intelligent routing between flows.
+  Learn how to enhance **Amazon Bedrock Flows** with conversation memory and multi-flow orchestration using the Agent Squad framework. This guide shows how to overcome Bedrock Flows' limitations to build more sophisticated AI workflows with persistent memory and intelligent routing between flows.
 
 ### 🎙️ Podcast Discussions
 
@@ -197,18 +186,20 @@ Discover creative implementations and diverse applications of the Multi-Agent Or
 
 #### Installation
 
+> 🔄 `multi-agent-orchestrator` becomes `agent-squad`
+
 ```bash
-npm install multi-agent-orchestrator
+npm install agent-squad
 ```
 
 #### Usage
 
-The following example demonstrates how to use the Multi-Agent Orchestrator with two different types of agents: a Bedrock LLM Agent with Converse API support and a Lex Bot Agent. This showcases the flexibility of the system in integrating various AI services.
+The following example demonstrates how to use the Agent Squad with two different types of agents: a Bedrock LLM Agent with Converse API support and a Lex Bot Agent. This showcases the flexibility of the system in integrating various AI services.
 
 ```typescript
-import { MultiAgentOrchestrator, BedrockLLMAgent, LexBotAgent } from "multi-agent-orchestrator";
+import { AgentSquad, BedrockLLMAgent, LexBotAgent } from "agent-squad";
 
-const orchestrator = new MultiAgentOrchestrator();
+const orchestrator = new AgentSquad();
 
 // Add a Bedrock LLM Agent with Converse API support
 orchestrator.addAgent(
@@ -280,25 +271,26 @@ if (response.streaming == true) {
 
 ### Python Version
 
+> 🔄 `multi-agent-orchestrator` becomes `agent-squad`
 
 ```bash
 # Optional: Set up a virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-pip install multi-agent-orchestrator[aws]
+pip install agent-squad[aws]
 ```
 
 #### Default Usage
 
-Here's an equivalent Python example demonstrating the use of the Multi-Agent Orchestrator with a Bedrock LLM Agent and a Lex Bot Agent:
+Here's an equivalent Python example demonstrating the use of the Agent Squad with a Bedrock LLM Agent and a Lex Bot Agent:
 
 ```python
 import sys
 import asyncio
-from multi_agent_orchestrator.orchestrator import MultiAgentOrchestrator
-from multi_agent_orchestrator.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentStreamResponse
+from agent_squad.orchestrator import AgentSquad
+from agent_squad.agents import BedrockLLMAgent, BedrockLLMAgentOptions, AgentStreamResponse
 
-orchestrator = MultiAgentOrchestrator()
+orchestrator = AgentSquad()
 
 tech_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
   name="Tech Agent",
@@ -372,27 +364,27 @@ These examples showcase:
 
 ### Modular Installation Options
 
-The Multi-Agent Orchestrator is designed with a modular architecture, allowing you to install only the components you need while ensuring you always get the core functionality.
+The Agent Squad is designed with a modular architecture, allowing you to install only the components you need while ensuring you always get the core functionality.
 
 #### Installation Options
 
 **1. AWS Integration**:
 
   ```bash
-   pip install "multi-agent-orchestrator[aws]"
+   pip install "agent-squad[aws]"
   ```
 Includes core orchestration functionality with comprehensive AWS service integrations (`BedrockLLMAgent`, `AmazonBedrockAgent`, `LambdaAgent`, etc.)
 
 **2. Anthropic Integration**:
 
   ```bash
-pip install "multi-agent-orchestrator[anthropic]"
+pip install "agent-squad[anthropic]"
   ```
 
 **3. OpenAI Integration**:
 
   ```bash
-pip install "multi-agent-orchestrator[openai]"
+pip install "agent-squad[openai]"
   ```
 
 Adds OpenAI's GPT models for agents and classification, along with core packages.
@@ -400,7 +392,7 @@ Adds OpenAI's GPT models for agents and classification, along with core packages
 **4. Full Installation**:
 
   ```bash
-pip install "multi-agent-orchestrator[all]"
+pip install "agent-squad[all]"
   ```
 
 Includes all optional dependencies for maximum flexibility.
@@ -408,13 +400,13 @@ Includes all optional dependencies for maximum flexibility.
 
 ### 🙌 **We Want to Hear From You!**
 
-Have something to share, discuss, or brainstorm? We’d love to connect with you and hear about your journey with the **Multi-Agent Orchestrator framework**. Here’s how you can get involved:
+Have something to share, discuss, or brainstorm? We’d love to connect with you and hear about your journey with the **Agent Squad framework**. Here’s how you can get involved:
 
-- **🙌 Show & Tell**: Got a success story, cool project, or creative implementation? Share it with us in the [**Show and Tell**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/show-and-tell) section. Your work might inspire the entire community! 🎉
+- **🙌 Show & Tell**: Got a success story, cool project, or creative implementation? Share it with us in the [**Show and Tell**](https://github.com/awslabs/agent-squad/discussions/categories/show-and-tell) section. Your work might inspire the entire community! 🎉
 
-- **💬 General Discussion**: Have questions, feedback, or suggestions? Join the conversation in our [**General Discussions**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/general) section. It’s the perfect place to connect with other users and contributors.
+- **💬 General Discussion**: Have questions, feedback, or suggestions? Join the conversation in our [**General Discussions**](https://github.com/awslabs/agent-squad/discussions/categories/general) section. It’s the perfect place to connect with other users and contributors.
 
-- **💡 Ideas**: Thinking of a new feature or improvement? Share your thoughts in the [**Ideas**](https://github.com/awslabs/multi-agent-orchestrator/discussions/categories/ideas) section. We’re always open to exploring innovative ways to make the orchestrator even better!
+- **💡 Ideas**: Thinking of a new feature or improvement? Share your thoughts in the [**Ideas**](https://github.com/awslabs/agent-squad/discussions/categories/ideas) section. We’re always open to exploring innovative ways to make the orchestrator even better!
 
 Let’s collaborate, learn from each other, and build something incredible together! 🚀
 
@@ -452,19 +444,21 @@ This policy helps us:
 
 ## 🤝 Contributing
 
+⚠️ Note: Our project has been renamed from **Multi-Agent Orchestrator** to **Agent Squad**. Please use the new name in your contributions and discussions.
+
 ⚠️ We value your contributions! Before submitting changes, please start a discussion by opening an issue to share your proposal.
 
 Once your proposal is approved, here are the next steps:
 
 1. 📚 Review our [Contributing Guide](CONTRIBUTING.md)
-2. 💡 Create a [GitHub Issue](https://github.com/awslabs/multi-agent-orchestrator/issues)
+2. 💡 Create a [GitHub Issue](https://github.com/awslabs/agent-squad/issues)
 3. 🔨 Submit a pull request
 
 
 ✅ Follow existing project structure and include documentation for new features.
 
 
-🌟 **Stay Updated**: Star the repository to be notified about new features, improvements, and exciting developments in the Multi-Agent Orchestrator framework!
+🌟 **Stay Updated**: Star the repository to be notified about new features, improvements, and exciting developments in the Agent Squad framework!
 
 # Authors
 
@@ -475,7 +469,7 @@ Once your proposal is approved, here are the next steps:
 
 Big shout out to our awesome contributors! Thank you for making this project better! 🌟 ⭐ 🚀
 
-[![contributors](https://contrib.rocks/image?repo=awslabs/multi-agent-orchestrator&max=2000)](https://github.com/awslabs/multi-agent-orchestrator/graphs/contributors)
+[![contributors](https://contrib.rocks/image?repo=awslabs/agent-squad&max=2000)](https://github.com/awslabs/agent-squad/graphs/contributors)
 
 
 Please see our [contributing guide](./CONTRIBUTING.md) for guidelines on how to propose bugfixes and improvements.
@@ -483,7 +477,7 @@ Please see our [contributing guide](./CONTRIBUTING.md) for guidelines on how to 
 
 ## 📄 LICENSE
 
-This project is licensed under the Apache 2.0 licence - see the [LICENSE](https://raw.githubusercontent.com/awslabs/multi-agent-orchestrator/main/LICENSE) file for details.
+This project is licensed under the Apache 2.0 licence - see the [LICENSE](https://raw.githubusercontent.com/awslabs/agent-squad/main/LICENSE) file for details.
 
 ## 📄 Font License
 This project uses the JetBrainsMono NF font, licensed under the SIL Open Font License 1.1.

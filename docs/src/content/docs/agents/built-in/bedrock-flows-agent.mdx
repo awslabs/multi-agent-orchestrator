@@ -1,11 +1,11 @@
 ---
 title: Amazon Bedrock Flows Agent
-description: Documentation for the BedrockFlowsAgent in the Multi-Agent Orchestrator
+description: Documentation for the BedrockFlowsAgent in the Agent Squad
 ---
 
 ## Overview
 
-The **Bedrock Flows Agent** is a specialized agent class in the Multi-Agent Orchestrator that integrates directly with [Amazon Bedrock Flows](https://aws.amazon.com/bedrock/flows/).
+The **Bedrock Flows Agent** is a specialized agent class in the Agent Squad that integrates directly with [Amazon Bedrock Flows](https://aws.amazon.com/bedrock/flows/).
 This integration enables you to orchestrate your Bedrock Flows alongside other agent types (Bedrock Agent, Lex, Bedrock API...), providing a unified and flexible approach to agents orchestration.
 
 ## Key Features
@@ -20,7 +20,7 @@ This integration enables you to orchestrate your Bedrock Flows alongside other a
 If you haven't already installed the AWS-related dependencies, make sure to install them:
 
 ```bash
-pip install "multi-agent-orchestrator[aws]"
+pip install "agent-squad[aws]"
 ```
 
 ### Basic Example
@@ -30,7 +30,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
     ```typescript
-    import { BedrockFlowsAgent } from 'multi-agent-orchestrator';
+    import { BedrockFlowsAgent } from 'agent-squad';
 
     const techFlowAgent = new BedrockFlowsAgent({
       name: 'tech-flow-agent',
@@ -43,7 +43,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
   <TabItem label="Python" icon="seti:python">
     ```python
-    from multi_agent_orchestrator.agents import BedrockFlowsAgent, BedrockFlowsAgentOptions
+    from agent_squad.agents import BedrockFlowsAgent, BedrockFlowsAgentOptions
 
     tech_flow_agent = BedrockFlowsAgent(BedrockFlowsAgentOptions(
         name="tech-flow-agent",
@@ -136,6 +136,6 @@ const techFlowAgent = new BedrockFlowsAgent({
 
 You can find sample code for using the BedrockFlowsAgent in both TypeScript and Python:
 
-- [TypeScript Sample](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-flows/typescript)
-- [Python Sample](https://github.com/awslabs/multi-agent-orchestrator/tree/main/examples/bedrock-flows/python)
+- [TypeScript Sample](https://github.com/awslabs/agent-squad/tree/main/examples/bedrock-flows/typescript)
+- [Python Sample](https://github.com/awslabs/agent-squad/tree/main/examples/bedrock-flows/python)
 
