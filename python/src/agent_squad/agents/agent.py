@@ -4,10 +4,12 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from agent_squad.types import ConversationMessage
 from agent_squad.utils import Logger
+from uuid import UUID
 
 # Type aliases for complex types
 AgentParamsType: TypeAlias = dict[str, Any]
 AgentOutputType: TypeAlias = Union[str, "AgentStreamResponse", Any]  # Forward reference
+
 
 @dataclass
 class AgentProcessingResult:
@@ -22,6 +24,7 @@ class AgentProcessingResult:
         session_id: Identifier for the current session
         additional_params: Optional additional parameters for the agent
     """
+
     user_input: str
     agent_id: str
     agent_name: str
@@ -39,6 +42,7 @@ class AgentStreamResponse:
         text: The current text in the stream
         final_message: The complete message when streaming is complete
     """
+
     text: str = ""
     final_message: Optional[ConversationMessage] = None
 
@@ -53,24 +57,152 @@ class AgentResponse:
         output: The actual output from the agent
         streaming: Whether this response is streaming
     """
+
     metadata: AgentProcessingResult
     output: AgentOutputType
     streaming: bool
 
 
 class AgentCallbacks:
+
+    async def on_agent_start(
+        self,
+        agent_name,
+        input: Any,
+        messages: list[Any],
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> dict:
+        """
+        Callback method that runs when an agent starts processing.
+
+        This method is called at the beginning of an agent's execution, providing information
+        about the agent session and its context.
+
+        Parameters:
+            self: The instance of the callback handler class.
+            agent_name: Name of the agent that is starting.
+            input: Dictionary containing the agent's input.
+            messages: List of message dictionaries representing the conversation history.
+            run_id: Unique identifier for this specific agent run.
+            tags: Optional list of string tags associated with this agent run.
+            metadata: Optional dictionary containing additional metadata about the run.
+            **kwargs: Additional keyword arguments that might be passed to the callback.
+
+        Returns:
+            dict: The agent tracking information, this is made available to all other
+                callbacks using the agent_tracking_info key in kwargs.
+        """
+        return {}
+
+    async def on_agent_end(
+        self,
+        agent_name,
+        response: Any,
+        messages: list[Any],
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        """
+        Callback method that runs when an agent completes its processing.
+
+        This method is called at the end of an agent's execution, providing information
+        about the completed agent session and its response.
+
+        Parameters:
+            self: The instance of the callback handler class.
+            agent_name: Name of the agent that is completing.
+            response: Dictionary containing the agent's response or output.
+            run_id: Unique identifier for this specific agent run.
+            tags: Optional list of string tags associated with this agent run.
+            metadata: Optional dictionary containing additional metadata about the run.
+            **kwargs: Additional keyword arguments that might be passed to the callback.
+
+        Returns:
+            Any: The return value is implementation-dependent.
+        """
+        pass
+
+    async def on_llm_start(
+        self,
+        name: str,
+        input: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        """
+        Callback method that runs when an llm starts processing.
+
+        This method is called at the beginning of an llm's execution, providing information
+        about the llm session and its context.
+
+        Parameters:
+            self: The instance of the callback handler class.
+            agent_name: Name of the agent that is starting.
+            input: Dictionary containing the agent's input.
+            messages: List of message dictionaries representing the conversation history.
+            run_id: Unique identifier for this specific agent run.
+            tags: Optional list of string tags associated with this agent run.
+            metadata: Optional dictionary containing additional metadata about the run.
+            **kwargs: Additional keyword arguments that might be passed to the callback.
+
+        Returns:
+            Any: The return value is implementation-dependent.
+        """
+        pass
+
     """
     Defines callbacks that can be triggered during agent processing.
     Provides default implementations that can be overridden by subclasses.
     """
-    def on_llm_new_token(self, token: str) -> None:
+    async def on_llm_new_token(self,
+                               token: str,
+                               **kwargs: Any) -> None:
         """
         Called when a new token is generated by the LLM.
 
         Args:
-            token: The new token generated
+            self: The instance of the callback handler class.
+            token: The new token generated (text)
+            **kwargs: Additional keyword arguments that might be passed to the callback.
         """
         pass  # Default implementation does nothing
+
+
+    async def on_llm_end(
+        self,
+        name: str,
+        output: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        """
+        Callback method that runs when an llm stops.
+
+        This method is called at the end of an llm's execution, providing information
+        about the llm session and its context.
+
+        Parameters:
+            self: The instance of the callback handler class.
+            name: Name of the LLM that is starting.
+            output: Dictionary containing the agent's input.
+            run_id: Unique identifier for this specific agent run.
+            tags: Optional list of string tags associated with this agent run.
+            metadata: Optional dictionary containing additional metadata about the run.
+            **kwargs: Additional keyword arguments that might be passed to the callback.
+
+        Returns:
+            Any: The return value is implementation-dependent.
+    """
+    pass
 
 
 @dataclass
@@ -85,6 +217,7 @@ class AgentOptions:
         callbacks: Optional callbacks for agent events
         LOG_AGENT_DEBUG_TRACE: Whether to enable debug tracing for this agent
     """
+
     name: str
     description: str
     save_chat: bool = True
@@ -92,6 +225,7 @@ class AgentOptions:
     # Optional: Flag to enable/disable agent debug trace logging
     # If true, the agent will log additional debug information
     LOG_AGENT_DEBUG_TRACE: Optional[bool] = False
+
 
 class Agent(ABC):
     """
@@ -112,7 +246,9 @@ class Agent(ABC):
         self.id = self.generate_key_from_name(options.name)
         self.description = options.description
         self.save_chat = options.save_chat
-        self.callbacks = options.callbacks if options.callbacks is not None else AgentCallbacks()
+        self.callbacks = (
+            options.callbacks if options.callbacks is not None else AgentCallbacks()
+        )
         self.log_debug_trace = options.LOG_AGENT_DEBUG_TRACE
 
     def is_streaming_enabled(self) -> bool:

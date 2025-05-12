@@ -4,6 +4,7 @@ from typing import Any, AsyncIterable, Optional
 from dataclasses import dataclass, field
 import re
 from anthropic import AsyncAnthropic, Anthropic
+from anthropic.types import Message
 from agent_squad.agents import Agent, AgentOptions, AgentStreamResponse
 from agent_squad.types import (ConversationMessage,
                        ParticipantRole,
@@ -171,7 +172,8 @@ class AnthropicAgent(Agent):
         self,
         input: dict,
         messages: list[Any],
-        max_recursions: int
+        max_recursions: int,
+        agent_tracking_info: dict[str, Any] | None = None
     ) -> AsyncIterable[Any]:
         """Handle streaming response processing with tool recursion."""
         continue_with_tools = True
@@ -191,11 +193,19 @@ class AnthropicAgent(Agent):
 
                 if any('tool_use' in content.type for content in final_response.content):
                     input['messages'].append({"role": "assistant", "content": final_response.content})
-                    tool_response = await self._process_tool_block(final_response, messages)
+                    tool_response = await self._process_tool_block(final_response, messages, agent_tracking_info)
                     input['messages'].append(tool_response)
                 else:
                     continue_with_tools = False
-                    # yield las message
+                    # yield last message
+                    kwargs = {
+                        "agent_name": self.name,
+                        "response": final_response,
+                        "messages": messages,
+                        "agent_tracking_info": agent_tracking_info
+                    }
+                    await self.callbacks.on_agent_end(**kwargs)
+
                     yield AgentStreamResponse(final_message=ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{"text": final_response.content[0].text}]))
 
                 max_recursions -= 1
@@ -206,33 +216,48 @@ class AnthropicAgent(Agent):
         self,
         streaming: bool,
         input: dict,
-        messages: list[Any]
+        messages: list[Any],
+        agent_tracking_info: dict[str, Any] | None = None
     ) -> ConversationMessage | AsyncIterable[Any]:
         """Process the request using the specified strategy."""
 
         max_recursions = self._get_max_recursions()
 
         if streaming:
-            return await self._handle_streaming(input, messages, max_recursions)
-        return await self._handle_single_response_loop(input, messages, max_recursions)
+            return await self._handle_streaming(input, messages, max_recursions, agent_tracking_info)
+        response = await self._handle_single_response_loop(input, messages, max_recursions, agent_tracking_info)
 
-    async def _process_tool_block(self, llm_response: Any, conversation: list[Any]) -> (Any):
+        kwargs = {
+            "agent_name": self.name,
+            "response": response,
+            "messages": messages,
+            "agent_tracking_info": agent_tracking_info
+        }
+        await self.callbacks.on_agent_end(**kwargs)
+        return response
+
+    async def _process_tool_block(self, llm_response: Any, conversation: list[Any], agent_tracking_info: dict[str, Any] | None = None) -> (Any):
         if 'useToolHandler' in  self.tool_config:
             # tool process logic is handled elsewhere
             tool_response = await self.tool_config['useToolHandler'](llm_response, conversation)
         else:
             # tool process logic is handled in AgentTools class
             if isinstance(self.tool_config['tool'], AgentTools):
-                tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.ANTHROPIC.value, llm_response, conversation)
+                additional_params = {
+                    "agent_name": self.name,
+                    "agent_tracking_info": agent_tracking_info
+                }
+                tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.ANTHROPIC.value, llm_response, conversation, additional_params)
             else:
-                raise ValueError("You must use class when not providing a custom tool handler")
+                raise ValueError("You must use AgentTools class when not providing a custom tool handler")
         return tool_response
 
     async def _handle_single_response_loop(
         self,
         input: Any,
         messages: list[Any],
-        max_recursions: int
+        max_recursions: int,
+        agent_tracking_info: dict[str, Any] | None = None
     ) -> ConversationMessage:
         """Handle single response processing with tool recursion."""
 
@@ -240,17 +265,21 @@ class AnthropicAgent(Agent):
         llm_response = None
 
         while continue_with_tools and max_recursions > 0:
-            llm_response = await self.handle_single_response(input)
+            llm_response:Message = await self.handle_single_response(input)
             if any('tool_use' in content.type for content in llm_response.content):
                 input['messages'].append({"role": "assistant", "content": llm_response.content})
-                tool_response = await self._process_tool_block(llm_response, messages)
+                tool_response = await self._process_tool_block(llm_response, messages, agent_tracking_info)
                 input['messages'].append(tool_response)
             else:
                 continue_with_tools = False
+                if llm_response.content:
+                    text_response  = llm_response.content[0].text
+                else:
+                    text_response = 'No final response generated'
 
             max_recursions -= 1
 
-        return ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{"text": llm_response.content[0].text}])
+        return ConversationMessage(role=ParticipantRole.ASSISTANT.value, content=[{"text": text_response}])
 
     async def process_request(
         self,
@@ -261,15 +290,46 @@ class AnthropicAgent(Agent):
         additional_params: Optional[dict[str, str]] = None
     ) -> ConversationMessage | AsyncIterable[Any]:
 
+        kwargs = {
+            'agent_name': self.name,
+            'input': input_text,
+            'messages': [*chat_history],
+            'additional_params': additional_params,
+            'user_id': user_id,
+            'session_id': session_id
+        }
+        agent_tracking_info = await self.callbacks.on_agent_start(**kwargs)
+
         messages = self._prepare_conversation(input_text, chat_history)
         system_prompt = await self._prepare_system_prompt(input_text)
         input = self._build_input(messages, system_prompt)
 
-        return await self._process_with_strategy(self.streaming, input, messages)
+        return await self._process_with_strategy(self.streaming, input, messages, agent_tracking_info)
 
     async def handle_single_response(self, input_data: dict) -> Any:
         try:
-            response = self.client.messages.create(**input_data)
+            await self.callbacks.on_llm_start(self.name, input=input_data.get('messages')[-1], **input_data)
+            response:Message = self.client.messages.create(**input_data)
+
+            kwargs = {
+                'usage':{
+                    'inputTokens':response.usage.input_tokens,
+                    'outputTokens':response.usage.output_tokens,
+                    'totalTokens':response.usage.input_tokens + response.usage.output_tokens
+                },
+                'input': {
+                    'modelId': response.model,
+                    'messages': input_data.get('messages'),
+                    'system': input_data.get('system'),
+                },
+                'inferenceConfig':{
+                    "temperature": input_data.get('temperature'),
+                    "top_p": input_data.get('top_p'),
+                    "stop_sequences": input_data.get('stop_sequences'),
+                }
+            }
+            await self.callbacks.on_llm_end(self.name, output=response.content, **kwargs)
+
             return response
         except Exception as error:
             Logger.error(f"Error invoking Anthropic: {error}")
@@ -282,10 +342,11 @@ class AnthropicAgent(Agent):
         message['content'] = content
 
         try:
+            await self.callbacks.on_llm_start(self.name, input=input.get('messages')[-1], **input)
             async with self.client.messages.stream(**input) as stream:
                 async for event in stream:
                     if event.type == "text":
-                        self.callbacks.on_llm_new_token(event.text)
+                        await self.callbacks.on_llm_new_token(event.text)
                         yield AgentStreamResponse(text=event.text)
                     elif event.type == "content_block_stop":
                         recursions = 0
@@ -295,11 +356,32 @@ class AnthropicAgent(Agent):
                 # the context manager, as long as the entire stream was consumed
                 # inside of the context manager
 
-                accumulated = await stream.get_final_message()
+                accumulated:Message = await stream.get_final_message()
             # we need to yield the whole content to keep the tool use block
             yield AgentStreamResponse(
                 final_message=ConversationMessage(role=ParticipantRole.ASSISTANT.value,
                                                   content=accumulated.content))
+
+
+            kwargs = {
+                'usage':{
+                    'inputTokens':accumulated.usage.input_tokens,
+                    'outputTokens':accumulated.usage.output_tokens,
+                    'totalTokens':accumulated.usage.input_tokens + accumulated.usage.output_tokens
+                },
+                'input': {
+                    'modelId': accumulated.model,
+                    'messages': input.get('messages'),
+                    'system': input.get('system'),
+                },
+                'inferenceConfig':{
+                    "temperature": input.get('temperature'),
+                    "top_p": input.get('top_p'),
+                    "stop_sequences": input.get('stop_sequences'),
+                    "max_tokens": input.get('max_tokens')
+                }
+            }
+            await self.callbacks.on_llm_end(self.name, output=accumulated, **kwargs)
 
         except Exception as error:
             Logger.error(f"Error getting stream from Anthropic model: {str(error)}")

@@ -26,7 +26,7 @@ class OllamaAgent(Agent):
             )
             for part in response:
                 text += part['message']['content']
-                self.callbacks.on_llm_new_token(part['message']['content'])
+                await self.callbacks.on_llm_new_token(part['message']['content'])
 
             return ConversationMessage(
                 role=ParticipantRole.ASSISTANT.value,

@@ -470,7 +470,7 @@ export class AgentSquad {
       }
 
       accumulatorTransform.end();
-      this.logger.debug(`Streaming completed: ${chunkCount} chunks received`);
+      this.logger.debug(`\nStreaming completed: ${chunkCount} chunks received`);
 
       const fullResponse = accumulatorTransform.getAccumulatedData();
       if (fullResponse) {

@@ -27,13 +27,13 @@ class MyCustomHandler(AgentCallbacks):
         self._queue = queue
         self._stop_signal = None
 
-    def on_llm_new_token(self, token: str, **kwargs) -> None:
+    async def on_llm_new_token(self, token: str, **kwargs) -> None:
         self._queue.put(token)
 
-    def on_llm_start(self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any) -> None:
+    async def on_llm_start(self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any) -> None:
         print("generation started")
 
-    def on_llm_end(self, response: Any, **kwargs: Any) -> None:
+    async def on_llm_end(self, response: Any, **kwargs: Any) -> None:
         print("\n\ngeneration concluded")
         self._queue.put(self._stop_signal)
 

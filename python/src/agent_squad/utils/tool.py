@@ -3,13 +3,20 @@ import inspect
 from functools import wraps
 import re
 from dataclasses import dataclass
-from agent_squad.types import AgentProviderType, ConversationMessage, ParticipantRole
+from agent_squad.types import (
+    AgentProviderType,
+    ConversationMessage,
+    ParticipantRole,
+)
+from uuid import UUID
+
 
 @dataclass
 class PropertyDefinition:
     type: str
     description: str
     enum: Optional[list] = None
+
 
 @dataclass
 class AgentToolResult:
@@ -20,25 +27,65 @@ class AgentToolResult:
         return {
             "type": "tool_result",
             "tool_use_id": self.tool_use_id,
-            "content": self.content
+            "content": self.content,
         }
 
     def to_bedrock_format(self) -> dict:
         return {
             "toolResult": {
                 "toolUseId": self.tool_use_id,
-                "content": [{"text": self.content}]
+                "content": [{"text": self.content}],
             }
         }
 
+
+class AgentToolCallbacks:
+    async def on_tool_start(
+        self,
+        tool_name,
+        input: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
+    async def on_tool_end(
+        self,
+        tool_name,
+        input: Any,
+        output: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
+    async def on_tool_error(
+        self,
+        tool_name,
+        input: Any,
+        error: Exception,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
+
 class AgentTool:
-    def __init__(self,
-                name: str,
-                description: Optional[str] = None,
-                properties: Optional[dict[str, dict[str, Any]]] = None,
-                required: Optional[list[str]] = None,
-                func: Optional[Callable] = None,
-                enum_values: Optional[dict[str, list]] = None):
+    def __init__(
+        self,
+        name: str,
+        description: Optional[str] = None,
+        properties: Optional[dict[str, dict[str, Any]]] = None,
+        required: Optional[list[str]] = None,
+        func: Optional[Callable] = None,
+        enum_values: Optional[dict[str, list]] = None,
+    ):
 
         self.name = name
         # Extract docstring if description not provided
@@ -46,7 +93,7 @@ class AgentTool:
             docstring = inspect.getdoc(func)
             if docstring:
                 # Get the first paragraph of the docstring (before any parameter descriptions)
-                self.func_description = docstring.split('\n\n')[0].strip()
+                self.func_description = docstring.split("\n\n")[0].strip()
             else:
                 self.func_description = f"Function to {name}"
         else:
@@ -77,7 +124,7 @@ class AgentTool:
         param_descriptions = {}
 
         # Extract parameter descriptions using regex
-        param_matches = re.finditer(r':param\s+(\w+)\s*:\s*([^:\n]+)', docstring)
+        param_matches = re.finditer(r":param\s+(\w+)\s*:\s*([^:\n]+)", docstring)
         for match in param_matches:
             param_name = match.group(1)
             description = match.group(2).strip()
@@ -86,7 +133,7 @@ class AgentTool:
         properties = {}
         for param_name, param in sig.parameters.items():
             # Skip 'self' parameter for class methods
-            if param_name == 'self':
+            if param_name == "self":
                 continue
 
             param_type = type_hints.get(param_name, Any)
@@ -98,29 +145,30 @@ class AgentTool:
                 str: "string",
                 bool: "boolean",
                 list: "array",
-                dict: "object"
+                dict: "object",
             }
 
             json_type = type_mapping.get(param_type, "string")
 
             # Use docstring description if available, else create a default one
-            description = param_descriptions.get(param_name, f"The {param_name} parameter")
+            description = param_descriptions.get(
+                param_name, f"The {param_name} parameter"
+            )
 
-            properties[param_name] = {
-                "type": json_type,
-                "description": description
-            }
+            properties[param_name] = {"type": json_type, "description": description}
 
         return properties
 
     def _wrap_function(self, func: Callable) -> Callable:
         """Wrap the function to preserve its metadata and handle async/sync functions"""
+
         @wraps(func)
         async def wrapper(**kwargs):
             result = func(**kwargs)
             if inspect.iscoroutine(result):
                 return await result
             return result
+
         return wrapper
 
     def to_claude_format(self) -> dict[str, Any]:
@@ -131,8 +179,8 @@ class AgentTool:
             "input_schema": {
                 "type": "object",
                 "properties": self.properties,
-                "required": self.required
-            }
+                "required": self.required,
+            },
         }
 
     def to_bedrock_format(self) -> dict[str, Any]:
@@ -145,9 +193,9 @@ class AgentTool:
                     "json": {
                         "type": "object",
                         "properties": self.properties,
-                        "required": self.required
+                        "required": self.required,
                     }
-                }
+                },
             }
         }
 
@@ -162,16 +210,26 @@ class AgentTool:
                     "type": "object",
                     "properties": self.properties,
                     "required": self.required,
-                    "additionalProperties": False
-                }
-            }
+                    "additionalProperties": False,
+                },
+            },
         }
 
-class AgentTools:
-    def __init__(self, tools:list[AgentTool]):
-        self.tools:list[AgentTool] = tools
 
-    async def tool_handler(self, provider_type, response: Any, _conversation: list[dict[str, Any]]) -> Any:
+class AgentTools:
+    def __init__(
+        self, tools: list[AgentTool], callbacks: Optional[AgentToolCallbacks] = None
+    ):
+        self.tools: list[AgentTool] = tools
+        self.callbacks = callbacks or AgentToolCallbacks()
+
+    async def tool_handler(
+        self,
+        provider_type,
+        response: Any,
+        _conversation: list[dict[str, Any]],
+        agent_info: Optional[dict[str, Any]] = None,
+    ) -> Any:
         if not response.content:
             raise ValueError("No content blocks in response")
 
@@ -186,25 +244,31 @@ class AgentTools:
 
             tool_name = (
                 tool_use_block.get("name")
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_use_block.name
             )
 
             tool_id = (
                 tool_use_block.get("toolUseId")
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_use_block.id
             )
 
             # Get input based on platform
             input_data = (
                 tool_use_block.get("input", {})
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_use_block.input
             )
 
             # Process the tool use
+            await self.callbacks.on_tool_start(
+                tool_name, input_data, metadata={"agent_info": agent_info}
+            )
             result = await self._process_tool(tool_name, input_data)
+            await self.callbacks.on_tool_end(
+                tool_name, input_data, result, metadata={"agent_info": agent_info}
+            )
 
             # Create tool result
             tool_result = AgentToolResult(tool_id, result)
@@ -212,29 +276,30 @@ class AgentTools:
             # Format according to platform
             formatted_result = (
                 tool_result.to_bedrock_format()
-                if  provider_type ==  AgentProviderType.BEDROCK.value
+                if provider_type == AgentProviderType.BEDROCK.value
                 else tool_result.to_anthropic_format()
             )
 
             tool_results.append(formatted_result)
 
         # Create and return appropriate message format
-        if  provider_type ==  AgentProviderType.BEDROCK.value:
+        if provider_type == AgentProviderType.BEDROCK.value:
             return ConversationMessage(
-                role=ParticipantRole.USER.value,
-                content=tool_results
+                role=ParticipantRole.USER.value, content=tool_results
             )
         else:
-            return {
-                'role': ParticipantRole.USER.value,
-                'content': tool_results
-            }
+            return {"role": ParticipantRole.USER.value, "content": tool_results}
 
-    def _get_tool_use_block(self, provider_type:AgentProviderType, block: dict) -> dict | None:
+    def _get_tool_use_block(
+        self, provider_type: AgentProviderType, block: dict
+    ) -> dict | None:
         """Extract tool use block based on platform format."""
         if provider_type == AgentProviderType.BEDROCK.value and "toolUse" in block:
             return block["toolUse"]
-        elif provider_type ==  AgentProviderType.ANTHROPIC.value and block.type == "tool_use":
+        elif (
+            provider_type == AgentProviderType.ANTHROPIC.value
+            and block.type == "tool_use"
+        ):
             return block
         return None
 
@@ -243,7 +308,7 @@ class AgentTools:
             tool = next(tool for tool in self.tools if tool.name == tool_name)
             return await tool.func(**input_data)
         except StopIteration:
-            return (f"Tool '{tool_name}' not found")
+            return f"Tool '{tool_name}' not found"
 
     def to_claude_format(self) -> list[dict[str, Any]]:
         """Convert all tools to Claude format"""
@@ -252,5 +317,3 @@ class AgentTools:
     def to_bedrock_format(self) -> list[dict[str, Any]]:
         """Convert all tools to Bedrock format"""
         return [tool.to_bedrock_format() for tool in self.tools]
-
-

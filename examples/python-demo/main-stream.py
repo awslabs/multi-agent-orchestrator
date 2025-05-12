@@ -1,5 +1,6 @@
 
 import uuid
+from uuid import UUID
 import asyncio
 from typing import Optional, Any
 import json
@@ -14,11 +15,83 @@ from agent_squad.agents import (BedrockLLMAgent,
                         AgentStreamResponse,
                         AgentCallbacks)
 from agent_squad.types import ConversationMessage, ParticipantRole
-from agent_squad.utils import AgentTools
+from agent_squad.utils import AgentTool, AgentTools, AgentToolCallbacks
 
 class LLMAgentCallbacks(AgentCallbacks):
-    def on_llm_new_token(self, token: str) -> None:
-        print(token, end='', flush=True)
+    async def on_agent_start(
+        self,
+        agent_name,
+        input: Any,
+        messages: list[Any],
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> dict:
+
+        return {"id":1234}
+
+    async def on_agent_end(
+        self,
+        agent_name,
+        response: Any,
+        messages: list[Any],
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
+    async def on_llm_start(
+        self,
+        name: str,
+        input: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
+    async def on_llm_end(
+        self,
+        name: str,
+        output: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        pass
+
+
+class CustomToolCallbacks(AgentToolCallbacks):
+    async def on_tool_start(
+        self,
+        tool_name: str,
+        input: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        print(tool_name)
+        print(input)
+        print(metadata)
+
+    async def on_tool_end(
+        self,
+        tool_name: str,
+        output: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        print(tool_name)
+        print(output)
+        print(metadata)
 
 
 async def handle_request(_orchestrator: AgentSquad, _user_input:str, _user_id:str, _session_id:str):

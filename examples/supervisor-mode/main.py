@@ -1,5 +1,8 @@
-from typing import Any
-import sys, asyncio, uuid
+from typing import AsyncIterator, Any, Optional
+import sys
+import asyncio
+import uuid
+from uuid import UUID
 import os
 from datetime import datetime, timezone
 from agent_squad.utils import Logger
@@ -9,12 +12,13 @@ from agent_squad.agents import (
     AgentResponse,
     LexBotAgent, LexBotAgentOptions,
     AmazonBedrockAgent, AmazonBedrockAgentOptions,
-    SupervisorAgent, SupervisorAgentOptions
+    SupervisorAgent, SupervisorAgentOptions,
+    AgentStreamResponse
 )
 from agent_squad.classifiers import ClassifierResult
 from agent_squad.types import ConversationMessage
 from agent_squad.storage import DynamoDbChatStorage
-from agent_squad.utils import AgentTool
+from agent_squad.utils import AgentTools, AgentTool, AgentToolCallbacks
 
 try:
     from agent_squad.agents import AnthropicAgent,  AnthropicAgentOptions
@@ -27,6 +31,40 @@ from weather_tool import weather_tool_description, weather_tool_handler, weather
 from dotenv import load_dotenv
 
 load_dotenv()
+
+class SupervisorToolsCallbacks (AgentToolCallbacks):
+    async def on_tool_start(
+        self,
+        tool_name,
+        input: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        print(f"Tool {tool_name} started with input {input}")
+
+    async def on_tool_end(
+        self,
+        tool_name,
+        output: Any,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        print(f"Tool {tool_name} ended with output {output}")
+
+    async def on_tool_error(
+        self,
+        tool_name,
+        error: Exception,
+        run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        **kwargs: Any,
+    ) -> Any:
+        print(f"Tool {tool_name} error: {error}")
 
 tech_agent = BedrockLLMAgent(
     options=BedrockLLMAgentOptions(
@@ -87,6 +125,7 @@ if _ANTHROPIC_AVAILABLE:
         name="SupervisorAgent",
         description="You are a supervisor agent. You are responsible for managing the flow of the conversation. You are only allowed to manage the flow of the conversation. You are not allowed to answer questions about anything else.",
         model_id="claude-3-5-sonnet-latest",
+        streaming=True
     ))
 else:
     lead_agent = BedrockLLMAgent(BedrockLLMAgentOptions(
@@ -114,16 +153,16 @@ supervisor = SupervisorAgent(
             region='us-east-1'
         ),
         trace=True,
-        extra_tools=[AgentTool(
+        extra_tools=AgentTools(tools=[AgentTool(
             name="get_current_date",
             func=get_current_date,
-        )]
+        )], callbacks=SupervisorToolsCallbacks())
     ))
 
 async def handle_request(_orchestrator: AgentSquad, _user_input:str, _user_id:str, _session_id:str):
     classifier_result=ClassifierResult(selected_agent=supervisor, confidence=1.0)
 
-    response:AgentResponse = await _orchestrator.agent_process_request(_user_input, _user_id, _session_id, classifier_result)
+    response:AgentResponse = await _orchestrator.agent_process_request(_user_input, _user_id, _session_id, classifier_result, {}, True)
 
     # Print metadata
     print("\nMetadata:")
@@ -134,6 +173,14 @@ async def handle_request(_orchestrator: AgentSquad, _user_input:str, _user_id:st
             print(f"\033[34m{response.output}\033[0m")
         elif isinstance(response.output, ConversationMessage):
                 print(f"\033[34m{response.output.content[0].get('text')}\033[0m")
+    if response.streaming:
+         if isinstance(response.output, AsyncIterator):
+            async for chunk in response.output:
+                if isinstance(chunk, AgentStreamResponse):
+                    print(f"\033[34m{chunk.text}\033[0m", end='', flush=True)
+                else:
+                    print(f"\033[34m{chunk}\033[0m", end='', flush=True)
+
 
 if __name__ == "__main__":
 

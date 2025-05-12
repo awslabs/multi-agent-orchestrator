@@ -168,8 +168,8 @@ async def test_dispatch_to_agent_no_agent(orchestrator):
         "additional_params": {}
     })
 
-    assert isinstance(response, str)
-    assert "more information" in response
+    assert isinstance(response, ConversationMessage)
+    assert "more information" in response.content[0].get('text')
 
 # Test streaming functionality
 @pytest.mark.asyncio
@@ -229,8 +229,8 @@ async def test_route_request_error(orchestrator):
         "session1"
     )
 
-    assert isinstance(response.output, str)
-    assert "Test error" in response.output
+    assert isinstance(response.output, ConversationMessage)
+    assert "Test error" in response.output.content[0].get('text')
 
 # Test chat storage
 @pytest.mark.asyncio

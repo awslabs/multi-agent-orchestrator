@@ -2,17 +2,24 @@ from typing import Any, Optional, AsyncGenerator, AsyncIterable
 from dataclasses import dataclass
 import re
 import json
-import os
 import boto3
 from agent_squad.agents import Agent, AgentOptions, AgentStreamResponse
-from agent_squad.types import (ConversationMessage,
-                       ParticipantRole,
-                       BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
-                       TemplateVariables,
-                       AgentProviderType)
-from agent_squad.utils import conversation_to_dict, Logger, AgentTools, AgentTool
+from agent_squad.types import (
+    ConversationMessage,
+    ParticipantRole,
+    BEDROCK_MODEL_ID_CLAUDE_3_HAIKU,
+    TemplateVariables,
+    AgentProviderType,
+)
+from agent_squad.utils import (
+    conversation_to_dict,
+    Logger,
+    AgentTools,
+    AgentTool,
+)
 from agent_squad.retrievers import Retriever
 from agent_squad.shared import user_agent
+
 
 @dataclass
 class BedrockLLMAgentOptions(AgentOptions):
@@ -35,27 +42,29 @@ class BedrockLLMAgent(Agent):
         else:
             if options.region:
                 self.client = boto3.client(
-                    'bedrock-runtime',
-                    region_name=options.region)
+                    "bedrock-runtime", region_name=options.region
+                )
             else:
-                self.client = boto3.client('bedrock-runtime')
+                self.client = boto3.client("bedrock-runtime")
 
         user_agent.register_feature_to_client(self.client, feature="bedrock-llm-agent")
-
 
         self.model_id: str = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_HAIKU
         self.streaming: bool = options.streaming
         self.inference_config: dict[str, Any]
 
         default_inference_config = {
-            'maxTokens': 1000,
-            'temperature': 0.0,
-            'topP': 0.9,
-            'stopSequences': []
+            "maxTokens": 1000,
+            "temperature": 0.0,
+            "topP": 0.9,
+            "stopSequences": [],
         }
 
         if options.inference_config:
-            self.inference_config = {**default_inference_config, **options.inference_config}
+            self.inference_config = {
+                **default_inference_config,
+                **options.inference_config,
+            }
         else:
             self.inference_config = default_inference_config
 
@@ -90,8 +99,8 @@ class BedrockLLMAgent(Agent):
 
         if options.custom_system_prompt:
             self.set_system_prompt(
-                options.custom_system_prompt.get('template'),
-                options.custom_system_prompt.get('variables')
+                options.custom_system_prompt.get("template"),
+                options.custom_system_prompt.get("variables"),
             )
 
     def is_streaming_enabled(self) -> bool:
@@ -110,35 +119,30 @@ class BedrockLLMAgent(Agent):
         return system_prompt
 
     def _prepare_conversation(
-        self,
-        input_text: str,
-        chat_history: list[ConversationMessage]
+        self, input_text: str, chat_history: list[ConversationMessage]
     ) -> list[ConversationMessage]:
         """Prepare the conversation history with the new user message."""
 
         user_message = ConversationMessage(
-            role=ParticipantRole.USER.value,
-            content=[{'text': input_text}]
+            role=ParticipantRole.USER.value, content=[{"text": input_text}]
         )
         return [*chat_history, user_message]
 
     def _build_conversation_command(
-            self,
-            conversation: list[ConversationMessage],
-            system_prompt: str
-            ) -> dict:
+        self, conversation: list[ConversationMessage], system_prompt: str
+    ) -> dict:
         """Build the conversation command with all necessary configurations."""
 
         command = {
-            'modelId': self.model_id,
-            'messages': conversation_to_dict(conversation),
-            'system': [{'text': system_prompt}],
-            'inferenceConfig': {
-                'maxTokens': self.inference_config.get('maxTokens'),
-                'temperature': self.inference_config.get('temperature'),
-                'topP': self.inference_config.get('topP'),
-                'stopSequences': self.inference_config.get('stopSequences'),
-            }
+            "modelId": self.model_id,
+            "messages": conversation_to_dict(conversation),
+            "system": [{"text": system_prompt}],
+            "inferenceConfig": {
+                "maxTokens": self.inference_config.get("maxTokens"),
+                "temperature": self.inference_config.get("temperature"),
+                "topP": self.inference_config.get("topP"),
+                "stopSequences": self.inference_config.get("stopSequences"),
+            },
         }
 
         if self.guardrail_config:
@@ -153,13 +157,13 @@ class BedrockLLMAgent(Agent):
         """Prepare tool configuration based on the tool type."""
 
         if isinstance(self.tool_config["tool"], AgentTools):
-            return {'tools': self.tool_config["tool"].to_bedrock_format()}
+            return {"tools": self.tool_config["tool"].to_bedrock_format()}
 
         if isinstance(self.tool_config["tool"], list):
             return {
-                'tools': [
+                "tools": [
                     tool.to_bedrock_format() if isinstance(tool, AgentTool) else tool
-                    for tool in self.tool_config['tool']
+                    for tool in self.tool_config["tool"]
                 ]
             }
 
@@ -169,13 +173,14 @@ class BedrockLLMAgent(Agent):
         """Get the maximum number of recursions based on tool configuration."""
         if not self.tool_config:
             return 1
-        return self.tool_config.get('toolMaxRecursions', self.default_max_recursions)
+        return self.tool_config.get("toolMaxRecursions", self.default_max_recursions)
 
     async def _handle_single_response_loop(
         self,
         command: dict,
         conversation: list[ConversationMessage],
-        max_recursions: int
+        max_recursions: int,
+        agent_tracking_info: dict,
     ) -> ConversationMessage:
         """Handle single response processing with tool recursion."""
 
@@ -183,13 +188,17 @@ class BedrockLLMAgent(Agent):
         llm_response = None
 
         while continue_with_tools and max_recursions > 0:
-            llm_response = await self.handle_single_response(command)
+            llm_response = await self.handle_single_response(
+                command, agent_tracking_info
+            )
             conversation.append(llm_response)
 
-            if any('toolUse' in content for content in llm_response.content):
-                tool_response = await self._process_tool_block(llm_response, conversation)
+            if any("toolUse" in content for content in llm_response.content):
+                tool_response = await self._process_tool_block(
+                    llm_response, conversation, agent_tracking_info
+                )
                 conversation.append(tool_response)
-                command['messages'] = conversation_to_dict(conversation)
+                command["messages"] = conversation_to_dict(conversation)
             else:
                 continue_with_tools = False
 
@@ -201,7 +210,8 @@ class BedrockLLMAgent(Agent):
         self,
         command: dict,
         conversation: list[ConversationMessage],
-        max_recursions: int
+        max_recursions: int,
+        agent_tracking_info: dict,
     ) -> AsyncIterable[Any]:
         """Handle streaming response processing with tool recursion."""
         continue_with_tools = True
@@ -211,24 +221,37 @@ class BedrockLLMAgent(Agent):
             nonlocal continue_with_tools, final_response, max_recursions
 
             while continue_with_tools and max_recursions > 0:
-                response = self.handle_streaming_response(command)
+                response = self.handle_streaming_response(
+                    command, agent_tracking_info=agent_tracking_info
+                )
 
                 async for chunk in response:
-                    if chunk.final_message:
-                        final_response = chunk.final_message
-                    yield chunk
+                    if isinstance(chunk, AgentStreamResponse):
+                        yield chunk
+                        if chunk.final_message:
+                            final_response = chunk.final_message
 
                 conversation.append(final_response)
 
-                if any('toolUse' in content for content in final_response.content):
-                    tool_response = await self._process_tool_block(final_response, conversation)
+                if any("toolUse" in content for content in final_response.content):
+                    tool_response = await self._process_tool_block(
+                        final_response, conversation, agent_tracking_info
+                    )
 
                     conversation.append(tool_response)
-                    command['messages'] = conversation_to_dict(conversation)
+                    command["messages"] = conversation_to_dict(conversation)
                 else:
                     continue_with_tools = False
 
                 max_recursions -= 1
+
+            kwargs = {
+                "agent_name": self.name,
+                "response": final_response,
+                "messages": conversation,
+                "agent_tracking_info": agent_tracking_info,
+            }
+            await self.callbacks.on_agent_end(**kwargs)
 
         return stream_generator()
 
@@ -236,15 +259,30 @@ class BedrockLLMAgent(Agent):
         self,
         streaming: bool,
         command: dict,
-        conversation: list[ConversationMessage]
+        conversation: list[ConversationMessage],
+        agent_tracking_info: dict,
     ) -> ConversationMessage | AsyncIterable[Any]:
         """Process the request using the specified strategy."""
 
         max_recursions = self._get_max_recursions()
 
         if streaming:
-            return await self._handle_streaming(command, conversation, max_recursions)
-        return await self._handle_single_response_loop(command, conversation, max_recursions)
+            return await self._handle_streaming(
+                command, conversation, max_recursions, agent_tracking_info
+            )
+        response = await self._handle_single_response_loop(
+            command, conversation, max_recursions, agent_tracking_info
+        )
+
+        kwargs = {
+            "agent_name": self.name,
+            "response": response,
+            "messages": conversation,
+            "agent_tracking_info": agent_tracking_info,
+        }
+
+        await self.callbacks.on_agent_end(**kwargs)
+        return response
 
     async def process_request(
         self,
@@ -252,39 +290,90 @@ class BedrockLLMAgent(Agent):
         user_id: str,
         session_id: str,
         chat_history: list[ConversationMessage],
-        additional_params: Optional[dict[str, str]] = None
+        additional_params: Optional[dict[str, str]] = None,
     ) -> ConversationMessage | AsyncIterable[Any]:
         """
         Process a conversation request either in streaming or single response mode.
         """
+        kwargs = {
+            "agent_name": self.name,
+            "input": input_text,
+            "messages": [*chat_history],
+            "additional_params": additional_params,
+            "user_id": user_id,
+            "session_id": session_id,
+        }
+        agent_tracking_info = await self.callbacks.on_agent_start(**kwargs)
+
         conversation = self._prepare_conversation(input_text, chat_history)
         system_prompt = await self._prepare_system_prompt(input_text)
 
         command = self._build_conversation_command(conversation, system_prompt)
 
-        return await self._process_with_strategy(self.streaming, command, conversation)
+        return await self._process_with_strategy(
+            self.streaming, command, conversation, agent_tracking_info
+        )
 
-    async def _process_tool_block(self, llm_response: ConversationMessage, conversation: list[ConversationMessage]) -> (ConversationMessage):
-        if 'useToolHandler' in  self.tool_config:
+    async def _process_tool_block(
+        self,
+        llm_response: ConversationMessage,
+        conversation: list[ConversationMessage],
+        agent_tracking_info: dict[str, Any] | None = None,
+    ) -> ConversationMessage:
+        if "useToolHandler" in self.tool_config:
             # tool process logic is handled elsewhere
-            tool_response = await self.tool_config['useToolHandler'](llm_response, conversation)
+            tool_response = await self.tool_config["useToolHandler"](
+                llm_response, conversation
+            )
         else:
+            additional_params = {
+                "agent_name": self.name,
+                "agent_tracking_info": agent_tracking_info,
+            }
             # tool process logic is handled in AgentTools class
-            if isinstance(self.tool_config['tool'], AgentTools):
-                tool_response = await self.tool_config['tool'].tool_handler(AgentProviderType.BEDROCK.value, llm_response, conversation)
+            if isinstance(self.tool_config["tool"], AgentTools):
+                tool_response = await self.tool_config["tool"].tool_handler(
+                    AgentProviderType.BEDROCK.value,
+                    llm_response,
+                    conversation,
+                    additional_params,
+                )
             else:
-                raise ValueError("You must use AgentTools class when not providing a custom tool handler")
+                raise ValueError(
+                    "You must use AgentTools class when not providing a custom tool handler"
+                )
         return tool_response
 
-    async def handle_single_response(self, converse_input: dict[str, Any]) -> ConversationMessage:
+    async def handle_single_response(
+        self, converse_input: dict[str, Any], agent_tracking_info: dict
+    ) -> ConversationMessage:
         try:
+            kwargs = {
+                "name": self.name,
+                "input": converse_input.get("messages")[-1],
+                "converse_input": converse_input,
+                "agent_tracking_info": agent_tracking_info,
+            }
+            await self.callbacks.on_llm_start(**kwargs)
+
             response = self.client.converse(**converse_input)
-            if 'output' not in response:
+            if "output" not in response:
                 raise ValueError("No output received from Bedrock model")
 
+            kwargs = {
+                "name": self.name,
+                "output": response.get("output", {}).get("message"),
+                "usage": response.get("usage"),
+                "system": converse_input.get("system")[0].get("text"),
+                "input": converse_input,
+                "inferenceConfig": converse_input.get("inferenceConfig"),
+                "agent_tracking_info": agent_tracking_info,
+            }
+            await self.callbacks.on_llm_end(**kwargs)
+
             return ConversationMessage(
-                role=response['output']['message']['role'],
-                content=response['output']['message']['content']
+                role=response["output"]["message"]["role"],
+                content=response["output"]["message"]["content"],
             )
         except Exception as error:
             Logger.error(f"Error invoking Bedrock model:{str(error)}")
@@ -292,7 +381,8 @@ class BedrockLLMAgent(Agent):
 
     async def handle_streaming_response(
         self,
-        converse_input: dict[str, Any]
+        converse_input: dict[str, Any],
+        agent_tracking_info: dict,
     ) -> AsyncGenerator[AgentStreamResponse, None]:
         """
         Handle streaming response from Bedrock model.
@@ -305,55 +395,80 @@ class BedrockLLMAgent(Agent):
             StreamChunk: Contains either a text chunk or the final complete message
         """
         try:
+            kwargs = {
+                "name": self.name,
+                "input": converse_input.get("messages")[-1],
+                "messages": converse_input,
+                "agent_tracking_info": agent_tracking_info,
+            }
+            await self.callbacks.on_llm_start(**kwargs)
             response = self.client.converse_stream(**converse_input)
 
+            metadata = {}
             message = {}
             content = []
-            message['content'] = content
-            text = ''
+            message["content"] = content
+            text = ""
             tool_use = {}
 
-            for chunk in response['stream']:
-                if 'messageStart' in chunk:
-                    message['role'] = chunk['messageStart']['role']
-                elif 'contentBlockStart' in chunk:
-                    tool = chunk['contentBlockStart']['start']['toolUse']
-                    tool_use['toolUseId'] = tool['toolUseId']
-                    tool_use['name'] = tool['name']
-                elif 'contentBlockDelta' in chunk:
-                    delta = chunk['contentBlockDelta']['delta']
-                    if 'toolUse' in delta:
-                        if 'input' not in tool_use:
-                            tool_use['input'] = ''
-                        tool_use['input'] += delta['toolUse']['input']
-                    elif 'text' in delta:
-                        text += delta['text']
-                        self.callbacks.on_llm_new_token(delta['text'])
+            for chunk in response["stream"]:
+                if "messageStart" in chunk:
+                    message["role"] = chunk["messageStart"]["role"]
+                elif "contentBlockStart" in chunk:
+                    tool = chunk["contentBlockStart"]["start"]["toolUse"]
+                    tool_use["toolUseId"] = tool["toolUseId"]
+                    tool_use["name"] = tool["name"]
+                elif "contentBlockDelta" in chunk:
+                    delta = chunk["contentBlockDelta"]["delta"]
+                    if "toolUse" in delta:
+                        if "input" not in tool_use:
+                            tool_use["input"] = ""
+                        tool_use["input"] += delta["toolUse"]["input"]
+                    elif "text" in delta:
+                        text += delta["text"]
+                        token_kwargs = {
+                            "token": delta["text"],
+                            "agent_tracking_info": agent_tracking_info,
+                        }
+                        await self.callbacks.on_llm_new_token(**token_kwargs)
                         # yield the text chunk
-                        yield AgentStreamResponse(text=delta['text'])
-                elif 'contentBlockStop' in chunk:
-                    if 'input' in tool_use:
-                        tool_use['input'] = json.loads(tool_use['input'])
-                        content.append({'toolUse': tool_use})
+                        yield AgentStreamResponse(text=delta["text"])
+                elif "contentBlockStop" in chunk:
+                    if "input" in tool_use and tool_use.get("input"):
+                        tool_use["input"] = json.loads(tool_use["input"])
+                        content.append({"toolUse": tool_use})
                         tool_use = {}
                     else:
-                        content.append({'text': text})
-                        text = ''
+                        content.append({"text": text})
+                        text = ""
+                elif "metadata" in chunk:
+                    metadata = chunk.get("metadata")
 
             final_message = ConversationMessage(
-                role=ParticipantRole.ASSISTANT.value,
-                content=message['content']
+                role=ParticipantRole.ASSISTANT.value, content=message["content"]
             )
+
+            kwargs = {
+                "name": self.name,
+                "output": message["content"],
+                "usage": metadata.get("usage"),
+                "system": converse_input.get("system")[0].get("text"),
+                "input": converse_input,
+                "agent_tracking_info": agent_tracking_info,
+            }
+            await self.callbacks.on_llm_end(**kwargs)
+
             # yield the final message
             yield AgentStreamResponse(final_message=final_message)
-
         except Exception as error:
             Logger.error(f"Error getting stream from Bedrock model: {str(error)}")
             raise error
 
-    def set_system_prompt(self,
-                          template: Optional[str] = None,
-                          variables: Optional[TemplateVariables] = None) -> None:
+    def set_system_prompt(
+        self,
+        template: Optional[str] = None,
+        variables: Optional[TemplateVariables] = None,
+    ) -> None:
         if template:
             self.prompt_template = template
         if variables:
@@ -362,7 +477,9 @@ class BedrockLLMAgent(Agent):
 
     def update_system_prompt(self) -> None:
         all_variables: TemplateVariables = {**self.custom_variables}
-        self.system_prompt = self.replace_placeholders(self.prompt_template, all_variables)
+        self.system_prompt = self.replace_placeholders(
+            self.prompt_template, all_variables
+        )
 
     @staticmethod
     def replace_placeholders(template: str, variables: TemplateVariables) -> str:
@@ -370,7 +487,7 @@ class BedrockLLMAgent(Agent):
             key = match.group(1)
             if key in variables:
                 value = variables[key]
-                return '\n'.join(value) if isinstance(value, list) else str(value)
+                return "\n".join(value) if isinstance(value, list) else str(value)
             return match.group(0)
 
-        return re.sub(r'{{(\w+)}}', replace, template)
+        return re.sub(r"{{(\w+)}}", replace, template)

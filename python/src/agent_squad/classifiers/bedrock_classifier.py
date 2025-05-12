@@ -5,7 +5,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from agent_squad.utils.helpers import is_tool_input
 from agent_squad.utils import Logger
 from agent_squad.types import ConversationMessage, ParticipantRole, BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
-from agent_squad.classifiers import Classifier, ClassifierResult
+from agent_squad.classifiers import Classifier, ClassifierResult, ClassifierCallbacks
 from agent_squad.shared import user_agent
 
 class BedrockClassifierOptions:
@@ -14,12 +14,14 @@ class BedrockClassifierOptions:
         model_id: Optional[str] = None,
         region: Optional[str] = None,
         inference_config: Optional[Dict] = None,
-        client: Optional[Any] = None
+        client: Optional[Any] = None,
+        callbacks: Optional[ClassifierCallbacks] = None
     ):
         self.model_id = model_id
         self.region = region
         self.inference_config = inference_config if inference_config is not None else {}
         self.client = client
+        self.callbacks = callbacks or ClassifierCallbacks()
 
 
 class BedrockClassifier(Classifier):
@@ -29,8 +31,9 @@ class BedrockClassifier(Classifier):
         if options.client:
             self.client = options.client
         else:
-            self.client = boto3.client('bedrock-runtime',region_name=self.region)
+            self.client = boto3.client('bedrock-runtime', region_name=self.region)
 
+        self.callbacks = options.callbacks
         user_agent.register_feature_to_client(self.client, feature="bedrock-classifier")
 
         self.model_id = options.model_id or BEDROCK_MODEL_ID_CLAUDE_3_5_SONNET
@@ -106,6 +109,17 @@ class BedrockClassifier(Classifier):
         }
 
         try:
+            kwargs = {
+                "modelId": self.model_id,
+                "system": self.system_prompt,
+                "inferenceConfig": {
+                    "maxTokens": self.inference_config['maxTokens'],
+                    "temperature": self.inference_config['temperature'],
+                    "topP": self.inference_config['topP'],
+                    "stopSequences": self.inference_config['stopSequences'],
+                },
+            }
+            await self.callbacks.on_classifier_start('on_classifier_start', input_text, **kwargs)
             response = self.client.converse(**converse_cmd)
 
             if not response.get('output'):
@@ -121,12 +135,16 @@ class BedrockClassifier(Classifier):
                             raise ValueError("No tool use found in the response")
 
                         if not is_tool_input(tool_use['input']):
-                            raise ValueError("Tool input does not match expected structure")
+                            raise ValueError(f"Tool input does not match expected structure: {str(tool_use)}")
 
                         intent_classifier_result: ClassifierResult = ClassifierResult(
                             selected_agent=self.get_agent_by_id(tool_use['input']['selected_agent']),
                             confidence=float(tool_use['input']['confidence'])
                         )
+                        kwargs = {
+                            "usage": response.get('usage'),
+                        }
+                        await self.callbacks.on_classifier_stop('on_classifier_stop', intent_classifier_result, **kwargs)
                         return intent_classifier_result
 
             raise ValueError("No valid tool use found in the response")

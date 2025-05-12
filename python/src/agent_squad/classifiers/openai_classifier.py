@@ -5,8 +5,6 @@ from agent_squad.utils.helpers import is_tool_input
 from agent_squad.utils.logger import Logger
 from agent_squad.types import ConversationMessage
 from agent_squad.classifiers import Classifier, ClassifierResult
-import logging
-logging.getLogger("httpx").setLevel(logging.WARNING)
 
 OPENAI_MODEL_ID_GPT_O_MINI = "gpt-4o-mini"
 
