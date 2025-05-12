@@ -61,6 +61,7 @@ export class AgentToolCallbacks {
 
   onToolError(
       _toolName: string,
+      _input: any,
       _error: Error,
       _runId?: string,
       _tags?: string[],
@@ -71,6 +72,7 @@ export class AgentToolCallbacks {
        * Callback method that runs when a tool encounters an error.
        *
        * @param toolName Name of the tool that encountered an error
+       * @param input Object containing the tool's input
        * @param error The error that occurred
        * @param runId Unique identifier for this specific tool run
        * @param tags Optional list of string tags associated with this tool run
