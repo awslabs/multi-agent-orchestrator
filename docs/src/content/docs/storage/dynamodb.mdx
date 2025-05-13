@@ -10,12 +10,14 @@ DynamoDB storage provides a scalable and persistent solution for storing convers
 - Persistent storage across application restarts
 - Scalable to handle large volumes of conversation data
 - Integrated with AWS services for robust security and management
+- Automatically replaces key-value pairs for sensitive data to control how values are anonymized during save and restored during retrieval from DynamoDB
 
 ## When to Use DynamoDB Storage
 
 - In production environments
 - When long-term persistence of conversation history is required
 - For applications that need to scale horizontally
+- When sensitive data anonymization is a requirement
 
 ## Python Package
 
@@ -32,7 +34,9 @@ To use DynamoDB storage in your Agent Squad:
 1. Set up a DynamoDB table with the following schema:
    - Partition Key: `PK` (String)
    - Sort Key: `SK` (String)
-   - Additionally, you can also set up your DynamoDB table with a TTL Key to automatically delete older conversation items
+   - Additionally, you can also set up your DynamoDB table with:
+     - **TTL Key** to automatically delete older conversation items
+     - **Sensitive Mappings** to anonymize sensitive data during processing. Sensitive mappings involve providing a dictionary of key-value pairs where keys represent sensitive strings and values represent their anonymized versions.
 
 2. Use the DynamoDbChatStorage when creating your orchestrator:
 
@@ -66,6 +70,42 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
   </TabItem>
 </Tabs>
 
+## Anonymization
+
+The DynamoDbChatStorage now supports sensitive data anonymization. You can provide a dictionary of sensitive data mappings to replace specific strings with anonymized values in chat messages. This feature applies to both saving and retrieving conversations.
+
+**Example**
+
+If your sensitive mappings are defined as:
+
+<Tabs syncKey="runtime">
+  <TabItem label="Python" icon="seti:python">
+    ```python
+    from agent_squad.storage import DynamoDbChatStorage
+    from agent_squad.orchestrator import AgentSquad
+
+    SENSITIVE_MAPPINGS = {
+      "AWS": "CloudProvider",
+      "Nova": "LLM"
+    }
+
+    TTL_DURATION = 3600  # in seconds
+
+    dynamodb_storage = DynamoDbChatStorage(
+      table_name='YourDynamoDBTableName', 
+      region='your-aws-region', 
+      ttl_key='your-ttl-key-name', 
+      ttl_duration=TTL_DURATION, 
+      sensitive_mappings=SENSITIVE_MAPPINGS
+    )
+    orchestrator = AgentSquad(storage=dynamodb_storage)
+    ```
+  </TabItem>
+</Tabs>
+
+- When saving a message containing "AWS", it will automatically be stored as "CloudProvider".
+- When retrieving the message, the storage will reverse the anonymization and return "AWS".
+
 ## Configuration
 
 Ensure your AWS credentials are properly set up and that your application has the necessary permissions to access the DynamoDB table.
@@ -75,6 +115,7 @@ Ensure your AWS credentials are properly set up and that your application has th
 - Requires AWS account and proper IAM permissions
 - May incur costs based on usage and data storage
 - Read and write operations may have higher latency compared to in-memory storage
+- Ensure sensitive mappings are comprehensive to cover all data requiring anonymization
 
 ## Best Practices
 
@@ -82,5 +123,6 @@ Ensure your AWS credentials are properly set up and that your application has th
 - Implement proper error handling for network-related issues
 - Consider implementing a caching layer for frequently accessed data to optimize performance
 - Regularly backup your DynamoDB table to prevent data loss
+- Define and manage sensitive data mappings to ensure compliance with data privacy requirements
 
 DynamoDB storage offers a robust and scalable solution for managing conversation history in production environments. It ensures data persistence and allows your Agent Squad System to handle large-scale deployments with reliable data storage and retrieval capabilities.
