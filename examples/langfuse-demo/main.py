@@ -19,6 +19,7 @@ from langfuse import Langfuse
 from uuid import UUID
 from datetime import datetime, timezone
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()  # take environment variables
 
@@ -49,7 +50,7 @@ class BedrockClassifierCallbacks(ClassifierCallbacks):
                 metadata=metadata
             )
         except Exception as e:
-            print(e)
+            logging.error(e)
             pass
 
     async def on_classifier_stop(
@@ -79,7 +80,7 @@ class BedrockClassifierCallbacks(ClassifierCallbacks):
                 },
             )
         except Exception as e:
-            print(e)
+            logging.error(e)
             pass
 
 
@@ -95,7 +96,6 @@ class LLMAgentCallbacks(AgentCallbacks):
         metadata: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Any:
-        print(kwargs)
         try:
             langfuse_context.update_current_observation(
                 input=input,
@@ -105,7 +105,7 @@ class LLMAgentCallbacks(AgentCallbacks):
                 metadata=metadata
             )
         except Exception as e:
-            print(e)
+            logging.error(e)
             pass
 
     async def on_agent_end(
@@ -119,7 +119,6 @@ class LLMAgentCallbacks(AgentCallbacks):
         **kwargs: Any,
     ) -> Any:
         try:
-            print(kwargs)
             langfuse_context.update_current_observation(
                 end_time=datetime.now(timezone.utc),
                 name=agent_name,
@@ -130,7 +129,7 @@ class LLMAgentCallbacks(AgentCallbacks):
                 metadata=metadata
             )
         except Exception as e:
-            print(e)
+            logging.error(e)
             pass
 
     async def on_llm_start(
@@ -142,8 +141,7 @@ class LLMAgentCallbacks(AgentCallbacks):
         metadata: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Any:
-        print('on_llm_start')
-        print(kwargs)
+        logging.debug('on_llm_start')
 
 
     @observe(as_type='generation', capture_input=False)
@@ -157,7 +155,6 @@ class LLMAgentCallbacks(AgentCallbacks):
         **kwargs: Any,
     ) -> Any:
         try:
-            print(kwargs)
             msgs = []
             msgs.append({'role':'system', 'content': kwargs.get('input').get('system')})
             msgs.extend(kwargs.get('input').get('messages'))
@@ -176,7 +173,7 @@ class LLMAgentCallbacks(AgentCallbacks):
                 metadata=metadata
             )
         except Exception as e:
-            print(e)
+            logging.error(e)
             pass
 
 
