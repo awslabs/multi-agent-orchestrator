@@ -16,10 +16,12 @@
       "sourceMap": true,
       "noUnusedLocals": false,
       "noImplicitReturns": true,
-      "noFallthroughCasesInSwitch": true
+      "noFallthroughCasesInSwitch": true,
+      "types": ["node", "jest"]
     },
     "include": [
       "src/**/*",
+      "tests/**/*"
     ],
     "exclude": [
       "tests/mock/mockAgent.ts",

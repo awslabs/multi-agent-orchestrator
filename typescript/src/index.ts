@@ -20,6 +20,7 @@ export { ClassifierCallbacks } from './classifiers/classifier';
 
 export { Retriever } from './retrievers/retriever';
 export { AmazonKnowledgeBasesRetriever, AmazonKnowledgeBasesRetrieverOptions } from './retrievers/AmazonKBRetriever';
+export { ChromaRetriever, ChromaRetrieverOptions } from './retrievers/ChromaRetriever';
 
 export { ChatStorage } from './storage/chatStorage';
 export { InMemoryChatStorage } from './storage/memoryChatStorage';
