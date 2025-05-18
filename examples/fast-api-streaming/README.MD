@@ -1,6 +1,6 @@
 # Agent Squad with Fast-api
 
-This project implements a FastAPI-based web service that uses a Agent Squad to process and respond to user queries. It supports streaming responses and uses AWS Bedrock for language model interactions.
+This project implements a FastAPI-based web service that uses an Agent Squad to process and respond to user queries. It supports streaming responses and uses AWS Bedrock for language model interactions.
 
 ## Installation
 

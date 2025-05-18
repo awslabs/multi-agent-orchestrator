@@ -4,7 +4,7 @@ description: Documentation for the AgentTools system in the Agent Squad
 ---
 
 The AgentTools system in the Agent Squad provides a flexible framework for defining, building, and managing tools that agents can use.
-It consists of three main classes: `AgentTool` and `AgentTools`, which work together to enable tool-based interactions in the orchestrator.
+It consists of two main classes: `AgentTool` and `AgentTools`, which work together to enable tool-based interactions in the orchestrator.
 
 ## Key Features
 
@@ -19,7 +19,7 @@ It consists of three main classes: `AgentTool` and `AgentTools`, which work toge
 
 The `AgentTool` class is the core component that represents a single tool definition. It can be created in multiple ways and supports various formats for different AI providers.
 
-### Creating a AgentTool
+### Creating an AgentTool
 
 There are several ways to create a tool:
 
@@ -165,10 +165,10 @@ The `AgentTools` class manages multiple tool definitions and handles tool execut
   </TabItem>
 </Tabs>
 
-By using AgentTools, the logic of parsing the tool response from the Agent is hanlded directly by the class.
+By using AgentTools, the logic of parsing the tool response from the Agent is handled directly by the class.
 
 
-## Using a AgentTool with an Agent
+## Using AgentTools with an Agent
 
 ### 1. **Definition**
 <Tabs syncKey="runtime">
@@ -229,7 +229,7 @@ Here is an example of how you can add AgentTools to your Agent
 </Tabs>
 
 
-### 3. **Overriding the tool hanlder**
+### 3. **Overriding the tool handler**
 
 When you need more control over tool execution, you can implement a custom handler using the useToolHandler option in your tool_config. This handler lets you:
 

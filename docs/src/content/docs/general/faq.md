@@ -4,7 +4,7 @@ title: FAQ
 
 ##### What is the Agent Squad framework?
 
-The Agent Squad System is a flexible and powerful framework designed for managing multiple AI agents, intelligently routing user queries, and handling complexconversations. It allows developers to create scalable AI systems that can maintain coherent dialogues across multiple domains, efficiently delegating tasks to specialized agents while preserving context throughout the interaction.
+The Agent Squad System is a flexible and powerful framework designed for managing multiple AI agents, intelligently routing user queries, and handling complex conversations. It allows developers to create scalable AI systems that can maintain coherent dialogues across multiple domains, efficiently delegating tasks to specialized agents while preserving context throughout the interaction.
 
 <br />
 
