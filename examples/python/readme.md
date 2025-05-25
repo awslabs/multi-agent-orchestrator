@@ -34,7 +34,7 @@ Enter your destination and travel duration, and the system will research attract
 1. Clone the repository:
 ```bash
 git clone https://github.com/awslabs/agent-squad.git
-cd examples/python
+cd agent-squad/examples/python
 python -m venv venv
 source venv/bin/activate # On Windows use `venv\Scripts\activate`
 pip install -r requirements.txt
