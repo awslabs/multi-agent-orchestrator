@@ -35,6 +35,12 @@ export interface AnthropicAgentOptions extends AgentOptions {
     // Array of sequences that will stop the model from generating further tokens when encountered
     stopSequences?: string[];
   };
+
+  thinking?: {
+    type: string;
+    budget_tokens: number;
+  };
+
   retriever?: Retriever;
   customSystemPrompt?: {
     template: string;
@@ -66,6 +72,11 @@ export class AnthropicAgent extends Agent {
     temperature: number;
     topP: number;
     stopSequences: string[];
+  };
+
+  protected thinking?: {
+    type: string;
+    budget_tokens: number;
   };
 
   protected retriever?: Retriever;
@@ -102,6 +113,8 @@ export class AnthropicAgent extends Agent {
     this.streaming = options.streaming ?? false;
 
     this.modelId = options.modelId || ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET;
+
+    this.thinking = options.thinking ?? null;
 
     const defaultMaxTokens = 1000; // You can adjust this default value as needed
     this.inferenceConfig = {
@@ -275,8 +288,10 @@ export class AnthropicAgent extends Agent {
         return this.handleStreamingResponse(messages, systemPrompt);
       } else {
         let finalMessage: string = "";
+        let thinkingMessage: string = "";
         let toolUse = false;
-        let recursions = this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
+        let recursions =
+          this.toolConfig?.toolMaxRecursions || this.defaultMaxRecursions;
         do {
           // Call Anthropic
           const llmInput = {
@@ -286,6 +301,7 @@ export class AnthropicAgent extends Agent {
             system: systemPrompt,
             temperature: this.inferenceConfig.temperature,
             top_p: this.inferenceConfig.topP,
+            thinking: this.thinking,
             ...(this.toolConfig && {
               tools:
                 this.toolConfig.tool instanceof AgentTools
@@ -338,6 +354,12 @@ export class AnthropicAgent extends Agent {
                 content.type === "text"
             );
             finalMessage = textContent?.text || "";
+            const thinkingContent = response.content.find(
+              (content): content is Anthropic.ThinkingBlock =>
+                content.type === "thinking"
+            );
+
+            thinkingMessage = thinkingContent?.thinking || "";
           }
 
           if (response.stop_reason === "end_turn") {
@@ -349,7 +371,7 @@ export class AnthropicAgent extends Agent {
 
         return {
           role: ParticipantRole.ASSISTANT,
-          content: [{ text: finalMessage }],
+          content: [{ text: finalMessage, thinking: thinkingMessage }],
         };
       }
     } catch (error) {
@@ -383,6 +405,10 @@ export class AnthropicAgent extends Agent {
         messages: messages,
         system: prompt,
         temperature: this.inferenceConfig.temperature,
+        thinking: {
+          type: this.thinking?.type === "enabled" ? "enabled" : "disabled",
+          budget_tokens: this.thinking?.budget_tokens
+        },
         top_p: this.inferenceConfig.topP,
         ...(this.toolConfig && {
           tools:
@@ -406,6 +432,14 @@ export class AnthropicAgent extends Agent {
           event.delta.type === "text_delta"
         ) {
           yield event.delta.text;
+        } else if (
+          event.type === "content_block_delta" &&
+          event.delta.type === "thinking_delta"
+        ) {
+          yield JSON.stringify({
+            thinking: true,
+            content: event.delta.thinking,
+          });
         } else if (
           event.type === "content_block_start" &&
           event.content_block.type === "tool_use"

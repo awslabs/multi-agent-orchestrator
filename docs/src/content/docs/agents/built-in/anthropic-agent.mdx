@@ -339,7 +339,52 @@ agent = AnthropicAgent(AnthropicAgentOptions(
 </Tabs>
 <hr/>
 
-**9. Complete Example with All Options**
+**9. With Reasoning enabled**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+  ```typescript
+  import { AnthropicAgent } from 'agent-squad';
+
+  const agent = new AnthropicAgent({
+    name: "Tech Agent",
+    description: "Specializes in technology areas including software development, hardware, AI, cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.",
+    inferenceConfig: {
+      maxTokens: 2500,
+      temperature: 1, // 1 for thinking
+      topP: 0.96 // 0.95 or above
+    },
+    modelId: "claude-3-7-sonnet-20250219", // Claude 3.7 or above
+    thinking: {type: "enabled", budget_tokens: 1024},
+    streaming: true,
+    apiKey: 'your-anthropic-api-key',
+  });
+  ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+  ```python
+
+  agent = AnthropicAgent(
+    AnthropicAgentOptions(
+        name="Tech Agent",
+        api_key='your-anthropic-api-key',
+        streaming=True,
+        description="Specializes in technology areas including software development, hardware, AI, \
+        cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs \
+        related to technology products and services.",
+        model_id="claude-3-7-sonnet-20250219",
+        callbacks=LLMAgentCallbacks(),
+        inference_config={"maxTokens": 2500, "temperature": 1, "topP": 0.95}, # temperature set to 1 and topP 0.95 or above
+        thinking={"type": "enabled", "budget_tokens": 2000},
+    )
+  )
+  ```
+  </TabItem>
+</Tabs>
+
+<hr/>
+
+**10. Complete Example with All Options**
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
