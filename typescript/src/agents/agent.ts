@@ -32,6 +32,7 @@ export interface AgentProcessingResult {
 export type AgentResponse = {
   metadata: Omit<AgentProcessingResult, 'response'>;
   output: AccumulatorTransform | string;
+  thinking?: string;
   streaming: boolean;
 };
 

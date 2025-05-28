@@ -301,7 +301,48 @@ agent = BedrockLLMAgent(BedrockLLMAgentOptions(
 
 <hr/>
 
-**9. Complete Example with All Options**
+**9. With Reasoning enabled**
+
+<Tabs syncKey="runtime">
+  <TabItem label="TypeScript" icon="seti:typescript" color="blue">
+  ```typescript
+  const agent = new BedrockLLMAgent({
+    name: "Tech Agent",
+    modelId: "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+    description:"Specializes in technology areas including software development, hardware, AI, cybersecurity, \
+    blockchain, cloud computing, emerging tech innovations, and pricing/costs related to technology products and services.",
+    inferenceConfig: {
+      maxTokens: 2500,
+      temperature: 1, // 1 for thinking and unset topP
+    },
+    reasoningConfig: {
+      thinking: {type: "enabled", budget_tokens: 1024},
+    },
+    streaming: true,
+  });
+  ```
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+  ```python
+  agent = BedrockLLMAgent(
+    BedrockLLMAgentOptions(
+        name="Tech Agent",
+        streaming=False,
+        description="Specializes in technology areas including software development, hardware, AI, \
+        cybersecurity, blockchain, cloud computing, emerging tech innovations, and pricing/costs \
+        related to technology products and services.",
+        model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+        callbacks=LLMAgentCallbacks(),
+        inference_config={"maxTokens": 2500, "temperature": 1},
+        reasoning_config={"thinking": {"type": "enabled", "budget_tokens": 2000}},
+    )
+  )
+  ```
+  </TabItem>
+</Tabs>
+<hr/>
+
+**10. Complete Example with All Options**
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -444,7 +485,7 @@ agent = BedrockLLMAgent(BedrockLLMAgentOptions(
 
 The `BedrockLLMAgent` provides multiple ways to set custom prompts. You can set them either during initialization or after the agent is created, and you can use prompts with or without variables.
 
-**10. Setting Custom Prompt After Initialization (Without Variables)**
+**11. Setting Custom Prompt After Initialization (Without Variables)**
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -495,7 +536,7 @@ When providing business advice:
 
 <hr/>
 
-**11. Setting Custom Prompt After Initialization (With Variables)**
+**12. Setting Custom Prompt After Initialization (With Variables)**
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -616,6 +657,7 @@ Choose the approach that best fits your needs:
 | `streaming` | Enables streaming responses for real-time output | Optional |
 | `inferenceConfig` | Fine-tunes the model's output characteristics | Optional |
 | `guardrailConfig` | Applies predefined guardrails to the model's responses | Optional |
+| `reasoningConfig` | Enables thinking and configuration for budget_tokens | Optional | 
 | `retriever` | Integrates a retrieval system for enhanced context | Optional |
 | `toolConfig` | Defines tools the agent can use and how to handle their responses | Optional |
 | `customSystemPrompt` | Defines the agent's system prompt and behavior, with optional variables for dynamic content | Optional |
@@ -632,6 +674,7 @@ Choose the approach that best fits your needs:
 | `streaming` | Enables streaming responses for real-time output | Optional |
 | `inference_config` | Fine-tunes the model's output characteristics | Optional |
 | `guardrail_config` | Applies predefined guardrails to the model's responses | Optional |
+| `reasoning_config` | Enables thinking and configuration for budget_tokens | Optional | 
 | `retriever` | Integrates a retrieval system for enhanced context | Optional |
 | `tool_config` | Defines tools the agent can use and how to handle their responses | Optional |
 | `custom_system_prompt` | Defines the agent's system prompt and behavior, with optional variables for dynamic content | Optional |
