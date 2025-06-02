@@ -147,10 +147,11 @@ export default defineConfig({
 						]
 					  },
 					  {
-						label: 'Optimization & Monitoring',
+						label: 'Optimization, Logging & Observability',
 						items: [
 						  { label: 'Agent Overlap Analysis', link: '/cookbook/monitoring/agent-overlap' },
-						  { label: 'Logging and Monitoring', link: '/cookbook/monitoring/logging' }
+						  { label: 'Logging', link: '/cookbook/monitoring/logging' },
+						  { label: 'Observability', link: '/cookbook/monitoring/observability' }
 						]
 					  }
 					]
