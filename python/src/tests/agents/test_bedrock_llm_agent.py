@@ -137,7 +137,7 @@ async def test_agent_tracking_info_propagation(bedrock_llm_agent, mock_boto3_cli
     bedrock_llm_agent.callbacks.on_agent_start.assert_called_once()
     agent_start_args = bedrock_llm_agent.callbacks.on_agent_start.call_args[1]
     assert agent_start_args['agent_name'] == bedrock_llm_agent.name
-    assert agent_start_args['input'] == input_text
+    assert agent_start_args['payload_input'] == input_text
     assert agent_start_args['user_id'] == user_id
     assert agent_start_args['session_id'] == session_id
 
@@ -195,7 +195,7 @@ async def test_agent_tracking_info_streaming(bedrock_llm_agent, mock_boto3_clien
     bedrock_llm_agent.callbacks.on_agent_start.assert_called_once()
     agent_start_args = bedrock_llm_agent.callbacks.on_agent_start.call_args[1]
     assert agent_start_args['agent_name'] == bedrock_llm_agent.name
-    assert agent_start_args['input'] == input_text
+    assert agent_start_args['payload_input'] == input_text
 
     # Verify on_llm_start was called with tracking info
     bedrock_llm_agent.callbacks.on_llm_start.assert_called_once()

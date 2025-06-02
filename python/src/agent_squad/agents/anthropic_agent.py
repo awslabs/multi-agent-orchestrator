@@ -290,7 +290,7 @@ class AnthropicAgent(Agent):
 
         kwargs = {
             'agent_name': self.name,
-            'input': input_text,
+            'payload_input': input_text,
             'messages': [*chat_history],
             'additional_params': additional_params,
             'user_id': user_id,
@@ -306,7 +306,7 @@ class AnthropicAgent(Agent):
 
     async def handle_single_response(self, input_data: dict) -> Any:
         try:
-            await self.callbacks.on_llm_start(self.name, input=input_data.get('messages')[-1], **input_data)
+            await self.callbacks.on_llm_start(self.name, payload_input=input_data.get('messages')[-1], **input_data)
             response:Message = self.client.messages.create(**input_data)
 
             kwargs = {
@@ -340,7 +340,7 @@ class AnthropicAgent(Agent):
         message['content'] = content
 
         try:
-            await self.callbacks.on_llm_start(self.name, input=payload_input.get('messages')[-1], **payload_input)
+            await self.callbacks.on_llm_start(self.name, payload_input=payload_input.get('messages')[-1], **payload_input)
             async with self.client.messages.stream(**payload_input) as stream:
                 async for event in stream:
                     if event.type == "text":

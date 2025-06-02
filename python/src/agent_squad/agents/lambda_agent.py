@@ -79,7 +79,7 @@ class LambdaAgent(Agent):
         """Process the request by invoking Lambda function and decoding the response."""
         kwargs = {
             "agent_name": self.name,
-            "input": input_text,
+            "payload_input": input_text,
             "messages": chat_history,
             "additional_params": additional_params,
             "user_id": user_id,

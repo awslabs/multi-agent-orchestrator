@@ -297,7 +297,7 @@ class BedrockLLMAgent(Agent):
         """
         kwargs = {
             "agent_name": self.name,
-            "input": input_text,
+            "payload_input": input_text,
             "messages": [*chat_history],
             "additional_params": additional_params,
             "user_id": user_id,
@@ -350,7 +350,7 @@ class BedrockLLMAgent(Agent):
         try:
             kwargs = {
                 "name": self.name,
-                "input": converse_input.get("messages")[-1],
+                "payload_input": converse_input.get("messages")[-1],
                 "converse_input": converse_input,
                 "agent_tracking_info": agent_tracking_info,
             }
@@ -397,7 +397,7 @@ class BedrockLLMAgent(Agent):
         try:
             kwargs = {
                 "name": self.name,
-                "input": converse_input.get("messages")[-1],
+                "payload_input": converse_input.get("messages")[-1],
                 "messages": converse_input,
                 "agent_tracking_info": agent_tracking_info,
             }

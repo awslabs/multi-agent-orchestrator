@@ -89,7 +89,7 @@ class LLMAgentCallbacks(AgentCallbacks):
     async def on_agent_start(
         self,
         agent_name,
-        input: Any,
+        payload_input: Any,
         messages: list[Any],
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
@@ -98,7 +98,7 @@ class LLMAgentCallbacks(AgentCallbacks):
     ) -> Any:
         try:
             langfuse_context.update_current_observation(
-                input=input,
+                input=payload_input,
                 start_time=datetime.now(timezone.utc),
                 name=agent_name,
                 tags=tags,
@@ -135,7 +135,7 @@ class LLMAgentCallbacks(AgentCallbacks):
     async def on_llm_start(
         self,
         name:str,
-        input: Any,
+        payload_input: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
         metadata: Optional[dict[str, Any]] = None,
@@ -183,7 +183,7 @@ class ToolsCallbacks(AgentToolCallbacks):
     async  def on_tool_start(
         self,
         tool_name,
-        input: Any,
+        payload_input: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
         metadata: Optional[dict[str, Any]] = None,
@@ -198,13 +198,13 @@ class ToolsCallbacks(AgentToolCallbacks):
     async def on_tool_end(
         self,
         tool_name,
-        input: Any,
+        payload_input: Any,
         output: dict,
         run_id: Optional[UUID] = None,
         **kwargs: Any,
     ) -> Any:
         langfuse_context.update_current_observation(
-            input=input,
+            input=payload_input,
             name=tool_name,
             output=output
         )

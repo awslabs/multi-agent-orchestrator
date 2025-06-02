@@ -10,7 +10,7 @@ class ClassifierCallbacks():
     async def on_classifier_start(
         self,
         name,
-        input: Any,
+        payload_input: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
         metadata: Optional[dict[str, Any]] = None,

@@ -68,7 +68,7 @@ class AgentCallbacks:
     async def on_agent_start(
         self,
         agent_name,
-        input: Any,
+        payload_input: Any,
         messages: list[Any],
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
@@ -84,7 +84,7 @@ class AgentCallbacks:
         Parameters:
             self: The instance of the callback handler class.
             agent_name: Name of the agent that is starting.
-            input: Dictionary containing the agent's input.
+            payload_input: Dictionary containing the agent's input.
             messages: List of message dictionaries representing the conversation history.
             run_id: Unique identifier for this specific agent run.
             tags: Optional list of string tags associated with this agent run.
@@ -130,7 +130,7 @@ class AgentCallbacks:
     async def on_llm_start(
         self,
         name: str,
-        input: Any,
+        payload_input: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
         metadata: Optional[dict[str, Any]] = None,
@@ -145,7 +145,7 @@ class AgentCallbacks:
         Parameters:
             self: The instance of the callback handler class.
             agent_name: Name of the agent that is starting.
-            input: Dictionary containing the agent's input.
+            payload_input: Dictionary containing the agent's input.
             messages: List of message dictionaries representing the conversation history.
             run_id: Unique identifier for this specific agent run.
             tags: Optional list of string tags associated with this agent run.

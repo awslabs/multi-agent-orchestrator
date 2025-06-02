@@ -117,7 +117,7 @@ async def test_process_request(mock_boto3_client):
     mock_callbacks.on_agent_start.assert_called_once()
     start_kwargs = mock_callbacks.on_agent_start.call_args[1]
     assert start_kwargs["agent_name"] == "test_agent"
-    assert start_kwargs["input"] == input_text
+    assert start_kwargs["payload_input"] == input_text
     assert start_kwargs["messages"] == chat_history
     assert start_kwargs["user_id"] == user_id
     assert start_kwargs["session_id"] == session_id

@@ -43,7 +43,7 @@ class AgentToolCallbacks:
     async def on_tool_start(
         self,
         tool_name,
-        input: Any,
+        payload_input: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
         metadata: Optional[dict[str, Any]] = None,
@@ -54,7 +54,7 @@ class AgentToolCallbacks:
     async def on_tool_end(
         self,
         tool_name,
-        input: Any,
+        payload_input: Any,
         output: Any,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
@@ -66,7 +66,7 @@ class AgentToolCallbacks:
     async def on_tool_error(
         self,
         tool_name,
-        input: Any,
+        payload_input: Any,
         error: Exception,
         run_id: Optional[UUID] = None,
         tags: Optional[list[str]] = None,
