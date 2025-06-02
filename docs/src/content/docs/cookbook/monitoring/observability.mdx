@@ -247,10 +247,10 @@ langfuse = Langfuse()
 
 class LangfuseAgentCallbacks(AgentCallbacks):
 
-    async def on_agent_start(self, agent_name, input, messages, **kwargs):
+    async def on_agent_start(self, agent_name, payload_input, messages, **kwargs):
         """Track agent execution start"""
         langfuse_context.update_current_observation(
-            input=input,
+            input=payload_input,
             start_time=datetime.now(timezone.utc),
             name=agent_name,
             tags=kwargs.get('tags'),
@@ -270,7 +270,7 @@ class LangfuseAgentCallbacks(AgentCallbacks):
     @observe(as_type='generation', capture_input=False)
     async def on_llm_end(self, name, output, **kwargs):
         """Track LLM generation with detailed metrics"""
-        input_data = kwargs.get('input', {})
+        input_data = kwargs.get('payload_input', {})
         messages = [{'role': 'system', 'content': input_data.get('system')}]
         messages.extend(input_data.get('messages', []))
 
@@ -289,11 +289,11 @@ class LangfuseAgentCallbacks(AgentCallbacks):
 
 class LangfuseClassifierCallbacks(ClassifierCallbacks):
 
-    async def on_classifier_start(self, name, input, **kwargs):
+    async def on_classifier_start(self, name, payload_input, **kwargs):
         """Track classification start"""
         inputs = [
             {'role': 'system', 'content': kwargs.get('system')},
-            {'role': 'user', 'content': input}
+            {'role': 'user', 'content': payload_input}
         ]
         langfuse_context.update_current_observation(
             name=name,
