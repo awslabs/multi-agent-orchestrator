@@ -5,6 +5,7 @@ from agent_squad.storage import ChatStorage
 from agent_squad.types import ConversationMessage, ParticipantRole, TimestampedMessage
 from agent_squad.utils import Logger, conversation_to_dict
 from operator import attrgetter
+from agent_squad.shared import user_agent
 
 
 class DynamoDbChatStorage(ChatStorage):
@@ -19,6 +20,7 @@ class DynamoDbChatStorage(ChatStorage):
         self.ttl_duration = int(ttl_duration)
         self.dynamodb = boto3.resource('dynamodb', region_name=region)
         self.table = self.dynamodb.Table(table_name)
+        user_agent.register_feature_to_resource(self.dynamodb, feature='storage-ddb')
 
     async def save_chat_message(
         self,
