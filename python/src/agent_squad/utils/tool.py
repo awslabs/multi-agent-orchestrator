@@ -131,7 +131,7 @@ class AgentTool:
             param_descriptions[param_name] = description
 
         properties = {}
-        for param_name, param in sig.parameters.items():
+        for param_name, _param in sig.parameters.items():
             # Skip 'self' parameter for class methods
             if param_name == "self":
                 continue

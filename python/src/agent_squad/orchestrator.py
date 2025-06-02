@@ -139,7 +139,7 @@ class AgentSquad:
                                user_id: str,
                                session_id: str,
                                classifier_result: ClassifierResult,
-                               additional_params: dict[str, str] = {},
+                               additional_params: dict[str, str] | None = None,
                                stream_response: bool | None = False # wether to stream back the response from the agent
     ) -> AgentResponse:
         """Process agent response and handle chat storage."""
@@ -242,11 +242,12 @@ class AgentSquad:
             raise error
 
     async def route_request(self,
-                       user_input: str,
-                       user_id: str,
-                       session_id: str,
-                       additional_params: dict[str, str] = {},
-                       stream_response: bool | None = False) -> AgentResponse:
+                            user_input: str,
+                            user_id: str,
+                            session_id: str,
+                            additional_params: dict[str, str] | None = None,
+                            stream_response: bool | None = False
+    ) -> AgentResponse:
         """Route user request to appropriate agent."""
         self.execution_times.clear()
 
@@ -333,7 +334,10 @@ class AgentSquad:
         )
 
         if not intent_classifier_result or not intent_classifier_result.selected_agent:
-            base_metadata.additional_params['error_type'] = 'classification_failed'
+            if (base_metadata.additional_params):
+                base_metadata.additional_params['error_type'] = 'classification_failed'
+            else:
+                base_metadata.additional_params = {'error_type': 'classification_failed'}
         else:
             base_metadata.agent_id = intent_classifier_result.selected_agent.id
             base_metadata.agent_name = intent_classifier_result.selected_agent.name
