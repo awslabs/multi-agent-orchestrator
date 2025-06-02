@@ -29,7 +29,7 @@ class BedrockFlowsAgent(Agent):
         if options.bedrock_agent_client:
             self.bedrock_agent_client = options.bedrock_agent_client
         else:
-            self.client = boto3.client('bedrock-agent-runtime',
+            self.bedrock_agent_client = boto3.client('bedrock-agent-runtime',
                                        region_name=options.region or os.environ.get('AWS_REGION'))
 
         user_agent.register_feature_to_client(self.bedrock_agent_client, feature="bedrock-flows-agent")
@@ -86,7 +86,7 @@ class BedrockFlowsAgent(Agent):
                 inputs=[
                     {
                         'content': {
-                            'document': self.flow_input_encoder(self, input_text, chat_history=chat_history, user_id=user_id, session_id=session_id, additional_params=additional_params)
+                            'document': self.flow_input_encoder(input_text, chat_history=chat_history, user_id=user_id, session_id=session_id, additional_params=additional_params)
                         },
                         'nodeName': 'FlowInputNode',
                         'nodeOutputName': 'document'
@@ -105,7 +105,7 @@ class BedrockFlowsAgent(Agent):
                 if 'flowOutputEvent' in event:
                     final_response = event['flowOutputEvent']['content']['document']
 
-            bedrock_response = self.flow_output_decoder(self, final_response)
+            bedrock_response = self.flow_output_decoder(final_response)
 
             return bedrock_response
 
