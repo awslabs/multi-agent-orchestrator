@@ -188,7 +188,11 @@ async def test_process_request_single_response():
             stop_sequences=[]
         )
         assert isinstance(response, ConversationMessage)
-        assert response.content[0].get('text') == "Test response"
+        # Fix the assertion to handle MagicMock objects properly
+        if hasattr(response.content[0], 'text'):
+            assert response.content[0].text == "Test response"
+        else:
+            assert response.content[0].get('text') == "Test response"
         assert response.role == ParticipantRole.ASSISTANT.value
 
 
@@ -478,7 +482,10 @@ async def test_handle_single_response_with_tools():
     process_tool_block_mock.assert_called_once()
 
     # Check that the final response is returned
-    assert response.content[0]["text"] == "Final response"
+    if hasattr(response.content[0], 'text'):
+        assert response.content[0].text == "Final response"
+    else:
+        assert response.content[0]["text"] == "Final response"
 
 @pytest.mark.asyncio
 async def test_handle_streaming_response():
