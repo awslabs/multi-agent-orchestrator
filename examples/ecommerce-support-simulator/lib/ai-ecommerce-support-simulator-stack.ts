@@ -29,7 +29,7 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    
+
     const websiteBucket = new s3.Bucket(this, "WebsiteBucket", {
       enforceSSL: true,
       encryption: s3.BucketEncryption.S3_MANAGED,
@@ -150,16 +150,16 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
                   npm_config_cache: `${process.env.HOME}/.npm`, // Use home directory for npm cache
                 },
               };
-        
+
               console.log(`Installing dependencies in ${appPath}...`);
               execSync(`npm --silent --prefix "${appPath}" install`, options);
-        
+
               console.log(`Building project in ${appPath}...`);
               execSync(`npm --silent --prefix "${appPath}" run build`, options);
-        
+
               console.log(`Copying build output from ${buildPath} to ${outputDir}...`);
               Utils.copyDirRecursive(buildPath, outputDir);
-        
+
               return true;
             } catch (e) {
               if (e instanceof Error) {
@@ -172,7 +172,7 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
             }
           },
         },
-        
+
       },
     });
 
@@ -191,18 +191,18 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
             appIdClientRegex: userPoolClient.userPoolClientId,
             defaultAction: appsync.UserPoolDefaultAction.ALLOW,
           },
-        },    
+        },
         additionalAuthorizationModes: [
           {
             authorizationType: appsync.AuthorizationType.IAM,
           },
-        ],        
+        ],
       },
       logConfig: {
         fieldLogLevel: appsync.FieldLogLevel.ALL,
       },
       xrayEnabled: true,
-      
+
     });
 
     const apiPolicyStatement = new iam.PolicyStatement({
@@ -216,7 +216,7 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
         `${api.arn}/types/Subscription/*`,
       ],
     });
-    
+
     identityPool.authenticatedRole.addToPrincipalPolicy(apiPolicyStatement);
 
 
@@ -268,17 +268,17 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
 
     customerIncommingMessagesQueue.grantSendMessages(datasource.grantPrincipal);
     supportIncommingMessagestMessagesQueue.grantSendMessages(datasource.grantPrincipal);
-    
+
 
     const myJsFunction = new appsync.AppsyncFunction(this, 'function', {
-			name: 'my_js_function',
-			api,
-			dataSource: datasource,
-			code: appsync.Code.fromAsset(
-				path.join(__dirname, '../graphql/Query.sendMessage.js')
-			),
-			runtime: appsync.FunctionRuntime.JS_1_0_0,
-		});
+      name: 'my_js_function',
+      api,
+      dataSource: datasource,
+      code: appsync.Code.fromAsset(
+        path.join(__dirname, '../graphql/Query.sendMessage.js')
+      ),
+      runtime: appsync.FunctionRuntime.JS_1_0_0,
+    });
 
     const sendResponseFunction = new appsync.AppsyncFunction(this, 'SendResponseFunction', {
       api: api,
@@ -288,15 +288,15 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
       runtime: appsync.FunctionRuntime.JS_1_0_0,
     });
 
-		const pipelineVars = JSON.stringify({
-			accountId: cdk.Aws.ACCOUNT_ID,
-			customerQueueUrl: customerIncommingMessagesQueue.queueUrl,
-			customerQueueName: customerIncommingMessagesQueue.queueName,
+    const pipelineVars = JSON.stringify({
+      accountId: cdk.Aws.ACCOUNT_ID,
+      customerQueueUrl: customerIncommingMessagesQueue.queueUrl,
+      customerQueueName: customerIncommingMessagesQueue.queueName,
       supportQueueUrl: supportIncommingMessagestMessagesQueue.queueUrl,
       supportQueueName: supportIncommingMessagestMessagesQueue.queueName,
-		});
+    });
 
-    
+
     // Create the pipeline resolver
     new appsync.Resolver(this, 'SendResponseResolver', {
       api: api,
@@ -306,30 +306,30 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
       runtime: appsync.FunctionRuntime.JS_1_0_0,
       pipelineConfig: [sendResponseFunction],
     });
-  
 
-		new appsync.Resolver(this, 'PipelineResolver', {
-			api,
-			typeName: 'Query',
-			fieldName: 'sendMessage',
-			code: appsync.Code.fromInline(`
+
+    new appsync.Resolver(this, 'PipelineResolver', {
+      api,
+      typeName: 'Query',
+      fieldName: 'sendMessage',
+      code: appsync.Code.fromInline(`
             // The before step
             export function request(...args) {
               console.log(args);
               return ${pipelineVars}
             }
-        
+
             // The after step
             export function response(ctx) {
               return ctx.prev.result
             }
           `),
-			runtime: appsync.FunctionRuntime.JS_1_0_0,
-			pipelineConfig: [myJsFunction],
-		});
+      runtime: appsync.FunctionRuntime.JS_1_0_0,
+      pipelineConfig: [myJsFunction],
+    });
 
 
-    
+
     const sessionTable = new dynamodb.Table(this, "SessionTable", {
       partitionKey: { name: "PK", type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -348,6 +348,7 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
         timeout: cdk.Duration.minutes(9),
         runtime: lambda.Runtime.NODEJS_18_X,
         memorySize: 2048,
+        architecture: lambda.Architecture.ARM_64,
         environment: {
           QUEUE_URL: outgoingMessagesQueue.queueUrl,
           HISTORY_TABLE_NAME: sessionTable.tableName,
@@ -393,6 +394,7 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
       {
         entry: path.join(__dirname, "../lambda/supportMessage/index.ts"),
         handler: "handler",
+        architecture: lambda.Architecture.ARM_64,
         timeout: cdk.Duration.seconds(29),
         runtime: lambda.Runtime.NODEJS_18_X,
         environment: {
@@ -401,24 +403,24 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
       }
     );
 
-    
+
     new lambda.EventSourceMapping(this, "CustomerEventSourceMapping", {
       target: customerMessageLambda,
      batchSize: 1,
       eventSourceArn: customerIncommingMessagesQueue.queueArn,
     });
 
-    
+
 
     new lambda.EventSourceMapping(this, "SupportEventSourceMapping", {
       target: supportMessageLambda,
       batchSize: 1,
       eventSourceArn: supportIncommingMessagestMessagesQueue.queueArn,
-    });   
+    });
 
     customerIncommingMessagesQueue.grantConsumeMessages(customerMessageLambda);
     supportIncommingMessagestMessagesQueue.grantConsumeMessages(supportMessageLambda);
-    
+
     outgoingMessagesQueue.grantSendMessages(customerMessageLambda);
     outgoingMessagesQueue.grantSendMessages(supportMessageLambda);
 
@@ -432,6 +434,7 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
         entry: path.join(__dirname, "../lambda/sendResponse/index.ts"),
         handler: "handler",
         runtime: lambda.Runtime.NODEJS_18_X,
+        architecture: lambda.Architecture.ARM_64,
         environment: {
           REGION: cdk.Aws.REGION,
           APPSYNC_API_URL: api.graphqlUrl,
@@ -453,8 +456,8 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
       target: sendResponse,
       batchSize: 1,
       eventSourceArn: outgoingMessagesQueue.queueArn,
-    });   
-    
+    });
+
 
     new cdk.CfnOutput(this, "CloudfrontDomainName", {
       value: distribution.domainName
