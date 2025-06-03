@@ -41,7 +41,7 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
       }),
     });
 
-    const hostingOrigin = new origins.S3Origin(websiteBucket);
+    const hostingOrigin = origins.S3BucketOrigin.withOriginAccessControl(websiteBucket);
 
     const myResponseHeadersPolicy = new cloudfront.ResponseHeadersPolicy(
       this,
@@ -180,7 +180,7 @@ export class AiEcommerceSupportSimulatorStack extends cdk.Stack {
     // Create the AppSync API
     const api = new appsync.GraphqlApi(this, "AiSupportApi", {
       name: "ai-support-api",
-      schema: appsync.SchemaFile.fromAsset(
+      definition: appsync.Definition.fromFile(
         path.join(__dirname, "../", "graphql", "schema.graphql")
       ),
       authorizationConfig: {
