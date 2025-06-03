@@ -1,6 +1,6 @@
 {
   "name": "agent-squad",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Agent Squad framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -38,7 +38,7 @@
     "@aws-sdk/client-lex-runtime-v2": "^3.621.0",
     "@aws-sdk/lib-dynamodb": "^3.621.0",
     "@aws-sdk/util-dynamodb": "^3.621.0",
-    "@libsql/client": "^0.14.0",
+    "@libsql/client": "0.3.3",
     "axios": "^1.7.2",
     "eslint-config-prettier": "^9.1.0",
     "natural": "^7.0.7",
