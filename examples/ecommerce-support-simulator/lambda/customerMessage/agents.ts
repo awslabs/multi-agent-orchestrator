@@ -161,9 +161,10 @@ async function orderManagementToolHandler(
 
   console.log('New message to be added to conversation:', JSON.stringify(message, null, 2));
 
-  conversation.push(message);
   console.log('Updated conversation:', JSON.stringify(conversation, null, 2));
   console.log('orderManagementToolHandler completed');
+
+  return message;
 }
 
 export const orderManagementAgent = new BedrockLLMAgent({
