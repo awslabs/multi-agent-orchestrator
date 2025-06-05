@@ -30,6 +30,12 @@ try:
 except ImportError:
     _OPENAI_AVAILABLE = False
 
+try:
+    from .strands_agent import StrandsAgent
+    _STRANDS_AGENTS_AVAILABLE = True
+except ImportError:
+    _STRANDS_AGENTS_AVAILABLE = False
+
 from .supervisor_agent import SupervisorAgent, SupervisorAgentOptions
 
 __all__ = [
@@ -78,4 +84,9 @@ if _OPENAI_AVAILABLE:
     __all__.extend([
             'OpenAIAgent',
             'OpenAIAgentOptions'
+        ])
+
+if _STRANDS_AGENTS_AVAILABLE:
+    __all__.extend([
+            'StrandsAgent',
         ])
