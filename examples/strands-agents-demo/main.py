@@ -2,7 +2,7 @@
 import uuid
 import asyncio
 import sys
-
+from mcp import stdio_client, StdioServerParameters
 from agent_squad.orchestrator import AgentSquad, AgentSquadConfig
 from agent_squad.agents import (BedrockLLMAgent,
                         BedrockLLMAgentOptions,
@@ -11,15 +11,30 @@ from agent_squad.agents import (BedrockLLMAgent,
                         AgentOptions,
                         StrandsAgent)
 from agent_squad.types import ConversationMessage
-# from strands_agent import StrandsAgent
 from strands.models import BedrockModel
 from strands import tool
 from strands_tools import calculator
+from strands.tools.mcp import MCPClient
 
 import logging
 
 # Configure the root strands logger
 logging.getLogger("strands").setLevel(logging.ERROR)
+
+
+# For macOS/Linux:
+stdio_mcp_client = MCPClient(lambda: stdio_client(
+    StdioServerParameters(
+        command="uvx",
+        args=["awslabs.aws-documentation-mcp-server@latest"]
+    )
+))
+cost_analysis_mcp_client = MCPClient(lambda: stdio_client(
+    StdioServerParameters(
+        command="uvx",
+        args=["awslabs.cost-analysis-mcp-server@latest"]
+    )
+))
 
 @tool
 def get_user_location() -> str:
@@ -113,6 +128,23 @@ if __name__ == "__main__":
     )
 
     orchestrator.add_agent(math_agent)
+
+    # Create AWS Documentation Agent with MCP client
+    aws_documentation_agent = StrandsAgent(
+        options=AgentOptions(
+            name="AWS Documentation Agent",
+            description="Specializes in answering questions about AWS services and cost calculation",
+        ),
+        model=BedrockModel(
+            temperature=0.3,
+            top_p=0.8,
+            streaming=True
+        ),
+        callback_handler=None,
+        mcp_clients=[stdio_mcp_client, cost_analysis_mcp_client],
+    )
+
+    orchestrator.add_agent(aws_documentation_agent)
 
     USER_ID = "user123"
     SESSION_ID = str(uuid.uuid4())

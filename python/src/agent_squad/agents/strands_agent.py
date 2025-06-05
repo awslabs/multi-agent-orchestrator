@@ -35,10 +35,10 @@ class StrandsAgent(Agent):
         system_prompt: Optional[str] = None,
         callback_handler: Optional[Callable] = None,
         conversation_manager: Optional[ConversationManager] = None,
-        max_parallel_tools: Optional[int] = None,
         record_direct_tool_call: bool = True,
         load_tools_from_directory: bool = True,
-        trace_attributes: Optional[Mapping[str, AttributeValue]] = None
+        trace_attributes: Optional[Mapping[str, AttributeValue]] = None,
+        mcp_clients: Optional[List[Any]] = None
     ):
         """
         Initialize the Strands Agent.
@@ -53,12 +53,36 @@ class StrandsAgent(Agent):
         super().__init__(options)
 
         self.streaming = model.get_config().get('streaming', False)
+        self.mcp_clients = mcp_clients or []
+        self.base_tools = tools or []
+        self.strands_agent = None
+        self._mcp_session_active = False
 
-        # Initialize Strands SDK Agent
+        # Start MCP client session if provided
+        if len(self.mcp_clients) > 0:
+            try:
+                for mcp_client in mcp_clients:
+                    mcp_client.start()
+                self._mcp_session_active = True
+                Logger.info(f"Started MCP client session for agent {self.name}")
+            except Exception as e:
+                Logger.error(f"Failed to start MCP client session: {str(e)}")
+                raise
+
+        final_tools = self.base_tools.copy() if self.base_tools else []
+
+        if len(self.mcp_clients) > 0 and self._mcp_session_active:
+            # Pass the MCP client directly to Strands SDK
+            for mcp_client in mcp_clients:
+                mcp_tools = mcp_client.list_tools_sync()
+                final_tools.extend(mcp_tools)
+
+
+        # Initialize the Strands agent with MCP client properly managed
         self.strands_agent: StrandsSDKAgent = StrandsSDKAgent(
             model=model,
             messages=messages,
-            tools=tools,
+            tools=final_tools,
             system_prompt=system_prompt,
             callback_handler=callback_handler,
             conversation_manager=conversation_manager,
@@ -66,6 +90,18 @@ class StrandsAgent(Agent):
             load_tools_from_directory=load_tools_from_directory,
             trace_attributes=trace_attributes
         )
+
+
+    def __del__(self):
+        """Cleanup MCP client session when agent is destroyed."""
+        if hasattr(self, 'mcp_clients') and self.mcp_clients and hasattr(self, '_mcp_session_active') and self._mcp_session_active:
+            try:
+                for mcp_client in self.mcp_clients:
+                    mcp_client.__exit__(None, None, None)
+                self._mcp_session_active = False
+                Logger.info(f"Closed MCP client session for agent {getattr(self, 'name', 'Unknown')}")
+            except Exception as e:
+                Logger.error(f"Error closing MCP client session: {str(e)}")
 
 
     def is_streaming_enabled(self) -> bool:
