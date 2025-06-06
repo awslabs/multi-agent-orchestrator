@@ -45,6 +45,16 @@ class StrandsAgent(Agent):
 
         Args:
             options: Configuration options for the agent
+            model: The LLM model to use (Strands Model object, model name string, or None)
+            messages: Optional initial messages for the conversation
+            tools: Optional list of tools to make available to the agent
+            system_prompt: Optional system prompt to guide the agent's behavior
+            callback_handler: Optional callback handler for agent events
+            conversation_manager: Optional conversation manager for handling conversation state
+            record_direct_tool_call: Whether to record direct tool calls in conversation history
+            load_tools_from_directory: Whether to load tools from directory
+            trace_attributes: Optional trace attributes for observability
+            mcp_clients: Optional list of MCP clients to provide additional tools
 
         Raises:
             ImportError: If Strands SDK is not available
@@ -52,7 +62,11 @@ class StrandsAgent(Agent):
         """
         super().__init__(options)
 
-        self.streaming = model.get_config().get('streaming', False)
+        # Safely get streaming configuration from model if provided
+        self.streaming = False
+        if model is not None and hasattr(model, 'get_config'):
+            self.streaming = model.get_config().get('streaming', False)
+
         self.mcp_clients = mcp_clients or []
         self.base_tools = tools or []
         self.strands_agent = None
@@ -92,16 +106,29 @@ class StrandsAgent(Agent):
         )
 
 
-    def __del__(self):
-        """Cleanup MCP client session when agent is destroyed."""
-        if hasattr(self, 'mcp_clients') and self.mcp_clients and hasattr(self, '_mcp_session_active') and self._mcp_session_active:
+    def close(self):
+        """
+        Explicitly close and cleanup MCP client sessions.
+
+        This method should be called when the agent is no longer needed
+        to ensure proper resource cleanup.
+        """
+        if self.mcp_clients and self._mcp_session_active:
             try:
                 for mcp_client in self.mcp_clients:
                     mcp_client.__exit__(None, None, None)
                 self._mcp_session_active = False
-                Logger.info(f"Closed MCP client session for agent {getattr(self, 'name', 'Unknown')}")
+                Logger.info(f"Closed MCP client session for agent {self.name}")
             except Exception as e:
                 Logger.error(f"Error closing MCP client session: {str(e)}")
+
+    def __del__(self):
+        """Cleanup MCP client session when agent is destroyed."""
+        try:
+            self.close()
+        except Exception as e:
+            # Avoid raising exceptions in __del__
+            Logger.error(f"Error during cleanup in __del__: {str(e)}")
 
 
     def is_streaming_enabled(self) -> bool:
@@ -184,7 +211,7 @@ class StrandsAgent(Agent):
         self,
         input_text: str,
         strands_messages: Messages,
-        agent_tracking_info: dict | None
+        agent_tracking_info: Optional[Dict[str, Any]]
     ) -> AsyncIterable[AgentStreamResponse]:
         """
         Handle streaming response from Strands SDK agent.
@@ -196,13 +223,19 @@ class StrandsAgent(Agent):
 
         Yields:
             AgentStreamResponse objects with text chunks or final message
+
+        Raises:
+            ValueError: If streaming is not supported by the model
+            ConnectionError: If there's an issue with the streaming connection
+            Exception: For other unexpected errors
         """
         try:
             # Set up the Strands agent with current conversation
             self.strands_agent.messages = strands_messages
 
-            accumulated_text = ""
+            # We'll store metadata but avoid accumulating the full text to save memory
             metadata = {}
+            final_text = ""  # Only used for callbacks at the end
 
             kwargs = {
                 "name": self.name,
@@ -216,7 +249,7 @@ class StrandsAgent(Agent):
             async for event in stream:
                 if "data" in event:
                     chunk_text = event["data"]
-                    accumulated_text += chunk_text
+                    final_text += chunk_text  # Only for final callbacks
 
                     # Notify callbacks
                     await self.callbacks.on_llm_new_token(chunk_text)
@@ -229,7 +262,7 @@ class StrandsAgent(Agent):
 
             kwargs = {
                 "name": self.name,
-                "output": accumulated_text,
+                "output": final_text,
                 "usage": metadata.get("usage"),
                 "system": self.strands_agent.system_prompt,
                 "input": input_text,
@@ -240,19 +273,25 @@ class StrandsAgent(Agent):
             # Stream is complete, yield final message
             final_message = ConversationMessage(
                 role=ParticipantRole.ASSISTANT.value,
-                content=[{"text": accumulated_text}]
+                content=[{"text": final_text}]
             )
             yield AgentStreamResponse(final_message=final_message)
 
+        except ConnectionError as error:
+            Logger.error(f"Connection error in streaming response: {str(error)}")
+            raise ConnectionError(f"Streaming connection failed: {str(error)}")
+        except ValueError as error:
+            Logger.error(f"Value error in streaming response: {str(error)}")
+            raise ValueError(f"Streaming configuration error: {str(error)}")
         except Exception as error:
             Logger.error(f"Error in streaming response: {str(error)}")
-            raise error
+            raise
 
     async def _handle_single_response(
         self,
         input_text: str,
         strands_messages: Messages,
-        agent_tracking_info: dict | None
+        agent_tracking_info: Optional[Dict[str, Any]]
     ) -> ConversationMessage:
         """
         Handle single (non-streaming) response from Strands SDK agent.
@@ -264,6 +303,11 @@ class StrandsAgent(Agent):
 
         Returns:
             ConversationMessage response
+
+        Raises:
+            ValueError: If there's an issue with the input parameters
+            RuntimeError: If there's an issue with the Strands agent execution
+            Exception: For other unexpected errors
         """
         try:
             # Set up the Strands agent with current conversation
@@ -294,18 +338,43 @@ class StrandsAgent(Agent):
 
             return response
 
+        except ValueError as error:
+            Logger.error(f"Value error in single response: {str(error)}")
+            raise ValueError(f"Invalid input parameters: {str(error)}")
+        except RuntimeError as error:
+            Logger.error(f"Runtime error in single response: {str(error)}")
+            raise RuntimeError(f"Strands agent execution error: {str(error)}")
         except Exception as error:
             Logger.error(f"Error in single response: {str(error)}")
-            raise error
+            raise
 
     async def _process_with_strategy(
         self,
         streaming: bool,
         input_text: str,
         strands_messages: Messages,
-        agent_tracking_info: dict | None
+        agent_tracking_info: Optional[Dict[str, Any]]
     ) -> Union[ConversationMessage, AsyncIterable[AgentStreamResponse]]:
-        """Process the request using the specified strategy."""
+        """
+        Process the request using the specified strategy (streaming or non-streaming).
+
+        This method routes the request to the appropriate handler based on whether
+        streaming is enabled, and handles callback notifications.
+
+        Args:
+            streaming: Whether to use streaming response
+            input_text: User input text
+            strands_messages: Messages in Strands format
+            agent_tracking_info: Agent tracking information
+
+        Returns:
+            Either a ConversationMessage (non-streaming) or an AsyncIterable of
+            AgentStreamResponse objects (streaming)
+
+        Raises:
+            ValueError: If there's an issue with the input parameters
+            RuntimeError: If there's an issue with the execution
+        """
         if streaming:
             async def stream_generator():
                 async for response in self._handle_streaming_response(
@@ -345,7 +414,7 @@ class StrandsAgent(Agent):
         user_id: str,
         session_id: str,
         chat_history: List[ConversationMessage],
-        additional_params: Optional[dict[str, str]] = None
+        additional_params: Optional[Dict[str, str]] = None
     ) -> Union[ConversationMessage, AsyncIterable[AgentStreamResponse]]:
         """
         Process a user request using the Strands SDK agent.
@@ -359,7 +428,15 @@ class StrandsAgent(Agent):
 
         Returns:
             Either a complete ConversationMessage or an async iterable for streaming
+
+        Raises:
+            ValueError: If input parameters are invalid
+            RuntimeError: If there's an issue with the Strands agent execution
+            Exception: For other unexpected errors
         """
+        if not input_text:
+            raise ValueError("Input text cannot be empty")
+
         try:
             # Prepare callback tracking
             kwargs = {
@@ -379,7 +456,13 @@ class StrandsAgent(Agent):
                 self.streaming, input_text, strands_messages, agent_tracking_info
             )
 
+        except ValueError as error:
+            Logger.error(f"Value error processing request with StrandsAgent: {str(error)}")
+            raise ValueError(f"Invalid input parameters: {str(error)}")
+        except RuntimeError as error:
+            Logger.error(f"Runtime error processing request with StrandsAgent: {str(error)}")
+            raise RuntimeError(f"Strands agent execution error: {str(error)}")
         except Exception as error:
             Logger.error(f"Error processing request with StrandsAgent: {str(error)}")
-            raise error
+            raise
 
