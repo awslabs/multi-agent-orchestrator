@@ -4,8 +4,6 @@ Strands Agent Integration Module
 This module provides integration between Agent-Squad and the Strands SDK,
 allowing use of Strands SDK agents within the Agent-Squad framework.
 """
-import os
-import re
 from typing import Any, Optional, AsyncIterable, Union, List, Dict, Mapping, Callable
 from agent_squad.agents import Agent, AgentOptions, AgentStreamResponse
 from agent_squad.types import ConversationMessage, ParticipantRole
