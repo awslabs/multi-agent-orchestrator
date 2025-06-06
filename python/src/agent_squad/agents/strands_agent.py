@@ -136,10 +136,7 @@ class StrandsAgent(Agent):
             content = []
             if msg.content:
                 for content_block in msg.content:
-                    if isinstance(content_block, dict) and "text" in content_block:
-                        content.append({"text": content_block["text"]})
-                    else:
-                        # Handle other content types if needed
+                    if isinstance(content_block, dict):
                         content.append(content_block)
 
             messages.append({
@@ -215,7 +212,8 @@ class StrandsAgent(Agent):
             await self.callbacks.on_llm_start(**kwargs)
 
             # Use Strands SDK's streaming interface
-            async for event in self.strands_agent.stream_async(input_text):
+            stream = self.strands_agent.stream_async(input_text)
+            async for event in stream:
                 if "data" in event:
                     chunk_text = event["data"]
                     accumulated_text += chunk_text
@@ -227,6 +225,7 @@ class StrandsAgent(Agent):
                     yield AgentStreamResponse(text=chunk_text)
                 elif "event" in event and "metadata" in event["event"]:
                     metadata = event["event"].get("metadata")
+                # Silently ignore malformed events
 
             kwargs = {
                 "name": self.name,
