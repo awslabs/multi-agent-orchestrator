@@ -96,7 +96,7 @@ Analyze the user's input and categorize it into one of the following agent types
 <agents>
 {{AGENT_DESCRIPTIONS}}
 </agents>
-If you are unable to select an agent put "unkwnown"
+If you are unable to select an agent put "unknown"
 
 
 Guidelines for classification:
