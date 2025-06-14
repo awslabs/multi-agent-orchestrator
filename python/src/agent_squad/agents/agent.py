@@ -44,7 +44,9 @@ class AgentStreamResponse:
     """
 
     text: str = ""
+    thinking: Optional[str] = ""
     final_message: Optional[ConversationMessage] = None
+    final_thinking: Optional[str] = None
 
 
 @dataclass

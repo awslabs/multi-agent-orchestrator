@@ -376,6 +376,62 @@ def test_build_input():
     input_data = anthropic_agent._build_input(messages, system_prompt)
     assert input_data["tools"] == claude_format
 
+def test_additional_model_request_fields():
+    """Test that additional_model_request_fields are properly added to the model input."""
+    # Test with thinking parameter
+    thinking_config = {"type": "enabled", "budget_tokens": 2000}
+    options = AnthropicAgentOptions(
+        api_key='test-api-key',
+        name="TestAgent",
+        description="A test agent",
+        additional_model_request_fields={"thinking": thinking_config}
+    )
+
+    anthropic_agent = AnthropicAgent(options)
+    messages = [{"role": "user", "content": "Test message"}]
+    system_prompt = "Test system prompt"
+
+    # Test with thinking
+    input_data = anthropic_agent._build_input(messages, system_prompt)
+    assert input_data["thinking"] == thinking_config
+    
+    # Test with multiple additional fields
+    options = AnthropicAgentOptions(
+        api_key='test-api-key',
+        name="TestAgent",
+        description="A test agent",
+        additional_model_request_fields={
+            "thinking": thinking_config,
+            "custom_param": "custom_value",
+            "metadata": {"source": "unit_test"}
+        }
+    )
+    
+    anthropic_agent = AnthropicAgent(options)
+    input_data = anthropic_agent._build_input(messages, system_prompt)
+    
+    # Verify all additional fields are present
+    assert input_data["thinking"] == thinking_config
+    assert input_data["custom_param"] == "custom_value"
+    assert input_data["metadata"] == {"source": "unit_test"}
+    
+    # Verify priority: additional_model_request_fields should override default values
+    options = AnthropicAgentOptions(
+        api_key='test-api-key',
+        name="TestAgent",
+        description="A test agent",
+        additional_model_request_fields={
+            "temperature": 0.8  # Override default temperature
+        },
+        inference_config={"temperature": 0.5}  # This should be overridden
+    )
+    
+    anthropic_agent = AnthropicAgent(options)
+    input_data = anthropic_agent._build_input(messages, system_prompt)
+    
+    # Verify the additional_model_request_fields value takes precedence
+    assert input_data["temperature"] == 0.8
+
 def test_get_max_recursions():
     options = AnthropicAgentOptions(
         api_key='test-api-key',

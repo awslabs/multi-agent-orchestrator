@@ -11,6 +11,21 @@ from agent_squad.retrievers import Retriever
 
 @dataclass
 class AnthropicAgentOptions(AgentOptions):
+    """
+    Configuration options for the Anthropic agent.
+    
+    Attributes:
+        api_key: Anthropic API key.
+        client: Optional pre-configured Anthropic client instance.
+        model_id: The Anthropic model ID to use.
+        streaming: Whether to enable streaming responses.
+        inference_config: Configuration for the model inference.
+        retriever: Optional retriever for context augmentation.
+        tool_config: Configuration for tools.
+        custom_system_prompt: Custom system prompt configuration.
+        additional_model_request_fields: Additional fields to include in the model request.
+            Use this for model-specific parameters like "thinking".
+    """
     api_key: Optional[str] = None
     client: Optional[Any] = None
     model_id: str = "claude-3-5-sonnet-20240620"
@@ -19,7 +34,7 @@ class AnthropicAgentOptions(AgentOptions):
     retriever: Optional[Retriever] = None
     tool_config: Optional[dict[str, Any] | AgentTools] = None
     custom_system_prompt: Optional[dict[str, Any]] = None
-    thinking: Optional[dict[str, Any]] = None
+    additional_model_request_fields: Optional[dict[str, Any]] = None
 
 
 class AnthropicAgent(Agent):
@@ -59,7 +74,8 @@ class AnthropicAgent(Agent):
         else:
             self.inference_config = default_inference_config
 
-        self.thinking = options.thinking if options.thinking else None
+        # Initialize additional_model_request_fields
+        self.additional_model_request_fields = options.additional_model_request_fields or {}
         self.retriever = options.retriever
         self.tool_config: Optional[dict[str, Any]] = options.tool_config
 
@@ -133,7 +149,17 @@ class AnthropicAgent(Agent):
         raise RuntimeError("Invalid tool config")
 
     def _build_input(self, messages: list[Any], system_prompt: str) -> dict:
-        """Build the conversation command with all necessary configurations."""
+        """
+        Build the conversation command with all necessary configurations.
+        
+        This method constructs the input dictionary for the Anthropic API call, including:
+        - Core parameters (model, tokens, temperature, etc.)
+        - Additional model request fields from options.additional_model_request_fields
+        - Tool configuration if provided
+        
+        Returns:
+            dict: The complete input configuration for the API call
+        """
         input = {
             "model": self.model_id,
             "max_tokens": self.inference_config.get("maxTokens"),
@@ -144,8 +170,10 @@ class AnthropicAgent(Agent):
             "stop_sequences": self.inference_config.get("stopSequences"),
         }
         
-        if self.thinking:
-            input["thinking"] = self.thinking
+        # Add any additional model request fields
+        if self.additional_model_request_fields:
+            for key, value in self.additional_model_request_fields.items():
+                input[key] = value
 
         if self.tool_config:
             input["tools"] = self._prepare_tool_config()
@@ -164,9 +192,10 @@ class AnthropicAgent(Agent):
         """Handle streaming response processing with tool recursion."""
         continue_with_tools = True
         final_response = None
+        accumulated_thinking = ""
 
         async def stream_generator():
-            nonlocal continue_with_tools, final_response, max_recursions
+            nonlocal continue_with_tools, final_response, max_recursions, accumulated_thinking
 
             while continue_with_tools and max_recursions > 0:
                 response = self.handle_streaming_response(input)
@@ -174,7 +203,13 @@ class AnthropicAgent(Agent):
                 async for chunk in response:
                     if chunk.final_message:
                         final_response = chunk.final_message
+                        # Capture final thinking if available
+                        if chunk.final_thinking:
+                            accumulated_thinking = chunk.final_thinking
                     else:
+                        # Accumulate thinking if present in non-final chunks
+                        if chunk.thinking:
+                            accumulated_thinking += chunk.thinking
                         yield chunk
 
                 if final_response and any(hasattr(content, 'type') and content.type == "tool_use" for content in final_response.content):
@@ -192,11 +227,24 @@ class AnthropicAgent(Agent):
                     }
                     await self.callbacks.on_agent_end(**kwargs)
 
+                    # Create content list with text from final_response
+                    content_list = []
+                    
+                    # Add text content, filter out empty items
+                    for content in final_response.content:
+                        if hasattr(content, 'text') and content.text:
+                            content_list.append({"text": content.text})
+                    
+                    # Add thinking to the content if it exists
+                    if accumulated_thinking:
+                        content_list.append({"thinking": accumulated_thinking})
+                    
                     yield AgentStreamResponse(
                         final_message=ConversationMessage(
-                            role=ParticipantRole.ASSISTANT.value, 
-                            content=[{"text": content.text if hasattr(content, 'text') else ""} for content in final_response.content]
-                        )
+                            role=ParticipantRole.ASSISTANT.value,
+                            content=content_list
+                        ),
+                        final_thinking=accumulated_thinking
                     )
 
                 max_recursions -= 1
@@ -320,6 +368,7 @@ class AnthropicAgent(Agent):
         message = {}
         content = []
         accumulated = {}
+        accumulated_thinking = ""
         message["content"] = content
 
         try:
@@ -327,8 +376,9 @@ class AnthropicAgent(Agent):
             async with self.client.messages.stream(**input) as stream:
                 async for event in stream:
                     if event.type == "thinking":
-                        await self.callbacks.on_llm_new_token(event.thinking, thinking=True)
-                        yield AgentStreamResponse(text=event.thinking)
+                        await self.callbacks.on_llm_new_token(token="", thinking=event.thinking)
+                        accumulated_thinking += event.thinking
+                        yield AgentStreamResponse(thinking=event.thinking)
                     elif event.type == "text":
                         await self.callbacks.on_llm_new_token(event.text)
                         yield AgentStreamResponse(text=event.text)
@@ -351,7 +401,8 @@ class AnthropicAgent(Agent):
             # This should be a single yield with the final message
             yield AgentStreamResponse(
                 text="",  # Empty text for the final chunk
-                final_message=accumulated
+                final_message=accumulated,
+                final_thinking=accumulated_thinking
             )
 
             kwargs = {
@@ -371,6 +422,7 @@ class AnthropicAgent(Agent):
                     "stop_sequences": input.get("stop_sequences"),
                     "max_tokens": input.get("max_tokens"),
                 },
+                "final_thinking": accumulated_thinking,
             }
             await self.callbacks.on_llm_end(self.name, output=accumulated, **kwargs)
 
