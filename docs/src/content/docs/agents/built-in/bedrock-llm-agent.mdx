@@ -301,7 +301,7 @@ agent = BedrockLLMAgent(BedrockLLMAgentOptions(
 
 <hr/>
 
-**9. With Reasoning enabled**
+**9. With Thinking enabled**
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">
@@ -315,7 +315,7 @@ agent = BedrockLLMAgent(BedrockLLMAgentOptions(
       maxTokens: 2500,
       temperature: 1, // 1 for thinking and unset topP
     },
-    reasoningConfig: {
+    additional_model_request_fields: {
       thinking: {type: "enabled", budget_tokens: 1024},
     },
     streaming: true,
@@ -334,7 +334,7 @@ agent = BedrockLLMAgent(BedrockLLMAgentOptions(
         model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
         callbacks=LLMAgentCallbacks(),
         inference_config={"maxTokens": 2500, "temperature": 1},
-        reasoning_config={"thinking": {"type": "enabled", "budget_tokens": 2000}},
+        additional_model_request_fields={"thinking": {"type": "enabled", "budget_tokens": 2000}},
     )
   )
   ```
@@ -674,7 +674,7 @@ Choose the approach that best fits your needs:
 | `streaming` | Enables streaming responses for real-time output | Optional |
 | `inference_config` | Fine-tunes the model's output characteristics | Optional |
 | `guardrail_config` | Applies predefined guardrails to the model's responses | Optional |
-| `reasoning_config` | Enables thinking and configuration for budget_tokens | Optional | 
+| `additional_model_request_fields` | Additional fields to send to the model, including thinking capability | Optional | 
 | `retriever` | Integrates a retrieval system for enhanced context | Optional |
 | `tool_config` | Defines tools the agent can use and how to handle their responses | Optional |
 | `custom_system_prompt` | Defines the agent's system prompt and behavior, with optional variables for dynamic content | Optional |
