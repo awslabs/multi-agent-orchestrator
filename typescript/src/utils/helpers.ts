@@ -20,9 +20,8 @@ export class AccumulatorTransform extends Transform {
   }
 
   _transform(chunk: any, encoding: string, callback: TransformCallback): void {
-    // A widget chunk is forwarded to the consumer but never folded into the accumulated text
-    // answer (which is what gets saved to storage).
-    if (chunk && typeof chunk === "object" && chunk.ui) {
+    // Widget and reasoning chunks are forwarded but not folded into the saved text answer.
+    if (chunk && typeof chunk === "object" && (chunk.ui || chunk.thinking)) {
       this.push(chunk);
       callback();
       return;

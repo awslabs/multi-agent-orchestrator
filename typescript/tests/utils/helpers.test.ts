@@ -28,6 +28,25 @@ describe("AccumulatorTransform", () => {
     );
   });
 
+  it("forwards a thinking chunk without folding it into the accumulated text", async () => {
+    const transform = new AccumulatorTransform();
+    const out: unknown[] = [];
+    transform.on("data", (chunk) => out.push(chunk));
+    const done = new Promise<void>((resolve) =>
+      transform.on("end", () => resolve()),
+    );
+    const thinkingChunk = { thinking: true, content: "reasoning" };
+
+    transform.write("answer ");
+    transform.write(thinkingChunk);
+    transform.write("continues");
+    transform.end();
+    await done;
+
+    expect(out).toEqual(["answer ", thinkingChunk, "continues"]);
+    expect(transform.getAccumulatedData()).toBe("answer continues");
+  });
+
   it("accumulates and forwards plain text chunks unchanged", async () => {
     const transform = new AccumulatorTransform();
     const out: string[] = [];
