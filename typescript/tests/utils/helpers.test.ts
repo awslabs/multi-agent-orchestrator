@@ -5,10 +5,14 @@ describe("AccumulatorTransform", () => {
     const transform = new AccumulatorTransform();
     const out: any[] = [];
     transform.on("data", (c) => out.push(c));
-    const done = new Promise<void>((resolve) => transform.on("end", () => resolve()));
+    const done = new Promise<void>((resolve) =>
+      transform.on("end", () => resolve()),
+    );
 
     transform.write("Hello ");
-    transform.write({ ui: { resourceUri: "ui://x", mimeType: "text/html;profile=mcp-app" } });
+    transform.write({
+      ui: { resourceUri: "ui://x", mimeType: "text/html;profile=mcp-app" },
+    });
     transform.write("world");
     transform.end();
     await done;
@@ -19,14 +23,37 @@ describe("AccumulatorTransform", () => {
     const widget = out.find((c) => c && typeof c === "object" && c.ui);
     expect(widget.ui.resourceUri).toBe("ui://x");
     // ...alongside the text chunks.
-    expect(out.filter((c) => typeof c === "string").join("")).toBe("Hello world");
+    expect(out.filter((c) => typeof c === "string").join("")).toBe(
+      "Hello world",
+    );
+  });
+
+  it("forwards a thinking chunk without folding it into the accumulated text", async () => {
+    const transform = new AccumulatorTransform();
+    const out: unknown[] = [];
+    transform.on("data", (chunk) => out.push(chunk));
+    const done = new Promise<void>((resolve) =>
+      transform.on("end", () => resolve()),
+    );
+    const thinkingChunk = { thinking: true, content: "reasoning" };
+
+    transform.write("answer ");
+    transform.write(thinkingChunk);
+    transform.write("continues");
+    transform.end();
+    await done;
+
+    expect(out).toEqual(["answer ", thinkingChunk, "continues"]);
+    expect(transform.getAccumulatedData()).toBe("answer continues");
   });
 
   it("accumulates and forwards plain text chunks unchanged", async () => {
     const transform = new AccumulatorTransform();
     const out: string[] = [];
     transform.on("data", (c) => out.push(c));
-    const done = new Promise<void>((resolve) => transform.on("end", () => resolve()));
+    const done = new Promise<void>((resolve) =>
+      transform.on("end", () => resolve()),
+    );
 
     transform.write("a");
     transform.write("b");
@@ -41,7 +68,9 @@ describe("AccumulatorTransform", () => {
     const transform = new AccumulatorTransform();
     const out: any[] = [];
     transform.on("data", (c) => out.push(c));
-    const done = new Promise<void>((resolve) => transform.on("end", () => resolve()));
+    const done = new Promise<void>((resolve) =>
+      transform.on("end", () => resolve()),
+    );
 
     transform.write({ ui: undefined }); // falsy ui → text path → dropped like any unknown chunk
     transform.write("text");
