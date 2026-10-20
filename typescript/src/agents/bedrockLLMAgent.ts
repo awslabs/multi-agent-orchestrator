@@ -40,7 +40,11 @@ export interface BedrockLLMAgentOptions extends AgentOptions {
   retriever?: Retriever;
   toolConfig?: {
     tool: AgentTools | Tool[];
-    useToolHandler: (response: any, conversation: ConversationMessage[]) => any;
+    useToolHandler: (
+      response: any,
+      conversation: ConversationMessage[],
+      additionalParams?: Record<string, string>
+    ) => any;
     toolMaxRecursions?: number;
   };
   customSystemPrompt?: {
@@ -93,7 +97,8 @@ export class BedrockLLMAgent extends Agent {
     tool: AgentTools | Tool[];
     useToolHandler?: (
       response: any,
-      conversation: ConversationMessage[]
+      conversation: ConversationMessage[],
+      additionalParams?: Record<string, string>
     ) => any;
     toolMaxRecursions?: number;
   };
@@ -269,7 +274,6 @@ export class BedrockLLMAgent extends Agent {
    * @param additionalParams - Optional additional parameters as key-value pairs.
    * @returns A Promise that resolves to a Message object containing the agent's response.
    */
-  /* eslint-disable @typescript-eslint/no-unused-vars */
   async processRequest(
     inputText: string,
     userId: string,
@@ -332,7 +336,7 @@ export class BedrockLLMAgent extends Agent {
       };
 
       if (this.streaming) {
-        return this.handleStreamingResponse(converseCmd);
+        return this.handleStreamingResponse(converseCmd, additionalParams);
       } else {
         let continueWithTools = false;
         let finalMessage: ConversationMessage = {
@@ -357,7 +361,7 @@ export class BedrockLLMAgent extends Agent {
 
             const toolHandler =
               this.toolConfig.useToolHandler ??
-              (async (response, conversationHistory) => {
+              (async (response, conversationHistory, params) => {
                 if (this.isAgentTools(tools)) {
                   return tools.toolHandler(
                     response,
@@ -370,13 +374,15 @@ export class BedrockLLMAgent extends Agent {
                 // Only use legacy handler when it's not AgentTools
                 return this.toolConfig.useToolHandler(
                   response,
-                  conversationHistory
+                  conversationHistory,
+                  params
                 );
               });
 
             const toolResponse = await toolHandler(
               bedrockResponse,
-              conversation
+              conversation,
+              additionalParams
             );
 
             const formattedResponse = this.formatToolResults(toolResponse);
@@ -416,7 +422,10 @@ export class BedrockLLMAgent extends Agent {
     }
   }
 
-  private async *handleStreamingResponse(input: any): AsyncIterable<string | any> {
+  private async *handleStreamingResponse(
+    input: any,
+    additionalParams?: Record<string, string>
+  ): AsyncIterable<string | any> {
     let toolBlock: any = { toolUseId: "", input: {}, name: "" };
     let inputString = "";
     let toolUse = false;
@@ -473,7 +482,7 @@ export class BedrockLLMAgent extends Agent {
             const tools = this.toolConfig.tool;
             const toolHandler =
               this.toolConfig.useToolHandler ??
-              (async (response, conversationHistory) => {
+              (async (response, conversationHistory, params) => {
                 if (this.isAgentTools(tools)) {
                   return tools.toolHandler(
                     response,
@@ -486,11 +495,16 @@ export class BedrockLLMAgent extends Agent {
                 // Only use legacy handler when it's not AgentTools
                 return this.toolConfig.useToolHandler(
                   response,
-                  conversationHistory
+                  conversationHistory,
+                  params
                 );
               });
 
-            const toolResponse = await toolHandler(message, input.messages);
+            const toolResponse = await toolHandler(
+              message,
+              input.messages,
+              additionalParams
+            );
             const formattedResponse = this.formatToolResults(toolResponse);
 
             input.messages.push(formattedResponse);

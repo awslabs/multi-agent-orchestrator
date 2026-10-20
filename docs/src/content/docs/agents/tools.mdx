@@ -237,6 +237,8 @@ When you need more control over tool execution, you can implement a custom handl
 - Parse the tool block directly from your Agent's output
 - Generate and format custom tool responses
 
+In TypeScript, `AnthropicAgent` and `BedrockLLMAgent` call the handler as `useToolHandler(response, conversation, additionalParams)`, where `additionalParams` is the value passed to `routeRequest` (or `processRequest`).
+
 
 <Tabs syncKey="runtime">
   <TabItem label="TypeScript" icon="seti:typescript" color="blue">

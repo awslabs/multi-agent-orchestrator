@@ -16,7 +16,11 @@ export interface AnthropicAgentOptions extends AgentOptions {
   streaming?: boolean;
   toolConfig?: {
     tool: AgentTools | Anthropic.Tool[];
-    useToolHandler: (response: any, conversation: any[]) => any;
+    useToolHandler: (
+      response: any,
+      conversation: any[],
+      additionalParams?: Record<string, string>
+    ) => any;
     toolMaxRecursions?: number;
   };
   // Optional: Configuration for the inference process
@@ -83,7 +87,11 @@ export class AnthropicAgent extends Agent {
 
   public toolConfig?: {
     tool: AgentTools | Anthropic.Tool[];
-    useToolHandler?: (response: any, conversation: any[]) => any;
+    useToolHandler?: (
+      response: any,
+      conversation: any[],
+      additionalParams?: Record<string, string>
+    ) => any;
     toolMaxRecursions?: number;
   };
 
@@ -256,7 +264,7 @@ export class AnthropicAgent extends Agent {
     userId: string,
     sessionId: string,
     chatHistory: ConversationMessage[],
-    _additionalParams?: Record<string, string>
+    additionalParams?: Record<string, string>
   ): Promise<ConversationMessage | AsyncIterable<any>> {
     // Format messages to Anthropic's format
     const messages: Anthropic.MessageParam[] = chatHistory.map((message) => ({
@@ -285,7 +293,11 @@ export class AnthropicAgent extends Agent {
 
     try {
       if (this.streaming) {
-        return this.handleStreamingResponse(messages, systemPrompt);
+        return this.handleStreamingResponse(
+          messages,
+          systemPrompt,
+          additionalParams
+        );
       } else {
         let finalMessage: string = "";
         let thinkingMessage: string = "";
@@ -325,7 +337,7 @@ export class AnthropicAgent extends Agent {
             const tools = this.toolConfig.tool;
             const toolHandler =
               this.toolConfig.useToolHandler ??
-              (async (response, conversationHistory) => {
+              (async (response, conversationHistory, params) => {
                 if (this.isAgentTools(tools)) {
                   return tools.toolHandler(
                     response,
@@ -338,11 +350,16 @@ export class AnthropicAgent extends Agent {
                 // Only use legacy handler when it's not AgentTools
                 return this.toolConfig.useToolHandler(
                   response,
-                  conversationHistory
+                  conversationHistory,
+                  params
                 );
               });
 
-            const toolResponse = await toolHandler(response, messages);
+            const toolResponse = await toolHandler(
+              response,
+              messages,
+              additionalParams
+            );
             const formattedResponse = this.formatToolResults(toolResponse);
 
             // Add the formatted response to messages
@@ -393,7 +410,8 @@ export class AnthropicAgent extends Agent {
 
   private async *handleStreamingResponse(
     messages: any[],
-    prompt: any
+    prompt: any,
+    additionalParams?: Record<string, string>
   ): AsyncIterable<string> {
     let toolUse = false;
     let recursions = this.toolConfig?.toolMaxRecursions || 5;
@@ -462,7 +480,7 @@ export class AnthropicAgent extends Agent {
               const tools = this.toolConfig.tool;
               const toolHandler =
                 this.toolConfig.useToolHandler ??
-                (async (response, conversationHistory) => {
+                (async (response, conversationHistory, params) => {
                   if (this.isAgentTools(tools)) {
                     return tools.toolHandler(
                       response,
@@ -475,11 +493,16 @@ export class AnthropicAgent extends Agent {
                   // Only use legacy handler when it's not AgentTools
                   return this.toolConfig.useToolHandler(
                     response,
-                    conversationHistory
+                    conversationHistory,
+                    params
                   );
                 });
 
-              const toolResponse = await toolHandler(message, messages);
+              const toolResponse = await toolHandler(
+                message,
+                messages,
+                additionalParams
+              );
               const formattedResponse = this.formatToolResults(toolResponse);
 
               // Add the formatted response to messages
