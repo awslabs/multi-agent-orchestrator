@@ -139,7 +139,7 @@ class TestAnthropicClassifier:
 
         assert classifier.inference_config['max_tokens'] == 1000  # default
         assert classifier.inference_config['temperature'] == 0.3  # custom
-        assert classifier.inference_config['top_p'] == 0.9  # default
+        assert classifier.inference_config['top_p'] is None  # default: not sent
         assert classifier.inference_config['stop_sequences'] == []  # default
 
     @patch('agent_squad.classifiers.anthropic_classifier.Anthropic')
@@ -207,8 +207,9 @@ class TestAnthropicClassifier:
 
         assert call_kwargs['model'] == ANTHROPIC_MODEL_ID_CLAUDE_3_5_SONNET
         assert call_kwargs['max_tokens'] == 1000
-        assert call_kwargs['temperature'] == 0.0
-        assert call_kwargs['top_p'] == 0.9
+        # temperature and top_p are not sent unless the caller sets them
+        assert 'temperature' not in call_kwargs
+        assert 'top_p' not in call_kwargs
         assert call_kwargs['messages'] == [{"role": "user", "content": "Test input"}]
         assert call_kwargs['system'] == "You are an AI assistant."
         assert call_kwargs['tools'] == classifier.tools
