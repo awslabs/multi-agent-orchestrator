@@ -60,7 +60,8 @@ export class SqlChatStorage extends ChatStorage {
       }
 
       // Begin transaction
-      await this.client.transaction("write").then(async (tx) => {
+      const tx = await this.client.transaction("write");
+      try {
         // Get the next message index
         const nextIndexResult = await tx.execute({
           sql: /*sql*/`
@@ -119,7 +120,11 @@ export class SqlChatStorage extends ChatStorage {
             ]
           });
         }
-      });
+
+        await tx.commit();
+      } finally {
+        tx.close();
+      }
 
       // Return updated conversation
       return this.fetchChat(userId, sessionId, agentId, maxHistorySize);

@@ -168,6 +168,7 @@ ON conversations(user_id, session_id, agent_id);
 
 - Automatic table and index creation on initialization
 - Built-in transaction support for data consistency
+- In TypeScript, each saved message and any history trimming are committed before returning the updated conversation; failed transactions are rolled back and closed to release the writer lock
 - Efficient query performance through proper indexing
 - Support for message history size limits
 - Automatic JSON serialization/deserialization of message content
