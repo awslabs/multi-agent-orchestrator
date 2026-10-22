@@ -120,7 +120,7 @@ def test_inference_config(mock_anthropic):
     _anthropic_llm_agent = AnthropicAgent(options)
     assert _anthropic_llm_agent.inference_config == {
                 'temperature': 0.5,
-                'topP': 0.9,
+                'topP': None,
                 'topK': 0.5,
                 'maxTokens': 1000,
                 'stopSequences': []
@@ -183,8 +183,6 @@ async def test_process_request_single_response():
             max_tokens=1000,
             messages=[{'role': 'user', 'content': 'Test prompt'}],
             system="You are a TestAgent.\n        A test agent\n        Provide helpful and accurate information based on your expertise.\n        You will engage in an open-ended conversation,\n        providing helpful and accurate information based on your expertise.\n        The conversation will proceed as follows:\n        - The human may ask an initial question or provide a prompt on any topic.\n        - You will provide a relevant and informative response.\n        - The human may then follow up with additional questions or prompts related to your previous\n        response, allowing for a multi-turn dialogue on that topic.\n        - Or, the human may switch to a completely new and unrelated topic at any point.\n        - You will seamlessly shift your focus to the new topic, providing thoughtful and\n        coherent responses based on your broad knowledge base.\n        Throughout the conversation, you should aim to:\n        - Understand the context and intent behind each new question or prompt.\n        - Provide substantive and well-reasoned responses that directly address the query.\n        - Draw insights and connections from your extensive knowledge when appropriate.\n        - Ask for clarification if any part of the question or prompt is ambiguous.\n        - Maintain a consistent, respectful, and engaging tone tailored\n        to the human's communication style.\n        - Seamlessly transition between topics as the human introduces new subjects.",
-            temperature=0.1,
-            top_p=0.9,
             stop_sequences=[]
         )
         assert isinstance(response, ConversationMessage)
@@ -339,6 +337,35 @@ async def test_prepare_tool_config():
     with pytest.raises(RuntimeError, match="Invalid tool config"):
         anthropic_agent._prepare_tool_config()
 
+def test_build_input_default_request_has_no_sampling_params_for_new_claude_models():
+    """Claude Opus 4.7+ and the Claude 5 models reject temperature and top_p."""
+    options = AnthropicAgentOptions(
+        api_key='test-api-key',
+        name="TestAgent",
+        description="A test agent",
+        model_id="claude-opus-5-5",
+    )
+
+    input_data = AnthropicAgent(options)._build_input([{"role": "user", "content": "hi"}], "sys")
+
+    assert "temperature" not in input_data
+    assert "top_p" not in input_data
+
+
+def test_build_input_sends_the_sampling_params_the_caller_sets():
+    options = AnthropicAgentOptions(
+        api_key='test-api-key',
+        name="TestAgent",
+        description="A test agent",
+        inference_config={"temperature": 0.3, "topP": 0.8},
+    )
+
+    input_data = AnthropicAgent(options)._build_input([{"role": "user", "content": "hi"}], "sys")
+
+    assert input_data["temperature"] == 0.3
+    assert input_data["top_p"] == 0.8
+
+
 def test_build_input():
     options = AnthropicAgentOptions(
         api_key='test-api-key',
@@ -358,8 +385,9 @@ def test_build_input():
     assert input_data["max_tokens"] == 1000
     assert input_data["messages"] == messages
     assert input_data["system"] == system_prompt
-    assert input_data["temperature"] == 0.1
-    assert input_data["top_p"] == 0.9
+    # temperature and top_p are not sent unless the caller sets them
+    assert "temperature" not in input_data
+    assert "top_p" not in input_data
     assert input_data["stop_sequences"] == []
     assert "tools" not in input_data
 

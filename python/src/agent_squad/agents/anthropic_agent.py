@@ -65,7 +65,9 @@ class AnthropicAgent(Agent):
 
         self.model_id = options.model_id
 
-        default_inference_config = {"maxTokens": 1000, "temperature": 0.1, "topP": 0.9, "stopSequences": []}
+        # temperature and topP are not sent unless set: newer Claude models reject
+        # both together, and the latest ones reject any non-default value.
+        default_inference_config = {"maxTokens": 1000, "temperature": None, "topP": None, "stopSequences": []}
 
         if options.inference_config:
             self.inference_config = {**default_inference_config, **options.inference_config}
@@ -164,10 +166,13 @@ class AnthropicAgent(Agent):
             "max_tokens": self.inference_config.get("maxTokens"),
             "messages": messages,
             "system": system_prompt,
-            "temperature": self.inference_config.get("temperature"),
-            "top_p": self.inference_config.get("topP"),
             "stop_sequences": self.inference_config.get("stopSequences"),
         }
+
+        if self.inference_config.get("temperature") is not None:
+            json_input["temperature"] = self.inference_config["temperature"]
+        if self.inference_config.get("topP") is not None:
+            json_input["top_p"] = self.inference_config["topP"]
 
         # Add any additional model request fields
         if self.additional_model_request_fields:
